@@ -29,7 +29,7 @@ export default function Popover({ hotspot }) {
     >
       <p>{hotspot.title}</p>
       <ButtonLink variant="popover" href={resolveHref(hotspot.target)}>
-        {hotspot.ctaLabel} →
+        {hotspot.ctaLabel} ↓
       </ButtonLink>
     </div>
   )
