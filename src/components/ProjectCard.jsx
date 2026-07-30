@@ -17,14 +17,14 @@ export default function ProjectCard({ project, size = 'medium' }) {
     >
       <ProjectMedia src={project.thumbnail} alt={project.title} size={size} />
       <div data-component="project-card-content" className="flex flex-1 flex-col gap-2">
-        <div data-component="project-card-meta" className="flex flex-wrap gap-2">
+        <div data-component="project-card-meta" className="flex flex-wrap gap-2 text-body-sm font-normal text-text-secondary">
           {project.tags.map((tag) => (
             <span key={tag}>{tag}</span>
           ))}
           {isNda && <Badge status={project.status} />}
         </div>
-        <h3>{project.title}</h3>
-        <p>{project.description}</p>
+        <h3 className="text-h2 font-semibold">{project.title}</h3>
+        <p className="text-body-lg font-normal">{project.description}</p>
         <div className="mt-auto pt-2">
           <ButtonLink variant="tertiary" {...cardLink}>
             {project.cta}

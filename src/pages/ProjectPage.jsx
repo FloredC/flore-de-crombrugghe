@@ -22,8 +22,8 @@ export default function ProjectPage() {
         <Container className="flex flex-col gap-8">
           <header className="flex flex-col gap-4">
             {project.status === 'full-case-study' && <Badge status={project.status} />}
-            <h1>{project.title}</h1>
-            <div data-component="project-tags" className="flex gap-2">
+            <h1 className="text-h1 font-bold">{project.title}</h1>
+            <div data-component="project-tags" className="flex gap-2 text-body-sm font-normal text-text-secondary">
               {project.tags.map((tag) => (
                 <span key={tag}>{tag}</span>
               ))}

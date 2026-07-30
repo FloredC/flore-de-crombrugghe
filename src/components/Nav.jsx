@@ -13,7 +13,7 @@ export default function Nav() {
       <ButtonLink variant="tertiary" to="/">
         Flore de Crombrugghe
       </ButtonLink>
-      <ul className="flex gap-6" style={{ listStyle: 'none' }}>
+      <ul className="flex gap-6 text-body-sm font-normal" style={{ listStyle: 'none' }}>
         {LINKS.map((link) => (
           <li key={link.href}>
             <a href={link.href}>{link.label}</a>

@@ -9,8 +9,8 @@ export default function Hero() {
   return (
     <section id="hero" data-component="hero" className="flex flex-col gap-8 py-12">
       <Container className="flex flex-col items-start gap-4">
-        <h1>Flore de Crombrugghe</h1>
-        <p>Senior Product Designer</p>
+        <h1 className="text-body font-bold">Flore de Crombrugghe</h1>
+        <p className="text-body font-normal">Senior Product Designer</p>
         <div data-component="hero-ctas" className="flex gap-4">
           <ButtonLink variant="primary" href="#work">
             See the work

@@ -75,4 +75,9 @@ body {
   font-family: 'HK Grotesk', sans-serif;
   color: var(--colors-text-text-primary);
   background: var(--colors-surface-background);
+  /* Desktop/body (18px/1.5) as the base default -- matches Figma's body text
+     style, so unstyled prose (MDX case-study copy, etc.) isn't stuck at the
+     16px browser default until it gets its own explicit type class. */
+  font-size: 18px;
+  line-height: 1.5;
 }

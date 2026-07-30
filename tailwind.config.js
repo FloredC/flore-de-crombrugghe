@@ -6,6 +6,23 @@ export default {
       fontFamily: {
         sans: ['HK Grotesk', 'sans-serif'],
       },
+      // Desktop/* text styles pulled directly from Figma (get_design_context on
+      // sampled nodes: section headers, project card title/description/meta,
+      // contact heading/description, button label, badge label, wayfinding bubble).
+      // Weight is applied separately via font-* utilities alongside these, since
+      // Tailwind's fontSize scale doesn't carry font-weight.
+      // Mobile compression is still an open item (CLAUDE.md flags it unresolved) --
+      // 'caption-sm' below is the one confirmed mobile-named style sampled so far
+      // (Mobile/caption, 12px), not a full mobile scale.
+      fontSize: {
+        h1: ['36px', { lineHeight: '1.4' }],
+        h2: ['32px', { lineHeight: '1.4' }],
+        'body-lg': ['20px', { lineHeight: '1.5' }],
+        body: ['18px', { lineHeight: '1.5' }],
+        'body-sm': ['16px', { lineHeight: '1.4' }],
+        caption: ['14px', { lineHeight: '1.4' }],
+        'caption-sm': ['12px', { lineHeight: '1.4' }],
+      },
       colors: {
         text: {
           primary: 'var(--colors-text-text-primary)',

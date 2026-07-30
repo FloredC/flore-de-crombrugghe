@@ -89,7 +89,7 @@ export default function HomePage() {
 
       <section id="work" data-component="section-work" className="py-20">
         <Container className="flex flex-col gap-12">
-          <h2 className="mb-4">{workSection.sectionHeader}</h2>
+          <h2 className="mb-4 text-h1 font-bold">{workSection.sectionHeader}</h2>
           {workSection.subsections.map((subsection) => (
             <WorkSubsection key={`${subsection.zone}-${subsection.subsection}`} subsection={subsection} />
           ))}
@@ -98,7 +98,7 @@ export default function HomePage() {
 
       <section id="approach" data-component="section-approach" className="py-20">
         <Container className="flex flex-col gap-12">
-          <h2 className="mb-4">{approachSection.sectionHeader}</h2>
+          <h2 className="mb-4 text-h1 font-bold">{approachSection.sectionHeader}</h2>
           {approachSection.subsections.map((subsection) => (
             <ApproachSubsection key={`${subsection.zone}-${subsection.subsection}`} subsection={subsection} />
           ))}
@@ -107,7 +107,7 @@ export default function HomePage() {
 
       <section id="about" data-component="section-about" className="py-20">
         <Container className="flex flex-col gap-8">
-          <h2>{aboutSection.sectionHeader}</h2>
+          <h2 className="text-h1 font-bold">{aboutSection.sectionHeader}</h2>
           <Wayfinding
             zone={aboutSection.zone}
             subsection={aboutSection.subsection}
@@ -132,8 +132,8 @@ export default function HomePage() {
             subsection={contactSection.subsection}
             bubbleCopy={contactSection.bubbleCopy}
           />
-          <h2>{contactSection.heading}</h2>
-          <p>{contactSection.description}</p>
+          <h2 className="text-h2 font-semibold">{contactSection.heading}</h2>
+          <p className="text-body-lg font-normal">{contactSection.description}</p>
           <div className="flex gap-4">
             {contactSection.links.map((link) => (
               <ButtonLink key={link.label} variant="primary" href={link.href}>

@@ -7,8 +7,8 @@ export default function AsideCard({ item }) {
       className="flex flex-col gap-2"
     >
       <img src={item.image} alt={item.title} className="aspect-[4/3] w-full object-cover" />
-      <h4>{item.title}</h4>
-      <p>{item.description}</p>
+      <h4 className="text-body-sm font-semibold">{item.title}</h4>
+      <p className="text-caption font-normal">{item.description}</p>
     </article>
   )
 }

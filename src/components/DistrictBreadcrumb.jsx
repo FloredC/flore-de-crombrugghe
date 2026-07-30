@@ -14,9 +14,9 @@ export default function DistrictBreadcrumb({ zone, subsection }) {
   const icon = DISTRICT_ICON[zone]
 
   return (
-    <div data-district-breadcrumb>
+    <div data-district-breadcrumb className="flex items-center gap-2">
       {icon && <img src={icon} alt="" width={40} height={40} />}
-      <p>
+      <p className="text-caption font-normal">
         You are here: {zone} — {/* TODO(styling stage): subsection in --colors-action-accent-foreground-default, not hardcoded */}
         <span data-accent>{subsection}</span>
       </p>

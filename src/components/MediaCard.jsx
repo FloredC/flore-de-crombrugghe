@@ -10,8 +10,8 @@ export default function MediaCard({ item }) {
           Image placeholder
         </div>
       )}
-      <p>{item.outlet} — {item.date}</p>
-      <h4>
+      <p className="text-caption font-normal">{item.outlet} — {item.date}</p>
+      <h4 className="text-body-sm font-semibold">
         <a href={item.href} target="_blank" rel="noreferrer">
           {item.title}
         </a>
