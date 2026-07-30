@@ -1,0 +1,82 @@
+[
+  {
+    "id": "hotspot-artifakt",
+    "type": "link",
+    "title": "Artifakt — Tracing Your Way Past the Blank Canvas",
+    "ctaLabel": "View project",
+    "target": { "kind": "project", "slug": "artifakt" },
+    "x": 20,
+    "y": 50
+  },
+  {
+    "id": "hotspot-pitchpivot",
+    "type": "link",
+    "title": "PitchPivot — Design Reasoning for Business Impact",
+    "ctaLabel": "View project",
+    "target": { "kind": "project", "slug": "pitchpivot" },
+    "x": 30,
+    "y": 50
+  },
+  {
+    "id": "hotspot-myride",
+    "type": "link",
+    "title": "myRIDE — Pricing UX for a 3,000-person pilot",
+    "ctaLabel": "View project",
+    "target": { "kind": "project", "slug": "myride" },
+    "x": 40,
+    "y": 50
+  },
+  {
+    "id": "hotspot-rega",
+    "type": "link",
+    "title": "Redesigning Rega's app for 1.1M+ users",
+    "ctaLabel": "View project",
+    "target": { "kind": "project", "slug": "rega" },
+    "x": 50,
+    "y": 50
+  },
+  {
+    "id": "hotspot-trail-app",
+    "type": "link",
+    "title": "Faster trail discovery for 80k users",
+    "ctaLabel": "View project",
+    "target": { "kind": "project", "slug": "trail-app" },
+    "x": 60,
+    "y": 50
+  },
+  {
+    "id": "hotspot-future-of-ux",
+    "type": "link",
+    "title": "The Future of UX — podcast, episode 140",
+    "ctaLabel": "Listen",
+    "target": { "kind": "external", "href": "PLACEHOLDER_PODCAST_EPISODE_URL" },
+    "x": 70,
+    "y": 50
+  },
+  {
+    "id": "hotspot-language-river",
+    "type": "link",
+    "title": "My Language River",
+    "ctaLabel": "Explore",
+    "target": { "kind": "anchor", "href": "#about" },
+    "x": 20,
+    "y": 70
+  },
+  {
+    "id": "hotspot-papayas",
+    "type": "link",
+    "title": "333 Saftige Papayas",
+    "ctaLabel": "Read more",
+    "target": { "kind": "anchor", "href": "#about" },
+    "x": 30,
+    "y": 70
+  },
+  {
+    "id": "hotspot-say-hi",
+    "type": "contact",
+    "title": "Say hi!",
+    "email": "flore.decrombrugghe@gmail.com",
+    "x": 40,
+    "y": 70
+  }
+]
