@@ -1,17 +1,23 @@
 import { useState } from 'react'
 
 export default function CopyButton({ value }) {
-  const [copied, setCopied] = useState(false)
+  const [status, setStatus] = useState('idle') // 'idle' | 'copied' | 'failed'
 
   async function handleCopy() {
-    await navigator.clipboard.writeText(value)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    try {
+      await navigator.clipboard.writeText(value)
+      setStatus('copied')
+    } catch {
+      setStatus('failed')
+    }
+    setTimeout(() => setStatus('idle'), 2000)
   }
+
+  const label = { idle: 'Copy', copied: 'Copied', failed: 'Copy failed' }[status]
 
   return (
     <button type="button" onClick={handleCopy} aria-label="Copy email address">
-      {copied ? 'Copied' : 'Copy'}
+      {label}
     </button>
   )
 }

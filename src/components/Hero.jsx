@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import heroMapBackground from '../assets/illustrations/hero-map-background.svg'
 import PanZoomContainer from './PanZoomContainer'
 import Hotspot from './Hotspot'
@@ -6,6 +7,10 @@ import Container from './Container'
 import { hotspots } from '../lib/content'
 
 export default function Hero() {
+  // Lifted here (rather than local state per Hotspot) so opening one popover
+  // closes any other that's open -- "only one popover open at a time" per spec.
+  const [activeHotspotId, setActiveHotspotId] = useState(null)
+
   return (
     <section id="hero" data-component="hero" className="flex flex-col gap-8 py-12">
       <Container className="flex flex-col items-start gap-4">
@@ -28,7 +33,12 @@ export default function Hero() {
             className="w-full"
           />
           {hotspots.map((hotspot) => (
-            <Hotspot key={hotspot.id} hotspot={hotspot} />
+            <Hotspot
+              key={hotspot.id}
+              hotspot={hotspot}
+              isOpen={activeHotspotId === hotspot.id}
+              onOpenChange={(open) => setActiveHotspotId(open ? hotspot.id : null)}
+            />
           ))}
         </div>
       </PanZoomContainer>

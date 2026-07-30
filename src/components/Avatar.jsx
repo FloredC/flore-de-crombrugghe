@@ -1,12 +1,13 @@
-/**
- * PLACEHOLDER: real avatar illustration SVGs (variant=hero, sections-left, sections-right)
- * haven't been exported from Figma yet — ask Flore for them rather than fabricating art.
- * Renders a labeled placeholder box in the meantime so layout/spacing can still be built.
- */
+import avatarHero from '../assets/illustrations/avatar-hero.svg'
+import avatarSectionsLeft from '../assets/illustrations/avatar-sections-left.svg'
+import avatarSectionsRight from '../assets/illustrations/avatar-sections-right.svg'
+
+const AVATAR_IMAGE = {
+  hero: avatarHero,
+  'sections-left': avatarSectionsLeft,
+  'sections-right': avatarSectionsRight,
+}
+
 export default function Avatar({ variant = 'hero' }) {
-  return (
-    <div role="img" aria-label={`Avatar illustration (${variant}) — placeholder, pending export`} data-avatar-variant={variant}>
-      Avatar
-    </div>
-  )
+  return <img src={AVATAR_IMAGE[variant]} alt="" data-avatar-variant={variant} />
 }
