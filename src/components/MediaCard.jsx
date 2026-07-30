@@ -1,12 +1,12 @@
 export default function MediaCard({ item }) {
   return (
-    <article data-component="media-card" data-variant={item.variant}>
+    <article data-component="media-card" data-variant={item.variant} className="flex flex-col gap-2">
       {item.variant === 'embed' ? (
-        <div data-component="media-embed" style={{ aspectRatio: '16 / 9' }}>
+        <div data-component="media-embed" className="flex aspect-video items-center justify-center border border-dashed border-gray-300">
           Embed placeholder
         </div>
       ) : (
-        <div data-component="media-image" style={{ aspectRatio: '4 / 3' }}>
+        <div data-component="media-image" className="flex aspect-[4/3] items-center justify-center border border-dashed border-gray-300">
           Image placeholder
         </div>
       )}

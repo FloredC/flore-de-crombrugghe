@@ -9,11 +9,11 @@ const LINKS = [
 
 export default function Nav() {
   return (
-    <nav data-component="nav">
+    <nav data-component="nav" className="flex items-center justify-between px-6 py-6">
       <ButtonLink variant="tertiary" to="/">
         Flore de Crombrugghe
       </ButtonLink>
-      <ul style={{ display: 'flex', gap: 16, listStyle: 'none' }}>
+      <ul className="flex gap-6" style={{ listStyle: 'none' }}>
         {LINKS.map((link) => (
           <li key={link.href}>
             <a href={link.href}>{link.label}</a>

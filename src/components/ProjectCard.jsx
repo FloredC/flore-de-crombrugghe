@@ -13,11 +13,11 @@ export default function ProjectCard({ project, size = 'medium' }) {
       id={`project-${project.slug}`}
       data-component="project-card"
       data-size={size}
-      style={{ display: 'flex', flexDirection: 'column', width: '100%' }}
+      className="flex w-full min-w-0 flex-col gap-4"
     >
       <ProjectMedia src={project.thumbnail} alt={project.title} size={size} />
-      <div data-component="project-card-content" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div data-component="project-card-meta" style={{ display: 'flex', gap: 8 }}>
+      <div data-component="project-card-content" className="flex flex-1 flex-col gap-2">
+        <div data-component="project-card-meta" className="flex flex-wrap gap-2">
           {project.tags.map((tag) => (
             <span key={tag}>{tag}</span>
           ))}
@@ -25,7 +25,7 @@ export default function ProjectCard({ project, size = 'medium' }) {
         </div>
         <h3>{project.title}</h3>
         <p>{project.description}</p>
-        <div style={{ marginTop: 'auto' }}>
+        <div className="mt-auto pt-2">
           <ButtonLink variant="tertiary" {...cardLink}>
             {project.cta}
           </ButtonLink>

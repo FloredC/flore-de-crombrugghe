@@ -13,7 +13,7 @@ export default function Wayfinding({
   if (hidden) return null
 
   return (
-    <div data-component="wayfinding">
+    <div data-component="wayfinding" className="flex flex-wrap items-center gap-4">
       <Avatar variant={avatarVariant} />
       <SpeechBubble variant={bubbleVariant}>{bubbleCopy}</SpeechBubble>
       <DistrictBreadcrumb zone={zone} subsection={subsection} />
