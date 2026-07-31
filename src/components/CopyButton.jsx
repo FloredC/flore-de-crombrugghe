@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { CopyIcon } from './icons'
 
 export default function CopyButton({ value }) {
   const [status, setStatus] = useState('idle') // 'idle' | 'copied' | 'failed'
@@ -13,11 +14,11 @@ export default function CopyButton({ value }) {
     setTimeout(() => setStatus('idle'), 2000)
   }
 
-  const label = { idle: 'Copy', copied: 'Copied', failed: 'Copy failed' }[status]
+  const label = { idle: 'Copy email address', copied: 'Copied', failed: 'Copy failed' }[status]
 
   return (
-    <button type="button" onClick={handleCopy} aria-label="Copy email address">
-      {label}
+    <button type="button" onClick={handleCopy} aria-label={label} title={label} className="inline-flex w-fit">
+      <CopyIcon width={20} height={20} />
     </button>
   )
 }
