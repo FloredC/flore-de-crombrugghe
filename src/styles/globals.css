@@ -1,10 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @import './tokens/primitives.css';
 @import './tokens/semantic.css';
 @import './tokens/components.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @font-face {
   font-family: 'HK Grotesk';
