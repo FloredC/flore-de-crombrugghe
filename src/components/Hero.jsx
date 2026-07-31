@@ -5,6 +5,7 @@ import Hotspot from './Hotspot'
 import ButtonLink from './ButtonLink'
 import Container from './Container'
 import { hotspots } from '../lib/content'
+import { hotspotHighlights } from '../lib/hotspotHighlights'
 
 export default function Hero() {
   // Lifted here (rather than local state per Hotspot) so opening one popover
@@ -32,6 +33,16 @@ export default function Hero() {
             alt="Illustrated map of Flore's work, click the markers to explore"
             className="w-full"
           />
+          {Object.entries(hotspotHighlights).map(([id, src]) => (
+            <img
+              key={id}
+              src={src}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 h-full w-full transition-opacity duration-150"
+              style={{ opacity: activeHotspotId === id ? 1 : 0 }}
+            />
+          ))}
           {hotspots.map((hotspot) => (
             <Hotspot
               key={hotspot.id}
