@@ -25,8 +25,14 @@ import Popover from './Popover'
  * Only one popover open at a time — open state is lifted to Hero.
  * Marker hit target is fixed 44x44px per WCAG 2.2 / Apple HIG, independent of
  * the 18px visual dot and of illustration scale.
+ * The marker sits beside its illustrated hotspot (offset via markerSide), not
+ * centered on top of it -- centering directly on it occludes the illustration.
  */
+const MARKER_OFFSET_PX = 26
+
 export default function Hotspot({ hotspot, isOpen, onOpenChange }) {
+  const side = hotspot.markerSide === 'left' ? 'left' : 'right'
+  const sideSign = side === 'left' ? -1 : 1
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
     onOpenChange,
@@ -49,8 +55,13 @@ export default function Hotspot({ hotspot, isOpen, onOpenChange }) {
     <div
       data-component="hotspot"
       data-hotspot-id={hotspot.id}
-      className="absolute -translate-x-1/2 -translate-y-1/2"
-      style={{ left: `${hotspot.x}%`, top: `${hotspot.y}%` }}
+      data-marker-side={side}
+      className="absolute"
+      style={{
+        left: `${hotspot.x}%`,
+        top: `${hotspot.y}%`,
+        transform: `translate(calc(-50% + ${sideSign * MARKER_OFFSET_PX}px), -50%)`,
+      }}
     >
       <button
         ref={refs.setReference}
@@ -61,7 +72,7 @@ export default function Hotspot({ hotspot, isOpen, onOpenChange }) {
         aria-expanded={isOpen}
         {...getReferenceProps()}
       >
-        <span data-hotspot-dot className="rounded-full bg-gray-900" style={{ width: 18, height: 18 }} />
+        <span data-hotspot-dot className="rounded-full bg-action-accent-foreground" style={{ width: 18, height: 18 }} />
       </button>
       {isMounted && (
         <FloatingPortal>

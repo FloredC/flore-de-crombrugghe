@@ -6,7 +6,8 @@
     "ctaLabel": "View project",
     "target": { "kind": "project", "slug": "artifakt" },
     "x": 42.0,
-    "y": 43.4
+    "y": 43.4,
+    "markerSide": "right"
   },
   {
     "id": "hotspot-pitchpivot",
@@ -15,7 +16,8 @@
     "ctaLabel": "View project",
     "target": { "kind": "project", "slug": "pitchpivot" },
     "x": 48.3,
-    "y": 29.0
+    "y": 29.0,
+    "markerSide": "right"
   },
   {
     "id": "hotspot-myride",
@@ -24,7 +26,8 @@
     "ctaLabel": "View project",
     "target": { "kind": "project", "slug": "myride" },
     "x": 57.8,
-    "y": 42.4
+    "y": 42.4,
+    "markerSide": "right"
   },
   {
     "id": "hotspot-rega",
@@ -33,7 +36,8 @@
     "ctaLabel": "View project",
     "target": { "kind": "project", "slug": "rega" },
     "x": 81.6,
-    "y": 6.9
+    "y": 6.9,
+    "markerSide": "left"
   },
   {
     "id": "hotspot-trail-app",
@@ -42,7 +46,8 @@
     "ctaLabel": "View project",
     "target": { "kind": "project", "slug": "trail-app" },
     "x": 19.3,
-    "y": 46.3
+    "y": 46.3,
+    "markerSide": "right"
   },
   {
     "id": "hotspot-future-of-ux",
@@ -51,7 +56,8 @@
     "ctaLabel": "Listen",
     "target": { "kind": "external", "href": "PLACEHOLDER_PODCAST_EPISODE_URL" },
     "x": 52.9,
-    "y": 65.2
+    "y": 65.2,
+    "markerSide": "right"
   },
   {
     "id": "hotspot-language-river",
@@ -60,7 +66,8 @@
     "ctaLabel": "Explore",
     "target": { "kind": "anchor", "href": "#about" },
     "x": 18.2,
-    "y": 72.5
+    "y": 72.5,
+    "markerSide": "right"
   },
   {
     "id": "hotspot-papayas",
@@ -69,7 +76,8 @@
     "ctaLabel": "Read more",
     "target": { "kind": "anchor", "href": "#about" },
     "x": 37.7,
-    "y": 85.1
+    "y": 85.1,
+    "markerSide": "right"
   },
   {
     "id": "hotspot-say-hi",
@@ -77,6 +85,7 @@
     "title": "Say hi!",
     "email": "flore.decrombrugghe@gmail.com",
     "x": 61.1,
-    "y": 57.5
+    "y": 57.5,
+    "markerSide": "right"
   }
 ]
