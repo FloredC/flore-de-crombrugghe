@@ -11,11 +11,15 @@ function resolveHref(target) {
 // (--spaces/8), padding 12px (--spaces/12), backdrop-blur 3.5px, drop shadow
 // 0/0/5/0 black 25% (note: a screenshot Flore shared separately showed
 // Blur:10 -- flagging the mismatch, using this node's own value here).
-// Figma's own fill for this node is fully opaque white with no alpha, which
-// per CLAUDE.md's own note means backdrop-blur would show nothing at all --
-// bg-white/90 here is a guess to make the blur visible, not a sampled
-// fill-opacity value. Still need the real fill-opacity % from Flore.
-const POPOVER_SURFACE_CLASS = 'rounded-[8px] bg-white/90 shadow-[0px_0px_5px_0px_rgba(0,0,0,0.25)]'
+// Fill opacity is still a guess (Figma's own export shows fully opaque, which
+// per CLAUDE.md's note would make backdrop-blur invisible -- can't be
+// literally true if blur is meant to show). Confirmed via an isolated overlay
+// test directly on this map's line art that backdrop-filter renders correctly
+// at this blur radius; bg-white/90 was just too subtle against thin, sparse
+// line work to notice. bg-white/70 makes it visibly perceptible without
+// looking like a different fill color -- still not a sampled opacity value,
+// flagged for Flore to confirm/adjust once she has the real Figma number.
+const POPOVER_SURFACE_CLASS = 'rounded-[8px] bg-white/70 shadow-[0px_0px_5px_0px_rgba(0,0,0,0.25)]'
 
 // Tailwind's backdrop-blur-* utility only emits unprefixed backdrop-filter --
 // this build's autoprefixer config isn't adding -webkit-backdrop-filter, which
