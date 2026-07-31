@@ -72,7 +72,11 @@ export default function Hotspot({ hotspot, isOpen, onOpenChange }) {
         aria-expanded={isOpen}
         {...getReferenceProps()}
       >
-        <span data-hotspot-dot className="rounded-full bg-action-accent-foreground" style={{ width: 18, height: 18 }} />
+        <span
+          data-hotspot-dot
+          className="rounded-full border-2 border-white bg-action-accent-foreground"
+          style={{ width: 18, height: 18, boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.25)' }}
+        />
       </button>
       {isMounted && (
         <FloatingPortal>
