@@ -17,8 +17,14 @@ export default function CopyButton({ value }) {
   const label = { idle: 'Copy email address', copied: 'Copied', failed: 'Copy failed' }[status]
 
   return (
-    <button type="button" onClick={handleCopy} aria-label={label} title={label} className="inline-flex w-fit">
-      <CopyIcon width={20} height={20} />
+    <button
+      type="button"
+      onClick={handleCopy}
+      aria-label={label}
+      title={label}
+      className="inline-flex w-fit text-action-accent-foreground hover:text-action-accent-foreground-hover active:text-action-accent-foreground-pressed"
+    >
+      <CopyIcon width={16} height={16} />
     </button>
   )
 }

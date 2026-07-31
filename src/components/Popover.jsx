@@ -7,11 +7,16 @@ function resolveHref(target) {
   return target.href
 }
 
-// Background must be semi-transparent for backdrop-blur to be visible at all
-// (opaque bg would just hide it) -- 90% white is a reasonable default, not a
-// sampled Figma fill-opacity value, flagged for Flore to confirm/adjust.
+// Sampled directly from the Figma "Hotspot Popover" node: radius 8px
+// (--spaces/8), padding 12px (--spaces/12), backdrop-blur 3.5px, drop shadow
+// 0/0/5/0 black 25% (note: a screenshot Flore shared separately showed
+// Blur:10 -- flagging the mismatch, using this node's own value here).
+// Figma's own fill for this node is fully opaque white with no alpha, which
+// per CLAUDE.md's own note means backdrop-blur would show nothing at all --
+// bg-white/90 here is a guess to make the blur visible, not a sampled
+// fill-opacity value. Still need the real fill-opacity % from Flore.
 const POPOVER_SURFACE_CLASS =
-  'rounded border border-gray-300 bg-white/90 backdrop-blur-[7px] shadow-[0px_0px_10px_0px_rgba(0,0,0,0.25)]'
+  'rounded-[8px] bg-white/90 backdrop-blur-[3.5px] shadow-[0px_0px_5px_0px_rgba(0,0,0,0.25)]'
 
 export default function Popover({ hotspot }) {
   if (hotspot.type === 'contact') {
@@ -19,11 +24,13 @@ export default function Popover({ hotspot }) {
       <div
         data-component="popover"
         data-popover-variant="contact"
-        className={`flex w-56 flex-col gap-2 p-4 ${POPOVER_SURFACE_CLASS}`}
+        className={`flex w-56 flex-col gap-4 p-3 ${POPOVER_SURFACE_CLASS}`}
       >
-        <p>{hotspot.title}</p>
-        <p>{hotspot.email}</p>
-        <CopyButton value={hotspot.email} />
+        <p className="text-[14px] font-semibold">{hotspot.title}</p>
+        <div className="flex items-center gap-1">
+          <p className="text-[14px] font-semibold">{hotspot.email}</p>
+          <CopyButton value={hotspot.email} />
+        </div>
       </div>
     )
   }
@@ -32,12 +39,14 @@ export default function Popover({ hotspot }) {
     <div
       data-component="popover"
       data-popover-variant="link"
-      className={`flex w-56 flex-col gap-2 p-4 ${POPOVER_SURFACE_CLASS}`}
+      className={`flex w-56 flex-col gap-4 p-3 ${POPOVER_SURFACE_CLASS}`}
     >
-      <p>{hotspot.title}</p>
-      <ButtonLink variant="popover" href={resolveHref(hotspot.target)} className="flex items-center gap-1">
-        {hotspot.ctaLabel}
-        <ArrowDownIcon width={16} height={16} />
+      <p className="text-[14px] font-semibold">{hotspot.title}</p>
+      <ButtonLink variant="popover" href={resolveHref(hotspot.target)} className="w-fit">
+        <span className="flex items-center gap-1">
+          {hotspot.ctaLabel}
+          <ArrowDownIcon width={14} height={14} />
+        </span>
       </ButtonLink>
     </div>
   )
