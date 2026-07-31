@@ -5,8 +5,8 @@
     "title": "Artifakt — Tracing Your Way Past the Blank Canvas",
     "ctaLabel": "View project",
     "target": { "kind": "project", "slug": "artifakt" },
-    "x": 39.9,
-    "y": 43.9
+    "x": 42.0,
+    "y": 43.4
   },
   {
     "id": "hotspot-pitchpivot",
@@ -14,8 +14,8 @@
     "title": "PitchPivot — Design Reasoning for Business Impact",
     "ctaLabel": "View project",
     "target": { "kind": "project", "slug": "pitchpivot" },
-    "x": 47.3,
-    "y": 26.3
+    "x": 48.3,
+    "y": 29.0
   },
   {
     "id": "hotspot-myride",
@@ -23,8 +23,8 @@
     "title": "myRIDE — Pricing UX for a 3,000-person pilot",
     "ctaLabel": "View project",
     "target": { "kind": "project", "slug": "myride" },
-    "x": 57.6,
-    "y": 40.3
+    "x": 57.8,
+    "y": 42.4
   },
   {
     "id": "hotspot-rega",
@@ -32,8 +32,8 @@
     "title": "Redesigning Rega's app for 1.1M+ users",
     "ctaLabel": "View project",
     "target": { "kind": "project", "slug": "rega" },
-    "x": 85.9,
-    "y": 3.5
+    "x": 81.6,
+    "y": 6.9
   },
   {
     "id": "hotspot-trail-app",
@@ -41,8 +41,8 @@
     "title": "Faster trail discovery for 80k users",
     "ctaLabel": "View project",
     "target": { "kind": "project", "slug": "trail-app" },
-    "x": 13.8,
-    "y": 46.0
+    "x": 19.3,
+    "y": 46.3
   },
   {
     "id": "hotspot-future-of-ux",
@@ -50,8 +50,8 @@
     "title": "The Future of UX — podcast, episode 140",
     "ctaLabel": "Listen",
     "target": { "kind": "external", "href": "PLACEHOLDER_PODCAST_EPISODE_URL" },
-    "x": 52.5,
-    "y": 65.1
+    "x": 52.9,
+    "y": 65.2
   },
   {
     "id": "hotspot-language-river",
@@ -59,8 +59,8 @@
     "title": "My Language River",
     "ctaLabel": "Explore",
     "target": { "kind": "anchor", "href": "#about" },
-    "x": 12.3,
-    "y": 72.1
+    "x": 18.2,
+    "y": 72.5
   },
   {
     "id": "hotspot-papayas",
@@ -68,15 +68,15 @@
     "title": "333 Saftige Papayas",
     "ctaLabel": "Read more",
     "target": { "kind": "anchor", "href": "#about" },
-    "x": 33.2,
-    "y": 85.3
+    "x": 37.7,
+    "y": 85.1
   },
   {
     "id": "hotspot-say-hi",
     "type": "contact",
     "title": "Say hi!",
     "email": "flore.decrombrugghe@gmail.com",
-    "x": 62.0,
-    "y": 56.4
+    "x": 61.1,
+    "y": 57.5
   }
 ]

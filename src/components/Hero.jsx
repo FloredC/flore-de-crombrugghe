@@ -33,6 +33,18 @@ export default function Hero() {
             alt="Illustrated map of Flore's work, click the markers to explore"
             className="w-full"
           />
+          {/* Highlights must paint above the markers -- each highlight is a small
+              accent (roughly marker-sized) positioned at/near its marker, not a
+              big color wash, so it needs to sit on top or the marker dot covers
+              it entirely. */}
+          {hotspots.map((hotspot) => (
+            <Hotspot
+              key={hotspot.id}
+              hotspot={hotspot}
+              isOpen={activeHotspotId === hotspot.id}
+              onOpenChange={(open) => setActiveHotspotId(open ? hotspot.id : null)}
+            />
+          ))}
           {Object.entries(hotspotHighlights).map(([id, src]) => (
             <img
               key={id}
@@ -41,14 +53,6 @@ export default function Hero() {
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 h-full w-full transition-opacity duration-150"
               style={{ opacity: activeHotspotId === id ? 1 : 0 }}
-            />
-          ))}
-          {hotspots.map((hotspot) => (
-            <Hotspot
-              key={hotspot.id}
-              hotspot={hotspot}
-              isOpen={activeHotspotId === hotspot.id}
-              onOpenChange={(open) => setActiveHotspotId(open ? hotspot.id : null)}
             />
           ))}
         </div>
