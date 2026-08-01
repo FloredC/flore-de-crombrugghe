@@ -70,6 +70,17 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+/* Sticky nav docks to the top once scrolled past -- without this, jumping to
+   an anchor lands its heading right under/behind the nav. Value is the nav's
+   own rendered height (58px avatar + padding) plus breathing room. */
+section[id] {
+  scroll-margin-top: 120px;
+}
+
 body {
   margin: 0;
   font-family: 'HK Grotesk', sans-serif;

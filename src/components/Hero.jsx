@@ -4,8 +4,18 @@ import PanZoomContainer from './PanZoomContainer'
 import Hotspot from './Hotspot'
 import ButtonLink from './ButtonLink'
 import Container from './Container'
+import Avatar from './Avatar'
+import SpeechBubble from './SpeechBubble'
 import { hotspots } from '../lib/content'
 import { hotspotHighlights } from '../lib/hotspotHighlights'
+
+// Real copy sampled from Figma's Hero "Guide" component -- not placeholder.
+const GREETING = (
+  <>
+    Hi, thanks for visiting my city —<br />I design consumer apps and internal tools for high-stakes, large-scale
+    services.
+  </>
+)
 
 export default function Hero() {
   // Lifted here (rather than local state per Hotspot) so opening one popover
@@ -15,6 +25,10 @@ export default function Hero() {
   return (
     <section id="hero" data-component="hero" className="flex flex-col gap-8 py-12">
       <Container className="flex flex-col items-start gap-4">
+        <div data-component="guide" className="flex flex-col items-start gap-1">
+          <SpeechBubble variant="top">{GREETING}</SpeechBubble>
+          <Avatar variant="hero" />
+        </div>
         <h1 className="text-body font-bold">Flore de Crombrugghe</h1>
         <p className="text-body font-normal">Senior Product Designer</p>
         <div data-component="hero-ctas" className="flex gap-4">
