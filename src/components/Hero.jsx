@@ -166,7 +166,13 @@ export default function Hero() {
                 <MapContent activeHotspotId={activeHotspotId} setActiveHotspotId={setActiveHotspotId} />
               </div>
             </PanZoomContainer>
-            <div className="pointer-events-none absolute bottom-4 left-1/2 z-20 -translate-x-1/2 rounded-full bg-surface-inverted px-3 py-1 text-caption-sm text-text-inverted">
+            {/* Styling and position sampled from the real Figma node
+                (402-mobile, "pan and click on map" pill, id 2928:78212) --
+                I'd guessed a dark/inverted full pill before; the real spec
+                is a light grey rounded rect (not a capsule), black text,
+                4px padding all round, 8px radius, sitting close to the
+                crop's bottom edge (~8px) rather than 16px away. */}
+            <div className="pointer-events-none absolute bottom-space-8 left-1/2 z-20 -translate-x-1/2 rounded-radius-8 bg-border-grey p-space-4 text-caption-sm text-text-primary">
               two-finger pan · click on map
             </div>
           </div>

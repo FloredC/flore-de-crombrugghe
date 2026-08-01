@@ -27,6 +27,13 @@ import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
  * delta independent of scale, so it still works with zoom locked at 1 -- so
  * blocking only the single-finger case gets two-finger-pan-on-mobile /
  * drag-to-pan-on-desktop without reimplementing panning by hand.
+ *
+ * wheel is explicitly disabled: react-zoom-pan-pinch's wheel handler is a
+ * zoom gesture, and it calls preventDefault unconditionally -- before even
+ * checking whether the resulting scale would change -- so with zoom locked
+ * at 1 it was silently swallowing every mouse-wheel scroll over the map,
+ * blocking the page from scrolling past it on desktop. There's no zoom
+ * control in this build, so there's nothing for wheel to do here.
  */
 export default function PanZoomContainer({ enabled, children }) {
   const containerRef = useRef(null)
@@ -55,6 +62,7 @@ export default function PanZoomContainer({ enabled, children }) {
         centerOnInit
         limitToBounds
         panning={{ velocityDisabled: true }}
+        wheel={{ disabled: true }}
       >
         <TransformComponent wrapperClass={enabled ? '!w-full !h-full' : '!w-full'}>{children}</TransformComponent>
       </TransformWrapper>
