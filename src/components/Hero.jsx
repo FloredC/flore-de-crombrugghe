@@ -21,7 +21,19 @@ export default function Hero() {
   const [activeHotspotId, setActiveHotspotId] = useState(null)
 
   return (
-    <section id="hero" data-component="hero" className="flex min-h-screen flex-col justify-center py-12">
+    <section
+      id="hero"
+      data-component="hero"
+      className="relative flex min-h-screen flex-col justify-center overflow-hidden bg-surface-canvas py-12"
+    >
+      {/* Sampled from Figma's "gradient" node: surface-canvas (#f0f6ff) fading
+          to white over ~150px, sitting right at the map's bottom edge -- the
+          blue canvas color is a full-bleed section background, not baked into
+          the map SVG (Flore left it out deliberately since it needs to
+          overflow the map's own width). Without this, the hero-to-content
+          boundary wasn't perceptible, which read as "the map takes up the
+          full viewport with no hint of content." */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[150px] bg-gradient-to-b from-surface-canvas to-white" />
       <PanZoomContainer>
         <div data-component="hero-map" className="relative mx-auto w-full max-w-[1622px]">
           <img
