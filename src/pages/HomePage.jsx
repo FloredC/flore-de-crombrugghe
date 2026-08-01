@@ -84,8 +84,8 @@ function ApproachSubsection({ subsection }) {
 export default function HomePage() {
   return (
     <>
-      <Nav />
       <Hero />
+      <Nav />
 
       <section id="work" data-component="section-work" className="py-20">
         <Container className="flex flex-col gap-12">
