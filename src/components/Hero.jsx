@@ -27,7 +27,7 @@ export default function Hero() {
         </div>
       </Container>
       <PanZoomContainer>
-        <div data-component="hero-map" className="relative w-full">
+        <div data-component="hero-map" className="relative mx-auto w-full max-w-[1622px]">
           <img
             src={heroMapBackground}
             alt="Illustrated map of Flore's work, click the markers to explore"

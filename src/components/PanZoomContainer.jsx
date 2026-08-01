@@ -8,7 +8,9 @@ import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
 export default function PanZoomContainer({ children }) {
   return (
     <TransformWrapper initialScale={1} disabled>
-      <TransformComponent>{children}</TransformComponent>
+      <TransformComponent wrapperClass="!w-full" contentClass="!w-full">
+        {children}
+      </TransformComponent>
     </TransformWrapper>
   )
 }
