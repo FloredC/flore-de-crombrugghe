@@ -20,6 +20,10 @@ const GREETING = (
 // soon as it's too big for that breakpoint"). This is the threshold for
 // switching layouts, not an arbitrary mobile-vs-desktop breakpoint.
 const MAP_NATIVE_WIDTH = 1622
+// The map's native height (982px) is referenced directly in the crop
+// viewport's h-[min(982px,70vh)] class below (Tailwind arbitrary-value
+// classes can't consume a JS variable) -- keep that literal in sync with
+// this if the source SVG's intrinsic height ever changes.
 
 function useMapFits() {
   const [fits, setFits] = useState(true)
@@ -146,14 +150,24 @@ export default function Hero() {
           <div data-component="guide" className="flex w-full max-w-[320px] flex-col items-start gap-2 px-space-16 sm:px-space-20 md:px-6">
             <Guide />
           </div>
-          <div className="relative mt-8 h-[60vh] w-full overflow-hidden">
+          {/* Height is overflow-triggered per axis, same as width: capped at
+              the map's own native height (982px) so it's never cropped
+              beyond its real content, and capped at 70vh so there's still
+              room left for the Guide/nav/next-section hint on short
+              viewports. On a tall-enough window this settles at the full
+              982px with no vertical cropping at all -- previously this was
+              a flat 60vh regardless of how much vertical space was actually
+              available, which chopped the bottom off needlessly on wider
+              (but still sub-1622px) breakpoints. 70vh is a reasonable
+              starting budget, not sampled from Figma -- easy to retune. */}
+          <div className="relative mt-8 h-[min(982px,70vh)] w-full overflow-hidden">
             <PanZoomContainer key={resizeSettleKey} enabled>
               <div data-component="hero-map" className="relative" style={{ width: MAP_NATIVE_WIDTH }}>
                 <MapContent activeHotspotId={activeHotspotId} setActiveHotspotId={setActiveHotspotId} />
               </div>
             </PanZoomContainer>
             <div className="pointer-events-none absolute bottom-4 left-1/2 z-20 -translate-x-1/2 rounded-full bg-surface-inverted px-3 py-1 text-caption-sm text-text-inverted">
-              pan and click on map
+              two-finger pan · click on map
             </div>
           </div>
         </>
