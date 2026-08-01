@@ -32,6 +32,29 @@ function useMapFits() {
   return fits
 }
 
+// centerOnInit (react-zoom-pan-pinch) only re-centers on mount, so live
+// window resizing (crop mode) left the pan position anchored wherever it
+// happened to be instead of staying centered, per Flore's "anchored on the
+// left top corner when dragging the browser window" report. Forcing a
+// remount via a changing `key` re-triggers centerOnInit. Debounced so a
+// continuous drag-resize doesn't remount on every pixel, only once it settles.
+function useResizeSettleKey(delay = 200) {
+  const [settleKey, setSettleKey] = useState(0)
+  useEffect(() => {
+    let timeout
+    const handleResize = () => {
+      clearTimeout(timeout)
+      timeout = setTimeout(() => setSettleKey((key) => key + 1), delay)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      clearTimeout(timeout)
+    }
+  }, [delay])
+  return settleKey
+}
+
 function Guide() {
   return (
     <>
@@ -84,6 +107,7 @@ export default function Hero() {
   // closes any other that's open -- "only one popover open at a time" per spec.
   const [activeHotspotId, setActiveHotspotId] = useState(null)
   const mapFits = useMapFits()
+  const resizeSettleKey = useResizeSettleKey()
 
   return (
     <section
@@ -114,11 +138,16 @@ export default function Hero() {
         // overlaid), map crops to the available width at native size, pan
         // enabled, centered initial position, bounded to the map's edges.
         <>
-          <div data-component="guide" className="mx-auto flex w-full max-w-[320px] flex-col items-start gap-2 px-6">
+          {/* Left-aligned to the viewport edge (not centered as a block) --
+              padding steps down to 16px on mobile, a slightly larger
+              endpoint than the 12px content scale per Flore (she flagged
+              16 vs 20 as her own uncertainty; picked 16, easy to bump to
+              space-20 if it reads too tight next to the map's own edge). */}
+          <div data-component="guide" className="flex w-full max-w-[320px] flex-col items-start gap-2 px-space-16 sm:px-space-20 md:px-6">
             <Guide />
           </div>
           <div className="relative mt-8 h-[60vh] w-full overflow-hidden">
-            <PanZoomContainer enabled>
+            <PanZoomContainer key={resizeSettleKey} enabled>
               <div data-component="hero-map" className="relative" style={{ width: MAP_NATIVE_WIDTH }}>
                 <MapContent activeHotspotId={activeHotspotId} setActiveHotspotId={setActiveHotspotId} />
               </div>
