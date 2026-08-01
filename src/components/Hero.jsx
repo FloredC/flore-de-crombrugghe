@@ -2,8 +2,6 @@ import { useState } from 'react'
 import heroMapBackground from '../assets/illustrations/hero-map-background.svg'
 import PanZoomContainer from './PanZoomContainer'
 import Hotspot from './Hotspot'
-import ButtonLink from './ButtonLink'
-import Container from './Container'
 import Avatar from './Avatar'
 import SpeechBubble from './SpeechBubble'
 import { hotspots } from '../lib/content'
@@ -23,23 +21,7 @@ export default function Hero() {
   const [activeHotspotId, setActiveHotspotId] = useState(null)
 
   return (
-    <section id="hero" data-component="hero" className="flex flex-col gap-8 py-12">
-      <Container className="flex flex-col items-start gap-4">
-        <div data-component="guide" className="flex flex-col items-start gap-1">
-          <SpeechBubble variant="top">{GREETING}</SpeechBubble>
-          <Avatar variant="hero" />
-        </div>
-        <h1 className="text-body font-bold">Flore de Crombrugghe</h1>
-        <p className="text-body font-normal">Senior Product Designer</p>
-        <div data-component="hero-ctas" className="flex gap-4">
-          <ButtonLink variant="primary" href="#work">
-            See the work
-          </ButtonLink>
-          <ButtonLink variant="secondary" href="#contact">
-            Say hi
-          </ButtonLink>
-        </div>
-      </Container>
+    <section id="hero" data-component="hero" className="flex min-h-screen flex-col justify-center py-12">
       <PanZoomContainer>
         <div data-component="hero-map" className="relative mx-auto w-full max-w-[1622px]">
           <img
@@ -47,6 +29,22 @@ export default function Hero() {
             alt="Illustrated map of Flore's work, click the markers to explore"
             className="w-full"
           />
+          {/* Guide: avatar + speech bubble + name/title as one grouped entity
+              sitting on top of the map's top-left corner (the illustration
+              reserves empty space there for exactly this) -- not a separate
+              content block above the map, and no longer paired with "See the
+              work"/"Say hi" buttons, which weren't in the actual Figma design. */}
+          <div
+            data-component="guide"
+            className="absolute left-[3%] top-[4%] z-10 flex max-w-[320px] flex-col items-start gap-2"
+          >
+            <SpeechBubble variant="top">{GREETING}</SpeechBubble>
+            <Avatar variant="hero" />
+            <div className="flex flex-col gap-1">
+              <h1 className="text-body font-bold">Flore de Crombrugghe</h1>
+              <p className="text-body font-normal">Senior Product Designer</p>
+            </div>
+          </div>
           {/* Highlights must paint above the markers -- each highlight is a small
               accent (roughly marker-sized) positioned at/near its marker, not a
               big color wash, so it needs to sit on top or the marker dot covers

@@ -1,6 +1,7 @@
 import ProjectMedia from './ProjectMedia'
 import ButtonLink from './ButtonLink'
 import Badge from './Badge'
+import { ExternalLinkIcon } from './icons'
 
 export default function ProjectCard({ project, size = 'medium' }) {
   const isNda = project.status === 'nda-project'
@@ -26,8 +27,13 @@ export default function ProjectCard({ project, size = 'medium' }) {
         <h3 className="text-h2 font-semibold">{project.title}</h3>
         <p className="text-body-lg font-normal">{project.description}</p>
         <div className="mt-auto pt-2">
-          <ButtonLink variant="tertiary" {...cardLink}>
+          {/* Sampled from Figma's real ProjectCard (Size=large): CTA is the
+              filled primary button, not a plain text link -- corrects the
+              "tertiary" variant used before, which CLAUDE.md's naming table
+              suggested but the actual component doesn't use. */}
+          <ButtonLink variant="primary" {...cardLink}>
             {project.cta}
+            {isNda && <ExternalLinkIcon width={16} height={16} />}
           </ButtonLink>
         </div>
       </div>
