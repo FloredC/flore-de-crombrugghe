@@ -1,26 +1,15 @@
-import { useState } from 'react'
 import { CopyIcon } from './icons'
 import { FOCUS_CLASS } from './ButtonLink'
+import useCopyToClipboard from '../lib/useCopyToClipboard'
 
 export default function CopyButton({ value }) {
-  const [status, setStatus] = useState('idle') // 'idle' | 'copied' | 'failed'
-
-  async function handleCopy() {
-    try {
-      await navigator.clipboard.writeText(value)
-      setStatus('copied')
-    } catch {
-      setStatus('failed')
-    }
-    setTimeout(() => setStatus('idle'), 2000)
-  }
-
+  const { status, copy } = useCopyToClipboard(value)
   const label = { idle: 'Copy email address', copied: 'Copied', failed: 'Copy failed' }[status]
 
   return (
     <button
       type="button"
-      onClick={handleCopy}
+      onClick={copy}
       aria-label={label}
       title={label}
       className={`inline-flex w-fit rounded-radius-8 text-action-accent-foreground transition-colors hover:text-action-accent-foreground-hover active:text-action-accent-foreground-pressed ${FOCUS_CLASS}`}

@@ -60,14 +60,22 @@ export const LINK_CLASS = `font-bold text-action-link-foreground hover:text-acti
 // NavbarDesktop placement=Homepage) -- not tied to any hover/active state.
 export const LINK_UNDERLINE_CLASS = 'underline decoration-2 underline-offset-[3px]'
 
+// No confirmed "surface-default" token for secondary -- components.css only
+// defines surface-hover/pressed, implying an outline style: no fill at rest,
+// a light grey fill appears on hover/press.
+//
+// Exported (not just kept in VARIANT_CLASS below) because the Contact
+// section's email button needs this exact chrome on a <button>, not an <a>
+// -- it copies to clipboard rather than navigating, so per CLAUDE.md's
+// tag-follows-behavior rule it can't be a ButtonLink instance, but it's
+// still visually the secondary button and must not drift from it.
+export const SECONDARY_BUTTON_CLASS = `${CHROME_CLASS} ${TYPE_CLASS} bg-transparent border-action-secondary-border text-action-secondary-foreground hover:bg-action-secondary-surface-hover hover:border-action-secondary-border-hover hover:text-action-secondary-foreground-hover active:bg-action-secondary-surface-pressed active:border-action-secondary-border-pressed active:text-action-secondary-foreground-pressed`
+
 // Per Flore: hover/pressed on the filled/outline variants is a text+surface
 // color change, not a background wash on the plain-text ones.
 const VARIANT_CLASS = {
   primary: `${CHROME_CLASS} ${TYPE_CLASS} bg-action-primary-surface border-action-primary-border text-action-primary-foreground hover:bg-action-primary-surface-hover hover:border-action-primary-border-hover hover:text-action-primary-foreground-hover active:bg-action-primary-surface-pressed active:border-action-primary-border-pressed active:text-action-primary-foreground-pressed`,
-  // No confirmed "surface-default" token for secondary -- components.css only
-  // defines surface-hover/pressed, implying an outline style: no fill at
-  // rest, a light grey fill appears on hover/press.
-  secondary: `${CHROME_CLASS} ${TYPE_CLASS} bg-transparent border-action-secondary-border text-action-secondary-foreground hover:bg-action-secondary-surface-hover hover:border-action-secondary-border-hover hover:text-action-secondary-foreground-hover active:bg-action-secondary-surface-pressed active:border-action-secondary-border-pressed active:text-action-secondary-foreground-pressed`,
+  secondary: SECONDARY_BUTTON_CLASS,
   popover: `inline-flex items-center gap-1 text-[14px] font-semibold text-action-accent-foreground hover:text-action-accent-foreground-hover active:text-action-accent-foreground-pressed ${FOCUS_CLASS}`,
   tertiary: `inline-flex items-center gap-1 ${LINK_CLASS}`,
   menu: `inline-flex items-center gap-1 ${LINK_CLASS}`,

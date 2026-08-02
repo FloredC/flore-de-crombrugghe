@@ -5,8 +5,10 @@ import { ExternalLinkIcon } from './icons'
 
 export default function ProjectCard({ project, size = 'medium' }) {
   const isNda = project.status === 'nda-project'
+  // NDA cards link off-site, so they open in a new tab rather than
+  // navigating the reader away from the portfolio entirely.
   const cardLink = isNda
-    ? { href: project.externalLink }
+    ? { href: project.externalLink, target: '_blank', rel: 'noopener noreferrer' }
     : { to: `/work/${project.slug}` }
 
   return (
@@ -30,8 +32,12 @@ export default function ProjectCard({ project, size = 'medium' }) {
           {/* Sampled from Figma's real ProjectCard (Size=large): CTA is the
               filled primary button, not a plain text link -- corrects the
               "tertiary" variant used before, which CLAUDE.md's naming table
-              suggested but the actual component doesn't use. */}
-          <ButtonLink variant="primary" {...cardLink}>
+              suggested but the actual component doesn't use.
+              NDA cards are the one exception: sampled directly from the real
+              Rega card (node 2928:73731), the CTA there is the outline
+              secondary button, not primary -- I'd applied primary
+              universally before, which Flore caught. */}
+          <ButtonLink variant={isNda ? 'secondary' : 'primary'} {...cardLink}>
             {project.cta}
             {isNda && <ExternalLinkIcon width={16} height={16} />}
           </ButtonLink>

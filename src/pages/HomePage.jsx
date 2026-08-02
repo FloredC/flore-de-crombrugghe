@@ -6,6 +6,7 @@ import ValueCard from '../components/ValueCard'
 import MediaCard from '../components/MediaCard'
 import AsideCard from '../components/AsideCard'
 import ButtonLink from '../components/ButtonLink'
+import ContactEmailButton from '../components/ContactEmailButton'
 import Footer from '../components/Footer'
 import Container from '../components/Container'
 import {
@@ -134,12 +135,22 @@ export default function HomePage() {
           />
           <h2 className="text-h2 font-semibold">{contactSection.heading}</h2>
           <p className="text-body-lg font-normal">{contactSection.description}</p>
-          <div className="flex gap-4">
-            {contactSection.links.map((link) => (
-              <ButtonLink key={link.label} variant="primary" href={link.href}>
-                {link.label}
-              </ButtonLink>
-            ))}
+          {/* Sampled from the real Contact Section node (2928:73875 /
+              4533:27939): LinkedIn as the filled primary button, the email
+              as a secondary-chrome button that copies to clipboard rather
+              than a mailto link -- matching the "Say hi" popover's own
+              contact pattern (copy, no navigation) rather than the two
+              generic ButtonLinks this rendered before. */}
+          {/* flex-col on mobile: the two buttons together are wider than a
+              402px viewport (the email address alone doesn't leave room
+              for LinkedIn beside it), so a single non-wrapping row pushed
+              the second button off-screen. Same stacking pattern already
+              used for the Footer's row at this breakpoint. */}
+          <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-space-24">
+            <ButtonLink variant="primary" href={contactSection.linkedinUrl} target="_blank" rel="noopener noreferrer">
+              LinkedIn
+            </ButtonLink>
+            <ContactEmailButton email={contactSection.email} />
           </div>
         </Container>
       </section>
