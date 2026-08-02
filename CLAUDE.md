@@ -328,15 +328,17 @@ Revised estimate — original 6-hour estimate below was written before the Popov
 1. ✅ **Token pull** — done.
 2. ✅ **Content model resolution** — done (NDA projects get real `.mdx` files, no route; see Naming Convention above).
 3. ✅ **Skeleton** — done.
-4. 🟡 **Typography** — partially done. Type classes have been applied component-by-component as each was built/reviewed, but the dedicated full-component-set pass this stage describes (systematic type-scale + breakpoint check across everything) hasn't happened yet. This is the literal "text size check" Flore asked to do next.
+4. 🟡 **Typography** — partially done, **deliberately deferred to last**, see reordering note below.
 5. ✅ **Popover interaction** — done, including the Contact variant's copy-to-clipboard.
 6. ✅ **Hotspot wiring** — done, including the 44×44px tap target and the keyboard focus ring (see Interaction Specifications below — this needed a real bug fix, not just implementation).
 7. ⬜ **Iframe embed** — not started. Blocked on Flore confirming the real Language River hosting URL.
-8. 🟡 **Content wiring** — partially done (all project frontmatter is real; NDA external links are real). Real copy for Approach/About (ValueCards, MediaCards, AsideCards) is still placeholder — Flore's Figma instance renames surfaced real titles ("Cold plunge," "Data illustrated") that aren't wired in yet.
-9. ⬜ **Styling & layout** — not started as its own pass. This is "card UI refinements + responsiveness," the next planned stage.
+8. 🟡 **Content wiring** — partially done (all project frontmatter is real; NDA external links are real). Real copy for Approach/About (ValueCards, MediaCards, AsideCards) is still placeholder — Flore's Figma instance renames surfaced real titles ("Cold plunge," "Data illustrated") that aren't wired in yet. **Next up.**
+9. ⬜ **Styling & layout** — not started as its own pass. "Card UI refinements + responsiveness."
 10. ⬜ **Polish & QA** — not started.
 
 **Work done outside this strict order, folded back into the stages above:** the Nav rebuild (mobile hamburger, subpage variant, current-section state), Footer content, and the full button-state audit (hover/pressed/focus across every variant) all came out of Flore's own review pass rather than a scheduled stage — but they're really stage 4 (Typography/states) and stage 9 (styling) work that happened early because it's what she was actively testing. Treat them as done, not as scope creep to redo.
+
+**Execution order reordered — content wiring, then styling, then typography, per Flore:** the numbered list above is the stage *definitions*, not a strict sequence to follow top-to-bottom. The actual next-up order is **8 (Content wiring) → 9 (Styling & layout) → 4 (Typography, done last, combined with a final responsiveness check)**. Flore's reasoning, and it matches this doc's own "Content drives structure, not vice versa" principle further down: real copy and real card layout should exist *before* doing a systematic type-scale/breakpoint pass, not after — checking type sizes against placeholder-length text risks re-checking everything once real content changes wrapping and spacing. Do not default back to numeric order.
 
 **Not in scope for v1 (deferred until post-validation):**
 - Figma library reorg (primitives/semantic folder structure)
