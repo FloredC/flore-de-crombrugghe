@@ -1,5 +1,20 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
+
+// True on phones/tablets (touch as the primary input). A touchscreen laptop
+// with a trackpad reports `fine` and is treated as desktop -- acceptable,
+// since the gesture clash this guards against is a touch-primary problem.
+function useCoarsePointer() {
+  const [coarse, setCoarse] = useState(false)
+  useEffect(() => {
+    const query = window.matchMedia('(pointer: coarse)')
+    const update = () => setCoarse(query.matches)
+    update()
+    query.addEventListener('change', update)
+    return () => query.removeEventListener('change', update)
+  }, [])
+  return coarse
+}
 
 /**
  * Overflow-triggered per PRD: pan only activates when the illustration's
@@ -17,51 +32,67 @@ import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
  * (a fixed-height, overflow-hidden div in Hero) when enabled, not by this
  * component stretching to fill it.
  *
- * Single-finger touch is deliberately left alone (see the capture-phase
- * listener below) so it always falls through to native page scroll --
- * react-zoom-pan-pinch treats a one-finger touch-drag as "pan" and calls
- * preventDefault on it, which on mobile traps the page-scroll gesture
- * inside the map (Flore: "clash between the map's pan behaviour and the
- * scroll function"). Two-finger touch already pans for free through the
- * library's own pinch handler -- it computes pan from the touch-center
- * delta independent of scale, so it still works with zoom locked at 1 -- so
- * blocking only the single-finger case gets two-finger-pan-on-mobile /
- * drag-to-pan-on-desktop without reimplementing panning by hand.
+ * `panning` is disabled outright on touch-primary devices. The library
+ * binds mousedown/mousemove to *window* and only checks that the target is
+ * inside the wrapper -- so the compatibility mouse events every mobile
+ * browser synthesises after a one-finger tap/swipe were driving a real pan,
+ * jerking the map under the finger (Flore: "weird page movement when I do a
+ * one-finger touch or swipe", in both Safari and Chrome). Disabling panning
+ * stops that at the source: `isPanningAllowed` gates both the mouse path and
+ * the one-finger touch path, and it bails *before* the library's
+ * preventDefault, so native page scroll is left fully intact. Two-finger pan
+ * is unaffected -- it runs through the pinch path, whose guard checks only
+ * `pinch.disabled` -- so mobile keeps two-finger pan and desktop keeps
+ * mouse-drag pan.
  *
- * wheel is explicitly disabled: react-zoom-pan-pinch's wheel handler is a
- * zoom gesture, and it calls preventDefault unconditionally -- before even
- * checking whether the resulting scale would change -- so with zoom locked
- * at 1 it was silently swallowing every mouse-wheel scroll over the map,
- * blocking the page from scrolling past it on desktop. There's no zoom
- * control in this build, so there's nothing for wheel to do here.
+ * `wheel` is disabled for a similar reason: the library's wheel handler is a
+ * zoom gesture and calls preventDefault unconditionally, before checking
+ * whether scale would even change -- so with zoom locked at 1 it silently
+ * swallowed every mouse-wheel scroll over the map on desktop.
+ *
+ * Re-centering is driven by a ResizeObserver on this container rather than a
+ * window resize listener, and calls centerView imperatively rather than
+ * remounting. A window listener fires on mobile URL-bar collapse (which
+ * changes innerHeight without changing this box's size), which was
+ * re-centering the map mid-scroll and reading as random jumps.
  */
 export default function PanZoomContainer({ enabled, children }) {
   const containerRef = useRef(null)
+  const transformRef = useRef(null)
+  const coarsePointer = useCoarsePointer()
 
   useEffect(() => {
     if (!enabled) return undefined
     const node = containerRef.current
     if (!node) return undefined
-    const blockSingleFingerPan = (event) => {
-      if (event.touches.length === 1) event.stopPropagation()
-    }
-    // Capture phase: must run before react-zoom-pan-pinch's own touchstart
-    // listener on its (descendant) wrapper element, so stopping it here
-    // keeps that listener from ever seeing a single-finger touchstart.
-    node.addEventListener('touchstart', blockSingleFingerPan, { capture: true })
-    return () => node.removeEventListener('touchstart', blockSingleFingerPan, { capture: true })
+    let lastSize = null
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect
+      const size = `${Math.round(width)}x${Math.round(height)}`
+      // First callback is the initial measurement -- centerOnInit already
+      // handled that one, so only react to genuine size *changes*.
+      if (lastSize === null || size === lastSize) {
+        lastSize = size
+        return
+      }
+      lastSize = size
+      transformRef.current?.centerView(1, 0)
+    })
+    observer.observe(node)
+    return () => observer.disconnect()
   }, [enabled])
 
   return (
     <div ref={containerRef} className={enabled ? 'h-full w-full' : 'w-full'}>
       <TransformWrapper
+        ref={transformRef}
         initialScale={1}
         minScale={1}
         maxScale={1}
         disabled={!enabled}
         centerOnInit
         limitToBounds
-        panning={{ velocityDisabled: true }}
+        panning={{ velocityDisabled: true, disabled: coarsePointer }}
         wheel={{ disabled: true }}
       >
         <TransformComponent wrapperClass={enabled ? '!w-full !h-full' : '!w-full'}>{children}</TransformComponent>

@@ -21,7 +21,7 @@ const GREETING = (
 // switching layouts, not an arbitrary mobile-vs-desktop breakpoint.
 const MAP_NATIVE_WIDTH = 1622
 // The map's native height (982px) is referenced directly in the crop
-// viewport's h-[min(982px,70vh)] class below (Tailwind arbitrary-value
+// viewport's h-[min(982px,70svh)] class below (Tailwind arbitrary-value
 // classes can't consume a JS variable) -- keep that literal in sync with
 // this if the source SVG's intrinsic height ever changes.
 
@@ -34,29 +34,6 @@ function useMapFits() {
     return () => window.removeEventListener('resize', check)
   }, [])
   return fits
-}
-
-// centerOnInit (react-zoom-pan-pinch) only re-centers on mount, so live
-// window resizing (crop mode) left the pan position anchored wherever it
-// happened to be instead of staying centered, per Flore's "anchored on the
-// left top corner when dragging the browser window" report. Forcing a
-// remount via a changing `key` re-triggers centerOnInit. Debounced so a
-// continuous drag-resize doesn't remount on every pixel, only once it settles.
-function useResizeSettleKey(delay = 200) {
-  const [settleKey, setSettleKey] = useState(0)
-  useEffect(() => {
-    let timeout
-    const handleResize = () => {
-      clearTimeout(timeout)
-      timeout = setTimeout(() => setSettleKey((key) => key + 1), delay)
-    }
-    window.addEventListener('resize', handleResize)
-    return () => {
-      window.removeEventListener('resize', handleResize)
-      clearTimeout(timeout)
-    }
-  }, [delay])
-  return settleKey
 }
 
 function Guide() {
@@ -111,7 +88,6 @@ export default function Hero() {
   // closes any other that's open -- "only one popover open at a time" per spec.
   const [activeHotspotId, setActiveHotspotId] = useState(null)
   const mapFits = useMapFits()
-  const resizeSettleKey = useResizeSettleKey()
 
   return (
     <section
@@ -123,8 +99,15 @@ export default function Hero() {
           to white over ~150px, sitting right at the map's bottom edge -- the
           blue canvas color is a full-bleed section background, not baked into
           the map SVG (Flore left it out deliberately since it needs to
-          overflow the map's own width). */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[150px] bg-gradient-to-b from-surface-canvas to-white" />
+          overflow the map's own width).
+
+          Sits behind the map (z-0), not above it. At z-20 this 150px band
+          reached ~100px up into the crop viewport and faded out real map
+          content -- which is why the hint label read as detached, floating
+          in washed-out space rather than sitting on the map. Behind the
+          map it still does its actual job (fading the blue canvas into the
+          white of the next section) without touching the illustration. */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[150px] bg-gradient-to-b from-surface-canvas to-white" />
 
       {mapFits ? (
         // Map fits at its native 1622px width: Guide overlays the map's
@@ -152,27 +135,28 @@ export default function Hero() {
           </div>
           {/* Height is overflow-triggered per axis, same as width: capped at
               the map's own native height (982px) so it's never cropped
-              beyond its real content, and capped at 70vh so there's still
+              beyond its real content, and capped at 70svh so there's still
               room left for the Guide/nav/next-section hint on short
               viewports. On a tall-enough window this settles at the full
-              982px with no vertical cropping at all -- previously this was
-              a flat 60vh regardless of how much vertical space was actually
-              available, which chopped the bottom off needlessly on wider
-              (but still sub-1622px) breakpoints. 70vh is a reasonable
-              starting budget, not sampled from Figma -- easy to retune. */}
-          <div className="relative mt-8 h-[min(982px,70vh)] w-full overflow-hidden">
-            <PanZoomContainer key={resizeSettleKey} enabled>
+              982px with no vertical cropping at all.
+
+              svh, not vh: vh on mobile tracks the *largest* viewport, so it
+              changes as the browser's URL bar collapses and expands during
+              scroll -- which resized this box mid-scroll and re-centered the
+              map under the reader (part of the "weird jumps" Flore recorded).
+              svh is the stable small-viewport unit and doesn't move. */}
+          <div className="relative z-10 mt-8 h-[min(982px,70svh)] w-full overflow-hidden">
+            <PanZoomContainer enabled>
               <div data-component="hero-map" className="relative" style={{ width: MAP_NATIVE_WIDTH }}>
                 <MapContent activeHotspotId={activeHotspotId} setActiveHotspotId={setActiveHotspotId} />
               </div>
             </PanZoomContainer>
-            {/* Styling and position sampled from the real Figma node
-                (402-mobile, "pan and click on map" pill, id 2928:78212) --
-                I'd guessed a dark/inverted full pill before; the real spec
-                is a light grey rounded rect (not a capsule), black text,
-                4px padding all round, 8px radius, sitting close to the
-                crop's bottom edge (~8px) rather than 16px away. */}
-            <div className="pointer-events-none absolute bottom-space-8 left-1/2 z-20 -translate-x-1/2 rounded-radius-8 bg-border-grey p-space-4 text-caption-sm text-text-primary">
+            {/* Styling sampled from the real Figma node (402-mobile, "pan and
+                click on map" pill, id 2928:78212): light grey rounded rect,
+                black text, 4px padding, 8px radius. Pinned 4px above the
+                crop's bottom edge per Flore -- it should read as sitting on
+                the map, not floating below it. */}
+            <div className="pointer-events-none absolute bottom-space-4 left-1/2 z-20 -translate-x-1/2 rounded-radius-8 bg-border-grey p-space-4 text-caption-sm text-text-primary">
               two-finger pan · click on map
             </div>
           </div>
