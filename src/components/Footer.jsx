@@ -1,3 +1,5 @@
+import { LINK_CLASS } from './ButtonLink'
+
 // Google Drive's direct-download URL form for the CV Flore shared, rather
 // than the /view link, since the label promises a download rather than a
 // preview page. Two caveats worth knowing: this only works while the file
@@ -28,7 +30,7 @@ export default function Footer() {
             href={CV_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="py-space-8 text-[16px] font-bold leading-[1.5] text-action-link-foreground hover:text-action-link-foreground-hover active:text-action-link-foreground-pressed"
+            className={`py-space-8 text-[16px] font-bold leading-[1.5] ${LINK_CLASS}`}
           >
             Download CV
           </a>

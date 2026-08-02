@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { CopyIcon } from './icons'
+import { FOCUS_CLASS } from './ButtonLink'
 
 export default function CopyButton({ value }) {
   const [status, setStatus] = useState('idle') // 'idle' | 'copied' | 'failed'
@@ -22,7 +23,7 @@ export default function CopyButton({ value }) {
       onClick={handleCopy}
       aria-label={label}
       title={label}
-      className="inline-flex w-fit text-action-accent-foreground hover:text-action-accent-foreground-hover active:text-action-accent-foreground-pressed"
+      className={`inline-flex w-fit rounded-radius-8 text-action-accent-foreground transition-colors hover:text-action-accent-foreground-hover active:text-action-accent-foreground-pressed ${FOCUS_CLASS}`}
     >
       <CopyIcon width={16} height={16} />
     </button>

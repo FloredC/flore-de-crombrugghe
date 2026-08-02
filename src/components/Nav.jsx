@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import ButtonLink from './ButtonLink'
+import ButtonLink, { FOCUS_CLASS, LINK_CLASS } from './ButtonLink'
 import { ArrowBackIcon, MenuIcon, CloseIcon } from './icons'
 import homeIcon from '../assets/icons/ic-home.svg'
 
@@ -23,15 +23,25 @@ const PILL_CLASS =
 
 // 58px circular home avatar, ringed with the secondary/Contact button's
 // border color+weight so it reads as the same treatment, not just "a border".
+//
+// States from Figma's ButtonAction variant=home row: the ring dims grey-90 ->
+// grey-80 (hover) -> grey-70 (pressed), and focus draws the blue focus ring.
+// It had no states at all before -- a static border. The ring lives in CSS
+// rather than the asset (ic-home.svg is a stroke-less circle filled with the
+// map image), which is what makes it animatable at all.
 function HomeAvatar({ href, label }) {
   return (
-    <a href={href} aria-label={label}>
+    <a
+      href={href}
+      aria-label={label}
+      className={`group rounded-full ${FOCUS_CLASS}`}
+    >
       <img
         src={homeIcon}
         alt=""
         width={58}
         height={58}
-        className="rounded-full border border-action-secondary-border"
+        className="rounded-full border border-action-secondary-border transition-colors group-hover:border-action-secondary-border-hover group-active:border-action-secondary-border-pressed"
       />
     </a>
   )
@@ -56,7 +66,7 @@ function SubpageNav() {
       data-variant="subpage"
       className={`${PILL_CLASS} flex py-space-8 pl-space-24 pr-space-4 md:px-space-12`}
     >
-      <Link to="/" className="flex items-center gap-space-4 py-space-8 text-body font-bold text-text-primary">
+      <Link to="/" className={`flex items-center gap-space-4 py-space-8 text-body font-bold ${LINK_CLASS}`}>
         <ArrowBackIcon aria-hidden="true" />
         Back to Portfolio
       </Link>
@@ -75,7 +85,7 @@ function DesktopHomeNav() {
       <ul className="flex items-center gap-10" style={{ listStyle: 'none' }}>
         {LINKS.map((link) => (
           <li key={link.href}>
-            <a href={link.href} className="text-[16px] font-bold text-text-primary">
+            <a href={link.href} className={`text-[16px] font-bold ${LINK_CLASS}`}>
               {link.label}
             </a>
           </li>
@@ -138,7 +148,7 @@ function MobileHomeNav() {
           aria-expanded={open}
           aria-label={open ? 'Close menu' : 'Open menu'}
           onClick={() => setOpen((wasOpen) => !wasOpen)}
-          className="flex items-center rounded-radius-32 p-space-8 text-text-primary"
+          className={`flex items-center rounded-radius-32 p-space-8 text-action-secondary-foreground transition-colors hover:text-action-secondary-foreground-hover active:text-action-secondary-foreground-pressed ${FOCUS_CLASS}`}
         >
           {open ? <CloseIcon aria-hidden="true" /> : <MenuIcon aria-hidden="true" />}
         </button>
@@ -149,10 +159,15 @@ function MobileHomeNav() {
           {menuLinks.map((link, index) => (
             <li key={link.href} className="w-full">
               {index > 0 && <div className="h-px w-full bg-border-divider" />}
+              {/* Color + focus states only, deliberately no underline: these
+                  rows are plain text nodes in Figma's mobile menu, not
+                  ButtonLink instances, so there's no sampled hover state for
+                  them. An underline here would also read as another divider,
+                  since the rows already sit between real ones. */}
               <a
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="flex w-full items-center px-space-12 py-space-14 text-[16px] font-bold text-text-primary"
+                className={`flex w-full items-center px-space-12 py-space-14 text-[16px] font-bold text-action-link-foreground transition-colors hover:text-action-link-foreground-hover active:text-action-link-foreground-pressed ${FOCUS_CLASS}`}
               >
                 {link.label}
               </a>
