@@ -28,22 +28,36 @@ export const FOCUS_CLASS =
 
 const CHROME_CLASS = `inline-flex items-center gap-1 rounded-radius-32 border px-6 py-4 ${FOCUS_CLASS}`
 
-// The link/menu treatment, sampled from Figma's "variant=menu" column: text
-// dims grey-90 -> grey-80 (hover) -> grey-70 (pressed) AND gains an underline
-// on both hover and pressed. The underline was missing entirely before -- I
-// had this as a color-only change. Exported so the bare <a>s in Nav and Footer
-// get identical states without re-deriving the classes.
+// The link/menu treatment: one class shared by every plain-text ButtonLink
+// usage in the app -- Footer's "Download CV", SubpageNav's "Back to
+// Portfolio", and the navbar's Work/Approach/About links (desktop and
+// mobile). Per Flore, these are literally the same Figma component, so
+// their states should look the same rather than being split by usage.
+//
+// Color dims grey-90 -> grey-80 (hover) -> grey-70 (pressed) -- not disputed,
+// still the real action-link tokens. NO underline on hover or pressed, for
+// any of them: I'd previously split this into two classes on the theory that
+// Download CV/Back to Portfolio had a sampled hover-underline (from the
+// standalone Buttons&Controls grid) while the navbar links didn't -- Flore
+// corrected that too: same component, same states, no hover underline either
+// way. The Buttons&Controls grid's hover row showing an underline doesn't
+// override that.
+//
+// Underline is reserved entirely for LINK_UNDERLINE_CLASS below, applied only
+// to mark "this is the current section" on nav links -- never triggered by
+// hover/active, and never used on Download CV/Back to Portfolio, which have
+// no concept of "current" at all.
 //
 // Naming: Figma calls this variant "menu"; CLAUDE.md's button family calls the
-// action-link treatment "Tertiary". They're the same thing, so both names map
-// here rather than one silently rendering unstyled. Worth collapsing to one
-// name eventually -- flagged to Flore.
-export const LINK_CLASS = `font-bold text-action-link-foreground hover:text-action-link-foreground-hover hover:underline active:text-action-link-foreground-pressed active:underline ${FOCUS_CLASS}`
+// action-link treatment "Tertiary". Same thing, so both names map here rather
+// than one silently rendering unstyled -- worth collapsing to one name in
+// Figma eventually, flagged to Flore.
+export const LINK_CLASS = `font-bold text-action-link-foreground hover:text-action-link-foreground-hover active:text-action-link-foreground-pressed ${FOCUS_CLASS}`
 
 // The underline itself, matching Figma's rule under the label: ~2px thick,
-// sitting 2px below the text. Used both for hover/pressed (above) and for the
-// selected/current-section state, which draws the same underline at rest --
-// see the underlined "Work" in NavbarDesktop placement=Homepage.
+// sitting 2px below the text. Used exclusively for the navbar's
+// selected/current-section state (e.g. the underlined "Work" in
+// NavbarDesktop placement=Homepage) -- not tied to any hover/active state.
 export const LINK_UNDERLINE_CLASS = 'underline decoration-2 underline-offset-[3px]'
 
 // Per Flore: hover/pressed on the filled/outline variants is a text+surface

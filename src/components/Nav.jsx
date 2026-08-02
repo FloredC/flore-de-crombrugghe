@@ -208,18 +208,16 @@ function MobileHomeNav({ currentSection }) {
             return (
             <li key={link.href} className="w-full">
               {index > 0 && <div className="h-px w-full bg-border-divider" />}
-              {/* These rows are ButtonLink instances, same as the desktop nav
-                  links -- they only appear as loose text nodes in Figma
-                  because it generated the frame that way, per Flore. So they
-                  take the full link treatment: hover/pressed color + underline
-                  and the selected-section underline, rather than the
-                  color-only version I'd built from the flattened export. */}
+              {/* Same ButtonLink component as the desktop nav links and
+                  Footer's Download CV (per Flore) -- same LINK_CLASS, same
+                  states: color on hover/pressed, no underline. The
+                  persistent underline is reserved for the current section. */}
               <a
                 href={link.href}
                 aria-current={isCurrent ? 'true' : undefined}
                 data-current={isCurrent || undefined}
                 onClick={() => setOpen(false)}
-                className={`flex w-full items-center px-space-12 py-space-14 text-[16px] transition-colors ${LINK_CLASS} ${
+                className={`flex w-full items-center px-space-12 py-space-14 text-[16px] ${LINK_CLASS} ${
                   isCurrent ? LINK_UNDERLINE_CLASS : ''
                 }`}
               >
