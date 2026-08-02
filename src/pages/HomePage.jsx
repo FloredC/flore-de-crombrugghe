@@ -5,6 +5,7 @@ import ProjectCard from '../components/ProjectCard'
 import ValueCard from '../components/ValueCard'
 import MediaCard from '../components/MediaCard'
 import AsideCard from '../components/AsideCard'
+import LanguageRiverEmbed from '../components/LanguageRiverEmbed'
 import ButtonLink from '../components/ButtonLink'
 import ContactEmailButton from '../components/ContactEmailButton'
 import Footer from '../components/Footer'
@@ -114,10 +115,10 @@ export default function HomePage() {
             subsection={aboutSection.subsection}
             bubbleCopy={aboutSection.bubbleCopy}
           />
-          <div data-component="language-river" className="flex aspect-video items-center justify-center border border-dashed border-gray-300">
-            {/* PLACEHOLDER_LANGUAGE_RIVER_EMBED_URL — not a final hosting URL, flagged by Flore. Confirm before wiring a real iframe src. */}
-            <p>Language River embed placeholder — waiting on a confirmed hosting URL from Flore.</p>
-          </div>
+          <LanguageRiverEmbed
+            src={aboutSection.languageRiver.embedSrc}
+            title={aboutSection.languageRiver.title}
+          />
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             {aboutSection.asideCards.map((item) => (
               <AsideCard key={item.title} item={item} />

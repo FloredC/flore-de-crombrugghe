@@ -4,7 +4,10 @@
     "type": "link",
     "title": "Artifakt — Tracing Your Way Past the Blank Canvas",
     "ctaLabel": "View project",
-    "target": { "kind": "project", "slug": "artifakt" },
+    "target": {
+      "kind": "project",
+      "slug": "artifakt"
+    },
     "x": 42.0,
     "y": 43.4,
     "markerSide": "right"
@@ -14,7 +17,10 @@
     "type": "link",
     "title": "PitchPivot — Design Reasoning for Business Impact",
     "ctaLabel": "View project",
-    "target": { "kind": "project", "slug": "pitchpivot" },
+    "target": {
+      "kind": "project",
+      "slug": "pitchpivot"
+    },
     "x": 48.3,
     "y": 29.0,
     "markerSide": "right"
@@ -24,7 +30,10 @@
     "type": "link",
     "title": "myRIDE — Pricing UX for a 3,000-person pilot",
     "ctaLabel": "View project",
-    "target": { "kind": "project", "slug": "myride" },
+    "target": {
+      "kind": "project",
+      "slug": "myride"
+    },
     "x": 57.8,
     "y": 42.4,
     "markerSide": "right"
@@ -34,7 +43,10 @@
     "type": "link",
     "title": "Redesigning Rega's app for 1.1M+ users",
     "ctaLabel": "View project",
-    "target": { "kind": "project", "slug": "rega" },
+    "target": {
+      "kind": "project",
+      "slug": "rega"
+    },
     "x": 81.6,
     "y": 6.9,
     "markerSide": "left"
@@ -44,7 +56,10 @@
     "type": "link",
     "title": "Faster trail discovery for 80k users",
     "ctaLabel": "View project",
-    "target": { "kind": "project", "slug": "trail-app" },
+    "target": {
+      "kind": "project",
+      "slug": "trail-app"
+    },
     "x": 19.3,
     "y": 46.3,
     "markerSide": "right"
@@ -53,8 +68,11 @@
     "id": "hotspot-future-of-ux",
     "type": "link",
     "title": "The Future of UX — podcast, episode 140",
-    "ctaLabel": "Listen",
-    "target": { "kind": "external", "href": "PLACEHOLDER_PODCAST_EPISODE_URL" },
+    "ctaLabel": "to podcast",
+    "target": {
+      "kind": "anchor",
+      "href": "#media-future-of-ux"
+    },
     "x": 52.9,
     "y": 65.2,
     "markerSide": "right"
@@ -64,7 +82,10 @@
     "type": "link",
     "title": "My Language River",
     "ctaLabel": "Explore",
-    "target": { "kind": "anchor", "href": "#about" },
+    "target": {
+      "kind": "anchor",
+      "href": "#about"
+    },
     "x": 18.2,
     "y": 72.5,
     "markerSide": "right"
@@ -74,7 +95,10 @@
     "type": "link",
     "title": "333 Saftige Papayas",
     "ctaLabel": "Read more",
-    "target": { "kind": "anchor", "href": "#about" },
+    "target": {
+      "kind": "anchor",
+      "href": "#about"
+    },
     "x": 37.7,
     "y": 85.1,
     "markerSide": "right"

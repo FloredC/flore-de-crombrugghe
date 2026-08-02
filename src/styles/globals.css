@@ -77,7 +77,8 @@ html {
 /* Sticky nav docks to the top once scrolled past -- without this, jumping to
    an anchor lands its heading right under/behind the nav. Value is the nav's
    own rendered height (58px avatar + padding) plus breathing room. */
-section[id] {
+section[id],
+article[id] {
   scroll-margin-top: 120px;
 }
 

@@ -23,11 +23,11 @@ export default function ProjectPage() {
           <header className="flex flex-col gap-4">
             {project.status === 'full-case-study' && <Badge status={project.status} />}
             <h1 className="text-h1 font-bold">{project.title}</h1>
-            <div data-component="project-tags" className="flex gap-2 text-body-sm font-normal text-text-secondary">
-              {project.tags.map((tag) => (
-                <span key={tag}>{tag}</span>
-              ))}
-            </div>
+            {/* `meta` replaced the old `tags` array when the real card copy
+                landed -- Figma renders one pre-joined grey line, not chips. */}
+            <p data-component="project-meta" className="text-body-sm font-normal text-text-secondary">
+              {project.meta}
+            </p>
           </header>
           <div data-component="project-body" className="max-w-[720px]">
             <Body />

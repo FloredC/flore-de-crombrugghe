@@ -18,14 +18,21 @@ export default function ProjectCard({ project, size = 'medium' }) {
       data-size={size}
       className="flex w-full min-w-0 flex-col gap-4"
     >
-      <ProjectMedia src={project.thumbnail} alt={project.title} size={size} />
-      <div data-component="project-card-content" className="flex flex-1 flex-col gap-2">
-        <div data-component="project-card-meta" className="flex flex-wrap gap-2 text-body-sm font-normal text-text-secondary">
-          {project.tags.map((tag) => (
-            <span key={tag}>{tag}</span>
-          ))}
-          {isNda && <Badge status={project.status} />}
-        </div>
+      <ProjectMedia
+        src={project.thumbnail}
+        alt={project.title}
+        caption={project.imageCaption}
+        size={size}
+        badge={<Badge status={project.status} />}
+      />
+      <div data-component="project-card-content" className="flex flex-1 flex-col gap-4">
+        {/* Figma renders this as one grey line ("AI • Vibecoding"), not
+            separate tag chips -- the frontmatter field is `meta`, a single
+            pre-joined string, so the separator stays editable content
+            rather than something the component invents. */}
+        <p data-component="project-card-meta" className="text-body-sm font-normal text-text-secondary">
+          {project.meta}
+        </p>
         <h3 className="text-h2 font-semibold">{project.title}</h3>
         <p className="text-body-lg font-normal">{project.description}</p>
         <div className="mt-auto pt-2">
