@@ -136,18 +136,39 @@ One `.json` file per illustration (e.g., `hero-map-hotspots.json`). Structure:
 - Link is semantic and keyboard-focusable (meets accessibility requirement from day one)
 - **Background blur:** Figma's "Background blur" effect (not layer blur) maps to CSS `backdrop-filter: blur(Npx)` (with `-webkit-backdrop-filter` for Safari), not `filter: blur()` — those are different effects and using the wrong one either blurs the card's own content instead of what's behind it, or does nothing visible. Requires the popover's background fill to be semi-transparent (opacity < 100%) for the effect to be visible at all — check the actual fill opacity set in Figma and carry that value over, not just the blur radius.
 
-**Pan/Zoom Container (Map Illustration)**
-- Wraps the SVG illustration
-- Activates only when rendered size exceeds container size (overflow-triggered, not device-based)
-- Uses `react-zoom-pan-pinch` library
-- Hotspot coordinates stay % of viewBox; pan/zoom is a viewport transform on top
-- On mobile: pinch-to-zoom, pan by drag
-- On desktop: scroll-to-zoom (if enabled), drag-to-pan
+**Contact Section** — the full-page section (`id="contact"`), distinct from the map's "Say hi" popover above even though both are contact-flavored
+- Real content, not placeholder: heading "Say Hi!", real body copy (both sampled from the Contact Section node — present twice in the Figma file before the duplicate-frame cleanup, now once)
+- Two buttons, not a generic link list: LinkedIn as the filled primary `ButtonLink`, and the email as a **secondary-chrome button that copies to clipboard on click**, not a mailto link — same interaction pattern as the map popover's Contact variant, applied here too. Built as `ContactEmailButton.jsx` (a real `<button>`, per the tag-follows-behavior principle below) rather than a `ButtonLink` instance, but sharing `SECONDARY_BUTTON_CLASS` so it can't drift from the real secondary button. Copy logic lives in `src/lib/useCopyToClipboard.js`, shared with the popover's own `CopyButton`.
+- **Open:** LinkedIn URL is a literal `PLACEHOLDER_LINKEDIN_URL` in `contact.mdx` — Figma's button has no URL attached to it. Needs the real profile URL from Flore.
 
-**Nav (Sticky)**
-- Minimal below hero; docks to top on scroll
-- Links to: Work, Approach, About, Contact (anchor-scroll, not routes)
-- No user avatar or profile section in v1
+**Pan/Zoom Container (Map Illustration)** — resolved, no longer "if enabled"
+- Wraps the SVG illustration (`PanZoomContainer.jsx`)
+- Overflow-triggered per axis independently, not one width breakpoint: crop viewport width follows the map's native 1622px vs. available width; crop height follows `h-[min(982px,70svh)]` (native height capped by a viewport budget) vs. available height. A viewport that's wide-but-short crops only vertically; one that's narrow-but-tall crops only horizontally.
+- **No zoom at all** — `minScale={1} maxScale={1}`, deliberate (Flore wants to avoid a zoom control). `wheel={{ disabled: true }}` — the library's wheel handler is a zoom gesture and calls `preventDefault` unconditionally even when scale can't change, which was silently blocking desktop page-scroll over the map.
+- **Touch: two-finger pan, not one-finger.** `panning={{ disabled: coarsePointer }}` (via `(pointer: coarse)` media query) turns off the library's default single-finger drag-to-pan, because mobile browsers synthesize compatibility mouse events after a one-finger touch that drove a real pan regardless of touch-event handling — disabling `panning` at the config level is what actually stops it. Two-finger pan still works because it runs through the library's separate pinch path, gated only on `pinch.disabled` (left enabled). Desktop keeps mouse-drag pan (a different, unaffected code path).
+- **`svh` not `vh`** for the crop viewport height — `vh` tracks the *largest* mobile viewport and changes as the browser chrome collapses/expands during scroll, which was re-triggering re-centering mid-scroll and reading as random jumps.
+- Re-centering on resize: a `ResizeObserver` on the crop container calls `centerView()` imperatively when the container's own measured size changes — not a `window.resize` listener (which fires on mobile URL-bar collapse even though the container didn't change size) and not a remount (which threw away pan state unnecessarily).
+- Hotspot coordinates stay % of viewBox; pan/zoom is a viewport transform on top.
+
+**Nav (Sticky)** — resolved, four states across two components (`Nav.jsx`)
+- Hidden until the Hero (`#hero`) scrolls out of view (`IntersectionObserver`, not a scroll-position guess); always visible on subpages (no `#hero` to key off).
+- **Breakpoint: 768px (Tailwind `md`).** Not sampled from Figma — the frames given are 402px and 1622px with nothing in between — this is a judgment call, flagged to Flore, no objection raised. Revisit if it ever feels wrong on a real device.
+- **Desktop homepage:** home avatar + Work/Approach/About anchor links + Contact button. The link whose section is currently in view gets a persistent underline (`aria-current`, driven by an `IntersectionObserver` over the section elements with a `-20% 0px -70% 0px` root margin band) — this ships in Figma's own default navbar state (`NavbarDesktop placement=Homepage` shows "Work" pre-underlined), not something layered on separately.
+- **Mobile homepage:** closed = home avatar + hamburger in a `radius-60` pill; open = pill squares to `radius-32` and grows a stacked Work/Approach/About/Contact menu with 1px dividers, hamburger swapped for a close icon. Same rows use the same component/states as the desktop links (confirmed with Flore they're ButtonLink instances Figma flattened into loose text on export, not a separate unstyled thing) — including the current-section underline.
+- **Subpage (desktop and mobile, identical):** "← Back to Portfolio" + Contact only. No hamburger, no section anchors — per Flore, "it's on a different page," a deliberate dead end by design, not a state to fill in later.
+- Toggle is a real `<button>` (no navigation); every menu row is a real `<a>`.
+
+### Button Component Architecture (resolved)
+
+One component, `ButtonLink.jsx`, not one component per variant. A `variant` prop (`primary` / `secondary` / `tertiary` / `menu` / `popover`) selects a class string; every button on the site — ProjectCard CTAs, Nav links, Footer, Popover CTA — renders through this one file. Fixing a state (e.g. a missing focus ring) means fixing it once, here, not per call site.
+
+- `FOCUS_CLASS` — the blue focus-visible ring, applied to **every** variant (Figma's `state=focus` row shows it on all four ButtonLink variants + ButtonAction).
+- `LINK_CLASS` — the plain-text "menu" link treatment (color dims grey-90 → grey-80 → grey-70 on hover/pressed, no underline). Used for Footer's "View CV", the subpage nav's "Back to Portfolio", and the navbar's Work/Approach/About links — confirmed with Flore these are literally the same Figma component regardless of where they appear, so they must carry identical states. (An earlier pass split this into two classes on the theory that the navbar links had no sampled hover state — wrong; same component, same states.)
+- `LINK_UNDERLINE_CLASS` — the underline, used **only** for the navbar's current-section indicator, never by hover/pressed on `LINK_CLASS`.
+- `SECONDARY_BUTTON_CLASS` — the secondary variant's class, exported standalone so `ContactEmailButton` (a real `<button>`, not an `<a>`) can look identical to the secondary `ButtonLink` without duplicating its styling.
+- **Icons** are imported straight from the exported SVG assets in `src/assets/icons/*.svg` via `vite-plugin-svgr`'s `?react` suffix (see `icons.jsx`, `vite.config.js`) — compiled into real inline `<svg>` components, not hand-copied path data. The plugin rewrites Figma's hardcoded `fill="#0E0E0E"` to `currentColor` so icons can follow hover/pressed/focus colors. If a new icon is needed, export the asset from Figma into that folder and re-export it from `icons.jsx` — never paste SVG markup directly into a component.
+- **NDA project cards use `secondary` (outline), all other ProjectCards use `primary` (filled)** — sampled directly from a real NDA card instance in Figma, not assumed. NDA CTAs also open in a new tab (`target="_blank"`), since they send the reader off-site.
+- **Open naming duplicate:** Figma calls the plain-text variant "menu"; this doc's older text below calls the same visual treatment "Tertiary." Both names currently map to `LINK_CLASS` so nothing is broken, but it's worth collapsing to one name in Figma at some point.
 
 ---
 
@@ -163,10 +184,20 @@ One `.json` file per illustration (e.g., `hero-map-hotspots.json`). Structure:
 | Sinomocene | `sinomocene` | none | Feature case | "View Project" |
 | Teamchatviz | `teamchatviz` | none | Feature case | "View Project" |
 | Roche Icon System | `roche` | none | Feature case | "View Project" |
-| myRIDE | `myride` | `hotspot-myride` | NDA, external link | "myRIDE Website ↗" |
-| Redesigning Rega's app | `rega` | `hotspot-rega` | NDA, external link | "Rega App ↗" |
-| SAC | `sac` | `hotspot-sac` | NDA, external link | "SAC Website ↗" |
-| SBB | `sbb` | none | NDA, external link | "SBB App ↗" |
+| myRIDE | `myride` | `hotspot-myride` | NDA, external link | "myRIDE Website" |
+| Redesigning Rega's app | `rega` | `hotspot-rega` | NDA, external link | "Rega App" |
+| Faster trail discovery for 80k users (client: SAC) | `trail-app` | `hotspot-trail-app` | NDA, external link | "SAC App" |
+| SBB | `sbb` | none | NDA, external link | "SBB App" |
+
+**Correction:** "SAC" as a standalone project/slug doesn't exist — resolved earlier in this build. The real project is `trail-app` (title "Faster trail discovery for 80k users"); SAC is the *client name*, "SAC App" is the CTA label. Don't reintroduce a `sac` slug.
+
+CTA labels above are the literal string, no arrow character baked in — the external-link arrow is a separate `ExternalLinkIcon` component rendered alongside the label, since the exported arrow SVG can't be embedded in a plain string.
+
+Real external URLs (confirmed by Flore, wired into each project's `externalLink` frontmatter field):
+- myRIDE → `https://www.myride.ch/de/index.html`
+- Rega → `https://www.rega.ch/en/our-missions/this-is-how-we-help-you/rega-app`
+- SAC (trail-app) → `https://www.sac-cas.ch/en/sac-cas-app/`
+- SBB → `https://www.sbb.ch/en/travel-information/apps/sbb-mobile.html`
 
 Non-project hotspots (no Work-grid card): The Future of UX (podcast) → `hotspot-future-of-ux`, "Listen →"; Say hi! → `hotspot-say-hi`, "Say hi →" (Contact anchor); My Language River → `hotspot-language-river`, "Explore →" (About anchor); 333 Saftige Papayas → `hotspot-papayas`, "Read more →" (About anchor).
 
@@ -174,7 +205,7 @@ Non-project hotspots (no Work-grid card): The Future of UX (podcast) → `hotspo
 - `hotspot-artifakt` (marker, the interactive dot)
 - `hotspot-artifakt-highlight` (accent shape that turns orange on hover, if separate from background illustration)
 
-Note: myRIDE, Rega, SAC, and SBB are NDA projects without dedicated `.mdx` files (see File Structure) — their card content needs a defined home (either give them `.mdx` files with no route, or define in a data file). Open decision, not yet resolved.
+**Resolved:** myRIDE, Rega, trail-app (SAC), and SBB each have a real `.mdx` file in `src/content/projects/` like every other project — no route (`ProjectCard` links straight to `externalLink` instead of `/work/:slug` when `status: "nda-project"`), but same content-model home as everything else. No separate data file needed.
 
 ---
 
@@ -260,6 +291,7 @@ For projects with substantial content:
 - Focus management: focus moves to "View project" link when popover opens (optional, can also stay on marker)
 - Popover positioned absolutely but not off-screen; ARIA attributes optional for v1 but structure is semantic
 - **Marker tap target: minimum 44×44px** (WCAG 2.2 / Apple HIG), independent of visual dot size (18px). Implement as button padding/min-width/min-height around the dot, not a scaled-up dot — the visual mark stays 18px, only the invisible hit area grows. Fixed pixel size regardless of illustration scale/viewport (does not shrink with the SVG on mobile). Not represented in the Figma export — code-only concern; positioned via the same marker `x`/`y` from the JSON manifest.
+- **Focus ring gotcha (real bug, now fixed):** the marker dot's drop-shadow was originally set as an inline `style={{ boxShadow }}`. Inline styles always beat stylesheet rules regardless of specificity, so it silently overrode the focus ring's `box-shadow` composition on every render — the ring's CSS variables were computing correctly, but the paint never reflected them. Since markers are the *first* focusable elements in the page's tab order (before the Nav), this made it look like no focus states existed anywhere on the site. Fixed by moving the shadow to a Tailwind `shadow-[...]` class instead of inline style, so it composes with the ring rather than clobbering it. If a future component needs both a static shadow and an interactive ring, use classes for both — never mix one inline style with the other's utility class.
 
 ### Breadcrumb Wayfinding
 
@@ -291,16 +323,20 @@ At the top of Work, Approach, About, Contact sections (or per custom placement i
 
 Revised estimate — original 6-hour estimate below was written before the Popover variants, MediaCard family, Wayfinding hierarchy, and iframe embed were designed. Realistic total is closer to 16 hours across multiple sessions, not a single sitting.
 
-1. **Token pull** (15 min) — Copy `primitives.css`/`semantic.css`/`components.css` into `src/styles/tokens/`, fix the underscore/hyphen bug in `semantic.css` (see Design Tokens — Architecture), import into `globals.css`, wire semantic layer into Tailwind `theme.extend`
-2. **Content model resolution** (30 min) — Decide the open items before building against them: NDA project content home (`.mdx` vs. data file), media/press entry schema (MediaCard has no frontmatter/JSON home yet), Aside and ValueCard content structure
-3. **Skeleton** (3–4 hrs) — Full component hierarchy: Hero, Wayfinding (Guide + Breadcrumb + Avatar + Speech bubble, nested), ProjectCard (+ ProjectImage/ProjectMedia), Popover (Link + Contact variants), MediaCard (Image + Embed variants), Aside, ValueCard, Nav, Button family (Primary/Secondary/Tertiary/Menu/Popover). Placeholder content matching real copy length, no styling.
-4. **Typography** (1.5 hrs) — Type scale applied across the full component set, spacing from tokens, breakpoints working
-5. **Popover interaction** (2.5 hrs) — Hover/focus → open, click-outside/Escape → close, bridged hit area, keyboard support, plus the Contact variant's copy-to-clipboard behavior
-6. **Hotspot wiring** (1.5 hrs) — Marker/highlight positioning from `hero-map-hotspots.json`, tap targets, highlight toggle on hover
-7. **Iframe embed** (1 hr) — Language River embed, responsive/aspect-ratio sizing
-8. **Content wiring** (2 hrs) — Real copy and images into MDX/JSON for all 10 projects, media entries, Asides, and ValueCards
-9. **Styling & layout** (3 hrs) — Colors, visual polish, responsive grid, CTA styling across everything above
-10. **Polish & QA** (1 hr) — Link validation, breakpoint spot-check, accessibility spot-check, deploy
+**Status as of 2026-08-02** (end of the session covering Nav/Footer/Button states and the Contact section):
+
+1. ✅ **Token pull** — done.
+2. ✅ **Content model resolution** — done (NDA projects get real `.mdx` files, no route; see Naming Convention above).
+3. ✅ **Skeleton** — done.
+4. 🟡 **Typography** — partially done. Type classes have been applied component-by-component as each was built/reviewed, but the dedicated full-component-set pass this stage describes (systematic type-scale + breakpoint check across everything) hasn't happened yet. This is the literal "text size check" Flore asked to do next.
+5. ✅ **Popover interaction** — done, including the Contact variant's copy-to-clipboard.
+6. ✅ **Hotspot wiring** — done, including the 44×44px tap target and the keyboard focus ring (see Interaction Specifications below — this needed a real bug fix, not just implementation).
+7. ⬜ **Iframe embed** — not started. Blocked on Flore confirming the real Language River hosting URL.
+8. 🟡 **Content wiring** — partially done (all project frontmatter is real; NDA external links are real). Real copy for Approach/About (ValueCards, MediaCards, AsideCards) is still placeholder — Flore's Figma instance renames surfaced real titles ("Cold plunge," "Data illustrated") that aren't wired in yet.
+9. ⬜ **Styling & layout** — not started as its own pass. This is "card UI refinements + responsiveness," the next planned stage.
+10. ⬜ **Polish & QA** — not started.
+
+**Work done outside this strict order, folded back into the stages above:** the Nav rebuild (mobile hamburger, subpage variant, current-section state), Footer content, and the full button-state audit (hover/pressed/focus across every variant) all came out of Flore's own review pass rather than a scheduled stage — but they're really stage 4 (Typography/states) and stage 9 (styling) work that happened early because it's what she was actively testing. Treat them as done, not as scope creep to redo.
 
 **Not in scope for v1 (deferred until post-validation):**
 - Figma library reorg (primitives/semantic folder structure)
@@ -312,50 +348,84 @@ Revised estimate — original 6-hour estimate below was written before the Popov
 
 ## File Structure (Expected)
 
+Actual structure as of this session (supersedes the aspirational version below where they differ):
+
 ```
 src/
   components/
     Hero.jsx
+    PanZoomContainer.jsx
+    Hotspot.jsx
     Wayfinding.jsx
+    DistrictBreadcrumb.jsx
     ProjectCard.jsx
+    ProjectMedia.jsx
+    ValueCard.jsx
+    MediaCard.jsx
+    AsideCard.jsx
     Popover.jsx
-    Nav.jsx
+    CopyButton.jsx             # icon-only copy button, used by the map popover
+    ContactEmailButton.jsx     # full secondary-chrome copy button, Contact section
+    ButtonLink.jsx             # single button component, variant prop (see Button Component Architecture)
+    Nav.jsx                    # Desktop/Mobile homepage nav + Subpage nav, all in one file
+    Footer.jsx
+    Badge.jsx
+    Avatar.jsx
+    SpeechBubble.jsx
+    icons.jsx                  # re-exports from assets/icons/*.svg via vite-plugin-svgr, no hand-copied paths
+    Container.jsx
+  lib/
+    content.js                 # reads MDX/JSON via import.meta.glob, exposes projects + section frontmatter
+    hotspotHighlights.js
+    useCopyToClipboard.js      # shared idle/copied/failed hook (CopyButton + ContactEmailButton)
   content/
-    projects/
-      artifakt.mdx
-      pitchpivot.mdx
-      welcome-to-my-city.mdx
-      sinomocene.mdx
-      teamchatviz.mdx
-      roche.mdx
+    projects/                  # one .mdx per project, including NDA ones (myride/rega/sbb/trail-app)
+    sections/                  # work.mdx, approach.mdx, about.mdx, contact.mdx — section-level frontmatter
   pages/
     HomePage.jsx        # root, single-page scroll
     ProjectPage.jsx     # template for case-study sub-routes
   assets/
     fonts/
       HKGrotesk-*.ttf   # local webfont files
+    icons/
+      ic-*.svg          # source of truth for every icon; icons.jsx just re-exports these
     illustrations/
-      hero-map.svg
+      hero-map-background.svg
       hero-map-hotspots.json
     images/
       projects/         # project card thumbnails, e.g. artifakt-thumbnail.png (see Project & Hotspot Naming Convention)
   styles/
     tokens/
       primitives.css    # raw values — colors, spacing, radius
-      semantic.css      # role-based tokens referencing primitives (fix underscore/hyphen bug before use)
+      semantic.css      # role-based tokens referencing primitives (underscore/hyphen bug already fixed)
       components.css    # component-level tokens (buttons, navbar) referencing semantic
     globals.css         # @font-face, resets; imports tokens/*.css in cascade order
-    tailwind.config.js
   App.jsx
   index.jsx
+vite.config.js           # includes vite-plugin-svgr, configured to rewrite Figma's #0E0E0E fill to currentColor
+tailwind.config.js       # custom spacing/radius keys are prefixed space-N/radius-N, not bare numbers
 ```
 
 ---
 
 ## Open Decisions (Out of Scope for `CLAUDE.md`, but Worth Noting)
 
-- Pan/zoom initial zoom level and constraints when overflow is detected
-- Type scale compression across mobile breakpoints
+**Resolved this session** (kept here briefly so it's clear these aren't open anymore):
+- ~~Pan/zoom initial zoom level and constraints~~ → no zoom at all, `centerOnInit` + `limitToBounds`, see Pan/Zoom Container above.
+- ~~NDA project content home~~ → real `.mdx` files, no route.
+
+**Still open:**
+- **LinkedIn URL** — Contact section's primary button has no URL in Figma. Currently `PLACEHOLDER_LINKEDIN_URL` in `contact.mdx`. Needs Flore's real profile URL.
+- **Type scale compression across mobile breakpoints** — not yet audited as a dedicated pass (see Build Order stage 4).
+- **Nav breakpoint (768px)** — my judgment call, not a Figma sample (the file only has 402px and 1622px frames). No objection raised, but not explicitly confirmed either — revisit if it feels wrong on a real device.
+- **"menu" vs "Tertiary" naming** — same button treatment, two names (Figma vs. this doc). Both map to the same code today; worth collapsing to one in Figma eventually.
+- **Real copy for Approach/About cards** — ValueCards, MediaCards, AsideCards are still placeholder text. Flore's recent Figma instance renames surfaced real titles (e.g. AsideCard "Cold plunge," "Data illustrated") that aren't wired into the content files yet — signal that real copy exists and is coming in the Content Wiring stage.
+- **CV hosting** — footer's "View CV" currently points at a Google Drive share link (works only while shared as "anyone with the link," and Drive may show a scan interstitial for larger files). Self-hosting the PDF in `/public` would remove both risks before launch.
+
+**Figma file hygiene, worth keeping in mind going forward:**
+- **Code Connect is unavailable** — Flore is on a Figma Professional plan; Code Connect (mapping a Figma component directly to its real code implementation) requires Organization or Enterprise. Not worth pursuing unless the plan changes.
+- **Instance naming convention adopted:** Figma instances that repeat with different content are now named `ComponentName — Content` (e.g. `ProjectCard — Rega`, `ValueCard — Editing`). This is genuinely load-bearing for future sessions — it's the difference between one direct lookup and opening several instances to find the right one. Keep using it for any new repeating component.
+- **Duplicate-frame risk:** earlier in this build the file had a full duplicate of the entire page (`Welcome to my city_on scroll`, a scrolling-prototype frame wrapping a second copy of every section) sitting alongside the real page frame (`bp-1622-desktop`). It had drifted from the original in at least one place (a font-weight difference on the Contact section body copy) before being found and deleted. If a similar duplicate frame gets created again for prototyping, treat its contents as reference only, not a second source of truth — or delete it once the prototype's served its purpose.
 
 ---
 
@@ -366,4 +436,6 @@ src/
 - **One feature per commit.** Roll back with `git` instead of arguing a broken session back to working.
 - **Accessibility is structural, not polish.** Keyboard support, focus management, semantic HTML go in during Skeleton and Interaction stages, not added after.
 - **Tokens are not optional.** Pulling from Figma via MCP and storing as CSS variables is how "change a color everywhere" stays cheap for later.
-- **HTML tag follows behavior, not visual style.** Anything that navigates (internal route, external URL, or anchor-scroll) is an `<a>`, regardless of whether it's styled as a filled/outline pill button or plain text — "Read case study," "Rega App ↗," and the anchor-scroll popover CTA are all `<a>` elements. `<button>` is reserved for actions with no navigation at all — in this project, that's only the copy-to-clipboard control in the Say Hi popover. Figma's "Button" vs "Link" component naming is a visual taxonomy (chrome vs. plain text) and does not by itself determine the HTML tag.
+- **HTML tag follows behavior, not visual style.** Anything that navigates (internal route, external URL, or anchor-scroll) is an `<a>`, regardless of whether it's styled as a filled/outline pill button or plain text — "Read case study," "Rega App," and the anchor-scroll popover CTA are all `<a>` elements. `<button>` is reserved for actions with no navigation at all — in this project, that's the copy-to-clipboard controls (the Say Hi popover's `CopyButton`, and the Contact section's `ContactEmailButton`). Figma's "Button" vs "Link" component naming is a visual taxonomy (chrome vs. plain text) and does not by itself determine the HTML tag.
+- **Enumerate a component's full state matrix before building it, don't sample reactively.** `get_metadata` on a Figma component set returns every variant/state symbol by name (e.g. `variant=secondary, state=hover`) — read that list first and treat any state you haven't built as unfinished, not out of scope. Sampling only the state needed for the immediate layout and waiting to be told what's missing wastes the work Flore already put into defining those states. Two specific traps this caused: applying a hover treatment sampled from one component onto a different (if visually similar) one — check whether two things are actually the *same* Figma component before assuming they share states, and ask if it's ambiguous rather than infer; and trusting a state-grid screenshot's colors by eye instead of sampling the real node (a hover label that looks black is actually grey-80, `#494747`).
+- **Verify in the browser, not by reading the code back.** `getComputedStyle`, a real keyboard `Tab` press (not a scripted `.focus()`, which doesn't reliably trigger the same `:focus-visible` browser heuristic), an actual click — not just "the class name looks right." Several real bugs this session were invisible from the code alone: a Tailwind spacing key silently colliding with the default scale, an inline style permanently overriding a CSS ring despite the ring's variables computing correctly, a gradient overlay literally painting over content it wasn't supposed to touch.
