@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import ButtonLink, { FOCUS_CLASS, LINK_CLASS } from './ButtonLink'
+import ButtonLink, { FOCUS_CLASS, LINK_CLASS, LINK_UNDERLINE_CLASS } from './ButtonLink'
 import { ArrowBackIcon, MenuIcon, CloseIcon } from './icons'
 import homeIcon from '../assets/icons/ic-home.svg'
 
@@ -9,6 +9,47 @@ const LINKS = [
   { label: 'Approach', href: '#approach' },
   { label: 'About', href: '#about' },
 ]
+
+const MENU_LINKS = [...LINKS, { label: 'Contact', href: '#contact' }]
+
+// Which section the reader is currently in, so its nav link can carry the
+// selected state. Figma's NavbarDesktop placement=Homepage ships this in its
+// default state -- "Work" is underlined there while Approach and About aren't
+// -- which I'd missed, rendering all three links identically.
+//
+// A section counts as current while it crosses a thin band near the top of
+// the viewport (via rootMargin), rather than on raw scroll offsets, so it
+// doesn't need re-tuning per breakpoint as sections change height. Falls back
+// to the last section scrolled past so something is always selected once the
+// nav is visible.
+function useCurrentSection() {
+  const [current, setCurrent] = useState(null)
+
+  useEffect(() => {
+    const sections = MENU_LINKS.map((link) => document.getElementById(link.href.slice(1))).filter(Boolean)
+    if (!sections.length) return undefined
+
+    const visible = new Set()
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) visible.add(entry.target.id)
+          else visible.delete(entry.target.id)
+        })
+        // Keep document order rather than intersection-callback order, so two
+        // sections in the band at once resolve to the higher one.
+        const inOrder = sections.filter((section) => visible.has(section.id))
+        if (inOrder.length) setCurrent(inOrder[0].id)
+      },
+      { rootMargin: '-20% 0px -70% 0px', threshold: 0 },
+    )
+
+    sections.forEach((section) => observer.observe(section))
+    return () => observer.disconnect()
+  }, [])
+
+  return current
+}
 
 // Breakpoint where the desktop navbar becomes the mobile one. Not sampled
 // from Figma -- the frames are 402px and 1622px with nothing in between, so
@@ -78,18 +119,26 @@ function SubpageNav() {
 }
 
 // Desktop homepage navbar: home avatar + section anchors + Contact button.
-function DesktopHomeNav() {
+function DesktopHomeNav({ currentSection }) {
   return (
     <nav data-component="nav" data-variant="homepage-desktop" className={`${PILL_CLASS} hidden p-2 md:flex`}>
       <HomeAvatar href="#hero" label="Back to the map" />
       <ul className="flex items-center gap-10" style={{ listStyle: 'none' }}>
-        {LINKS.map((link) => (
-          <li key={link.href}>
-            <a href={link.href} className={`text-[16px] font-bold ${LINK_CLASS}`}>
-              {link.label}
-            </a>
-          </li>
-        ))}
+        {LINKS.map((link) => {
+          const isCurrent = currentSection === link.href.slice(1)
+          return (
+            <li key={link.href}>
+              <a
+                href={link.href}
+                aria-current={isCurrent ? 'true' : undefined}
+                data-current={isCurrent || undefined}
+                className={`text-[16px] ${LINK_CLASS} ${isCurrent ? LINK_UNDERLINE_CLASS : ''}`}
+              >
+                {link.label}
+              </a>
+            </li>
+          )
+        })}
         <li>
           <ButtonLink variant="secondary" href="#contact">
             Contact
@@ -109,7 +158,7 @@ function DesktopHomeNav() {
 // Contact appears as a plain menu row here, not a button, matching Figma. The
 // toggle is a real <button> (an action, no navigation) while every menu row
 // is an <a>, per the tag-follows-behavior rule in CLAUDE.md.
-function MobileHomeNav() {
+function MobileHomeNav({ currentSection }) {
   const [open, setOpen] = useState(false)
   const navRef = useRef(null)
 
@@ -128,8 +177,6 @@ function MobileHomeNav() {
       document.removeEventListener('pointerdown', onPointerDown)
     }
   }, [open])
-
-  const menuLinks = [...LINKS, { label: 'Contact', href: '#contact' }]
 
   return (
     <nav
@@ -156,16 +203,19 @@ function MobileHomeNav() {
 
       {open && (
         <ul className="flex flex-col px-space-8" style={{ listStyle: 'none' }}>
-          {menuLinks.map((link, index) => (
+          {MENU_LINKS.map((link, index) => (
             <li key={link.href} className="w-full">
               {index > 0 && <div className="h-px w-full bg-border-divider" />}
-              {/* Color + focus states only, deliberately no underline: these
-                  rows are plain text nodes in Figma's mobile menu, not
-                  ButtonLink instances, so there's no sampled hover state for
-                  them. An underline here would also read as another divider,
-                  since the rows already sit between real ones. */}
+              {/* No selected-state underline here, unlike the desktop nav:
+                  the mobile menu rows are plain text nodes in Figma with no
+                  state variants at all, so there's nothing sampled to follow,
+                  and an underline would read as another divider between the
+                  real ones. aria-current still marks the section for screen
+                  readers. Flagged to Flore as a genuine gap in the design
+                  rather than filled in by guessing. */}
               <a
                 href={link.href}
+                aria-current={currentSection === link.href.slice(1) ? 'true' : undefined}
                 onClick={() => setOpen(false)}
                 className={`flex w-full items-center px-space-12 py-space-14 text-[16px] font-bold text-action-link-foreground transition-colors hover:text-action-link-foreground-hover active:text-action-link-foreground-pressed ${FOCUS_CLASS}`}
               >
@@ -188,6 +238,7 @@ export default function Nav() {
   const { pathname } = useLocation()
   const isHome = pathname === '/'
   const [visible, setVisible] = useState(!isHome)
+  const currentSection = useCurrentSection()
 
   useEffect(() => {
     const hero = document.getElementById('hero')
@@ -210,8 +261,8 @@ export default function Nav() {
     >
       {isHome ? (
         <>
-          <DesktopHomeNav />
-          <MobileHomeNav />
+          <DesktopHomeNav currentSection={currentSection} />
+          <MobileHomeNav currentSection={currentSection} />
         </>
       ) : (
         <SubpageNav />
