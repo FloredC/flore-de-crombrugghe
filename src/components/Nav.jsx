@@ -203,26 +203,31 @@ function MobileHomeNav({ currentSection }) {
 
       {open && (
         <ul className="flex flex-col px-space-8" style={{ listStyle: 'none' }}>
-          {MENU_LINKS.map((link, index) => (
+          {MENU_LINKS.map((link, index) => {
+            const isCurrent = currentSection === link.href.slice(1)
+            return (
             <li key={link.href} className="w-full">
               {index > 0 && <div className="h-px w-full bg-border-divider" />}
-              {/* No selected-state underline here, unlike the desktop nav:
-                  the mobile menu rows are plain text nodes in Figma with no
-                  state variants at all, so there's nothing sampled to follow,
-                  and an underline would read as another divider between the
-                  real ones. aria-current still marks the section for screen
-                  readers. Flagged to Flore as a genuine gap in the design
-                  rather than filled in by guessing. */}
+              {/* These rows are ButtonLink instances, same as the desktop nav
+                  links -- they only appear as loose text nodes in Figma
+                  because it generated the frame that way, per Flore. So they
+                  take the full link treatment: hover/pressed color + underline
+                  and the selected-section underline, rather than the
+                  color-only version I'd built from the flattened export. */}
               <a
                 href={link.href}
-                aria-current={currentSection === link.href.slice(1) ? 'true' : undefined}
+                aria-current={isCurrent ? 'true' : undefined}
+                data-current={isCurrent || undefined}
                 onClick={() => setOpen(false)}
-                className={`flex w-full items-center px-space-12 py-space-14 text-[16px] font-bold text-action-link-foreground transition-colors hover:text-action-link-foreground-hover active:text-action-link-foreground-pressed ${FOCUS_CLASS}`}
+                className={`flex w-full items-center px-space-12 py-space-14 text-[16px] transition-colors ${LINK_CLASS} ${
+                  isCurrent ? LINK_UNDERLINE_CLASS : ''
+                }`}
               >
                 {link.label}
               </a>
             </li>
-          ))}
+            )
+          })}
         </ul>
       )}
     </nav>
