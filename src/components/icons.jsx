@@ -34,3 +34,35 @@ export function ExternalLinkIcon(props) {
     </svg>
   )
 }
+
+export function ArrowBackIcon(props) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+      <path
+        d="M2.57967 10.987L2.44916 10.8565C2.05872 10.466 2.05866 9.83279 2.44916 9.44229L2.57967 9.31178V9.15019H2.74125L6.6918 5.19965L8.10601 6.61386L5.56968 9.15019H17.1196V11.15H5.57106L8.10601 13.6849L6.6918 15.0991L2.74263 11.15H2.57967V10.987Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+export function MenuIcon(props) {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+      <path d="M3.47628 5.82422H20.5242V7.82401H3.47628V5.82422Z" fill="currentColor" />
+      <path d="M3.47559 10.9998H20.5235V12.9996H3.47559V10.9998Z" fill="currentColor" />
+      <path d="M3.47559 16.176H20.5235V18.1758H3.47559V16.176Z" fill="currentColor" />
+    </svg>
+  )
+}
+
+export function CloseIcon(props) {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+      <path
+        d="M19.3984 6.01587L13.4141 11.9993L19.3994 17.9846L17.9844 19.3987L12 13.4143L6.01562 19.3987L4.60156 17.9846L10.5859 12.0002L4.60156 6.01587L6.01562 4.60181L12 10.5852L17.9844 4.60181L19.3984 6.01587Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
