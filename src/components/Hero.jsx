@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import heroMapBackground from '../assets/illustrations/hero-map-background.svg'
 import PanZoomContainer from './PanZoomContainer'
 import Hotspot from './Hotspot'
@@ -15,25 +15,87 @@ const GREETING = (
   </>
 )
 
-// The map's natural/native size -- it never scales down to fit a narrower
-// viewport (per Flore: "the map stays that size but gets viewport crops as
-// soon as it's too big for that breakpoint"). This is the threshold for
-// switching layouts, not an arbitrary mobile-vs-desktop breakpoint.
+// The map's natural size. It is never scaled *up* past this -- above it the
+// margins grow instead (Flore's call; filling the viewport was tried and
+// rejected). Below it the map now scales down to fit rather than cropping.
 const MAP_NATIVE_WIDTH = 1622
-// The map's native height (982px) is referenced directly in the crop
-// viewport's h-[min(982px,70svh)] class below (Tailwind arbitrary-value
-// classes can't consume a JS variable) -- keep that literal in sync with
-// this if the source SVG's intrinsic height ever changes.
+const MAP_NATIVE_HEIGHT = 982
+
+// Vertical space the hero reserves around the map: the section's own py-12,
+// top and bottom. Subtracted from the viewport height before working out how
+// wide the map can be.
+const HERO_VERTICAL_RESERVE = 96
+
+// Below this width the map stops scaling and goes back to cropping with
+// two-finger pan -- phones, where Figma stacks the Guide above the map
+// anyway (402 frame, node 2928:78203) rather than overlaying it.
+//
+// This used to be MAP_NATIVE_WIDTH, which meant every real laptop cropped:
+// 1622 is wider than a MacBook Pro. Worse, the binding constraint on a laptop
+// is *height*, not width -- at 1500x820 the width is 92% adequate and it's the
+// 820px height that forces the map down to 0.74. So width alone was never the
+// right control variable for cropping; it only survives here as the phone
+// cutoff, where it genuinely is about width.
+const CROP_BREAKPOINT = 768
+
+// Scale the map to fit both axes, capped at native size. Pure CSS, and
+// deliberately not `transform: scale()` -- a transform would scale the
+// hotspots' 44x44 hit areas along with the artwork (33px at 0.75, below the
+// WCAG minimum). Resizing the image instead leaves the hotspots as fixed-size
+// absolutely-positioned siblings that follow by percentage, so the 44px
+// minimum survives at every scale for free.
+//
+// svh, not vh: vh tracks the largest mobile viewport and changes as browser
+// chrome collapses during scroll, which would resize the map mid-scroll.
+const MAP_FIT_WIDTH =
+  `min(${MAP_NATIVE_WIDTH}px, 100%, ` +
+  `calc((100svh - ${HERO_VERTICAL_RESERVE}px) * ${MAP_NATIVE_WIDTH} / ${MAP_NATIVE_HEIGHT}))`
 
 function useMapFits() {
   const [fits, setFits] = useState(true)
   useEffect(() => {
-    const check = () => setFits(window.innerWidth >= MAP_NATIVE_WIDTH)
+    const check = () => setFits(window.innerWidth >= CROP_BREAKPOINT)
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
   }, [])
   return fits
+}
+
+// Temporary, dev-only: turns "this feels too small" into a number, so the
+// scale floor gets set from an observed value rather than a guess. Remove
+// once the floor is agreed.
+function ScaleReadout({ mapRef }) {
+  const [info, setInfo] = useState(null)
+  useEffect(() => {
+    const el = mapRef.current
+    if (!el) return
+    const read = () =>
+      setInfo({
+        vw: window.innerWidth,
+        vh: window.innerHeight,
+        w: Math.round(el.getBoundingClientRect().width),
+        scale: el.getBoundingClientRect().width / MAP_NATIVE_WIDTH,
+      })
+    read()
+    const ro = new ResizeObserver(read)
+    ro.observe(el)
+    window.addEventListener('resize', read)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', read)
+    }
+  }, [mapRef])
+  if (!info) return null
+  return (
+    <div
+      data-component="scale-readout"
+      className="pointer-events-none fixed bottom-space-16 right-space-16 z-50 rounded-radius-8 bg-black/80 px-space-12 py-space-8 font-mono text-caption text-white"
+    >
+      {info.vw}×{info.vh} · map {info.w}px · scale{' '}
+      <strong className="text-action-accent-foreground">{info.scale.toFixed(3)}</strong>
+    </div>
+  )
 }
 
 function Guide() {
@@ -88,12 +150,13 @@ export default function Hero() {
   // closes any other that's open -- "only one popover open at a time" per spec.
   const [activeHotspotId, setActiveHotspotId] = useState(null)
   const mapFits = useMapFits()
+  const mapRef = useRef(null)
 
   return (
     <section
       id="hero"
       data-component="hero"
-      className="relative flex min-h-screen flex-col overflow-hidden bg-surface-canvas py-12"
+      className="relative flex min-h-svh flex-col overflow-hidden bg-surface-canvas py-12"
     >
       {/* Sampled from Figma's "gradient" node: surface-canvas (#f0f6ff) fading
           to white over ~150px, sitting right at the map's bottom edge -- the
@@ -110,14 +173,22 @@ export default function Hero() {
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[150px] bg-gradient-to-b from-surface-canvas to-white" />
 
       {mapFits ? (
-        // Map fits at its native 1622px width: Guide overlays the map's
-        // top-left corner (the illustration reserves empty space there).
+        // Map fits: scaled down if it has to, never cropped, and the Guide
+        // overlays the map's top-left corner (the illustration reserves empty
+        // space there).
+        //
+        // The overlay is the whole reason the empty top-right area disappears.
+        // It was never a z-index problem: the Guide only stacks *above* the map
+        // in the crop branch, taking a full row of height with just its left
+        // third used. Since a 1500px laptop now fits instead of cropping, it
+        // gets the overlay again.
         <div className="flex flex-1 flex-col justify-center">
-          {/* Capped at the map's native width and centered: above 1622 the
-              margins grow and the map does not scale up. Briefly tried
-              letting it fill the viewport instead -- Flore didn't like how
-              it read on a large screen, so this is back to the original. */}
-          <div data-component="hero-map" className="relative mx-auto w-full max-w-[1622px]">
+          <div
+            ref={mapRef}
+            data-component="hero-map"
+            className="relative mx-auto"
+            style={{ width: MAP_FIT_WIDTH }}
+          >
             <div data-component="guide" className="absolute left-[3%] top-[4%] z-10 flex max-w-[320px] flex-col items-start gap-2">
               <Guide />
             </div>
@@ -151,7 +222,7 @@ export default function Hero() {
               svh is the stable small-viewport unit and doesn't move. */}
           <div className="relative z-10 mt-8 h-[min(982px,70svh)] w-full overflow-hidden">
             <PanZoomContainer enabled>
-              <div data-component="hero-map" className="relative" style={{ width: MAP_NATIVE_WIDTH }}>
+              <div ref={mapRef} data-component="hero-map" className="relative" style={{ width: MAP_NATIVE_WIDTH }}>
                 <MapContent activeHotspotId={activeHotspotId} setActiveHotspotId={setActiveHotspotId} />
               </div>
             </PanZoomContainer>
@@ -166,6 +237,7 @@ export default function Hero() {
           </div>
         </>
       )}
+      {import.meta.env.DEV && <ScaleReadout mapRef={mapRef} />}
     </section>
   )
 }
