@@ -132,7 +132,7 @@
 <body>
 
 <h1>Content Wiring — Real Copy, Image Labels &amp; the Language River</h1>
-<p class="subtitle">Getting real content out of Figma and into the portfolio build: the ten project cards, the Approach and About sections, and the self-hosted Language River chart. Mostly a story about the gap between "the frontmatter is filled in" and "the content is actually there."</p>
+<p class="subtitle">Getting real content out of Figma and into the portfolio build: the ten project cards, the Approach and About sections, and the self-hosted Language River chart. Mostly a story about an AI collaborator offering to write copy I'd already written — and what "content wiring" turned out to mean to each of us.</p>
 <p class="date-range">Sessions: 2 Aug 2026</p>
 
 <div class="toc">
@@ -152,10 +152,29 @@
     The plan was stage 8 of the build order — swap placeholder copy for real copy before doing any type or layout pass. What actually happened: two rounds of me and Claude meaning different things by "content wiring," a detour through where image files live, and a chart version mix-up. The content did land, but the useful material here is the friction, not the result.
   </p>
 
-  <h3 class="sub">The main misunderstanding — "content wiring" isn't frontmatter</h3>
+  <h3 class="sub">The main misunderstanding — and the part that wasn't a misunderstanding</h3>
   <p class="section-desc">
-    Claude reported content wiring as basically done after filling in MDX <em>frontmatter</em> — titles, descriptions, links. From my side, nothing that mattered had been added: no body copy for any case study, and no image labels anywhere. The word covered two very different scopes and neither of us checked.
+    Claude reported content wiring as basically done. From my side almost nothing that mattered had been added, and I had to ask twice before the real copy got pulled. Two separate things were going on, and only the first is a vocabulary problem.
   </p>
+
+  <div class="concept-grid">
+    <div class="concept-block">
+      <h4>My definition</h4>
+      <p>Content wiring = <b>the media</b> (images, iframes, embeds) <b>+ the actual written content</b>. Now the agreed definition.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Claude's working definition</h4>
+      <p>"Every field that exists in the content model holds a non-placeholder value." Narrower, and never said out loud so I could disagree with it.</p>
+    </div>
+    <div class="concept-block">
+      <h4>The real failure</h4>
+      <p>It didn't even meet its own definition. Four cards still read <i>"Placeholder one-line hook for the work grid card"</i> and the other six had one-line stubs that just restated the title — while Figma had 2–3 sentence descriptions for all ten, from the start.</p>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>The moment that actually explains the session.</b> At the very start, Claude grepped the content files, found those four literal <code class="inline">Placeholder</code> descriptions, listed them to me — and then asked whether I would supply the copy or whether it should draft some, offering to use my writing-voice skill. It offered to <em>write</em> copy that already existed in the Figma file it had been reading all session. The wrong assumption wasn't about the word "content"; it was treating missing content as <b>not yet written</b> rather than <b>not yet pulled</b>. Default should be the opposite: assume the content exists in Figma and go look, before ever asking me to write anything.
+  </div>
 
   <div class="decision-log">
     <div class="decision key-decision">
@@ -166,7 +185,7 @@
     <div class="decision key-decision">
       <div class="decision-date">Turning point</div>
       <div class="decision-what">Image labels are a real component element, not alt text</div>
-      <div class="decision-why">I said "the images have labels." Claude assumed I meant screen-reader alt text and asked which I wanted. The answer was neither guess: every ProjectMedia in Figma contains a visible caption inside the bordered frame ("Cost calculator — production web app"). The built component rendered no caption at all — a whole content slot was missing from the implementation, and nobody noticed because the placeholder images filled the space.</div>
+      <div class="decision-why">I said "the images have labels." Claude assumed I meant screen-reader alt text and asked which I wanted. The answer was neither guess: every ProjectMedia in Figma contains a visible caption inside the bordered frame ("Cost calculator — production web app"). The built component had no caption element at all — not empty, not placeholder, absent since the Skeleton stage. That's why no placeholder audit could have caught it: a field missing from the content model can't be found by searching for unfilled fields. The card also gave no visual tell, since the thumbnail, title, description and button were all real.</div>
     </div>
     <div class="decision">
       <div class="decision-date">Content model</div>
@@ -240,10 +259,25 @@
 
   <h3 class="sub">What I'd do differently next time</h3>
   <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">Rule</div>
+      <div class="decision-what">Assume the content exists in Figma. Look before asking me to write anything.</div>
+      <div class="decision-why">The single highest-value change. Every time Claude hit missing copy it read that as "Flore hasn't written this yet" and asked me to supply or approve drafted text. The correct reading was "I haven't pulled this yet." Asking me to write copy that already exists is worse than useless — it burns a round trip <em>and</em> risks inventing a second, competing version of my own words.</div>
+    </div>
+    <div class="decision key-decision">
+      <div class="decision-date">Rule</div>
+      <div class="decision-what">Diff the Figma component's layers against the content model — in that direction</div>
+      <div class="decision-why">Mapping Figma <em>onto the fields that already exist</em> can only ever find values for fields someone already thought of. Asked the other way — "what layers does this component have that my model has no field for?" — <code class="inline">meta</code>, the image caption, and the ValueCard image block all surface in one pull. This is the same rule as enumerating a component's full variant/state matrix before building it, applied to content instead of states.</div>
+    </div>
     <div class="decision">
       <div class="decision-date">Process</div>
-      <div class="decision-what">Start any content stage with a placeholder audit, out loud</div>
-      <div class="decision-why">One grep listed every remaining placeholder in the project. Running that first — and agreeing the list <em>is</em> the definition of done — would have prevented the whole "content wiring is done / no it isn't" round trip.</div>
+      <div class="decision-what">A placeholder grep is a starting point, never a completeness check</div>
+      <div class="decision-why">Searching the content files for the word "Placeholder" only matches text inside fields that already exist. A slot that was never modelled has no line to match, so it stays invisible while fake-but-filled values are loud. It reported "four items left" while three whole slots were missing and six descriptions were stubs.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Process</div>
+      <div class="decision-what">Don't trust a "stage done" line in CLAUDE.md over the Figma file</div>
+      <div class="decision-why">A status note reading "all project frontmatter is real" is why the ProjectCard nodes were never pulled in the first round at all. The doc described an earlier session's intent; the file is the truth.</div>
     </div>
     <div class="decision">
       <div class="decision-date">Process</div>
@@ -259,7 +293,7 @@
 
   <div class="hook">
     <div class="hook-label">Shareable hook</div>
-    Claude told me content wiring was done. It wasn't — we'd been using the same phrase for two different jobs: it meant "the frontmatter fields are filled in," I meant "the words a visitor actually reads." The tell was that a whole content slot was missing from the built component and neither of us had noticed, because placeholder images were quietly filling the space where every image caption was supposed to be.
+    Claude found four cards on my site still reading "Placeholder one-line hook" — and asked whether I'd like to write the real copy, or have it drafted for me. The copy already existed. It had been sitting in the Figma file Claude had been reading all afternoon. It hadn't misread the content; it had never occurred to it to go and get it, because missing text reads as <em>not yet written</em> when it almost always means <em>not yet pulled</em>. The lesson I'm keeping: when an AI collaborator offers to write something for you, check whether you've already written it.
   </div>
 </div>
 

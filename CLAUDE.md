@@ -332,7 +332,13 @@ Revised estimate — original 6-hour estimate below was written before the Popov
 5. ✅ **Popover interaction** — done, including the Contact variant's copy-to-clipboard.
 6. ✅ **Hotspot wiring** — done, including the 44×44px tap target and the keyboard focus ring (see Interaction Specifications below — this needed a real bug fix, not just implementation).
 7. ⬜ **Iframe embed** — not started. Blocked on Flore confirming the real Language River hosting URL.
-8. 🟡 **Content wiring** — partially done (all project frontmatter is real; NDA external links are real). Real copy for Approach/About (ValueCards, MediaCards, AsideCards) is still placeholder — Flore's Figma instance renames surfaced real titles ("Cold plunge," "Data illustrated") that aren't wired in yet. **Next up.**
+8. 🟡 **Content wiring** — partially done. **Describe status by what a visitor sees, never by which code fields are populated.** The previous note here said "all project frontmatter is real," which was both false (four `description:` fields were still scaffolding) and useless as a status — a claim about internal fields says nothing about body prose, and nothing at all about content slots that were never modelled. Trusting it over the Figma file is why the ProjectCard nodes went unpulled for a whole round.
+
+   **Content wiring means, per Flore: the media (images, iframes, embeds) + the actual written content.** Both come out of Figma. Missing copy means *not yet pulled*, not *not yet written* — check Figma before ever asking Flore to write or approve copy.
+
+   Done: all 10 project cards (meta, title, description, image caption, CTA), Approach ValueCards + MediaCards, About AsideCards, NDA external links, the Language River embed.
+
+   Still outstanding: all six case-study/feature-case **bodies** are scaffolding prose; Contact bubble copy; the Approach "Selected talks & writing" bubble (marked `TO COMPLETE`); the LinkedIn URL; and four cards whose Figma instances still hold unedited component defaults, shipped as visible `REVIEW —` markers (Artifakt caption, PitchPivot caption, Rega meta + caption).
 9. ⬜ **Styling & layout** — not started as its own pass. "Card UI refinements + responsiveness."
 10. ⬜ **Polish & QA** — not started.
 
