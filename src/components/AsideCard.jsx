@@ -1,5 +1,13 @@
 import ImagePlaceholder from './ImagePlaceholder'
 
+// All three Aside variants are 4:3 (400x300, 500x375, 600x450 — node
+// 4533:19992), so `size` selects a max width, not a different ratio.
+const ASIDE_MAX_WIDTH = {
+  small: 'max-w-[400px]',
+  medium: 'max-w-[500px]',
+  large: 'max-w-[600px]',
+}
+
 export default function AsideCard({ item }) {
   return (
     <article
@@ -19,10 +27,12 @@ export default function AsideCard({ item }) {
         <img
           src={item.image}
           alt={item.title}
-          className="aspect-[4/3] w-full rounded-radius-20 object-cover"
+          className={`aspect-[4/3] w-full rounded-radius-20 object-cover ${ASIDE_MAX_WIDTH[item.size] || ASIDE_MAX_WIDTH.small}`}
         />
       ) : (
-        <ImagePlaceholder className="aspect-[4/3] w-full rounded-radius-20" />
+        <ImagePlaceholder
+          className={`aspect-[4/3] w-full rounded-radius-20 ${ASIDE_MAX_WIDTH[item.size] || ASIDE_MAX_WIDTH.small}`}
+        />
       )}
     </article>
   )
