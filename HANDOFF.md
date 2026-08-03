@@ -33,20 +33,33 @@ height, card height sets grid behaviour, grid sets where sections begin and end,
 determines where text wraps, which is the input to the type pass. Going the other direction
 means redoing each step when the one beneath it moves.
 
-### 0. Global layout system
-Containers, max widths, per-section grid definitions, gutters, the section/block spacing scale.
-Pull from Figma — most is already readable:
+### 0. Global layout system — **DONE.** Don't re-derive it.
 
-```
-page 1622 → content 1280 (171px outer margin) → container 1184 (48px inner padding)
-Work section:    6-col grid, 60px gutters. Artifakt spans 6, other cards span 3 (2-up)
-Feature cases:   6-col grid, 60px gutters, cards span 2 (3-up)
-About:           12-col grid, 24px gap
-```
+Measured from `bp-1622-desktop` (`2928:73693`) and `402-mobile` (`2928:78203`), and now
+lives in **`src/lib/layout.js`**, each constant annotated with the node it came from.
+Verified in the browser against Figma: container chain, section rhythm, every card width
+and collage offset match to sub-pixel. See CLAUDE.md → Layout System for the decisions.
 
-**Ask Flore:** is the 6-col Work vs 12-col About difference intentional, or drift?
-**Ask Flore:** above 1622 — proposed is to cap content at 1280, let margins grow, and keep the
-map centred at its native 1622 rather than scaling it up. Needs confirming.
+Two corrections to what this file used to say here, since both were load-bearing:
+
+- **It is one grid system, not two.** Every section is 12 columns on the same container;
+  only the gutter differs (Work wider, Approach/About tighter). Confirmed intentional.
+  The old "6-col vs 12-col" reading made them look incompatible.
+- **Artifakt spans 10 of 12, not the full width.** The old note said 6-of-6, i.e. full
+  bleed. It isn't — there's a deliberate gap on the right.
+
+**Answered by Flore this pass:** the gutter difference is intentional; Approach/About
+stay a collage at desktop and collapse to a grid below; mobile side margin follows Figma
+(the code's old comment disagreed); and above the desktop frame the content caps while
+**the map keeps scaling** — that's a change from the "keep the map at native width"
+proposal that used to be written here.
+
+**Still open from this pass — both look like Figma slips, built as-measured:**
+- The ValueCard row frame is wider than the container it sits in; its gutter doesn't
+  match the rest of the section, so the row overflows. Code uses the section's gutter,
+  which fits exactly.
+- Work's section-header gap and its first Wayfinding gap are both tighter than the
+  equivalent gaps in every other section.
 
 ### 1. Card media
 

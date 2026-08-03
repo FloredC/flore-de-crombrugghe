@@ -223,6 +223,48 @@ Non-project hotspots (no Work-grid card): The Future of UX (podcast) → `hotspo
 
 ## Styling & Design System
 
+### Layout System (resolved 2026-08-03)
+
+Lives in **`src/lib/layout.js`** — grid definitions, gutters, and the section/block
+spacing rhythm, each constant carrying the Figma node it was measured from. Components
+import from there rather than writing spacing utilities inline. Per the no-duplication
+rule, the numbers are in that file and in Figma, not here.
+
+Measured from the two page frames: `bp-1622-desktop` (node `2928:73693`) and
+`402-mobile` (node `2928:78203`). There was never a layout stage before this one —
+components were built before the system they sit in, which is why section spacing and
+card grid behaviour were both open.
+
+**Decisions confirmed with Flore:**
+
+- **Every section is a 12-column grid on the same container. Only the gutter differs**
+  between the Work zone and the Approach/About zone, and that difference is deliberate
+  — project cards get more air than the smaller editorial cards. Reading Work as a
+  6-column grid (as an earlier handoff did) makes it look like a second, incompatible
+  system; it isn't. Twelve columns reproduces every Work card width exactly.
+- **The 12-column grid only engages at `xl`**, where `Container` resolves to its exact
+  Figma width. The Work gutter across twelve columns leaves ~5px columns at tablet
+  widths. Below `xl`, sections fall back to plain N-up grids.
+- **Approach and About are staggered collages in Figma, not grids** — fixed-width cards
+  hand-placed with horizontal and vertical offsets. They stay a collage at `xl` and
+  collapse to a plain grid below, since hand-set offsets have nowhere to go on a narrow
+  viewport.
+- **Above the desktop frame width, page content stays capped and the margins grow — but
+  the map is the exception and keeps scaling** to fill the viewport. Everything overlaid
+  on it (hotspots, highlights, the Guide) is positioned in percentages, so it scales too.
+- **`Container` padding is fluid (`clamp`), not stepped through breakpoints.** Both ends
+  are the real Figma anchors and everything between is interpolation. Fluid for a
+  concrete reason, not neatness: with breakpoint steps the inner content width ran
+  *backwards* at each one — it got narrower as the window got wider, because padding
+  jumped faster than the viewport grew. A clamp can't do that. If you ever replace this
+  with steps, check monotonicity of the inner width across the breakpoint.
+
+**Two things in Figma that look like slips, left as-measured and flagged to Flore:**
+the ValueCard row frame is wider than the container it sits in (its gutter doesn't match
+the section's, so the row overflows), and Work's section-header and first-Wayfinding gaps
+are both tighter than the same gaps everywhere else. Built to Figma either way — resolve
+in the file, not in code.
+
 ### Typography
 
 Single typeface, no secondary/display/handwritten fonts: **HK Grotesk**, used across all text roles (headings, prose, UI, breadcrumbs, illustration annotations). Defined in Figma as text styles by weight/size role; imported into code as Tailwind `@layer components` or CSS classes, all referencing the one font-family.
@@ -351,7 +393,7 @@ Revised estimate — original 6-hour estimate below was written before the Popov
    Done: all 10 project cards (meta, title, description, image caption, CTA), Approach ValueCards + MediaCards, About AsideCards, NDA external links, the Language River embed.
 
    Still outstanding: all six case-study/feature-case **bodies** are scaffolding prose; Contact bubble copy; the Approach "Selected talks & writing" bubble (marked `TO COMPLETE`); the LinkedIn URL; and four cards whose Figma instances still hold unedited component defaults, shipped as visible `REVIEW —` markers (Artifakt caption, PitchPivot caption, Rega meta + caption).
-9. ⬜ **Styling & layout** — not started as its own pass. "Card UI refinements + responsiveness."
+9. 🟡 **Styling & layout** — the global layout system is in (see below); card refinements and responsiveness are not.
 10. ⬜ **Polish & QA** — not started.
 
 **Work done outside this strict order, folded back into the stages above:** the Nav rebuild (mobile hamburger, subpage variant, current-section state), Footer content, and the full button-state audit (hover/pressed/focus across every variant) all came out of Flore's own review pass rather than a scheduled stage — but they're really stage 4 (Typography/states) and stage 9 (styling) work that happened early because it's what she was actively testing. Treat them as done, not as scope creep to redo.

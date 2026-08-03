@@ -1,11 +1,33 @@
-// Side padding steps down gradually on smaller breakpoints, ending at 12px
-// on mobile (per Flore) rather than staying fixed at 24px all the way down.
-// Exact intermediate steps aren't sampled from Figma (Flore wasn't certain
-// of them either) -- reasonable interpolation across Tailwind's default
-// breakpoints using real spacing tokens, adjustable once seen.
+// The page's container chain, read off both Figma frames:
+//
+//   1622 page  ->  171 outer margin  ->  1280 content  ->  48 padding  ->  1184
+//    402 page  ->   16 outer margin  ->        (none)  ->   0 padding  ->   369
+//
+// max-w-[1280px] + horizontal padding reproduces both ends exactly: at a
+// 1622 viewport the leftover 342px splits into two 171px margins, and the
+// inner box lands on 1184. At >= 1280 the inner box is *always* exactly
+// 1184 -- which is what lets the Approach/About collage use real pixel
+// offsets at `xl` without them drifting with the viewport.
+//
+// Above 1622 the content stays capped here and the margins keep growing
+// (per Flore). The map is the deliberate exception -- it scales past 1622
+// instead of capping; see Hero.jsx.
+//
+// Padding is fluid between the two Figma anchors rather than stepped through
+// breakpoints. 4vw hits 16px at the 402 frame and 48px at 1280+ (where the
+// clamp takes over), so both real values are exact and everything between is
+// a straight interpolation instead of invented steps.
+//
+// Fluid rather than stepped for a concrete reason, not neatness: with
+// breakpoint steps the inner width ran *backwards* at each one -- 1215px at
+// a 1279 viewport, then 1184px at 1280, because the padding jumped 32->48
+// faster than the viewport grew. Content getting narrower as the window
+// widens is visible and looks like a bug. A clamp can't do that.
 export default function Container({ children, className = '' }) {
   return (
-    <div className={`mx-auto w-full max-w-[1280px] px-space-12 sm:px-space-16 md:px-space-20 lg:px-6 ${className}`}>
+    <div
+      className={`mx-auto w-full max-w-[1280px] px-[clamp(16px,4vw,48px)] ${className}`}
+    >
       {children}
     </div>
   )
