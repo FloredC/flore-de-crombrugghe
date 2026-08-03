@@ -107,11 +107,13 @@ export default function ProjectMedia({ src, alt, caption, size = 'medium', badge
           )}
         </div>
       </div>
-      {/* The frame's dashed border, as an overlay so it doesn't participate in
-          layout -- see IMAGE_WIDTH above for why. */}
+      {/* The frame's border, as an overlay so it doesn't participate in
+          layout -- see IMAGE_WIDTH above for why. Solid, not dashed: the
+          dashed stroke read as the "asset pending" convention on cards that
+          have real artwork, and Flore changed it in Figma. */}
       <div
         aria-hidden="true"
-        className={`pointer-events-none absolute inset-0 border border-dashed border-border-grey ${FRAME_RADIUS[size]}`}
+        className={`pointer-events-none absolute inset-0 border border-solid border-border-grey ${FRAME_RADIUS[size]}`}
       />
       {badge}
     </div>

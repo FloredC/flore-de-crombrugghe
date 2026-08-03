@@ -34,9 +34,18 @@ export default function Badge({ status }) {
 
   if (status === 'full-case-study') {
     return (
+      // Was a solid dark tab, which Flore found too prominent -- now the same
+      // translucent-white chrome as the NDA stamp, with black text and rule.
+      //
+      // Border on the bottom and left only, per Figma: the badge is flush into
+      // the frame's top-right corner, so its top and right edges sit on the
+      // frame's own border. A full outline would double that stroke up.
+      //
+      // bg-white/[0.33] rather than the --white-transparent token, same as the
+      // NDA badge: that token exported as opaque #ffffff and lost its alpha.
       <span
         data-badge="case-study"
-        className="pointer-events-none absolute right-0 top-0 rounded-bl-radius-12 rounded-tr-radius-12 bg-surface-inverted px-space-10 py-space-4 text-body-sm font-semibold text-text-inverted"
+        className="pointer-events-none absolute right-0 top-0 rounded-bl-radius-12 rounded-tr-radius-12 border-b border-l border-text-primary bg-white/[0.33] px-space-10 py-space-4 text-body-sm font-semibold text-text-primary"
       >
         Case study
       </span>
