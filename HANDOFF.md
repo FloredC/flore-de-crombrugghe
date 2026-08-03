@@ -94,26 +94,27 @@ Propose it with screenshots rather than guessing silently.
 
 ---
 
-## Subpages — mostly not designed yet
+## Subpages — all six are blocked on design. Do not start them.
 
 `ProjectPage.jsx` is a stub. Six routes are planned (`artifakt`, `pitchpivot`,
-`welcome-to-my-city`, `sinomocene`, `teamchatviz`, `roche`), and in Figma **only PitchPivot has
-a subpage design** — node `2928:74096` (`Supage_pitchpivot`: meta, tagline, description, hero,
-goals containers).
+`welcome-to-my-city`, `sinomocene`, `teamchatviz`, `roche`).
 
-So:
-- **PitchPivot subpage content exists → pull it.** Don't ask Flore to write it.
-- **The other five aren't designed.** That's an open design decision for Flore, not missing
-  copy. Don't chase her for text that was never meant to exist yet.
+**None of them are ready to build.** Figma contains one subpage frame — `Supage_pitchpivot`,
+node `2928:74096` — but Flore is **still designing it**. Treat it as work in progress, not a
+spec: do not pull content or layout from it, and do not implement against it. The other five
+have no design at all.
+
+So there is nothing to chase Flore about here. This is not missing copy and not an oversight —
+the pages simply haven't been designed yet. Wait until she says a subpage is ready.
 
 The MDX **bodies** — the prose below the frontmatter, which renders on the subpage — are still
-scaffolding for all six. Note this is a different thing from the homepage **card** copy, which
-is real and final-ish. Be precise about which you mean; conflating the two has already caused
-confusion twice.
+scaffolding for all six, and should stay that way until the designs land. Note this is a
+different thing from the homepage **card** copy, which is real and final-ish. Be precise about
+which you mean; conflating the two has already caused confusion twice.
 
-Subpages are also the natural place to apply the build order properly from the start, since
-they're near-greenfield: structure → layout system → components → composition → responsive →
-interactions.
+When the designs do land, subpages are the natural place to apply the build order properly from
+the start, since they're near-greenfield: structure → layout system → components → composition
+→ responsive → interactions.
 
 ---
 
