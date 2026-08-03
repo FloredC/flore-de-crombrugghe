@@ -4,24 +4,29 @@
  *
  * Two facts do most of the work here:
  *
- * 1. Every section is a 12-column grid on the same 1184px container. Only the
- *    gutter changes -- 60px in Work, 24px in Approach/About. Confirmed with
- *    Flore as intentional rather than drift: project cards get more air than
- *    the smaller editorial cards. (Read as "6 columns / 60px" it looks like a
- *    second, incompatible grid; it isn't -- 12/60 reproduces every Work card
- *    width exactly, and keeps one system across the page.)
+ * 1. Two grids on the same 1184px container, differing in both column count
+ *    and gutter: Work is 6 columns / 60px, Approach and About are 12 columns
+ *    / 24px. Both are real layout grids declared in the Figma file -- read
+ *    off the frames' own generated output, not inferred from card widths.
+ *    Confirmed with Flore as intentional rather than drift: project cards get
+ *    more air than the smaller editorial cards.
  *
- * 2. The 12-column grid is only meaningful at >= 1280 viewport, where
- *    Container resolves to exactly 1184. Twelve columns with 60px gutters
- *    leaves ~5px columns at 768. Below `xl` every section falls back to a
- *    plain N-up grid -- which is also where the Approach/About collage
- *    flattens, per Flore.
+ *    (Worth knowing, because it caused a wrong call once: Work's widths *also*
+ *    land exactly on a 12/60 grid, so it can be described either way and the
+ *    pixels are identical. Use 6 -- it's what the file declares, and it's what
+ *    the spans in Figma are numbered against. Describing Work as 12 columns
+ *    silently doubles every span versus what a designer reads off the file.)
+ *
+ * 2. The column grids are only meaningful at >= 1280 viewport, where Container
+ *    resolves to exactly 1184. Work's 60px gutters leave ~5px columns at 768.
+ *    Below `xl` every section falls back to a plain N-up grid -- which is also
+ *    where the Approach/About collage flattens, per Flore.
  *
  * Column maths, both exact (no rounding anywhere):
  *
- *   Work       col = (1184 - 11*60)/12 = 43.67   span 4  = 354.67  (3-up card)
- *                                                span 6  = 562     (2-up card)
- *                                                span 10 = 976.67  (Artifakt)
+ *   Work       col = (1184 - 5*60)/6 = 147.33    span 2 = 354.67  (3-up card)
+ *                                                span 3 = 562     (2-up card)
+ *                                                span 5 = 976.67  (Artifakt)
  *
  *   Editorial  col = (1184 - 11*24)/12 = 76.67   span 3  = 278     (ValueCard)
  *                                                span 6  = 580
@@ -61,11 +66,11 @@ export const WAYFINDING_GAP = 'gap-space-32 xl:gap-space-64'
 export const SUBSECTION_GAP_WORK = 'flex flex-col gap-space-80 xl:gap-space-200'
 export const SUBSECTION_GAP_EDITORIAL = 'flex flex-col gap-space-64 xl:gap-space-120'
 
-// --- Work grids (12 col / 60px gutter) --------------------------------------
+// --- Work grids (6 col / 60px gutter) ---------------------------------------
 
-// Artifakt spans 10 of 12 -- not the full width. Below xl it's a normal block.
-export const WORK_FEATURED_ROW = 'xl:grid xl:grid-cols-12 xl:gap-x-space-60'
-export const WORK_FEATURED_CARD = 'xl:col-span-10'
+// Artifakt spans 5 of 6 -- not the full width. Below xl it's a normal block.
+export const WORK_FEATURED_ROW = 'xl:grid xl:grid-cols-6 xl:gap-x-space-60'
+export const WORK_FEATURED_CARD = 'xl:col-span-5'
 
 // The featured card sits 200 above the 2-up row beneath it.
 export const WORK_FEATURED_STACK = 'flex flex-col gap-space-64 xl:gap-space-200'

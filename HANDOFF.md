@@ -40,13 +40,17 @@ lives in **`src/lib/layout.js`**, each constant annotated with the node it came 
 Verified in the browser against Figma: container chain, section rhythm, every card width
 and collage offset match to sub-pixel. See CLAUDE.md → Layout System for the decisions.
 
-Two corrections to what this file used to say here, since both were load-bearing:
+One correction to what this file used to say here:
 
-- **It is one grid system, not two.** Every section is 12 columns on the same container;
-  only the gutter differs (Work wider, Approach/About tighter). Confirmed intentional.
-  The old "6-col vs 12-col" reading made them look incompatible.
-- **Artifakt spans 10 of 12, not the full width.** The old note said 6-of-6, i.e. full
+- **Artifakt spans 5 of 6, not the full width.** The old note said 6-of-6, i.e. full
   bleed. It isn't — there's a deliberate gap on the right.
+
+The original "6-col Work vs 12-col About" reading in this file was **right**, and a
+later pass wrongly "corrected" it to 12-and-12. Work's widths land on both grids at the
+same gutter, so the pixels are identical either way and the error rendered fine — but it
+doubled every Work span relative to what Figma shows, which is exactly the kind of thing
+nobody can reconcile six weeks later. The grids are declared in the file; read them from
+there rather than deriving them from card widths.
 
 **Answered by Flore this pass:** the gutter difference is intentional; Approach/About
 stay a collage at desktop and collapse to a grid below; mobile side margin follows Figma
@@ -71,21 +75,36 @@ instance. Verified in the browser at exactly these values:
 | MediaCard | all images 4:3. The podcast is the `Embed` variant — an iframe, keeps its own height | `4522:18868` |
 | AsideCard | all three variants are 4:3 (400×300 / 500×375 / 600×450), so `size` picks a **max width**, not a ratio | `4533:19992` |
 
-The artwork is **inset** inside the media frame rather than filling it — that inset is what lets
-the frame's background tint show around it (Figma: frame 562 wide vs image 530 on Medium, 977 vs
-880 on Large). The insets currently in code are the sampled proportions, not final.
+**Tints, insets and badges — DONE.** The important structural correction: the artwork is
+**not** inset by padding. The media frame is the card's full width at a fixed height, and the
+artwork is a fixed size centred inside it — the "inset" is just the tinted background showing
+around it. That's why the frames looked unfinished before: the tint was the missing piece, not
+the spacing. All of it now lives in `ProjectMedia.jsx` as ratios and percentages (exact at the
+desktop frame, scales below it) with the per-project tints in `src/lib/mediaTints.js`.
 
-**Still to do in this pass:**
-- **Per-card background tints**, already in Figma and not yet wired: Artifakt `#fdffe6`,
-  PitchPivot `#dfe8fd`, Welcome-to-my-city `#f6f9ff`, Rega + Sinomocene `#ffe4e7`, SBB `#efefef`,
-  myRIDE `#e1e2f7`, SAC `#e5efe1`, Teamchatviz `#d8fbfc`, Roche white. Until these land the inset
-  reads as plain white, so the media frames look unfinished — this is the pass that fixes that.
-- **Exact insets/padding per size** — settle alongside the tints and the layout system.
-- **Min/max widths on the image containers** — Flore is adding these in Figma; ask before
-  inventing values.
-- **Review the NDA / Case study badges** — built 2 Aug from the real Figma treatment, unreviewed.
+Two things about the tints worth carrying forward:
+
+- **The list that used to sit here was wrong for Rega** — it had `#ffe4e7` shared with
+  Sinomocene, but Rega is the `chart-red-fill` **token**. Roche is the `white` token. The other
+  eight are one-off instance fills. Pulled per-instance rather than trusting the copy.
+- **Eight bespoke pastels is a palette whether or not it's named as one.** Worth asking Flore
+  whether they should become tokens.
+
+**Still open in this pass:**
+- **Min/max widths on the image containers** — Flore said she was adding these in Figma; they
+  are still not there (the artwork is fixed-size in every variant). The percentage model works
+  without them, so this is only worth revisiting if the artwork misbehaves during pass 3.
+- **The dashed border is on the ProjectMedia component itself**, not just on pending-asset
+  placeholders — so cards with real artwork get it too. Built as Figma has it, but worth
+  confirming that's intended rather than a leftover of the `[ img ]` convention.
+- **`--white-transparent` is broken in the exported tokens**: `#ffffff`, fully opaque, where
+  Figma has 33% white. The NDA badge sidesteps it with `bg-white/[0.33]`. Fix the export.
 - **Artifakt thumbnail is 1.933, its frame is 1.969**, so ~1.9% (≈8px) still crops. Invisible in
   practice; only worth a re-export at 880×447 if Flore wants it pixel-exact.
+
+**Found while verifying, fixed here:** card order came out alphabetical-by-filename, so all
+three Work groups were shuffled against Figma. Nothing in the frontmatter had ever encoded
+reading order. Added an explicit `order` field per project, sorted in `getProjectsFor`.
 
 ### 2. Card internals
 Component spacing and content rhythm.

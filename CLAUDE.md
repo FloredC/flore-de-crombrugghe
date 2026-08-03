@@ -237,14 +237,18 @@ card grid behaviour were both open.
 
 **Decisions confirmed with Flore:**
 
-- **Every section is a 12-column grid on the same container. Only the gutter differs**
-  between the Work zone and the Approach/About zone, and that difference is deliberate
-  — project cards get more air than the smaller editorial cards. Reading Work as a
-  6-column grid (as an earlier handoff did) makes it look like a second, incompatible
-  system; it isn't. Twelve columns reproduces every Work card width exactly.
-- **The 12-column grid only engages at `xl`**, where `Container` resolves to its exact
-  Figma width. The Work gutter across twelve columns leaves ~5px columns at tablet
-  widths. Below `xl`, sections fall back to plain N-up grids.
+- **Two grids on one container: Work is 6 columns with a wider gutter, Approach and
+  About are 12 columns with a tighter one.** Both are real layout grids declared in the
+  Figma file — read them off the frames rather than inferring them from card widths.
+  The difference is deliberate, confirmed with Flore: project cards get more air than
+  the smaller editorial cards. **Cross-check any span against the file before trusting
+  it.** Work's card widths also happen to land exactly on a 12-column grid at the same
+  gutter, so it can be described either way with identical pixels — an earlier pass
+  documented it as 12 and had every Work span at double what Figma shows. Same render,
+  but nobody could reconcile the code with the design file.
+- **The column grids only engage at `xl`**, where `Container` resolves to its exact
+  Figma width. Work's gutter leaves ~5px columns at tablet widths. Below `xl`, sections
+  fall back to plain N-up grids.
 - **Approach and About are staggered collages in Figma, not grids** — fixed-width cards
   hand-placed with horizontal and vertical offsets. They stay a collage at `xl` and
   collapse to a plain grid below, since hand-set offsets have nowhere to go on a narrow

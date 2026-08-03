@@ -2,6 +2,7 @@ import ProjectMedia from './ProjectMedia'
 import ButtonLink from './ButtonLink'
 import Badge from './Badge'
 import { ExternalLinkIcon } from './icons'
+import { mediaTints, DEFAULT_MEDIA_TINT } from '../lib/mediaTints'
 
 export default function ProjectCard({ project, size = 'medium' }) {
   const isNda = project.status === 'nda-project'
@@ -23,6 +24,7 @@ export default function ProjectCard({ project, size = 'medium' }) {
         alt={project.title}
         caption={project.imageCaption}
         size={size}
+        tint={mediaTints[project.slug] || DEFAULT_MEDIA_TINT}
         badge={<Badge status={project.status} />}
       />
       <div data-component="project-card-content" className="flex flex-1 flex-col gap-4">
