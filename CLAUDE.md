@@ -17,6 +17,18 @@ Read in this order before writing any code:
 3. **The Figma file, via the Figma MCP** — authoritative for structure, layout, visual design, and component breakdown. Where Figma and this doc disagree on structure or visuals, **Figma wins**; if Figma and the PRD disagree on hotspot/popover *interaction* specifically, the PRD wins.
 4. **`city-plan-wireframe-v9e.html`** — optional background reference only, not a spec. It predates several current decisions (project count/roster, zone taxonomy naming, interaction details) — don't treat anything in it as structural or visual truth. Skip it entirely if it's more confusing than useful.
 
+### The no-duplication rule (added 2026-08-03, after a real drift bug)
+
+**This file must contain no sampled values.** Not colors, not spacing, not radii, not sizes — nothing you could answer by opening Figma. Reference the node instead (`see node 4494:6024`). A value written here is a *copy*, and it goes stale the moment Flore changes her mind in the design file.
+
+"Where Figma and this doc disagree, Figma wins" (below) is not sufficient on its own: a conflict only gets resolved if somebody notices it. The wayfinding subsection color sat here as `--color-accent-orange`, Flore changed her mind in Figma, the code kept following this doc, and nobody caught it until it was on the built page. Don't duplicate, and there's no conflict to notice.
+
+**What belongs where:**
+- **Figma** — tokens, component structure, variants and states, grids and constraints, copy, and which color/size any given element is.
+- **This file** — stack and routing, file structure, naming conventions, which HTML tag something becomes (Figma's "Button"/"Link" naming is a visual taxonomy, not a semantic one), behaviors with no visual (copy-to-clipboard, anchor targets, tap-target minimums, `svh` vs `vh`), plus decisions, rationale, bug history, and open questions.
+
+If a section here starts listing pixel values, it has drifted out of scope — cut it back to a node reference.
+
 **First task:** don't start building yet. Read the above, review the Figma file, and cross-check what this doc and the PRD describe against what's actually in Figma — structure, zone/component naming, hotspot count and roster, anything else load-bearing. Report any inconsistencies you find before starting implementation, rather than silently resolving them in Figma's favor. Then summarize back what you understand the build to be, so we can confirm alignment before Skeleton starts.
 
 ---
@@ -154,7 +166,7 @@ One `.json` file per illustration (e.g., `hero-map-hotspots.json`). Structure:
 - Hidden until the Hero (`#hero`) scrolls out of view (`IntersectionObserver`, not a scroll-position guess); always visible on subpages (no `#hero` to key off).
 - **Breakpoint: 768px (Tailwind `md`).** Not sampled from Figma — the frames given are 402px and 1622px with nothing in between — this is a judgment call, flagged to Flore, no objection raised. Revisit if it ever feels wrong on a real device.
 - **Desktop homepage:** home avatar + Work/Approach/About anchor links + Contact button. The link whose section is currently in view gets a persistent underline (`aria-current`, driven by an `IntersectionObserver` over the section elements with a `-20% 0px -70% 0px` root margin band) — this ships in Figma's own default navbar state (`NavbarDesktop placement=Homepage` shows "Work" pre-underlined), not something layered on separately.
-- **Mobile homepage:** closed = home avatar + hamburger in a `radius-60` pill; open = pill squares to `radius-32` and grows a stacked Work/Approach/About/Contact menu with 1px dividers, hamburger swapped for a close icon. Same rows use the same component/states as the desktop links (confirmed with Flore they're ButtonLink instances Figma flattened into loose text on export, not a separate unstyled thing) — including the current-section underline.
+- **Mobile homepage:** closed = home avatar + hamburger in a pill; open = the pill squares off and grows a stacked Work/Approach/About/Contact menu with dividers, hamburger swapped for a close icon. Sample radii/dividers from the NavbarMobile component (node `4494:18117`) — its variants are the spec. Same rows use the same component/states as the desktop links (confirmed with Flore they're ButtonLink instances Figma flattened into loose text on export, not a separate unstyled thing) — including the current-section underline.
 - **Subpage (desktop and mobile, identical):** "← Back to Portfolio" + Contact only. No hamburger, no section anchors — per Flore, "it's on a different page," a deliberate dead end by design, not a state to fill in later.
 - Toggle is a real `<button>` (no navigation); every menu row is a real `<a>`.
 
@@ -297,9 +309,9 @@ For projects with substantial content:
 
 At the top of Work, Approach, About, Contact sections (or per custom placement if removed selectively):
 
-- Avatar illustration (simple line-drawn figure, 40–60px)
+- Avatar illustration (variants per placement — sample the Wayfinding section, node `4494:6080`)
 - Chat bubble with section-specific copy (2–3 sentences, pulled from MDX frontmatter)
-- "You are here: [Zone] — [Subsection]" text, with subsection name in the `--color-accent-orange` token color (do not hardcode a hex value — reference the token so it stays in sync with markers/highlights)
+- "You are here: [Zone] — [Subsection]" text. **Sample the colors from Figma (node `4494:6080`), don't take them from here.** This line previously specified the subsection in accent-orange; Flore has since changed it in Figma and the built page is currently wrong — orange because this doc said so. First instance of the drift the no-duplication rule above exists to prevent. Fixing it is a task in the Wayfinding pass.
 
 ---
 

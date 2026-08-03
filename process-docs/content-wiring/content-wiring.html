@@ -385,6 +385,34 @@ description: "2018 — 200+ icons, one grammar — pharma science communication�
     <b>The pattern across both days.</b> Every miss traced back to a claim that was true in one frame and false in another, with nobody naming the frame: "content wiring is done", "all frontmatter is real", "the images have labels", "I sent them". None were lies and none were understood. The cheap fix is describing things in terms of the artefact we both look at — the page, the Figma node — rather than in terms of whichever internal structure each of us happens to be holding.
   </div>
 
+  <h3 class="sub">Where the spec should live — and the layer nobody built</h3>
+  <p class="section-desc">
+    The wayfinding text is orange in the code because <code class="inline">CLAUDE.md</code> says it should be. I've since changed my mind in Figma, and the doc never caught up. That surfaced a bigger question I hadn't articulated: I don't actually know what belongs in the written spec versus the design file, and the spec feels too specific in places.
+  </p>
+
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">Rule</div>
+      <div class="decision-what">The written spec contains <em>no sampled values</em> — it points at Figma nodes instead</div>
+      <div class="decision-why">The doc already said "where Figma and this doc disagree, Figma wins." That didn't help, because a conflict only gets resolved if someone notices it — and nobody noticed the orange was stale until it was on the built page. "Don't duplicate" prevents the conflict; "Figma wins" only cleans up after it. Any value I can change in Figma must exist in exactly one place.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Division</div>
+      <div class="decision-what">Figma owns anything visually specifiable; the spec owns everything Figma can't express</div>
+      <div class="decision-why">Figma: tokens, components, states, grids, constraints, copy, and which colour a given element is. Spec: stack and routing, file structure, which HTML tag something becomes (my "Button"/"Link" naming is a visual taxonomy, not a semantic one), behaviours with no visual (copy-to-clipboard, 44px tap targets, <code class="inline">svh</code> vs <code class="inline">vh</code>), plus rationale, bug history and open questions. The wayfinding colour wasn't the only leak — the popover section restates sampled radius, padding and blur values, one of which was already recorded as contradicting a screenshot, and another as an outright guess.</div>
+    </div>
+    <div class="decision key-decision">
+      <div class="decision-date">Gap</div>
+      <div class="decision-what">There was never a "global layout system" stage — and two punch-list items are the same missing layer</div>
+      <div class="decision-why">Reading a standard front-end build order back against ours, the gap is obvious: containers, grid definitions, gutters and a spacing scale in actual use were never established as their own step. The build order went tokens → content model → skeleton → components, then styling much later. So "spacings between sections" and "card behaviour in CSS grid" aren't two problems — they're one absent layer showing up twice. Components got built before the system they sit in.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Correction</div>
+      <div class="decision-what">Worrying about Figma MCP token cost made things more expensive, not less</div>
+      <div class="decision-why">I'd held back on pulling from Figma partly out of a vague sense it would be costly. The opposite happened: the session's real cost was <em>under</em>-pulling — four separate partial pulls plus several rounds of me reporting what was missing. One complete pass over the component library up front would have caught the meta line, the image captions and the ValueCard image slot together. Pull whole components, not the node you think you need.</div>
+    </div>
+  </div>
+
   <div class="hook">
     <div class="hook-label">Shareable hook</div>
     The status note in my project file said "all project frontmatter is real." It was wrong — but the more useful discovery is that it couldn't have been useful even if it were right: it described which code fields were populated, something I can't see and can't check. Every misunderstanding in this build traced back to the same shape — a sentence that was true in one person's frame and false in the other's, with nobody naming the frame. Now the rule is that status gets written in terms of what a visitor sees on the page.
