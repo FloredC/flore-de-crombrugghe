@@ -14,8 +14,7 @@ import {
   PAGE_STACK,
   SECTION_PAD_WORK,
   SECTION_PAD_CONTACT,
-  HEADER_GAP_WORK,
-  HEADER_GAP_EDITORIAL,
+  SECTION_HEADER_GAP,
   WAYFINDING_GAP,
   SUBSECTION_GAP_WORK,
   SUBSECTION_GAP_EDITORIAL,
@@ -25,6 +24,7 @@ import {
   WORK_GRID_2UP,
   WORK_GRID_3UP,
   VALUE_CARD_GRID,
+  VALUE_CARD_CELL,
   COLLAGE_GRID,
   MEDIA_COLLAGE,
   ASIDE_COLLAGE,
@@ -94,7 +94,9 @@ function ApproachSubsection({ subsection }) {
       {subsection.layout === 'value-cards' && (
         <div className={VALUE_CARD_GRID}>
           {subsection.valueCards.map((item) => (
-            <ValueCard key={item.title} item={item} />
+            <div key={item.title} className={VALUE_CARD_CELL}>
+              <ValueCard item={item} />
+            </div>
           ))}
         </div>
       )}
@@ -119,7 +121,7 @@ export default function HomePage() {
 
       <div className={PAGE_STACK}>
         <section id="work" data-component="section-work" className={SECTION_PAD_WORK}>
-          <Container className={`flex flex-col ${HEADER_GAP_WORK}`}>
+          <Container className={`flex flex-col ${SECTION_HEADER_GAP}`}>
             <h2 className="text-h1 font-bold">{workSection.sectionHeader}</h2>
             <div className={SUBSECTION_GAP_WORK}>
               {workSection.subsections.map((subsection) => (
@@ -133,7 +135,7 @@ export default function HomePage() {
         </section>
 
         <section id="approach" data-component="section-approach">
-          <Container className={`flex flex-col ${HEADER_GAP_EDITORIAL}`}>
+          <Container className={`flex flex-col ${SECTION_HEADER_GAP}`}>
             <h2 className="text-h1 font-bold">{approachSection.sectionHeader}</h2>
             <div className={SUBSECTION_GAP_EDITORIAL}>
               {approachSection.subsections.map((subsection) => (
@@ -147,7 +149,7 @@ export default function HomePage() {
         </section>
 
         <section id="about" data-component="section-about">
-          <Container className={`flex flex-col ${HEADER_GAP_EDITORIAL}`}>
+          <Container className={`flex flex-col ${SECTION_HEADER_GAP}`}>
             <h2 className="text-h1 font-bold">{aboutSection.sectionHeader}</h2>
             <div className={`flex flex-col ${WAYFINDING_GAP}`}>
               <Wayfinding

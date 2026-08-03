@@ -249,9 +249,10 @@ card grid behaviour were both open.
   hand-placed with horizontal and vertical offsets. They stay a collage at `xl` and
   collapse to a plain grid below, since hand-set offsets have nowhere to go on a narrow
   viewport.
-- **Above the desktop frame width, page content stays capped and the margins grow — but
-  the map is the exception and keeps scaling** to fill the viewport. Everything overlaid
-  on it (hotspots, highlights, the Guide) is positioned in percentages, so it scales too.
+- **Above the desktop frame width, page content stays capped and the margins grow, and
+  the map does the same** — capped at its native width and centered, not scaled up. This
+  was tried the other way (map filling the viewport) and Flore rejected it on sight; the
+  map is not a background that should grow with the window. Don't re-propose it.
 - **`Container` padding is fluid (`clamp`), not stepped through breakpoints.** Both ends
   are the real Figma anchors and everything between is interpolation. Fluid for a
   concrete reason, not neatness: with breakpoint steps the inner content width ran
@@ -259,11 +260,12 @@ card grid behaviour were both open.
   jumped faster than the viewport grew. A clamp can't do that. If you ever replace this
   with steps, check monotonicity of the inner width across the breakpoint.
 
-**Two things in Figma that look like slips, left as-measured and flagged to Flore:**
-the ValueCard row frame is wider than the container it sits in (its gutter doesn't match
-the section's, so the row overflows), and Work's section-header and first-Wayfinding gaps
-are both tighter than the same gaps everywhere else. Built to Figma either way — resolve
-in the file, not in code.
+**Both of the slips this pass surfaced are now resolved, in Figma rather than in code:**
+the ValueCard row had a wrapper frame wider than its container (Flore removed it and put
+the cards on a real grid), and Work's section-header and first-Wayfinding gaps were
+tighter than everywhere else (Flore confirmed slips — they're uniform now, and the
+spacing constants are deliberately single rather than per-zone so they can't drift apart
+again silently).
 
 ### Typography
 

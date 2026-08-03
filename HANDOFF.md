@@ -50,16 +50,14 @@ Two corrections to what this file used to say here, since both were load-bearing
 
 **Answered by Flore this pass:** the gutter difference is intentional; Approach/About
 stay a collage at desktop and collapse to a grid below; mobile side margin follows Figma
-(the code's old comment disagreed); and above the desktop frame the content caps while
-**the map keeps scaling** — that's a change from the "keep the map at native width"
-proposal that used to be written here.
+(the code's old comment disagreed); and above the desktop frame **the map stays capped at
+its native width and centred**, as originally proposed here. Letting it scale to fill the
+viewport was tried and rejected — don't re-propose it.
 
-**Still open from this pass — both look like Figma slips, built as-measured:**
-- The ValueCard row frame is wider than the container it sits in; its gutter doesn't
-  match the rest of the section, so the row overflows. Code uses the section's gutter,
-  which fits exactly.
-- Work's section-header gap and its first Wayfinding gap are both tighter than the
-  equivalent gaps in every other section.
+**The two slips this pass surfaced are both closed, fixed in Figma rather than worked
+around in code:** Flore removed the over-wide ValueCard wrapper frame and put those cards
+on a real grid, and confirmed Work's tighter section-header and Wayfinding gaps were
+unintentional — all sections now use the same values.
 
 ### 1. Card media
 

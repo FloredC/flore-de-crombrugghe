@@ -46,13 +46,14 @@ export const PAGE_STACK = 'flex flex-col gap-space-120 xl:gap-space-200'
 export const SECTION_PAD_WORK = 'pt-space-48 xl:pt-space-80'
 export const SECTION_PAD_CONTACT = 'py-space-64 xl:py-space-120'
 
-// Section header -> first content block. Work uses 24, Approach/About use 48.
-// Left as measured rather than unified -- flagged to Flore as a possible slip.
-export const HEADER_GAP_WORK = 'gap-space-24'
-export const HEADER_GAP_EDITORIAL = 'gap-space-32 xl:gap-space-48'
-
-// Wayfinding row -> the content beneath it. 64 everywhere except Work's first
-// subsection, which is 48 (also flagged as a possible slip).
+// Section header -> first content block, and Wayfinding row -> the content
+// beneath it. Both uniform across every section.
+//
+// Figma had Work tighter than the rest on both (24 vs 48, 48 vs 64). Flore's
+// call: those were slips, not intent -- match everywhere else. Deliberately
+// one constant each rather than a per-zone pair, so the two can't drift apart
+// again without someone choosing to split them.
+export const SECTION_HEADER_GAP = 'gap-space-32 xl:gap-space-48'
 export const WAYFINDING_GAP = 'gap-space-32 xl:gap-space-64'
 
 // Gap between subsections within one section. Work is spaced as widely as the
@@ -80,11 +81,17 @@ export const WORK_GRID_3UP =
 
 // --- Editorial grids (12 col / 24px gutter) ---------------------------------
 
-// Four ValueCards at span 3 each: 4*278 + 3*24 = 1184 exactly. (Figma's own
-// row frame is 1208 wide because it uses a 32px gutter -- that overflows the
-// container by 24px and is flagged to Flore as a slip. Built at 24 here.)
+// Four ValueCards at span 3 each: 4*278 + 3*24 = 1184 exactly. On the same
+// 12-column grid as the rest of the editorial zone rather than a standalone
+// 4-up -- identical pixels either way, but this way the shared system is
+// visible in the code instead of being a coincidence.
+//
+// (Figma briefly had these in a 1208-wide row that overflowed the container
+// by 24px, using a 32px gutter. Flore has since removed that wrapper and put
+// the cards on a real grid; the two now agree.)
 export const VALUE_CARD_GRID =
-  'grid grid-cols-1 gap-space-32 sm:grid-cols-2 xl:grid-cols-4 xl:gap-x-space-24'
+  'grid grid-cols-1 gap-space-32 sm:grid-cols-2 xl:grid-cols-12 xl:gap-x-space-24'
+export const VALUE_CARD_CELL = 'xl:col-span-3'
 
 // The Approach and About card blocks are staggered collages in Figma, not
 // grids: fixed-width cards hand-placed with horizontal and vertical offsets.

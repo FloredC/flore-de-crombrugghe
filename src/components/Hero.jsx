@@ -55,7 +55,7 @@ function MapContent({ activeHotspotId, setActiveHotspotId }) {
       <img
         src={heroMapBackground}
         alt="Illustrated map of Flore's work, click the markers to explore"
-        className="block w-full"
+        className="block"
       />
       {/* Highlights must paint above the markers -- each highlight is a small
           accent (roughly marker-sized) positioned at/near its marker, not a
@@ -113,11 +113,11 @@ export default function Hero() {
         // Map fits at its native 1622px width: Guide overlays the map's
         // top-left corner (the illustration reserves empty space there).
         <div className="flex flex-1 flex-col justify-center">
-          {/* No max-width cap: above 1622 the map keeps scaling to fill the
-              viewport while page content stays capped at 1280 (Flore's call).
-              Everything overlaid on it -- hotspots, highlights, the Guide --
-              is positioned in percentages, so it all scales with the map. */}
-          <div data-component="hero-map" className="relative mx-auto w-full">
+          {/* Capped at the map's native width and centered: above 1622 the
+              margins grow and the map does not scale up. Briefly tried
+              letting it fill the viewport instead -- Flore didn't like how
+              it read on a large screen, so this is back to the original. */}
+          <div data-component="hero-map" className="relative mx-auto w-full max-w-[1622px]">
             <div data-component="guide" className="absolute left-[3%] top-[4%] z-10 flex max-w-[320px] flex-col items-start gap-2">
               <Guide />
             </div>
