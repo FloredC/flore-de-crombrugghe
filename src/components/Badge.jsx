@@ -41,11 +41,15 @@ export default function Badge({ status }) {
       // the frame's top-right corner, so its top and right edges sit on the
       // frame's own border. A full outline would double that stroke up.
       //
+      // The rule is border-grey, matching the ProjectMedia frame it sits in --
+      // Flore's call, and a step quieter than Figma, which still has it at
+      // text-primary. Text stays black. NOTE: Figma is behind on this one.
+      //
       // bg-white/[0.33] rather than the --white-transparent token, same as the
       // NDA badge: that token exported as opaque #ffffff and lost its alpha.
       <span
         data-badge="case-study"
-        className="pointer-events-none absolute right-0 top-0 rounded-bl-radius-12 rounded-tr-radius-12 border-b border-l border-text-primary bg-white/[0.33] px-space-10 py-space-4 text-body-sm font-semibold text-text-primary"
+        className="pointer-events-none absolute right-0 top-0 rounded-bl-radius-12 rounded-tr-radius-12 border-b border-l border-border-grey bg-white/[0.33] px-space-10 py-space-4 text-body-sm font-semibold text-text-primary"
       >
         Case study
       </span>
