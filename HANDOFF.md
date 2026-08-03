@@ -14,10 +14,15 @@ code kept following the stale doc, and nobody noticed until it was live.
 
 Content wiring is done for everything on the homepage: all 10 project cards, Approach, About,
 and the Language River embed. Nav, footer, buttons, popovers, hotspots and the map all work.
+Image aspect ratios are settled across all three card types (see pass 1).
 
 **What's missing is the layer underneath.** There was never a global layout system stage —
 components got built before the system they sit in. That's why "spacing between sections" and
 "card behaviour in CSS grid" are both open: they're one absent layer showing up twice.
+
+**Start with pass 0.** The card work below is deliberately *not* the starting point — the
+ratios were settled early because Flore specified them directly, but the remaining card items
+(tints, insets, min/max) all depend on the layout system being in place first.
 
 ---
 
@@ -44,20 +49,40 @@ About:           12-col grid, 24px gap
 map centred at its native 1622 rather than scaling it up. Needs confirming.
 
 ### 1. Card media
-- **One aspect ratio per size variant, not one for all three.** This is the Artifakt crop: the
-  box is forced to 16:10, the file is 1.93, so `object-cover` shaves ~17% off.
-- **Per-card background tints**, already in Figma: Artifakt `#fdffe6`, PitchPivot `#dfe8fd`,
-  Welcome-to-my-city `#f6f9ff`, Rega + Sinomocene `#ffe4e7`, SBB `#efefef`, myRIDE `#e1e2f7`,
-  SAC `#e5efe1`, Teamchatviz `#d8fbfc`, Roche white.
-- Min/max widths on the image containers — Flore is adding these in Figma.
-- Review the NDA / Case study badges: built 2 Aug from the real Figma treatment, unreviewed.
+
+**Aspect ratios — DONE (commit `244aec2`), don't re-derive these.** Flore's rule, confirmed:
+the ratio is a property of the card *variant*, sampled from the component set, never from an
+instance. Verified in the browser at exactly these values:
+
+| Card type | Rule | Source node |
+|---|---|---|
+| ProjectCard | one ratio per size: large `880/447`, medium `530/315`, small `320/278` | `2928:78077` |
+| MediaCard | all images 4:3. The podcast is the `Embed` variant — an iframe, keeps its own height | `4522:18868` |
+| AsideCard | all three variants are 4:3 (400×300 / 500×375 / 600×450), so `size` picks a **max width**, not a ratio | `4533:19992` |
+
+The artwork is **inset** inside the media frame rather than filling it — that inset is what lets
+the frame's background tint show around it (Figma: frame 562 wide vs image 530 on Medium, 977 vs
+880 on Large). The insets currently in code are the sampled proportions, not final.
+
+**Still to do in this pass:**
+- **Per-card background tints**, already in Figma and not yet wired: Artifakt `#fdffe6`,
+  PitchPivot `#dfe8fd`, Welcome-to-my-city `#f6f9ff`, Rega + Sinomocene `#ffe4e7`, SBB `#efefef`,
+  myRIDE `#e1e2f7`, SAC `#e5efe1`, Teamchatviz `#d8fbfc`, Roche white. Until these land the inset
+  reads as plain white, so the media frames look unfinished — this is the pass that fixes that.
+- **Exact insets/padding per size** — settle alongside the tints and the layout system.
+- **Min/max widths on the image containers** — Flore is adding these in Figma; ask before
+  inventing values.
+- **Review the NDA / Case study badges** — built 2 Aug from the real Figma treatment, unreviewed.
+- **Artifakt thumbnail is 1.933, its frame is 1.969**, so ~1.9% (≈8px) still crops. Invisible in
+  practice; only worth a re-export at 880×447 if Flore wants it pixel-exact.
 
 ### 2. Card internals
-Component spacing and content rhythm, plus one known bug: **MediaCard buttons stretch to full
-width** because the `ButtonLink` is a direct child of a `flex flex-col`, and flex's default
-`align-items: stretch` blows out an `inline-flex` element. ProjectCard escapes it only because
-its button sits in a block wrapper. Buttons should hug. Fix it so it can't recur in the next
-card type.
+Component spacing and content rhythm.
+
+**Button stretch — FIXED (commit `244aec2`).** Recorded because it will recur: an `inline-flex`
+button as a direct child of a `flex flex-col` gets blown out to full width by flex's default
+`align-items: stretch`. MediaCard hit it; ProjectCard escaped only because its button sits in a
+block wrapper. Buttons hug their label. Any new card type needs `self-start` or a block wrapper.
 
 ### 3. Responsive
 See the working method below.
@@ -154,8 +179,17 @@ the start, since they're near-greenfield: structure → layout system → compon
   you can go straight to the right one. Flore is on Figma Professional — no Code Connect.
 - `[ img ]` in a dashed box is Flore's convention for "this image slot is real, asset pending" —
   render `ImagePlaceholder`, don't omit the element.
+- **Be precise about which thing you mean.** Three separate misunderstandings in two days came
+  from one word covering two referents: "content wiring" (frontmatter vs the words a visitor
+  reads), "placeholder" (Flore's `[ img ]` convention vs scaffolding text in the MDX files vs
+  dashed boxes in code), and "bodies" (the homepage card copy vs the prose that renders on the
+  case-study page). Name the artefact — "the card on the homepage", "the /work/artifakt page" —
+  rather than the code structure.
 
 Dev server: `npm run dev -- --host`. Run `npm run build` before any commit.
+
+Background on how this state was reached — the misunderstandings, what caused them, and the
+rules that came out of them — is in `process-docs/content-wiring/content-wiring.html`.
 
 **Start with pass 0** — pull the layout system from Figma and show Flore what you found before
 implementing.
