@@ -133,12 +133,13 @@
 
 <h1>Content Wiring — Real Copy, Image Labels &amp; the Language River</h1>
 <p class="subtitle">Getting real content out of Figma and into the portfolio build: the ten project cards, the Approach and About sections, and the self-hosted Language River chart. Mostly a story about an AI collaborator offering to write copy I'd already written — and what "content wiring" turned out to mean to each of us.</p>
-<p class="date-range">Sessions: 2 Aug 2026</p>
+<p class="date-range">Sessions: 2 Aug – 3 Aug 2026</p>
 
 <div class="toc">
   <div class="toc-title">Sessions in this doc</div>
   <ol>
     <li><a href="#sec-2026-08-02">Content wiring: cards, captions, embeds</a><span class="toc-phase">Building with Claude</span></li>
+    <li><a href="#sec-2026-08-03">Reading the log back: two words doing too much work</a><span class="toc-phase">Building with Claude</span></li>
   </ol>
 </div>
 
@@ -294,6 +295,99 @@
   <div class="hook">
     <div class="hook-label">Shareable hook</div>
     Claude found four cards on my site still reading "Placeholder one-line hook" — and asked whether I'd like to write the real copy, or have it drafted for me. The copy already existed. It had been sitting in the Figma file Claude had been reading all afternoon. It hadn't misread the content; it had never occurred to it to go and get it, because missing text reads as <em>not yet written</em> when it almost always means <em>not yet pulled</em>. The lesson I'm keeping: when an AI collaborator offers to write something for you, check whether you've already written it.
+  </div>
+</div>
+
+<div class="section" id="sec-2026-08-03">
+  <div class="section-header">
+    <span class="section-date">3 Aug 2026</span>
+    <span class="section-title">Reading the log back: two words doing too much work</span>
+    <span class="phase-tag">Building with Claude</span>
+  </div>
+  <p class="section-desc">
+    Went back over yesterday's entry the next morning and kept not understanding my own process doc. Both times the sticking point was a word, not a fact — "placeholder" and "frontmatter" were each covering several different things, in a doc I'd have to re-read in six months. Worth its own entry because the fix is vocabulary, and vocabulary is the part that quietly decides whether a status report means anything.
+  </p>
+
+  <h3 class="sub">"Placeholder" was doing three jobs</h3>
+  <table>
+    <tr><th>What</th><th>Where it lives</th><th>Who made it</th><th>What it means</th></tr>
+    <tr>
+      <td><code class="inline">[ img ]</code> in a dashed box</td>
+      <td>Figma</td>
+      <td>Me</td>
+      <td>A deliberate design convention: this image slot is real, the asset is pending.</td>
+    </tr>
+    <tr>
+      <td><i>"Placeholder one-line hook for the work grid card."</i></td>
+      <td><code class="inline">description:</code> in the MDX files</td>
+      <td>An earlier Claude session</td>
+      <td>Stand-in text so the card had something to render while layout got built. Now called <b>scaffolding text</b>, to stop it colliding with mine.</td>
+    </tr>
+    <tr>
+      <td>Dashed "Image placeholder" boxes</td>
+      <td><code class="inline">MediaCard.jsx</code></td>
+      <td>Claude, this session</td>
+      <td>Stand-in UI where no image had been wired yet.</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    When Claude said "placeholder audit" it meant only the middle row. I heard the top row. We each had a coherent picture and they weren't the same picture — which is exactly the shape of the bigger misunderstanding a day earlier, just smaller and easier to see.
+  </div>
+
+  <h3 class="sub">"All project frontmatter is real" — the status line that caused the miss</h3>
+  <p class="section-desc">
+    This sentence sat in <code class="inline">CLAUDE.md</code> as the recorded state of the content stage. Claude read it, believed it, and therefore never pulled the ProjectCard nodes in the first round. It's worth unpicking because it's wrong in an instructive way.
+  </p>
+  <pre class="code">description: "Placeholder one-line hook for the work grid card."
+└─ field ─┘  └────────────── scaffolding text ─────────────────┘
+
+description: "2018 — 200+ icons, one grammar — pharma science communication…"
+└─ field ─┘  └────────────── my actual words ─────────────────────────────┘</pre>
+  <p class="section-desc">
+    <b>Frontmatter</b> is the block of labelled lines at the top of each <code class="inline">.mdx</code> file, between two <code class="inline">---</code> markers; the prose underneath is the body. So the claim meant: <i>on every project file, every one of those lines holds my words rather than a stand-in.</i>
+  </p>
+
+  <div class="concept-grid">
+    <div class="concept-block">
+      <h4>It was false</h4>
+      <p>Four <code class="inline">description:</code> fields still held scaffolding text — written by a previous Claude session, in the very commit that set up the content model.</p>
+    </div>
+    <div class="concept-block">
+      <h4>It was also meaningless</h4>
+      <p>Even where true, it describes internal code fields. It says nothing about body prose, and nothing about a slot like <code class="inline">imageCaption</code> that was never a line in the file — so the claim sails straight past it.</p>
+    </div>
+    <div class="concept-block">
+      <h4>It sounded finished</h4>
+      <p>"Is real" reads as a completeness claim. It isn't one. That's what made it dangerous rather than merely unhelpful.</p>
+    </div>
+  </div>
+
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">Rule</div>
+      <div class="decision-what">Status notes describe what a visitor sees — never which code fields are populated</div>
+      <div class="decision-why">"All project frontmatter is real" is unfalsifiable from my side; I can't see frontmatter. "Titles and CTAs real; descriptions still scaffolding on 4 of 10, stubs on the other 6; image captions not built; case-study bodies all scaffolding" is something I can check against the actual page in ten seconds. Rewritten in <code class="inline">CLAUDE.md</code> in that form.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Rule</div>
+      <div class="decision-what">Name the author of a placeholder when reporting one</div>
+      <div class="decision-why">"Four cards still have scaffolding text an earlier session wrote" points at the fix. "Four cards have placeholders" sounds like I owe someone copy — which is precisely the wrong conclusion that cost two rounds yesterday.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Built</div>
+      <div class="decision-what">Restored the missing image placeholders, using my Figma convention <span class="status working">done</span></div>
+      <div class="decision-why">Filling in real content had made pending images vanish rather than stand out — an <code class="inline">item.image &&</code> guard meant Cold Plunge rendered nothing at all. Now a shared <code class="inline">ImagePlaceholder</code> renders the dashed <code class="inline">[ img ]</code> box. Pulling the ValueCard node to check its size surfaced a fourth missing slot: the ValueCard has an image block in Figma that had never been built either.</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>The pattern across both days.</b> Every miss traced back to a claim that was true in one frame and false in another, with nobody naming the frame: "content wiring is done", "all frontmatter is real", "the images have labels", "I sent them". None were lies and none were understood. The cheap fix is describing things in terms of the artefact we both look at — the page, the Figma node — rather than in terms of whichever internal structure each of us happens to be holding.
+  </div>
+
+  <div class="hook">
+    <div class="hook-label">Shareable hook</div>
+    The status note in my project file said "all project frontmatter is real." It was wrong — but the more useful discovery is that it couldn't have been useful even if it were right: it described which code fields were populated, something I can't see and can't check. Every misunderstanding in this build traced back to the same shape — a sentence that was true in one person's frame and false in the other's, with nobody naming the frame. Now the rule is that status gets written in terms of what a visitor sees on the page.
   </div>
 </div>
 
