@@ -6,14 +6,6 @@ export default {
       fontFamily: {
         sans: ['HK Grotesk', 'sans-serif'],
       },
-      // Desktop/* text styles pulled directly from Figma (get_design_context on
-      // sampled nodes: section headers, project card title/description/meta,
-      // contact heading/description, button label, badge label, wayfinding bubble).
-      // Weight is applied separately via font-* utilities alongside these, since
-      // Tailwind's fontSize scale doesn't carry font-weight.
-      // Mobile compression is still an open item (CLAUDE.md flags it unresolved) --
-      // 'caption-sm' below is the one confirmed mobile-named style sampled so far
-      // (Mobile/caption, 12px), not a full mobile scale.
       // Fluid type, anchored on the two real Figma frames: each clamp hits its
       // Mobile/* style exactly at 402 and its Desktop/* style exactly at 1622,
       // and only interpolates between. Both ends are measured, not chosen.
@@ -34,9 +26,18 @@ export default {
       fontSize: {
         // 28 -> 36 (Mobile/h1 -> Desktop/h1), Bold 700
         h1: ['clamp(1.75rem, 1.5852rem + 0.6557vw, 2.25rem)', { lineHeight: '1.4' }],
-        // 24 -> 32. At 402 this lands on Figma's Desktop/h3, which is what the
+        // 24 -> 28. At 402 this lands on Figma's Desktop/h3, which is what the
         // mobile card titles actually use -- same pixels, different style name.
-        h2: ['clamp(1.5rem, 1.3352rem + 0.6557vw, 2rem)', { lineHeight: '1.4' }],
+        //
+        // The desktop end is 28, not Figma's 32: Flore's call on 2026-08-04,
+        // the card titles read too heavy at the wide breakpoints. Deliberate
+        // divergence from the file; don't restore 32 on the next sample. Only
+        // the top anchor moved -- 402 is unchanged, so the reduction lands
+        // where it was asked for and mobile stays as designed.
+        //
+        // Shared by the ProjectCard titles and the Contact "Say Hi!" heading,
+        // so both stepped down together rather than splitting the token.
+        h2: ['clamp(1.5rem, 1.4176rem + 0.3279vw, 1.75rem)', { lineHeight: '1.4' }],
         // 16 -> 20 (Mobile/body -> Desktop/body-lg)
         //
         // Line height 1.6, not Figma's 1.5 -- Flore's call on 2026-08-04, for

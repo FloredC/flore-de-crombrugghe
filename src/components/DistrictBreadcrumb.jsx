@@ -32,8 +32,8 @@ export default function DistrictBreadcrumb({ zone, subsection }) {
           at the small end, so "same as body-lg on mobile" and "18 on desktop"
           are the same token, not a conflict needing its own scale entry. */}
       <p className="text-body font-normal text-text-primary">
-        You are here: <span className="font-bold">{zone}</span> —{' '}
-        <span className="font-bold">{subsection}</span>
+        You are here: <span className="font-semibold">{zone}</span> —{' '}
+        <span className="font-semibold">{subsection}</span>
       </p>
     </div>
   )

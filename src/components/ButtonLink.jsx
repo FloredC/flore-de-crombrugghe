@@ -11,7 +11,11 @@ const VARIANTS = ['primary', 'secondary', 'tertiary', 'menu', 'popover']
 // silently inherited the page's font-weight and rendered at 400 instead of
 // 700. Now baked into the variants that need it (see VARIANT_CLASS), so the
 // fix lands at the root component rather than being patched per call site.
-const TYPE_CLASS = 'text-body font-bold'
+// Letter spacing is a deliberate divergence: every Figma text style sets
+// letterSpacing 0, but the button labels are bold and set on a filled dark
+// surface, where tight tracking hurts legibility. Flore's call, 2026-08-04.
+// One value to tune if it wants to be looser or tighter.
+const TYPE_CLASS = 'text-body font-bold tracking-[0.02em]'
 
 // Shared pill shape/padding, sampled directly from the Figma "ButtonLink"
 // primary variant: px-24/py-16 (Tailwind's default px-6/py-4 happen to equal
