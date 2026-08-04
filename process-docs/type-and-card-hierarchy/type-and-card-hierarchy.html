@@ -138,6 +138,8 @@
   td { padding: 10px 12px; border-bottom: 1px solid #f0ede8; vertical-align: top; line-height: 1.5; }
   tr:last-child td { border-bottom: none; }
   td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  /* rem shown alongside px — px is what you read off Figma, rem is what ships */
+  .rem { display: block; font-size: 11px; color: #999; font-variant-numeric: tabular-nums; margin-top: 2px; }
 
   code.inline { background: #f0ede8; padding: 1px 6px; border-radius: 5px; font-size: 12px; font-family: 'SF Mono', Menlo, monospace; }
   pre.code { background: var(--ink); color: #e6e6e6; padding: 16px 18px; border-radius: 10px; font-size: 12px; line-height: 1.6; overflow-x: auto; font-family: 'SF Mono', Menlo, monospace; margin-top: 16px; }
@@ -177,13 +179,19 @@
 
   <table>
     <tr><th>Token</th><th>402</th><th>1622</th><th>Figma styles</th></tr>
-    <tr><td><code class="inline">h1</code></td><td class="num">28</td><td class="num">36</td><td>Mobile/h1 → Desktop/h1</td></tr>
-    <tr><td><code class="inline">h2</code></td><td class="num">24</td><td class="num">32 → 28</td><td>Desktop/h3 at mobile → Desktop/h2</td></tr>
-    <tr><td><code class="inline">body-lg</code></td><td class="num">16</td><td class="num">20</td><td>Mobile/body → Desktop/body-lg</td></tr>
-    <tr><td><code class="inline">body</code></td><td class="num">16</td><td class="num">18</td><td>Mobile/body → Desktop/body</td></tr>
-    <tr><td><code class="inline">body-sm</code></td><td class="num">14</td><td class="num">16</td><td>Mobile/body-sm → Desktop/body-sm</td></tr>
-    <tr><td><code class="inline">caption</code></td><td class="num">12</td><td class="num">14</td><td>Mobile/caption → Desktop/caption</td></tr>
+    <tr><td><code class="inline">h1</code></td><td class="num">28px<span class="rem">1.75rem</span></td><td class="num">36px<span class="rem">2.25rem</span></td><td>Mobile/h1 → Desktop/h1</td></tr>
+    <tr><td><code class="inline">h2</code></td><td class="num">24px<span class="rem">1.5rem</span></td><td class="num">32 → 28px<span class="rem">2 → 1.75rem</span></td><td>Desktop/h3 at mobile → Desktop/h2</td></tr>
+    <tr><td><code class="inline">body-lg</code></td><td class="num">16px<span class="rem">1rem</span></td><td class="num">20px<span class="rem">1.25rem</span></td><td>Mobile/body → Desktop/body-lg</td></tr>
+    <tr><td><code class="inline">body</code></td><td class="num">16px<span class="rem">1rem</span></td><td class="num">18px<span class="rem">1.125rem</span></td><td>Mobile/body → Desktop/body</td></tr>
+    <tr><td><code class="inline">body-sm</code></td><td class="num">14px<span class="rem">0.875rem</span></td><td class="num">16px<span class="rem">1rem</span></td><td>Mobile/body-sm → Desktop/body-sm</td></tr>
+    <tr><td><code class="inline">caption</code></td><td class="num">12px<span class="rem">0.75rem</span></td><td class="num">14px<span class="rem">0.875rem</span></td><td>Mobile/caption → Desktop/caption</td></tr>
+    <tr><td><code class="inline">caption-sm</code></td><td class="num">12px<span class="rem">0.75rem</span></td><td class="num">12px<span class="rem">0.75rem</span></td><td>Flat — Figma has no Desktop/caption-sm, so there's no second anchor to clamp between</td></tr>
   </table>
+  <p class="lede" style="margin-top:12px">
+    px is what you read off Figma; rem is what actually ships. The two only line up at the browser's default
+    16px root — which is the point: if a reader has set their browser text larger, every one of these scales
+    with it. The old px scale couldn't respond to that setting at all.
+  </p>
 
   <p class="lede" style="margin-top:18px">
     The important finding is in the <code class="inline">h2</code> row: the mobile card title uses Figma's
