@@ -150,7 +150,15 @@ export const COLLAGE_GRID = `${COLLAGE_BASE} gap-space-80 xl:gap-y-space-64`
 // read as one group rather than three separate things. Split from COLLAGE_GRID
 // rather than tightening both, since only About was asked for -- the two
 // collages were sharing a row gap purely because they happened to match.
-export const ASIDE_COLLAGE_GRID = `${COLLAGE_BASE} gap-space-60 xl:gap-y-space-40`
+//
+// Tightened twice. This is now the only thing setting the vertical rhythm
+// between the three cards: the per-card stagger offset was removed rather than
+// reduced again, because stacking an offset on the row gap is what made the
+// first gap 3.5x the second and kept the group from reading as a group. The
+// collage character comes from the horizontal placement and the differing card
+// widths, which are untouched -- the vertical offset was only adding
+// inconsistency.
+export const ASIDE_COLLAGE_GRID = `${COLLAGE_BASE} gap-space-40 xl:gap-y-space-32`
 
 // About only: the gap between the full-width Language River chart and the
 // aside cards under it. Wider than the editorial subsection gap because the
@@ -202,12 +210,11 @@ export const MEDIA_COLLAGE = [
 export const ASIDE_COLLAGE = [
   // Cold Plunge: right-aligned inside a span-10 frame, same as the podcast.
   `xl:col-start-1 xl:col-span-10 xl:row-start-1 xl:justify-self-end ${EDITORIAL_CARD}`,
-  // Data, Illustrated: flush left, the wide card in a span-7 frame. The
-  // stagger offset was 160, which stacked on the row gap to put 224 between
-  // this card and Cold Plunge against only 64 to Papayas -- a 3.5x difference
-  // that read as a section break rather than a collage. Halved to 80, so the
-  // stagger survives at 120/40 instead of disappearing entirely.
-  `xl:col-start-1 xl:col-span-7 xl:row-start-2 xl:justify-self-start xl:mt-space-80 ${EDITORIAL_CARD_WIDE}`,
+  // Data, Illustrated: flush left, the wide card in a span-7 frame. No vertical
+  // offset -- it was 160, then 80, and each time it stacked on the row gap and
+  // left the first card-to-card gap much larger than the second. Spacing here
+  // is the grid's row gap alone; see ASIDE_COLLAGE_GRID.
+  `xl:col-start-1 xl:col-span-7 xl:row-start-2 xl:justify-self-start ${EDITORIAL_CARD_WIDE}`,
   // Papayas: right-aligned to the full 12-column width -> x = 784.
   `xl:col-start-1 xl:col-span-12 xl:row-start-3 xl:justify-self-end ${EDITORIAL_CARD}`,
 ]
