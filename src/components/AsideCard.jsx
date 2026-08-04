@@ -14,7 +14,11 @@ export default function AsideCard({ item }) {
       data-component="aside-card"
       data-size={item.size}
       id={item.hotspotId ? item.hotspotId.replace('hotspot-', 'about-') : undefined}
-      className="flex flex-col gap-space-24"
+      // 16, not Figma's 24: the collage above pulls the cards close together,
+      // and the gap between two cards has to stay wider than the gap inside
+      // one or they stop reading as separate cards. Lowering this is what
+      // makes room for the collage gap to come down. Flore's call 2026-08-04.
+      className="flex flex-col gap-space-16"
     >
       <div className="flex flex-col gap-space-4">
         <h4 className="text-body-lg font-bold">{item.title}</h4>

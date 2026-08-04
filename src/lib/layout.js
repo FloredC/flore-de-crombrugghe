@@ -158,7 +158,12 @@ export const COLLAGE_GRID = `${COLLAGE_BASE} gap-space-80 xl:gap-y-space-64`
 // collage character comes from the horizontal placement and the differing card
 // widths, which are untouched -- the vertical offset was only adding
 // inconsistency.
-export const ASIDE_COLLAGE_GRID = `${COLLAGE_BASE} gap-space-40 xl:gap-y-space-32`
+// Third pass, 24 at xl. This is the floor while AsideCard's own text-to-image
+// gap is 16: the gap between two cards has to stay larger than the gap inside
+// one, or proximity stops doing its job and it becomes ambiguous which caption
+// belongs to which drawing. Tightening further means tightening AsideCard's
+// internal gap first, not this number.
+export const ASIDE_COLLAGE_GRID = `${COLLAGE_BASE} gap-space-32 xl:gap-y-space-24`
 
 // About only: the gap between the full-width Language River chart and the
 // aside cards under it. Wider than the editorial subsection gap because the
