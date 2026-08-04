@@ -15,6 +15,8 @@ Read in this order before writing any code:
 1. **This file** — architecture, components, content model, build order.
 2. **`PRD-Map-Layout-v1.md`** — the map's hotspot/popover interaction spec (what to test, success criteria, scope). Authoritative on interaction behavior specifically.
 3. **The Figma file, via the Figma MCP** — authoritative for structure, layout, visual design, and component breakdown. Where Figma and this doc disagree on structure or visuals, **Figma wins**; if Figma and the PRD disagree on hotspot/popover *interaction* specifically, the PRD wins.
+
+   **File key: `8T6lwxjUm5PjWAir4X0d5d`** (`Flore-Website-2026`). Every node ID in this repo belongs to that file — pass it as `fileKey` to the Figma MCP tools. Use the remote Figma server; the local desktop MCP is unavailable.
 4. **`city-plan-wireframe-v9e.html`** — optional background reference only, not a spec. It predates several current decisions (project count/roster, zone taxonomy naming, interaction details) — don't treat anything in it as structural or visual truth. Skip it entirely if it's more confusing than useful.
 
 ### The no-duplication rule (added 2026-08-03, after a real drift bug)

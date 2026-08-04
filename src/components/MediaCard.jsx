@@ -29,12 +29,12 @@ export default function MediaCard({ item }) {
           loading="lazy"
         />
       ) : item.image ? (
-        <img data-component="media-image" src={item.image} alt={item.title} className="aspect-[4/3] w-full rounded-radius-20 object-cover" />
+        <img data-component="media-image" src={item.image} alt={item.title} className="aspect-[4/3] w-full rounded-radius-24 object-cover" />
       ) : (
-        <ImagePlaceholder className="aspect-[4/3] w-full rounded-radius-20" />
+        <ImagePlaceholder className="aspect-[4/3] w-full rounded-radius-24" />
       )}
       <div className="flex flex-col gap-1">
-        <h4 className="text-body-sm font-semibold">{item.title}</h4>
+        <h4 className="text-body font-bold">{item.title}</h4>
         <p className="text-body font-normal">{item.description}</p>
       </div>
       {/* self-start, not a bare flex child: an inline-flex button inside a

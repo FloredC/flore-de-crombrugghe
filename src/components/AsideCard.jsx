@@ -27,11 +27,11 @@ export default function AsideCard({ item }) {
         <img
           src={item.image}
           alt={item.title}
-          className={`aspect-[4/3] w-full rounded-radius-20 object-cover ${ASIDE_MAX_WIDTH[item.size] || ASIDE_MAX_WIDTH.small}`}
+          className={`aspect-[4/3] w-full rounded-radius-24 object-cover ${ASIDE_MAX_WIDTH[item.size] || ASIDE_MAX_WIDTH.small}`}
         />
       ) : (
         <ImagePlaceholder
-          className={`aspect-[4/3] w-full rounded-radius-20 ${ASIDE_MAX_WIDTH[item.size] || ASIDE_MAX_WIDTH.small}`}
+          className={`aspect-[4/3] w-full rounded-radius-24 ${ASIDE_MAX_WIDTH[item.size] || ASIDE_MAX_WIDTH.small}`}
         />
       )}
     </article>
