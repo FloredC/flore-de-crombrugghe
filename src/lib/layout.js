@@ -141,8 +141,23 @@ export const VALUE_CARD_CELL = 'xl:col-span-3'
 // grids: fixed-width cards hand-placed with horizontal and vertical offsets.
 // Per Flore they stay a collage at xl and collapse to a plain grid below,
 // since hand-set offsets have nowhere to go on a narrow viewport.
-export const COLLAGE_GRID =
-  'grid grid-cols-1 gap-space-80 sm:grid-cols-2 xl:grid-cols-12 xl:gap-x-space-24 xl:gap-y-space-64'
+const COLLAGE_BASE = 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-12 xl:gap-x-space-24'
+
+// Approach's talks/writing collage, unchanged.
+export const COLLAGE_GRID = `${COLLAGE_BASE} gap-space-80 xl:gap-y-space-64`
+
+// About's aside collage sits tighter, Flore's call 2026-08-04: the three cards
+// read as one group rather than three separate things. Split from COLLAGE_GRID
+// rather than tightening both, since only About was asked for -- the two
+// collages were sharing a row gap purely because they happened to match.
+export const ASIDE_COLLAGE_GRID = `${COLLAGE_BASE} gap-space-60 xl:gap-y-space-40`
+
+// About only: the gap between the full-width Language River chart and the
+// aside cards under it. Wider than the editorial subsection gap because the
+// chart is a 1184-wide block butting up against 320-wide cards, and at 120 the
+// two read as one run of content. Deliberately not SUBSECTION_GAP_EDITORIAL --
+// that one also spaces Approach's two subsections, which weren't asked to move.
+export const ABOUT_CONTENT_GAP = 'flex flex-col gap-space-120 xl:gap-space-160'
 
 // --- Editorial card width ---------------------------------------------------
 //
@@ -187,8 +202,12 @@ export const MEDIA_COLLAGE = [
 export const ASIDE_COLLAGE = [
   // Cold Plunge: right-aligned inside a span-10 frame, same as the podcast.
   `xl:col-start-1 xl:col-span-10 xl:row-start-1 xl:justify-self-end ${EDITORIAL_CARD}`,
-  // Data, Illustrated: flush left, the wide card in a span-7 frame.
-  `xl:col-start-1 xl:col-span-7 xl:row-start-2 xl:justify-self-start xl:mt-space-160 ${EDITORIAL_CARD_WIDE}`,
+  // Data, Illustrated: flush left, the wide card in a span-7 frame. The
+  // stagger offset was 160, which stacked on the row gap to put 224 between
+  // this card and Cold Plunge against only 64 to Papayas -- a 3.5x difference
+  // that read as a section break rather than a collage. Halved to 80, so the
+  // stagger survives at 120/40 instead of disappearing entirely.
+  `xl:col-start-1 xl:col-span-7 xl:row-start-2 xl:justify-self-start xl:mt-space-80 ${EDITORIAL_CARD_WIDE}`,
   // Papayas: right-aligned to the full 12-column width -> x = 784.
   `xl:col-start-1 xl:col-span-12 xl:row-start-3 xl:justify-self-end ${EDITORIAL_CARD}`,
 ]

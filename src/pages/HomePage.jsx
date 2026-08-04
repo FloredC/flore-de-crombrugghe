@@ -26,6 +26,8 @@ import {
   VALUE_CARD_GRID,
   VALUE_CARD_CELL,
   COLLAGE_GRID,
+  ASIDE_COLLAGE_GRID,
+  ABOUT_CONTENT_GAP,
   MEDIA_COLLAGE,
   ASIDE_COLLAGE,
 } from '../lib/layout'
@@ -157,12 +159,12 @@ export default function HomePage() {
                 subsection={aboutSection.subsection}
                 bubbleCopy={aboutSection.bubbleCopy}
               />
-              <div className={SUBSECTION_GAP_EDITORIAL}>
+              <div className={ABOUT_CONTENT_GAP}>
                 <LanguageRiverEmbed
                   src={aboutSection.languageRiver.embedSrc}
                   title={aboutSection.languageRiver.title}
                 />
-                <div data-component="aside-collage" className={COLLAGE_GRID}>
+                <div data-component="aside-collage" className={ASIDE_COLLAGE_GRID}>
                   {aboutSection.asideCards.map((item, i) => (
                     <div key={item.title} className={ASIDE_COLLAGE[i] || ''}>
                       <AsideCard item={item} />
