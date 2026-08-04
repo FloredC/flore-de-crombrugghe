@@ -62,21 +62,29 @@ function useMapFits() {
   return fits
 }
 
-// Temporary, dev-only: turns "this feels too small" into a number, so the
-// scale floor gets set from an observed value rather than a guess. Remove
-// once the floor is agreed.
-function ScaleReadout({ mapRef }) {
-  const [info, setInfo] = useState(null)
+// How far the Guide is allowed to shrink alongside the map. Its smallest text
+// is the speech bubble's 14px caption, and 0.86 is where that lands on 12px --
+// Figma's own Mobile/caption size. Below that the group would still look right
+// but stop being readable, so the scale floors even as the map keeps going.
+const GUIDE_MIN_SCALE = 0.86
+
+// Measured rather than recomputed from window dimensions, so it reflects what
+// the CSS actually resolved to.
+//
+// `branchKey` is in the dep list on purpose: the observer used to subscribe
+// once on mount, so when the fit/crop branch flipped (or HMR replaced the
+// node) it kept measuring a detached element and reported 0. Re-subscribing
+// when the branch changes, and re-resolving ref.current on every read, keeps
+// it pointed at the live node.
+function useMapWidth(ref, branchKey) {
+  const [width, setWidth] = useState(0)
   useEffect(() => {
-    const el = mapRef.current
-    if (!el) return
-    const read = () =>
-      setInfo({
-        vw: window.innerWidth,
-        vh: window.innerHeight,
-        w: Math.round(el.getBoundingClientRect().width),
-        scale: el.getBoundingClientRect().width / MAP_NATIVE_WIDTH,
-      })
+    const el = ref.current
+    if (!el) return undefined
+    const read = () => {
+      const node = ref.current
+      if (node) setWidth(node.getBoundingClientRect().width)
+    }
     read()
     const ro = new ResizeObserver(read)
     ro.observe(el)
@@ -85,15 +93,22 @@ function ScaleReadout({ mapRef }) {
       ro.disconnect()
       window.removeEventListener('resize', read)
     }
-  }, [mapRef])
-  if (!info) return null
+  }, [ref, branchKey])
+  return width
+}
+
+// Temporary, dev-only: turns "this feels too small" into a number, so the
+// scale floor gets set from an observed value rather than a guess. Remove
+// once the floor is agreed.
+function ScaleReadout({ mapWidth, mapScale, guideScale }) {
   return (
     <div
       data-component="scale-readout"
       className="pointer-events-none fixed bottom-space-16 right-space-16 z-50 rounded-radius-8 bg-black/80 px-space-12 py-space-8 font-mono text-caption text-white"
     >
-      {info.vw}×{info.vh} · map {info.w}px · scale{' '}
-      <strong className="text-action-accent-foreground">{info.scale.toFixed(3)}</strong>
+      {window.innerWidth}×{window.innerHeight} · map {Math.round(mapWidth)}px · scale{' '}
+      <strong className="text-action-accent-foreground">{mapScale.toFixed(3)}</strong> · guide{' '}
+      {guideScale.toFixed(2)}
     </div>
   )
 }
@@ -103,9 +118,13 @@ function Guide() {
     <>
       <SpeechBubble variant="top">{GREETING}</SpeechBubble>
       <Avatar variant="hero" />
-      <div className="flex flex-col gap-1">
-        <h1 className="text-body font-bold">Flore de Crombrugghe</h1>
-        <p className="text-body font-normal">Senior Product Designer</p>
+      {/* No gap and tighter leading: at 1.5 line-height the two lines carry
+          ~7px of leading each, so a 4px gap read as ~18px of space. Figma's
+          own name/title containers overlap slightly, i.e. tighter than the
+          line boxes, not looser. */}
+      <div className="flex flex-col">
+        <h1 className="text-body font-bold leading-[1.3]">Flore de Crombrugghe</h1>
+        <p className="text-body font-normal leading-[1.3]">Senior Product Designer</p>
       </div>
     </>
   )
@@ -151,6 +170,9 @@ export default function Hero() {
   const [activeHotspotId, setActiveHotspotId] = useState(null)
   const mapFits = useMapFits()
   const mapRef = useRef(null)
+  const mapWidth = useMapWidth(mapRef, mapFits)
+  const mapScale = mapWidth ? mapWidth / MAP_NATIVE_WIDTH : 1
+  const guideScale = Math.min(1, Math.max(GUIDE_MIN_SCALE, mapScale))
 
   return (
     <section
@@ -189,7 +211,16 @@ export default function Hero() {
             className="relative mx-auto"
             style={{ width: MAP_FIT_WIDTH }}
           >
-            <div data-component="guide" className="absolute left-[3%] top-[4%] z-10 flex max-w-[320px] flex-col items-start gap-2">
+            {/* Scales with the map so it stops crowding the illustration as
+                the map shrinks. A transform rather than restyling the parts:
+                the Guide has no interactive elements, so unlike the hotspots
+                there's no hit area to protect, and SpeechBubble/Avatar are
+                shared with Wayfinding, which must NOT scale with the map. */}
+            <div
+              data-component="guide"
+              className="absolute left-[3%] top-[4%] z-10 flex max-w-[320px] flex-col items-start gap-2"
+              style={{ transform: `scale(${guideScale})`, transformOrigin: 'top left' }}
+            >
               <Guide />
             </div>
             <MapContent activeHotspotId={activeHotspotId} setActiveHotspotId={setActiveHotspotId} />
@@ -237,7 +268,9 @@ export default function Hero() {
           </div>
         </>
       )}
-      {import.meta.env.DEV && <ScaleReadout mapRef={mapRef} />}
+      {import.meta.env.DEV && (
+        <ScaleReadout mapWidth={mapWidth} mapScale={mapScale} guideScale={guideScale} />
+      )}
     </section>
   )
 }
