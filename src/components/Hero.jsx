@@ -69,12 +69,6 @@ function useMapFits() {
   return fits
 }
 
-// How far the Guide is allowed to shrink alongside the map. Its smallest text
-// is the speech bubble's 14px caption, and 0.86 is where that lands on 12px --
-// Figma's own Mobile/caption size. Below that the group would still look right
-// but stop being readable, so the scale floors even as the map keeps going.
-const GUIDE_MIN_SCALE = 0.86
-
 // Measured rather than recomputed from window dimensions, so it reflects what
 // the CSS actually resolved to.
 //
@@ -107,15 +101,14 @@ function useMapWidth(ref, branchKey) {
 // Temporary, dev-only: turns "this feels too small" into a number, so the
 // scale floor gets set from an observed value rather than a guess. Remove
 // once the floor is agreed.
-function ScaleReadout({ mapWidth, mapScale, guideScale }) {
+function ScaleReadout({ mapWidth, mapScale }) {
   return (
     <div
       data-component="scale-readout"
       className="pointer-events-none fixed bottom-space-16 right-space-16 z-50 rounded-radius-8 bg-black/80 px-space-12 py-space-8 font-mono text-caption text-white"
     >
       {window.innerWidth}×{window.innerHeight} · map {Math.round(mapWidth)}px · scale{' '}
-      <strong className="text-action-accent-foreground">{mapScale.toFixed(3)}</strong> · guide{' '}
-      {guideScale.toFixed(2)}
+      <strong className="text-action-accent-foreground">{mapScale.toFixed(3)}</strong>
     </div>
   )
 }
@@ -179,7 +172,6 @@ export default function Hero() {
   const mapRef = useRef(null)
   const mapWidth = useMapWidth(mapRef, mapFits)
   const mapScale = mapWidth ? mapWidth / MAP_NATIVE_WIDTH : 1
-  const guideScale = Math.min(1, Math.max(GUIDE_MIN_SCALE, mapScale))
 
   return (
     <section
@@ -224,15 +216,16 @@ export default function Hero() {
             className="relative mx-auto"
             style={{ width: MAP_FIT_WIDTH }}
           >
-            {/* Scales with the map so it stops crowding the illustration as
-                the map shrinks. A transform rather than restyling the parts:
-                the Guide has no interactive elements, so unlike the hotspots
-                there's no hit area to protect, and SpeechBubble/Avatar are
-                shared with Wayfinding, which must NOT scale with the map. */}
+            {/* Deliberately NOT scaled as a group. A transform here briefly
+                shrank the whole Guide with the map, which also silently reset
+                every type size inside it -- the bubble's 14px painted at 12,
+                the name and role at 15.5. Type sizes belong to the type scale,
+                not to a transform on a container. The Guide's crowding is
+                handled by sizing its parts (see Avatar) and, still open, by
+                making the bubble's width responsive in the type pass. */}
             <div
               data-component="guide"
               className="absolute left-[3%] top-[4%] z-10 flex max-w-[320px] flex-col items-start gap-2"
-              style={{ transform: `scale(${guideScale})`, transformOrigin: 'top left' }}
             >
               <Guide />
             </div>
@@ -281,9 +274,7 @@ export default function Hero() {
           </div>
         </>
       )}
-      {import.meta.env.DEV && (
-        <ScaleReadout mapWidth={mapWidth} mapScale={mapScale} guideScale={guideScale} />
-      )}
+      {import.meta.env.DEV && <ScaleReadout mapWidth={mapWidth} mapScale={mapScale} />}
     </section>
   )
 }

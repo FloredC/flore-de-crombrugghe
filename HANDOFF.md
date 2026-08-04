@@ -129,6 +129,41 @@ captions, the embed.
 ### 6. Typography
 All breakpoints, once wrapping is final.
 
+**Where the scale is today:** seven styles in `tailwind.config.js` → `theme.extend.fontSize`,
+**all in px, no rem anywhere**, across ~25 call sites. `h1` 36 / `h2` 32 / `body-lg` 20 /
+`body` 18 / `body-sm` 16 / `caption` 14 / `caption-sm` 12. Sampled from Figma's Desktop text
+styles only.
+
+**Agreed approach:**
+
+- **Convert to rem.** px ignores the reader's browser font-size setting entirely, so the site
+  currently can't be scaled up by anyone who needs that.
+- **Fluid `clamp()` per style, not breakpoint steps**, anchored at the two real Figma frames
+  (402 and 1622) so both ends are exact and only the middle interpolates. Same reasoning as
+  `Container` padding — stepping that through breakpoints made the value run *backwards* at
+  each boundary. A clamp can't.
+- **All of it in the token layer**, so components keep writing `text-body` and none of the ~25
+  call sites change. No `md:text-*` scattered around to drift.
+- **Pull Figma's `Mobile/*` text styles — don't invent them.** They exist: `Mobile/caption` (12)
+  and `Mobile/body-bold` (16) have both come back in design-context pulls. Flore's "body text
+  around 16px on mobile" matches what's already in the file.
+
+**Two things this pass owns that are currently unresolved elsewhere:**
+
+- **The Guide's speech bubble is a hard `max-w-[300px]`.** That, not font size, is what crowds
+  the map at small sizes — smaller text in a fixed-width box just means more words per line.
+  The Guide is still 258px against a 768px map (33.6%) at iPad portrait. Make the bubble width
+  responsive here, then re-measure. **Only if it's still above ~30% should stacking the Guide
+  below ~1000px be revisited** — Flore's read, which the numbers support, is that it probably
+  won't be needed.
+- **A scale transform on the Guide was removed on 2026-08-04, deliberately.** It shrank the
+  whole group with the map, which silently reset every type size inside it: the bubble's 14px
+  painted at 12, the name and role at 15.5. It looked like an avatar-sizing change and was
+  actually an undocumented mobile type scale. **Don't reintroduce a container transform to
+  solve a type problem** — if the Guide's text should be smaller at small viewports, that
+  belongs in the scale here, where it's visible and named. The hero avatar keeps its own
+  explicit `w-[70px] lg:w-[108px]`, which is the only thing shrinking the Guide now.
+
 ### 7. Quality
 Content polish, a11y audit, cross-browser (Safari first), performance, launch QA.
 
