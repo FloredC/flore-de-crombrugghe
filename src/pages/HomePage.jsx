@@ -24,7 +24,6 @@ import {
   WORK_GRID_2UP,
   WORK_GRID_3UP,
   VALUE_CARD_GRID,
-  VALUE_CARD_CELL,
   COLLAGE_GRID,
   ASIDE_COLLAGE_GRID,
   ABOUT_CONTENT_GAP,
@@ -96,9 +95,7 @@ function ApproachSubsection({ subsection }) {
       {subsection.layout === 'value-cards' && (
         <div className={VALUE_CARD_GRID}>
           {subsection.valueCards.map((item) => (
-            <div key={item.title} className={VALUE_CARD_CELL}>
-              <ValueCard item={item} />
-            </div>
+            <ValueCard key={item.title} item={item} />
           ))}
         </div>
       )}

@@ -133,9 +133,25 @@ export const WORK_GRID_3UP =
 // (Figma briefly had these in a 1208-wide row that overflowed the container
 // by 24px, using a 32px gutter. Flore has since removed that wrapper and put
 // the cards on a real grid; the two now agree.)
+// The card is a fixed 278 at every width, not a share of the container.
+//
+// It used to be a 1/2/12-column grid with the card filling its column, so the
+// illustration ballooned as the viewport narrowed -- 278 at desktop but ~430
+// at tablet and full-bleed on a phone, which is backwards: the cards got
+// bigger exactly where there was least room. Flore's call 2026-08-04.
+//
+// auto-fit packs as many 278 columns as fit and reflows on its own: 4-up at
+// the desktop frame, then 3, 2, 1 as it narrows, with no breakpoints to keep
+// in sync. At 1184 it resolves to exactly the Figma row (4*278 + 3*24 = 1184).
+//
+// The minmax(min(278px,100%),278px) rather than a bare 278px is a safety
+// valve: below a 310-ish viewport a fixed track would overflow the container
+// instead of shrinking, and `min(...,100%)` lets the last column give way.
+// No cell wrapper: the fixed track sizes the card, so the ValueCard is the
+// grid item directly. (There was a wrapper carrying the column span before
+// the track became fixed.)
 export const VALUE_CARD_GRID =
-  'grid grid-cols-1 gap-space-40 sm:grid-cols-2 xl:grid-cols-12 xl:gap-x-space-24'
-export const VALUE_CARD_CELL = 'xl:col-span-3'
+  'grid grid-cols-[repeat(auto-fit,minmax(min(278px,100%),278px))] gap-y-space-40 gap-x-space-24'
 
 // The Approach and About card blocks are staggered collages in Figma, not
 // grids: fixed-width cards hand-placed with horizontal and vertical offsets.
