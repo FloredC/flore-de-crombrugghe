@@ -21,11 +21,17 @@ const GREETING = (
 const MAP_NATIVE_WIDTH = 1622
 const MAP_NATIVE_HEIGHT = 982
 
-// Vertical space the hero reserves around the map: bottom padding only, since
-// the map now sits flush to the top of the page (as it does in Figma, where
-// the map instance is at y=0). Subtracted from the viewport height before
-// working out how wide the map can be.
-const HERO_VERTICAL_RESERVE = 48
+// Vertical space the hero reserves around the map: pt-space-24 + pb-12.
+// Must stay in sync with the padding classes on the section below -- it's
+// what the fit calculation subtracts from the viewport height before working
+// out how wide the map can be.
+//
+// The 24 at the top is deliberate at every size, not just mobile. On desktop
+// the map's own artwork carries whitespace above the island so it reads fine
+// flush; at small sizes that whitespace scales down with everything else, and
+// in the crop branch the Guide is a real stacked block that sat hard against
+// the top edge.
+const HERO_VERTICAL_RESERVE = 72
 
 // Below this width the map stops scaling and goes back to cropping with
 // two-finger pan -- phones, where Figma stacks the Guide above the map
@@ -185,7 +191,7 @@ export default function Hero() {
       // screen. Now the section is exactly as tall as the map needs, the map
       // sits near the top, and how much of the next section shows through
       // falls out of the window's own height and aspect ratio.
-      className="relative flex flex-col overflow-hidden bg-surface-canvas pb-12"
+      className="relative flex flex-col overflow-hidden bg-surface-canvas pt-space-24 pb-12"
     >
       {/* Sampled from Figma's "gradient" node: surface-canvas (#f0f6ff) fading
           to white over ~150px, sitting right at the map's bottom edge -- the
