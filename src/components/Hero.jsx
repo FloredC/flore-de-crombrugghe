@@ -21,10 +21,11 @@ const GREETING = (
 const MAP_NATIVE_WIDTH = 1622
 const MAP_NATIVE_HEIGHT = 982
 
-// Vertical space the hero reserves around the map: the section's own py-12,
-// top and bottom. Subtracted from the viewport height before working out how
-// wide the map can be.
-const HERO_VERTICAL_RESERVE = 96
+// Vertical space the hero reserves around the map: bottom padding only, since
+// the map now sits flush to the top of the page (as it does in Figma, where
+// the map instance is at y=0). Subtracted from the viewport height before
+// working out how wide the map can be.
+const HERO_VERTICAL_RESERVE = 48
 
 // Below this width the map stops scaling and goes back to cropping with
 // two-finger pan -- phones, where Figma stacks the Guide above the map
@@ -178,7 +179,13 @@ export default function Hero() {
     <section
       id="hero"
       data-component="hero"
-      className="relative flex min-h-svh flex-col overflow-hidden bg-surface-canvas py-12"
+      // Height comes from the map, not the viewport. It used to be min-h-svh
+      // with the map vertically centred, which parked a band of empty canvas
+      // above the map on any tall window and pushed the next section off
+      // screen. Now the section is exactly as tall as the map needs, the map
+      // sits near the top, and how much of the next section shows through
+      // falls out of the window's own height and aspect ratio.
+      className="relative flex flex-col overflow-hidden bg-surface-canvas pb-12"
     >
       {/* Sampled from Figma's "gradient" node: surface-canvas (#f0f6ff) fading
           to white over ~150px, sitting right at the map's bottom edge -- the
@@ -204,7 +211,7 @@ export default function Hero() {
         // in the crop branch, taking a full row of height with just its left
         // third used. Since a 1500px laptop now fits instead of cropping, it
         // gets the overlay again.
-        <div className="flex flex-1 flex-col justify-center">
+        <div className="flex flex-col">
           <div
             ref={mapRef}
             data-component="hero-map"
