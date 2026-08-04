@@ -17,7 +17,11 @@ export default function ProjectCard({ project, size = 'medium' }) {
       id={`project-${project.slug}`}
       data-component="project-card"
       data-size={size}
-      className="flex w-full min-w-0 flex-col gap-space-16 xl:gap-space-24"
+      // scroll-mt keeps the card clear of the fixed nav when it's the target of
+      // an anchor jump -- both the map popovers' "View project" links and the
+      // "Back to Portfolio" return from a case study. Without it the card's top
+      // edge lands underneath the nav pill.
+      className="flex w-full min-w-0 scroll-mt-space-120 flex-col gap-space-16 xl:gap-space-24"
     >
       <ProjectMedia
         src={project.thumbnail}

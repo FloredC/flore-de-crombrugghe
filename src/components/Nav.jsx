@@ -100,14 +100,14 @@ function HomeAvatar({ href, label }) {
 // px-12/py-8, mobile pl-24/pr-4) -- carried over faithfully rather than
 // unified, since the bare text link needs more breathing room from the pill
 // edge than the Contact button does.
-function SubpageNav() {
+function SubpageNav({ backTo }) {
   return (
     <nav
       data-component="nav"
       data-variant="subpage"
       className={`${PILL_CLASS} flex py-space-8 pl-space-24 pr-space-4 md:px-space-12`}
     >
-      <Link to="/" className={`flex items-center gap-space-4 py-space-8 text-body font-bold ${LINK_CLASS}`}>
+      <Link to={backTo} className={`flex items-center gap-space-4 py-space-8 text-body font-bold ${LINK_CLASS}`}>
         <ArrowBackIcon aria-hidden="true" />
         Back to Portfolio
       </Link>
@@ -240,6 +240,12 @@ function MobileHomeNav({ currentSection }) {
 export default function Nav() {
   const { pathname } = useLocation()
   const isHome = pathname === '/'
+  // Going back from a case study returns the reader to the card they left
+  // from, not to the top of the map. Every subpage slug has a matching
+  // `#project-<slug>` card in the Work grid (only non-NDA projects get a
+  // route, and all of those have a card), so the anchor always resolves.
+  const projectSlug = pathname.startsWith('/work/') ? pathname.slice('/work/'.length) : ''
+  const backTo = projectSlug ? `/#project-${projectSlug}` : '/'
   const [visible, setVisible] = useState(!isHome)
   const currentSection = useCurrentSection()
 
@@ -274,7 +280,7 @@ export default function Nav() {
           <MobileHomeNav currentSection={currentSection} />
         </>
       ) : (
-        <SubpageNav />
+        <SubpageNav backTo={backTo} />
       )}
     </div>
   )
