@@ -11,7 +11,7 @@ export default function ImagePlaceholder({ className = '', label = '[ img ]' }) 
       data-component="image-placeholder"
       className={`flex items-center justify-center border border-dashed border-border-grey p-space-14 ${className}`}
     >
-      <span className="text-center text-[12px] font-normal text-text-secondary">{label}</span>
+      <span className="text-center text-caption-sm font-normal text-text-secondary">{label}</span>
     </div>
   )
 }

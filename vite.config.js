@@ -27,3 +27,18 @@ export default defineConfig({
     }),
   ],
 })
+
+// Editing tailwind.config.js does NOT reach a running dev server.
+//
+// Tailwind 3's PostCSS plugin resolves the config once and holds it for the
+// life of the Node process. The config is ESM, so it can't be uncached, and
+// Vite's own `server.restart()` reuses the same process -- an auto-restart
+// plugin was tried here and measured: it logged a restart and kept serving the
+// old CSS. A browser reload doesn't help either, since the stale CSS is
+// generated server-side.
+//
+// Only killing the process and starting again picks up a token change. Verified
+// both ways: same-process restart served the old line-height, cold start served
+// the new one. This bit the type pass twice -- the page looked plausible while
+// painting the previous scale, and it was only caught by reading the served CSS
+// rule directly rather than trusting the render.

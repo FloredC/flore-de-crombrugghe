@@ -18,16 +18,35 @@ export default function MediaCard({ item }) {
       className="flex flex-col gap-4"
     >
       {item.variant === 'embed' ? (
-        <iframe
-          data-component="media-embed"
-          src={item.embedSrc}
-          width="100%"
-          height="352"
-          frameBorder="0"
-          allowFullScreen
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
-        />
+        // The embed gets the same 4:3 media slot the image variants use, with
+        // the player bottom-aligned inside it. The player is only 110px tall
+        // against their 300, so on its own it left the card short and started
+        // its text block higher than every neighbour's. Matching the slot puts
+        // all the media bottom edges -- and so all the artwork-to-title gaps --
+        // on the same line.
+        <div
+          data-component="media-embed-slot"
+          className="flex aspect-[4/3] w-full items-end"
+        >
+          {/* 152 is Spotify's compact player -- its real height, not a ratio.
+              The player is a fixed-height component that only flexes in width,
+              so an aspect-ratio box doesn't scale it: it renders at its natural
+              size and letterboxes itself inside whatever box it's given. At
+              400x110 that put ~40px of transparent iframe below the artwork,
+              which read as the podcast card having a much looser
+              artwork-to-title gap than its neighbours even though the iframe's
+              own box was flush. Sizing the box to the player removes the band.
+              Still far short of the 352px block this started as. */}
+          <iframe
+            data-component="media-embed"
+            src={item.embedSrc}
+            className="h-[152px] w-full"
+            frameBorder="0"
+            allowFullScreen
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"
+          />
+        </div>
       ) : item.image ? (
         <img data-component="media-image" src={item.image} alt={item.title} className="aspect-[4/3] w-full rounded-radius-24 object-cover" />
       ) : (

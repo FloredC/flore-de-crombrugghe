@@ -35,8 +35,34 @@
  *
  * Vertical rhythm, likewise measured rather than chosen: 200 between
  * top-level sections (and before the footer), 64 from a Wayfinding row to the
- * content under it, 48 from a section header to its content. Compression
- * below `xl` is interpolation -- Figma has no frames between 402 and 1622.
+ * content under it, 48 from a section header to its content.
+ *
+ * The below-`xl` values are a deliberate override of the 402 frame, decided
+ * on 2026-08-04. Two steps got there, and the second reverses part of the
+ * first, so both are recorded:
+ *
+ * 1. They were originally invented -- "Figma has no frames between 402 and
+ *    1622" got read as "no frames at all", so the small end was guessed. The
+ *    402 frame does specify a rhythm (40 top padding, 48 Wayfinding, 48 card
+ *    -> card) and those were measured in.
+ *
+ * 2. On a real phone that rhythm reads flat -- Flore's call, and the ratios
+ *    show why. Against desktop, the *structural* gaps had been compressed to
+ *    0.40-0.48 while local ones sat at 0.67-0.75, so a section break came out
+ *    barely larger than a card gap and the hierarchy collapsed. Everything now
+ *    sits on one ~0.7 ratio of its desktop value, snapped to the token scale.
+ *    The fix is proportional, not a flat increase: the big gaps roughly double,
+ *    the small ones barely move.
+ *
+ * So mobile is now *looser* than the 402 frame draws it. That is intentional.
+ * If the frame is ever revised, don't silently re-measure these back down --
+ * check whether the hierarchy still survives at that size first.
+ *
+ * Card-internal spacing (ProjectCard's own gaps) stays exactly as the 402
+ * frame has it; only page rhythm was opened up.
+ *
+ * The 402 frame only draws the hero and the Work section, so the below-`xl`
+ * values outside Work are ratio-derived rather than measured.
  */
 
 // --- Page rhythm ------------------------------------------------------------
@@ -44,11 +70,18 @@
 // 200 between every top-level section, and between the last section and the
 // footer -- a real auto-layout gap on Figma's `Vertical container`, uniform
 // across all four boundaries.
-export const PAGE_STACK = 'flex flex-col gap-space-120 xl:gap-space-200'
+export const PAGE_STACK = 'flex flex-col gap-space-140 xl:gap-space-200'
 
 // Work opens with 80px of top padding inside its 1280 frame; Approach and
 // About have none; Contact is padded 120 top and bottom.
-export const SECTION_PAD_WORK = 'pt-space-48 xl:pt-space-80'
+// This padding is the *whole* visible gap between the map and the Work
+// heading -- the hero no longer carries bottom padding and the nav no longer
+// reserves flow space, so nothing else contributes to it. Flore asked for
+// ~78/38; 80 and 40 are the token-scale values either side and 80 is the
+// Figma frame's own number, so the gap is one token rather than two magic
+// numbers. Deliberately below the ~0.7 mobile ratio the rest of the page
+// uses: this is a boundary against the map, not between two text sections.
+export const SECTION_PAD_WORK = 'pt-space-40 xl:pt-space-80'
 export const SECTION_PAD_CONTACT = 'py-space-64 xl:py-space-120'
 
 // Section header -> first content block, and Wayfinding row -> the content
@@ -59,12 +92,14 @@ export const SECTION_PAD_CONTACT = 'py-space-64 xl:py-space-120'
 // one constant each rather than a per-zone pair, so the two can't drift apart
 // again without someone choosing to split them.
 export const SECTION_HEADER_GAP = 'gap-space-32 xl:gap-space-48'
-export const WAYFINDING_GAP = 'gap-space-32 xl:gap-space-64'
+// Mobile 48 measured off the 402 frame (breadcrumb h=69.44 -> content y=117.44),
+// where it happens to be *wider* than the 32 guessed here before, not tighter.
+export const WAYFINDING_GAP = 'gap-space-48 xl:gap-space-64'
 
 // Gap between subsections within one section. Work is spaced as widely as the
 // top-level sections themselves (200); Approach and About use 120.
-export const SUBSECTION_GAP_WORK = 'flex flex-col gap-space-80 xl:gap-space-200'
-export const SUBSECTION_GAP_EDITORIAL = 'flex flex-col gap-space-64 xl:gap-space-120'
+export const SUBSECTION_GAP_WORK = 'flex flex-col gap-space-140 xl:gap-space-200'
+export const SUBSECTION_GAP_EDITORIAL = 'flex flex-col gap-space-80 xl:gap-space-120'
 
 // --- Work grids (6 col / 60px gutter) ---------------------------------------
 
@@ -72,17 +107,21 @@ export const SUBSECTION_GAP_EDITORIAL = 'flex flex-col gap-space-64 xl:gap-space
 export const WORK_FEATURED_ROW = 'xl:grid xl:grid-cols-6 xl:gap-x-space-60'
 export const WORK_FEATURED_CARD = 'xl:col-span-5'
 
-// The featured card sits 200 above the 2-up row beneath it.
-export const WORK_FEATURED_STACK = 'flex flex-col gap-space-64 xl:gap-space-200'
+// The featured card sits 100 above the 2-up row beneath it (node 2928:73715).
+// Was 200, matching the top-level section gap; Flore tightened it to 100 on
+// 2026-08-04 so the Work rows read as one group rather than three sections.
+export const WORK_FEATURED_STACK = 'flex flex-col gap-space-72 xl:gap-space-100'
 
-// 2-up: span 6 each. Row gap is 140 against a 60 gutter -- deliberately more
-// vertical air than horizontal, straight from the 2x2 block in Figma.
+// 2-up: span 6 each. Row gap 100 against a 60 gutter (node 2928:73730) --
+// still more vertical air than horizontal, but the same 100 as the featured
+// stack above it, so every Work row-to-row gap on the page is one number.
+// Was 140; Flore aligned it with the projects on 2026-08-04.
 export const WORK_GRID_2UP =
-  'grid grid-cols-1 gap-y-space-64 sm:grid-cols-2 sm:gap-x-space-24 xl:gap-x-space-60 xl:gap-y-space-140'
+  'grid grid-cols-1 gap-y-space-72 sm:grid-cols-2 sm:gap-x-space-24 xl:gap-x-space-60 xl:gap-y-space-100'
 
 // 3-up: span 4 each.
 export const WORK_GRID_3UP =
-  'grid grid-cols-1 gap-y-space-64 sm:grid-cols-2 sm:gap-x-space-24 lg:grid-cols-3 xl:gap-x-space-60'
+  'grid grid-cols-1 gap-y-space-72 sm:grid-cols-2 sm:gap-x-space-24 lg:grid-cols-3 xl:gap-x-space-60'
 
 // --- Editorial grids (12 col / 24px gutter) ---------------------------------
 
@@ -95,7 +134,7 @@ export const WORK_GRID_3UP =
 // by 24px, using a 32px gutter. Flore has since removed that wrapper and put
 // the cards on a real grid; the two now agree.)
 export const VALUE_CARD_GRID =
-  'grid grid-cols-1 gap-space-32 sm:grid-cols-2 xl:grid-cols-12 xl:gap-x-space-24'
+  'grid grid-cols-1 gap-space-40 sm:grid-cols-2 xl:grid-cols-12 xl:gap-x-space-24'
 export const VALUE_CARD_CELL = 'xl:col-span-3'
 
 // The Approach and About card blocks are staggered collages in Figma, not
@@ -103,7 +142,7 @@ export const VALUE_CARD_CELL = 'xl:col-span-3'
 // Per Flore they stay a collage at xl and collapse to a plain grid below,
 // since hand-set offsets have nowhere to go on a narrow viewport.
 export const COLLAGE_GRID =
-  'grid grid-cols-1 gap-space-64 sm:grid-cols-2 xl:grid-cols-12 xl:gap-x-space-24 xl:gap-y-space-64'
+  'grid grid-cols-1 gap-space-80 sm:grid-cols-2 xl:grid-cols-12 xl:gap-x-space-24 xl:gap-y-space-64'
 
 // Placement per card, in content order. Column starts and spans are exact;
 // the vertical offsets approximate Figma's, since real card heights are

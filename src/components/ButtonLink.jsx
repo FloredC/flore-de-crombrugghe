@@ -76,7 +76,7 @@ export const SECONDARY_BUTTON_CLASS = `${CHROME_CLASS} ${TYPE_CLASS} bg-transpar
 const VARIANT_CLASS = {
   primary: `${CHROME_CLASS} ${TYPE_CLASS} bg-action-primary-surface border-action-primary-border text-action-primary-foreground hover:bg-action-primary-surface-hover hover:border-action-primary-border-hover hover:text-action-primary-foreground-hover active:bg-action-primary-surface-pressed active:border-action-primary-border-pressed active:text-action-primary-foreground-pressed`,
   secondary: SECONDARY_BUTTON_CLASS,
-  popover: `inline-flex items-center gap-1 text-[14px] font-semibold text-action-accent-foreground hover:text-action-accent-foreground-hover active:text-action-accent-foreground-pressed ${FOCUS_CLASS}`,
+  popover: `inline-flex items-center gap-1 text-caption font-semibold text-action-accent-foreground hover:text-action-accent-foreground-hover active:text-action-accent-foreground-pressed ${FOCUS_CLASS}`,
   tertiary: `inline-flex items-center gap-1 ${LINK_CLASS}`,
   menu: `inline-flex items-center gap-1 ${LINK_CLASS}`,
 }

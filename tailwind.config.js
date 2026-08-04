@@ -14,14 +14,50 @@ export default {
       // Mobile compression is still an open item (CLAUDE.md flags it unresolved) --
       // 'caption-sm' below is the one confirmed mobile-named style sampled so far
       // (Mobile/caption, 12px), not a full mobile scale.
+      // Fluid type, anchored on the two real Figma frames: each clamp hits its
+      // Mobile/* style exactly at 402 and its Desktop/* style exactly at 1622,
+      // and only interpolates between. Both ends are measured, not chosen.
+      //
+      // rem, not px: px ignores the reader's browser font-size setting, so the
+      // site could not be scaled up by anyone who needs that. The vw term is
+      // what makes it fluid; the rem term is what keeps it accessible.
+      //
+      // Breakpoint steps were rejected for the same reason Container's padding
+      // is a clamp -- a step can run the value backwards at the boundary, a
+      // clamp cannot.
+      //
+      // Sizes live here and nowhere else: a component writes `text-body` and
+      // gets the right size at every width, with no `md:text-*` to drift.
+      // Figma's styles also carry weight, which Tailwind's fontSize cannot, so
+      // weight stays a separate class at the call site -- the one place the
+      // token can't enforce the pairing. Check it against the style name.
       fontSize: {
-        h1: ['36px', { lineHeight: '1.4' }],
-        h2: ['32px', { lineHeight: '1.4' }],
-        'body-lg': ['20px', { lineHeight: '1.5' }],
-        body: ['18px', { lineHeight: '1.5' }],
-        'body-sm': ['16px', { lineHeight: '1.4' }],
-        caption: ['14px', { lineHeight: '1.4' }],
-        'caption-sm': ['12px', { lineHeight: '1.4' }],
+        // 28 -> 36 (Mobile/h1 -> Desktop/h1), Bold 700
+        h1: ['clamp(1.75rem, 1.5852rem + 0.6557vw, 2.25rem)', { lineHeight: '1.4' }],
+        // 24 -> 32. At 402 this lands on Figma's Desktop/h3, which is what the
+        // mobile card titles actually use -- same pixels, different style name.
+        h2: ['clamp(1.5rem, 1.3352rem + 0.6557vw, 2rem)', { lineHeight: '1.4' }],
+        // 16 -> 20 (Mobile/body -> Desktop/body-lg)
+        //
+        // Line height 1.6, not Figma's 1.5 -- Flore's call on 2026-08-04, for
+        // readability in the long card descriptions, which are the main run of
+        // prose on the page. Deliberate divergence from the file; don't
+        // "correct" it back on the next sample.
+        //
+        // body-lg ONLY. This was briefly applied to `body` as well and Flore
+        // reverted that -- `body` keeps Figma's 1.5.
+        'body-lg': ['clamp(1rem, 0.9176rem + 0.3279vw, 1.25rem)', { lineHeight: '1.6' }],
+        // 16 -> 18 (Mobile/body -> Desktop/body). Converges with body-lg at 402
+        // -- deliberate, that's what the frames show.
+        body: ['clamp(1rem, 0.9588rem + 0.1639vw, 1.125rem)', { lineHeight: '1.5' }],
+        // 14 -> 16 (Mobile/body-sm -> Desktop/body-sm)
+        'body-sm': ['clamp(0.875rem, 0.8338rem + 0.1639vw, 1rem)', { lineHeight: '1.4' }],
+        // 12 -> 14 (Mobile/caption -> Desktop/caption)
+        caption: ['clamp(0.75rem, 0.7088rem + 0.1639vw, 0.875rem)', { lineHeight: '1.4' }],
+        // Flat 12. Figma has no Desktop/caption-sm -- 12 exists only as
+        // Mobile/caption -- so there is no second anchor to clamp between.
+        // Left fixed rather than inventing a smaller mobile value.
+        'caption-sm': ['0.75rem', { lineHeight: '1.4' }],
       },
       colors: {
         text: {

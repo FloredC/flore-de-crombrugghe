@@ -40,9 +40,9 @@ export default function Popover({ hotspot }) {
         className={`flex w-56 flex-col gap-4 p-3 ${POPOVER_SURFACE_CLASS}`}
         style={POPOVER_BLUR_STYLE}
       >
-        <p className="text-[14px] font-semibold">{hotspot.title}</p>
+        <p className="text-caption font-semibold">{hotspot.title}</p>
         <div className="flex min-w-0 items-center gap-1">
-          <p className="min-w-0 truncate text-[14px] font-semibold">{hotspot.email}</p>
+          <p className="min-w-0 truncate text-caption font-semibold">{hotspot.email}</p>
           <CopyButton value={hotspot.email} />
         </div>
       </div>
@@ -56,7 +56,7 @@ export default function Popover({ hotspot }) {
       className={`flex w-56 flex-col gap-4 p-3 ${POPOVER_SURFACE_CLASS}`}
       style={POPOVER_BLUR_STYLE}
     >
-      <p className="text-[14px] font-semibold">{hotspot.title}</p>
+      <p className="text-caption font-semibold">{hotspot.title}</p>
       <ButtonLink variant="popover" href={resolveHref(hotspot.target)} className="w-fit">
         <span className="flex items-center gap-1">
           {hotspot.ctaLabel}

@@ -22,14 +22,14 @@ export default function Footer() {
       <div className="flex w-full flex-col gap-space-32 md:gap-space-24">
         <div className="h-px w-full bg-border-divider" />
         <div className="flex flex-col items-start gap-space-24 md:flex-row md:items-center md:justify-between">
-          <p className="text-[16px] font-normal leading-[1.4] text-text-primary">
+          <p className="text-body-sm font-normal leading-[1.4] text-text-primary">
             {new Date().getFullYear()} © Flore de Crombrugghe
           </p>
           <a
             href={CV_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className={`py-space-8 text-[16px] font-bold leading-[1.5] ${LINK_CLASS}`}
+            className={`py-space-8 text-body-sm font-bold leading-[1.5] ${LINK_CLASS}`}
           >
             View CV
           </a>

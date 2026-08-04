@@ -26,7 +26,12 @@ export default function DistrictBreadcrumb({ zone, subsection }) {
   return (
     <div data-district-breadcrumb className="flex items-center gap-4">
       {icon && <img src={icon} alt="" width={180} height={125} />}
-      <p className="text-[18px] font-normal text-text-primary">
+      {/* `text-body` rather than a hardcoded 18px: it resolves to 18 at desktop
+          (what Figma's wayfinding shows) and 16 at 402, which is the same size
+          body-lg takes on mobile -- Flore's ask. The two prose tokens converge
+          at the small end, so "same as body-lg on mobile" and "18 on desktop"
+          are the same token, not a conflict needing its own scale entry. */}
+      <p className="text-body font-normal text-text-primary">
         You are here: <span className="font-bold">{zone}</span> —{' '}
         <span className="font-bold">{subsection}</span>
       </p>

@@ -132,7 +132,7 @@ function DesktopHomeNav({ currentSection }) {
                 href={link.href}
                 aria-current={isCurrent ? 'true' : undefined}
                 data-current={isCurrent || undefined}
-                className={`text-[16px] ${LINK_CLASS} ${isCurrent ? LINK_UNDERLINE_CLASS : ''}`}
+                className={`text-body-sm ${LINK_CLASS} ${isCurrent ? LINK_UNDERLINE_CLASS : ''}`}
               >
                 {link.label}
               </a>
@@ -217,7 +217,7 @@ function MobileHomeNav({ currentSection }) {
                 aria-current={isCurrent ? 'true' : undefined}
                 data-current={isCurrent || undefined}
                 onClick={() => setOpen(false)}
-                className={`flex w-full items-center px-space-12 py-space-14 text-[16px] ${LINK_CLASS} ${
+                className={`flex w-full items-center px-space-12 py-space-14 text-body-sm ${LINK_CLASS} ${
                   isCurrent ? LINK_UNDERLINE_CLASS : ''
                 }`}
               >
@@ -258,7 +258,13 @@ export default function Nav() {
 
   return (
     <div
-      className={`sticky top-0 z-30 flex justify-center px-6 py-4 transition-opacity duration-300 ${
+      // `fixed`, not `sticky`: a sticky wrapper stays in normal flow, so while
+      // the nav is hidden over the hero it still reserved its full 110px of
+      // layout -- an invisible band of dead space between the map and Work,
+      // and the single biggest contributor to that gap. Fixed takes it out of
+      // flow entirely; the pill already overlays content once stuck, so this
+      // changes nothing about how it looks or behaves when visible.
+      className={`fixed inset-x-0 top-0 z-30 flex justify-center px-6 py-4 transition-opacity duration-300 ${
         visible ? 'opacity-100' : 'pointer-events-none opacity-0'
       }`}
     >

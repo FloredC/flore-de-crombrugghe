@@ -18,7 +18,9 @@ export default function SpeechBubble({ variant = 'right', children }) {
   return (
     <div data-speech-bubble-variant={variant} className="relative max-w-[300px]">
       <div className="rounded-radius-16 border border-border-grey bg-surface-background px-space-14 py-space-8">
-        <p className="text-[14px] font-normal">{children}</p>
+        {/* text-caption: 14 desktop, 12 at 402 -- both verified, the mobile
+            end straight off the 402 wayfinding bubble (node 2928:78240). */}
+        <p className="text-caption font-normal">{children}</p>
       </div>
       <div className={`absolute h-[10px] w-[10px] border-border-grey bg-surface-background ${TAIL_CLASS[variant]}`} />
     </div>
