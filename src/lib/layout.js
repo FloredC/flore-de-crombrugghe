@@ -144,25 +144,51 @@ export const VALUE_CARD_CELL = 'xl:col-span-3'
 export const COLLAGE_GRID =
   'grid grid-cols-1 gap-space-80 sm:grid-cols-2 xl:grid-cols-12 xl:gap-x-space-24 xl:gap-y-space-64'
 
+// --- Editorial card width ---------------------------------------------------
+//
+// What sets an editorial card's visual weight is this width, NOT its column
+// span. The span only decides which columns the card's frame occupies; the
+// card is then aligned inside that frame with justify-self and sized here.
+// Dropping a span moves a card sideways and leaves it exactly as large.
+//
+// Reduced 2026-08-04, Flore's call: the talks/writing and About cards were
+// competing with the actual project work. Measured at 1440 they were wider
+// than the smallest project cards -- 400 against 355, with bigger media
+// (400x300 vs 320x278) -- so the secondary content was reading as the more
+// prominent of the two.
+//
+// 320 puts them clearly below the 355 3-up project card, and is already a
+// number in the system (the project artwork's own width). The wide card keeps
+// its 1.5x relation to the small one (600/400 -> 480/320) so the editorial
+// zone holds its internal hierarchy, and 480 still sits below the 562 2-up
+// project card. Both diverge from Figma's 400/600 -- deliberate, so don't
+// restore them from the file without asking.
+//
+// The max-w carries the same intent below xl, where the collage flattens to a
+// plain grid: without it these cards go full-bleed and match the project cards
+// again, which is the whole problem, just on a phone.
+const EDITORIAL_CARD = 'max-w-[320px] xl:w-[320px]'
+const EDITORIAL_CARD_WIDE = 'max-w-[480px] xl:w-[480px]'
+
 // Placement per card, in content order. Column starts and spans are exact;
 // the vertical offsets approximate Figma's, since real card heights are
 // content-driven and won't match the fixed heights in the design file.
 export const MEDIA_COLLAGE = [
   // Podcast (embed): right-aligned inside a span-10 frame -> x = 582.67.
-  'xl:col-start-1 xl:col-span-10 xl:row-start-1 xl:justify-self-end xl:w-[400px]',
+  `xl:col-start-1 xl:col-span-10 xl:row-start-1 xl:justify-self-end ${EDITORIAL_CARD}`,
   // Friends of Figma: flush left.
-  'xl:col-start-1 xl:col-span-6 xl:row-start-2 xl:justify-self-start xl:w-[400px]',
+  `xl:col-start-1 xl:col-span-6 xl:row-start-2 xl:justify-self-start ${EDITORIAL_CARD}`,
   // Swisscovid: right half, inset 100, and dropped ~300 below its row-mate.
-  'xl:col-start-7 xl:col-span-6 xl:row-start-2 xl:justify-self-start xl:ml-space-100 xl:mt-space-300 xl:w-[400px]',
+  `xl:col-start-7 xl:col-span-6 xl:row-start-2 xl:justify-self-start xl:ml-space-100 xl:mt-space-300 ${EDITORIAL_CARD}`,
   // 10-year quiz: back to the left half, same 100 inset.
-  'xl:col-start-1 xl:col-span-6 xl:row-start-3 xl:justify-self-start xl:ml-space-100 xl:mt-space-32 xl:w-[400px]',
+  `xl:col-start-1 xl:col-span-6 xl:row-start-3 xl:justify-self-start xl:ml-space-100 xl:mt-space-32 ${EDITORIAL_CARD}`,
 ]
 
 export const ASIDE_COLLAGE = [
   // Cold Plunge: right-aligned inside a span-10 frame, same as the podcast.
-  'xl:col-start-1 xl:col-span-10 xl:row-start-1 xl:justify-self-end xl:w-[400px]',
-  // Data, Illustrated: flush left, the wide card (600) in a span-7 frame.
-  'xl:col-start-1 xl:col-span-7 xl:row-start-2 xl:justify-self-start xl:mt-space-160 xl:w-[600px]',
+  `xl:col-start-1 xl:col-span-10 xl:row-start-1 xl:justify-self-end ${EDITORIAL_CARD}`,
+  // Data, Illustrated: flush left, the wide card in a span-7 frame.
+  `xl:col-start-1 xl:col-span-7 xl:row-start-2 xl:justify-self-start xl:mt-space-160 ${EDITORIAL_CARD_WIDE}`,
   // Papayas: right-aligned to the full 12-column width -> x = 784.
-  'xl:col-start-1 xl:col-span-12 xl:row-start-3 xl:justify-self-end xl:w-[400px]',
+  `xl:col-start-1 xl:col-span-12 xl:row-start-3 xl:justify-self-end ${EDITORIAL_CARD}`,
 ]
