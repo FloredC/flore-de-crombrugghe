@@ -38,6 +38,27 @@ import Popover from './Popover'
  */
 const MARKER_OFFSET_PX = 26
 
+// Marker pulse. A ripple that starts at the dot's own edge and fades outward,
+// so it reads as the dot breathing rather than as a second object.
+//
+// Colour is `color-mix` on the semantic accent token, not `--orange-20` and not
+// a solid fill: a solid tint sits on top of the illustration and hides the
+// linework underneath it, which is the one thing the map can't afford. Mixing
+// toward transparent keeps the artwork legible through it. Per Flore, and per
+// the no-raw-primitives rule -- the token is the same one the dot itself uses.
+const PULSE_MS = 2400
+
+// Nine markers pulsing in lockstep reads as a synchronised alarm; out of phase
+// it reads as the map being alive. The offset is derived from the hotspot id so
+// it's stable across renders without plumbing an index down from Hero, and it's
+// NEGATIVE -- a negative delay starts the animation already part-way through
+// its cycle, so every marker is animating on load instead of waiting its turn.
+function pulseDelay(id) {
+  let hash = 0
+  for (let i = 0; i < id.length; i += 1) hash = (hash * 31 + id.charCodeAt(i)) % 997
+  return `-${Math.round((hash / 997) * PULSE_MS)}ms`
+}
+
 export default function Hotspot({ hotspot, isOpen, onOpenChange }) {
   const side = hotspot.markerSide === 'left' ? 'left' : 'right'
   const sideSign = side === 'left' ? -1 : 1
@@ -75,11 +96,26 @@ export default function Hotspot({ hotspot, isOpen, onOpenChange }) {
         ref={refs.setReference}
         type="button"
         data-hotspot-marker
-        className="group flex items-center justify-center focus-visible:outline-none"
+        className="group relative flex items-center justify-center focus-visible:outline-none"
         style={{ width: 44, height: 44 }}
         aria-expanded={isOpen}
         {...getReferenceProps()}
       >
+        {/* Centred with inset-0 + m-auto rather than translate-x/y: `animate-ping`
+            animates `transform`, so a centring transform would be overwritten by
+            the keyframes and the ripple would drift off the dot.
+            Paused while this marker's popover is open -- a pulse under an open
+            popover is just noise while you're reading it. Under
+            prefers-reduced-motion no animation runs at all, and since the halo
+            rests at exactly the dot's size it sits hidden behind it, so the
+            marker looks precisely as it does today. */}
+        <span
+          aria-hidden="true"
+          className={`pointer-events-none absolute inset-0 m-auto size-[18px] rounded-full bg-[color-mix(in_srgb,var(--colors-action-accent-foreground-default)_45%,transparent)] ${
+            isOpen ? '' : 'motion-safe:animate-marker-pulse'
+          }`}
+          style={{ animationDelay: pulseDelay(hotspot.id) }}
+        />
         <span
           data-hotspot-dot
           // The drop-shadow moved from an inline style to this arbitrary
@@ -93,7 +129,10 @@ export default function Hotspot({ hotspot, isOpen, onOpenChange }) {
           // --tw-shadow/--tw-ring-shadow custom properties, so moving both
           // into classes lets them coexist instead of one clobbering the
           // other.
-          className="rounded-full border-2 border-white bg-action-accent-foreground shadow-[0px_0px_10px_0px_rgba(0,0,0,0.25)] group-focus-visible:ring-2 group-focus-visible:ring-focus-ring group-focus-visible:ring-offset-2"
+          // `relative` so the dot stays above the pulse halo. Positioned
+          // elements paint over non-positioned ones regardless of DOM order, so
+          // without this the absolutely-positioned halo would cover the dot.
+          className="relative rounded-full border-2 border-white bg-action-accent-foreground shadow-[0px_0px_10px_0px_rgba(0,0,0,0.25)] group-focus-visible:ring-2 group-focus-visible:ring-focus-ring group-focus-visible:ring-offset-2"
           style={{ width: 18, height: 18 }}
         />
       </button>

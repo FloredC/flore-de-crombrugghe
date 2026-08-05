@@ -209,6 +209,22 @@ export default {
         'space-280': 'var(--spaces-280)',
         'space-300': 'var(--spaces-300)',
       },
+      // The map markers' pulse. A named animation rather than Tailwind's
+      // built-in `animate-ping` plus an arbitrary duration: `animate-ping` is
+      // the `animation` SHORTHAND, so it resets animation-duration and an
+      // `[animation-duration:...]` utility alongside it is silently ignored --
+      // confirmed in the browser, where the duration stayed at ping's 1s.
+      // Baking the duration into one shorthand removes the conflict, and lets
+      // the halo travel a little further than ping's fixed 2x.
+      keyframes: {
+        'marker-pulse': {
+          '0%': { transform: 'scale(1)', opacity: '1' },
+          '75%, 100%': { transform: 'scale(2.4)', opacity: '0' },
+        },
+      },
+      animation: {
+        'marker-pulse': 'marker-pulse 2.4s cubic-bezier(0, 0, 0.2, 1) infinite',
+      },
       borderRadius: {
         'radius-4': 'var(--radius-4)',
         'radius-8': 'var(--radius-8)',

@@ -39,7 +39,16 @@ export default function ProjectCard({ project, size = 'medium' }) {
             meta sits 8px above a title+description pair that are 4px apart.
             Flat siblings at a single gap read as three equally-spaced lines;
             the nesting is what groups the title with its description. */}
-        <div className="flex flex-col gap-space-8">
+        {/* Figma caps this text wrapper at 800 inside the large card's 977-wide
+            Content frame (node 4637:5476) -- the CTA below is deliberately not
+            capped, it stays at full width. 800/977 is 81.9%, so 80% is the same
+            measure expressed proportionally, which is what Flore asked for: it
+            holds the line length as the card resizes instead of only being
+            right at one width.
+            From sm up, not on phones -- there the card is already narrow, and
+            taking another 20% off would leave an odd gutter down the side
+            rather than fixing a long line. */}
+        <div className={`flex flex-col gap-space-8 ${size === 'large' ? 'sm:max-w-[80%]' : ''}`}>
           {/* Figma renders this as one grey line ("AI • Vibecoding"), not
               separate tag chips -- the frontmatter field is `meta`, a single
               pre-joined string, so the separator stays editable content
