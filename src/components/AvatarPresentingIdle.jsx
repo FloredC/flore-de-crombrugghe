@@ -41,7 +41,7 @@ const AVATAR_WIDTH = 'w-[80px] lg:w-[96px]'
 // Floor is about 1.1 units (~0.99px) -- below one device-independent pixel the
 // stroke anti-aliases to grey and the drawing goes soft rather than fine.
 // The halo keeps its own lighter weight from the asset and is unaffected.
-const STROKE_WIDTH = 1.2
+const STROKE_WIDTH = 1.05
 
 export default function AvatarPresentingIdle() {
   const ref = useRef(null)

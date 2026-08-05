@@ -106,10 +106,27 @@ body {
    decrease the degrees; leave the 0deg start/end keyframes alone or the loop
    will visibly snap.
 
-     #head-group     -4deg     head tilt toward the "Lab" breadcrumb
-     #hair           -2deg     secondary follow-through, lags the head by ~4%
-     #arm-presenting -6deg     the gentle emphasis on "Lab"
-     #arm-resting    +1.5deg   barely-there counterweight
+     #head-group     -9deg     head tilt toward the "Lab" breadcrumb
+     #hair           -4deg     secondary follow-through, lags the head by ~2%
+     #arm-presenting -9deg     the emphasis on "Lab"
+     #arm-resting    +3deg     counterweight
+
+   DEGREES ARE NOT WHAT YOU SEE. What reads is how far the far end of a part
+   travels, and that depends on its distance from the pivot -- so the same
+   number of degrees is far more visible on an arm than on a head. Measured
+   lever arms for THIS avatar at its current 96px render:
+
+     part             1 degree buys    current value    travel
+     #head-group        0.45 px          9 deg          4.0 px
+     #hair              0.36 px          4 deg          1.4 px
+     #arm-presenting    0.82 px          9 deg          7.4 px
+     #arm-resting       0.69 px          3 deg          2.1 px
+
+   So: to move something by N pixels, divide N by the "1 degree buys" column.
+   Anything under ~1.5px of travel is effectively invisible at this size --
+   that's why the head needed nearly double the arm's degrees to read at all.
+   These scale with render width: at 80px (the mobile size) multiply travel by
+   0.83, so it's proportionally the same.
 
    WHY THESE ARE BIGGER THAN THE 1-2deg BRIEF: degrees are not the thing you
    perceive -- pixels of travel are, and that depends on how large the avatar
@@ -188,22 +205,22 @@ body {
    more OFTEN, lower animation-duration above. Those are two different knobs. */
 @keyframes lab-avatar-head {
   0%, 64% { transform: rotate(0deg); }
-  70%, 76% { transform: rotate(-4deg); }
+  70%, 76% { transform: rotate(-9deg); }
   82%, 100% { transform: rotate(0deg); }
 }
 @keyframes lab-avatar-hair {
   0%, 66% { transform: rotate(0deg); }
-  72%, 78% { transform: rotate(-2deg); }
+  72%, 78% { transform: rotate(-4deg); }
   84%, 100% { transform: rotate(0deg); }
 }
 @keyframes lab-avatar-arm-presenting {
   0%, 65% { transform: rotate(0deg); }
-  71%, 77% { transform: rotate(-6deg); }
+  71%, 77% { transform: rotate(-9deg); }
   83%, 100% { transform: rotate(0deg); }
 }
 @keyframes lab-avatar-arm-resting {
   0%, 65% { transform: rotate(0deg); }
-  71%, 77% { transform: rotate(1.5deg); }
+  71%, 77% { transform: rotate(3deg); }
   83%, 100% { transform: rotate(0deg); }
 }
 
