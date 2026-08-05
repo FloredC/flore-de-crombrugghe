@@ -93,3 +93,103 @@ body {
   font-size: 18px;
   line-height: 1.5;
 }
+
+/* ---------------------------------------------------------------------------
+   Lab wayfinding avatar — idle animation
+   ---------------------------------------------------------------------------
+   An 8s loop that is deliberately STILL for the first half. All four parts move
+   in the same window (roughly 50%–88%) so it reads as one gesture rather than
+   four things twitching independently, then everything returns to exactly 0deg
+   — first and last keyframes are identical, so the loop never jumps.
+
+   TO TUNE: every movement is a single rotation value, listed here. Increase or
+   decrease the degrees; leave the 0deg start/end keyframes alone or the loop
+   will visibly snap.
+
+     #head-group     -1.5deg   head tilt toward the "Lab" breadcrumb
+     hair            -0.9deg   secondary follow-through, lags the head by ~4%
+     arm-presenting  -1.8deg   the gentle emphasis on "Lab"
+     arm-resting     +0.6deg   barely-there counterweight
+
+   Transform origins are anatomical, in viewBox units, via
+   `transform-box: view-box` — that makes transform-origin resolve against the
+   SVG's own coordinate system instead of each path's bounding box, which is
+   what lets a shoulder be a shoulder rather than the centre of the arm.
+   Rotating around a bbox centre is what tears a limb off at the joint.
+--------------------------------------------------------------------------- */
+[data-component='avatar-presenting-idle'] #head-group,
+[data-component='avatar-presenting-idle'] #hair,
+[data-component='avatar-presenting-idle'] #arm-presenting,
+[data-component='avatar-presenting-idle'] #arm-resting {
+  transform-box: view-box;
+  animation-duration: 8s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  /* Paused until the row scrolls into view; the component flips this attribute
+     from an IntersectionObserver. Pausing (rather than removing the animation)
+     means it resumes mid-pose instead of snapping back to frame zero. */
+  animation-play-state: paused;
+}
+
+[data-component='avatar-presenting-idle'][data-animate='true'] #head-group,
+[data-component='avatar-presenting-idle'][data-animate='true'] #hair,
+[data-component='avatar-presenting-idle'][data-animate='true'] #arm-presenting,
+[data-component='avatar-presenting-idle'][data-animate='true'] #arm-resting {
+  animation-play-state: running;
+}
+
+/* Base of the skull, where the neck meets it. On the GROUP, not the #head path
+   -- the hair sits inside this group so it inherits the tilt and stays welded
+   to the skull; see the note in AvatarPresentingIdle.jsx. */
+[data-component='avatar-presenting-idle'] #head-group {
+  transform-origin: 180px 79px;
+  animation-name: lab-avatar-head;
+}
+/* Upper skull. This rotation is ON TOP of the group's, so it's pure
+   follow-through rather than independent motion. */
+[data-component='avatar-presenting-idle'] #hair {
+  transform-origin: 182px 40px;
+  animation-name: lab-avatar-hair;
+}
+/* left shoulder — where this arm joins the torso */
+[data-component='avatar-presenting-idle'] #arm-presenting {
+  transform-origin: 131px 102px;
+  animation-name: lab-avatar-arm-presenting;
+}
+/* right shoulder */
+[data-component='avatar-presenting-idle'] #arm-resting {
+  transform-origin: 230px 105px;
+  animation-name: lab-avatar-arm-resting;
+}
+
+@keyframes lab-avatar-head {
+  0%, 50% { transform: rotate(0deg); }
+  62%, 74% { transform: rotate(-1.5deg); }
+  86%, 100% { transform: rotate(0deg); }
+}
+@keyframes lab-avatar-hair {
+  0%, 54% { transform: rotate(0deg); }
+  66%, 78% { transform: rotate(-0.9deg); }
+  90%, 100% { transform: rotate(0deg); }
+}
+@keyframes lab-avatar-arm-presenting {
+  0%, 52% { transform: rotate(0deg); }
+  64%, 76% { transform: rotate(-1.8deg); }
+  88%, 100% { transform: rotate(0deg); }
+}
+@keyframes lab-avatar-arm-resting {
+  0%, 52% { transform: rotate(0deg); }
+  64%, 76% { transform: rotate(0.6deg); }
+  88%, 100% { transform: rotate(0deg); }
+}
+
+/* Static avatar for anyone who asked not to see motion. */
+@media (prefers-reduced-motion: reduce) {
+  [data-component='avatar-presenting-idle'] #head-group,
+  [data-component='avatar-presenting-idle'] #hair,
+  [data-component='avatar-presenting-idle'] #arm-presenting,
+  [data-component='avatar-presenting-idle'] #arm-resting {
+    animation: none;
+    transform: none;
+  }
+}
