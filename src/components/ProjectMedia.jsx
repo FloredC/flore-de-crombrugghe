@@ -73,7 +73,36 @@ export default function ProjectMedia({ src, alt, caption, size = 'medium', badge
     <div
       data-component="project-media"
       data-size={size}
-      className={`relative grid w-full min-w-0 overflow-hidden ${FRAME_RADIUS[size]}`}
+      // The hover lift belongs on this frame rather than the <img> inside it.
+      // The frame is the card's visual object -- it owns the radius, the
+      // border overlay and the badge pinned to its corner -- so lifting it
+      // moves the card as one thing. On the image it would instead float
+      // inside a static bordered box, away from its own caption (which sits
+      // below it in the same tinted panel), and `overflow-hidden` here would
+      // trap the shadow inside the frame so it could never read as elevation.
+      //
+      // 0/0/20/25% continues the site's one shadow language, which is always
+      // X0 Y0 at 25% black with only the blur scaling to the object: 5 for the
+      // nav pill and popover, 10 for the hotspot dot, 20 for something card-
+      // sized. Flore's values, from Figma.
+      //
+      // Driven by the card's hover, not this element's, so the whole card
+      // responds together -- and by focus-within too, so keyboard users get
+      // the same feedback as mouse users rather than just a ring on the CTA.
+      //
+      // Arbitrary `[box-shadow:...]` rather than Tailwind's `shadow-[...]`
+      // utility, which does NOT work here. That utility sets `--tw-shadow` and
+      // declares `box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-
+      // shadow), var(--tw-shadow)` -- so the declaration text is byte-identical
+      // at rest and on hover and only the custom property changes underneath.
+      // Custom properties aren't in `transition-property`, so Chrome sees no
+      // change to a transitionable property, never advances the transition, and
+      // pins box-shadow at its pre-hover value permanently. Confirmed in the
+      // browser: with `transition-shadow` the computed shadow stayed fully
+      // transparent; setting transition-property to none made the exact same
+      // classes paint rgba(0,0,0,0.25) 0 0 20px. A literal value at both ends
+      // is what actually animates. Keep both ends literal if you touch this.
+      className={`relative grid w-full min-w-0 overflow-hidden transition-shadow duration-200 [box-shadow:0_0_0_0_rgba(0,0,0,0)] group-hover:[box-shadow:0_0_20px_0_rgba(0,0,0,0.25)] group-focus-within:[box-shadow:0_0_20px_0_rgba(0,0,0,0.25)] ${FRAME_RADIUS[size]}`}
     >
       <div
         aria-hidden="true"

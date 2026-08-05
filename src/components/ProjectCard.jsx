@@ -21,7 +21,10 @@ export default function ProjectCard({ project, size = 'medium' }) {
       // an anchor jump -- both the map popovers' "View project" links and the
       // "Back to Portfolio" return from a case study. Without it the card's top
       // edge lands underneath the nav pill.
-      className="flex w-full min-w-0 scroll-mt-space-120 flex-col gap-space-16 xl:gap-space-24"
+      // `group` so the media frame can lift on hover of the card as a whole
+      // (see ProjectMedia); `relative` so the CTA's stretched ::after below
+      // has this article as its containing block.
+      className="group relative flex w-full min-w-0 scroll-mt-space-120 flex-col gap-space-16 xl:gap-space-24"
     >
       <ProjectMedia
         src={project.thumbnail}
@@ -63,7 +66,19 @@ export default function ProjectCard({ project, size = 'medium' }) {
               Rega card (node 2928:73731), the CTA there is the outline
               secondary button, not primary -- I'd applied primary
               universally before, which Flore caught. */}
-          <ButtonLink variant={isNda ? 'secondary' : 'primary'} {...cardLink}>
+          {/* Stretched link: the ::after covers the whole card, so the card is
+              clickable as a whole while staying ONE anchor and one tab stop --
+              no nested <a>, no duplicate link for screen readers to announce.
+              Because the overlay is part of this anchor, the button's own
+              hover/pressed states already fire from anywhere on the card, so
+              the card and its button respond together for free.
+              Known tradeoff, Flore's call 2026-08-05: the overlay sits above
+              the title and description, so card text is no longer selectable. */}
+          <ButtonLink
+            variant={isNda ? 'secondary' : 'primary'}
+            className="after:absolute after:inset-0 after:content-['']"
+            {...cardLink}
+          >
             {project.cta}
             {isNda && <ExternalLinkIcon width={16} height={16} />}
           </ButtonLink>
