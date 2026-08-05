@@ -60,7 +60,7 @@ export default function MediaCard({ item }) {
           />
         </div>
       ) : item.image ? (
-        <img data-component="media-image" src={assetUrl(item.image)} alt={item.title} className="aspect-[4/3] w-full rounded-radius-24 object-cover" />
+        <img data-component="media-image" src={assetUrl(item.image)} alt={item.title} loading="lazy" decoding="async" className="aspect-[4/3] w-full rounded-radius-24 object-cover" />
       ) : (
         <ImagePlaceholder className="aspect-[4/3] w-full rounded-radius-24" />
       )}

@@ -24,7 +24,7 @@ export default function ValueCard({ item }) {
           directly beneath it; captioning it would make a screen reader
           announce "Editing" twice. */}
       {item.image ? (
-        <img src={assetUrl(item.image)} alt="" className="aspect-[278/262] w-full" />
+        <img src={assetUrl(item.image)} alt="" loading="lazy" decoding="async" className="aspect-[278/262] w-full" />
       ) : (
         <ImagePlaceholder className="aspect-[278/262] w-full rounded-radius-32" />
       )}
