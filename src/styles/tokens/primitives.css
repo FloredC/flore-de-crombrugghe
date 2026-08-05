@@ -22,7 +22,15 @@
   --grey-40: #868383;
   --orange-70: #fd6d2b;
   --grey-20: #d2d2d2;
-  --white-transparent: #ffffff;
+  /* Corrected by hand, 2026-08-05. The export dropped the alpha channel and
+     emitted opaque #ffffff, which made a "transparent white" token identical
+     to --white and therefore useless -- both badges silently worked around it
+     with a literal bg-white/[0.33] instead. Figma's real value, read back from
+     the variable on the NDA badge (node 4533:23054), is #ffffff54: 0x54 = 84,
+     84/255 = 32.9% alpha, which is what those workarounds were approximating.
+     Same class of export bug as the underscore/hyphen mismatch fixed on
+     2026-07-30, and fixed the same way -- in the exported file, at the root. */
+  --white-transparent: #ffffff54;
   --spaces-0: 0px;
   --spaces-2: 2px;
   --spaces-4: 4px;

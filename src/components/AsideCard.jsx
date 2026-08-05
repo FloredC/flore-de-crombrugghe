@@ -22,7 +22,11 @@ export default function AsideCard({ item }) {
       className="flex flex-col gap-space-16"
     >
       <div className="flex flex-col gap-space-4">
-        <h4 className="text-body-lg font-bold">{item.title}</h4>
+        {/* h3, not h4: this sits directly under its section's <h2>, the same
+            level as a ProjectCard title. h4 here skipped a level, which
+            breaks the document outline a screen reader announces. Size is
+            set by the type class, so the tag change is invisible. */}
+        <h3 className="text-body-lg font-bold">{item.title}</h3>
         <p className="text-body-lg font-normal">{item.description}</p>
       </div>
       {/* Cold Plunge has no image yet -- Figma shows an empty bordered box for
