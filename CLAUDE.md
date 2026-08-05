@@ -42,7 +42,7 @@ If a section here starts listing pixel values, it has drifted out of scope — c
 - **Content:** MDX files per project/case study + per-section frontmatter + JSON hotspot manifest per illustration
 - **Styling:** Tailwind CSS (core utilities only), with CSS custom properties for design tokens
 - **Font:** HK Grotesk (OFL licensed, local webfont)
-- **Hosting:** GitHub Pages
+- **Hosting:** GitHub Pages — see Deployment below
 - **Animation/interaction:** `@floating-ui/react` for popover positioning, `react-zoom-pan-pinch` for map pan/zoom
 
 ---
@@ -63,6 +63,43 @@ If a section here starts listing pixel values, it has drifted out of scope — c
 **Resolved from Open Decisions:** token structure is semantic + primitives (not flat-primitives-only), and all previously-flagged spacing values (10, 14, 40, 100, 200) are real, defined primitives already in use at the semantic layer — keep them, nothing to merge or drop.
 
 ---
+
+## Deployment (added 2026-08-05)
+
+Pushes to `main` build and publish via `.github/workflows/deploy.yml`, using the
+Pages **"GitHub Actions"** source — no `gh-pages` branch, no build output in the
+repo.
+
+**One-time setup, still outstanding:** Settings → Pages → Source → "GitHub
+Actions". Until that's set the workflow runs and then fails at the deploy step.
+
+Three things have to agree, and all derive from `BASE` in `vite.config.js`:
+
+1. `base` — this is a **project** site (`floredc.github.io/flore-de-crombrugghe/`),
+   not a user site, so built asset URLs need that prefix.
+2. `BrowserRouter basename` — reads it back via `import.meta.env.BASE_URL`.
+3. `public/404.html`'s `pathSegmentsToKeep` — `1`, matching the one path segment
+   that is site root rather than route.
+
+**On a custom domain** all three change together: `BASE` → `'/'` and
+`pathSegmentsToKeep` → `0`.
+
+**Why `404.html` exists:** Pages only serves files that exist, and every
+`/work/:slug` route lives only in the JS router — so opening or refreshing a
+case-study URL, or following one Flore shared, would 404. `404.html` re-encodes
+the path into a query and the inline snippet in `index.html` restores it with
+`history.replaceState` before React Router boots.
+
+**`base` applies to the build only**, so `npm run dev` stays at the root and
+daily work is unchanged. The tradeoff: **a base-path bug cannot appear in dev.**
+That is exactly how five project thumbnails shipped broken — paths that arrive
+as strings from MDX frontmatter are invisible to Vite, so they never get the
+prefix. `src/lib/assetUrl.js` resolves those at render time; any *new* asset path
+coming from content must go through it.
+
+Use `npm run preview:pages` to exercise the real thing — it builds and serves
+`dist` under the base path with the 404 fallback, which is the only local setup
+that can catch this class of bug.
 
 ## Content Model
 

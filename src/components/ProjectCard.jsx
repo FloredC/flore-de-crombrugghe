@@ -1,4 +1,5 @@
 import ProjectMedia from './ProjectMedia'
+import assetUrl from '../lib/assetUrl'
 import ButtonLink from './ButtonLink'
 import Badge from './Badge'
 import { ExternalLinkIcon } from './icons'
@@ -27,7 +28,7 @@ export default function ProjectCard({ project, size = 'medium' }) {
       className="group relative flex w-full min-w-0 scroll-mt-space-120 flex-col gap-space-16 xl:gap-space-24"
     >
       <ProjectMedia
-        src={project.thumbnail}
+        src={assetUrl(project.thumbnail)}
         alt={project.title}
         caption={project.imageCaption}
         size={size}

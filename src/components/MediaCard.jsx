@@ -1,6 +1,7 @@
 import ButtonLink from './ButtonLink'
 import useIframeFocusRing, { IFRAME_FOCUS_RING } from '../lib/useIframeFocusRing'
 import ImagePlaceholder from './ImagePlaceholder'
+import assetUrl from '../lib/assetUrl'
 import { ExternalLinkIcon } from './icons'
 
 // Every MediaCard image is 4:3 (Media variant=ImageSmall, 300x225 — node
@@ -49,7 +50,7 @@ export default function MediaCard({ item }) {
           <iframe
             ref={embedRef}
             data-component="media-embed"
-            src={item.embedSrc}
+            src={assetUrl(item.embedSrc)}
             title={`${item.title} — audio player`}
             className={`h-[152px] w-full ${embedFocused ? IFRAME_FOCUS_RING : ''}`}
             frameBorder="0"
@@ -59,7 +60,7 @@ export default function MediaCard({ item }) {
           />
         </div>
       ) : item.image ? (
-        <img data-component="media-image" src={item.image} alt={item.title} className="aspect-[4/3] w-full rounded-radius-24 object-cover" />
+        <img data-component="media-image" src={assetUrl(item.image)} alt={item.title} className="aspect-[4/3] w-full rounded-radius-24 object-cover" />
       ) : (
         <ImagePlaceholder className="aspect-[4/3] w-full rounded-radius-24" />
       )}

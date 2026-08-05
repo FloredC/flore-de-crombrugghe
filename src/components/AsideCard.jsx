@@ -1,4 +1,5 @@
 import ImagePlaceholder from './ImagePlaceholder'
+import assetUrl from '../lib/assetUrl'
 
 // All three Aside variants are 4:3 (400x300, 500x375, 600x450 — node
 // 4533:19992), so `size` selects a max width, not a different ratio.
@@ -29,7 +30,7 @@ export default function AsideCard({ item }) {
           asset stays visible on the page instead of the card looking finished. */}
       {item.image ? (
         <img
-          src={item.image}
+          src={assetUrl(item.image)}
           alt={item.title}
           className={`aspect-[4/3] w-full rounded-radius-24 object-cover ${ASIDE_MAX_WIDTH[item.size] || ASIDE_MAX_WIDTH.small}`}
         />

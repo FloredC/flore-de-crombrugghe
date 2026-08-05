@@ -5,7 +5,32 @@ import mdx from '@mdx-js/rollup'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
 
-export default defineConfig({
+// GitHub Pages serves this repo as a PROJECT site, at
+// https://floredc.github.io/flore-de-crombrugghe/ -- not at a domain root. So
+// every built asset URL needs that prefix or it 404s in production while
+// working perfectly on localhost, which is the nastiest version of this bug.
+//
+// This one constant is also the router's basename (src/index.jsx reads it back
+// via import.meta.env.BASE_URL) and the depth the 404 shim keeps
+// (public/404.html), so all three stay in step from here.
+//
+// IF A CUSTOM DOMAIN IS ADDED LATER: a custom domain serves from the root, so
+// this becomes '/' -- and that's the only change needed, since the other two
+// derive from it. (The 404 shim's pathSegmentsToKeep would go to 0.)
+const BASE = '/flore-de-crombrugghe/'
+
+// Applied to the BUILD only, so `npm run dev` keeps serving at
+// http://localhost:5173/ rather than making you remember a subpath every day.
+// Nothing depends on the two matching: everything that needs the base reads
+// import.meta.env.BASE_URL, which Vite sets to '/' in dev and to BASE in the
+// built site, so both are correct without a second constant.
+//
+// The catch, worth knowing: a base-path bug therefore CANNOT show up in dev.
+// That's how five broken thumbnails got this far. To exercise the real thing,
+// build and serve dist under the base path -- there's a small Pages simulator
+// for exactly this, see the deploy notes in README/commit history.
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? BASE : '/',
   plugins: [
     { enforce: 'pre', ...mdx({
       remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],
@@ -26,7 +51,7 @@ export default defineConfig({
       },
     }),
   ],
-})
+}))
 
 // Editing tailwind.config.js does NOT reach a running dev server.
 //

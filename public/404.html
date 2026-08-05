@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flore de Crombrugghe — Senior Product Designer</title>
+    <script>
+      // Why this file exists.
+      //
+      // GitHub Pages is a static host with no rewrite rules: it only serves
+      // files that physically exist. This app is a single-page app whose routes
+      // (/work/artifakt and the other five case studies) exist only inside the
+      // JS router, so a visitor who OPENS or REFRESHES one of those URLs -- or
+      // follows a link Flore shared -- asks Pages for a file that isn't there
+      // and gets a 404 instead of the site. Only the homepage would work.
+      //
+      // Pages does serve this 404.html for any missing path, so it's the one
+      // hook available. It rewrites the requested path into a query string and
+      // redirects to the app's entry point; the matching snippet in index.html
+      // turns it straight back into a real URL via history.replaceState, before
+      // React Router boots. Net effect: the deep link loads the right page and
+      // the address bar never visibly shows the encoded form.
+      //
+      // pathSegmentsToKeep is 1 because this is a PROJECT site served from
+      // /flore-de-crombrugghe/ -- that first segment is part of the site root,
+      // not part of the route, so it must survive the rewrite. On a custom
+      // domain (served from the root) this becomes 0. It has to agree with
+      // `base` in vite.config.js.
+      var pathSegmentsToKeep = 1
+
+      var l = window.location
+      l.replace(
+        l.protocol +
+          '//' +
+          l.hostname +
+          (l.port ? ':' + l.port : '') +
+          l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') +
+          '/?/' +
+          l.pathname
+            .slice(1)
+            .split('/')
+            .slice(pathSegmentsToKeep)
+            .join('/')
+            .replace(/&/g, '~and~') +
+          (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+          l.hash
+      )
+    </script>
+  </head>
+  <body></body>
+</html>

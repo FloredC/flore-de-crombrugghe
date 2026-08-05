@@ -1,4 +1,5 @@
 import ImagePlaceholder from './ImagePlaceholder'
+import assetUrl from '../lib/assetUrl'
 
 // The Figma ValueCard (4533:19717) is image + title + description, not just
 // text: the top block is a dashed 262px container holding an illustration.
@@ -23,7 +24,7 @@ export default function ValueCard({ item }) {
           directly beneath it; captioning it would make a screen reader
           announce "Editing" twice. */}
       {item.image ? (
-        <img src={item.image} alt="" className="aspect-[278/262] w-full" />
+        <img src={assetUrl(item.image)} alt="" className="aspect-[278/262] w-full" />
       ) : (
         <ImagePlaceholder className="aspect-[278/262] w-full rounded-radius-32" />
       )}
