@@ -1,5 +1,6 @@
 import Avatar from './Avatar'
 import AvatarPresentingIdle from './AvatarPresentingIdle'
+import AvatarRega from './AvatarRega'
 import SpeechBubble from './SpeechBubble'
 import DistrictBreadcrumb from './DistrictBreadcrumb'
 
@@ -35,6 +36,8 @@ export default function Wayfinding({
               <img> avatar untouched. */}
           {avatarVariant === 'presenting-idle' ? (
             <AvatarPresentingIdle />
+          ) : avatarVariant === 'rega-wind' ? (
+            <AvatarRega />
           ) : (
             <Avatar variant={avatarVariant} />
           )}

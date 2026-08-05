@@ -234,3 +234,130 @@ body {
     transform: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Harbour / Rega wayfinding avatar — wind reaction
+   ---------------------------------------------------------------------------
+   RESTING STATE IS THE DEFAULT below, not an animation. That matters: with
+   JavaScript disabled, prefers-reduced-motion on, or the reaction simply not
+   running, the avatar is already correct — neutral hair and resting scarf
+   visible, wind versions at zero opacity. Nothing has to run for it to look
+   right.
+
+   The reaction fires once when the row enters the viewport (or on click in dev)
+   and lasts 2.6s, which must stay in step with WIND_MS in AvatarRega.jsx.
+
+   TO TUNE — each movement is one value:
+
+     head dip          #head-motion        rotate  2.5deg   about the neck
+     hair secondary    #hair-back-wind     rotate -2deg     about the crown
+     scarf flutter     #scarf-tail-wind    rotate -3/+1.5/-2deg  about the collar
+
+   Direction: the wind comes from above-left and blows the hair and scarf to the
+   avatar's right, so the head tilts AWAY from it (positive = clockwise). Keep
+   the head at or below ~3deg; beyond that the neck starts to open a gap,
+   because the head is a separate path from the torso and only the pivot holds
+   them together.
+
+   Rotations are about anatomical points in viewBox units via
+   transform-box: view-box, measured from the exported geometry:
+     neck   65, 42     crown  64, 21     collar 70.5, 46
+--------------------------------------------------------------------------- */
+[data-component='avatar-rega'] #hair-back-neutral,
+[data-component='avatar-rega'] #scarf-tail-rest {
+  opacity: 1;
+}
+[data-component='avatar-rega'] #hair-back-wind,
+[data-component='avatar-rega'] #scarf-tail-wind {
+  opacity: 0;
+}
+
+[data-component='avatar-rega'] #head-motion,
+[data-component='avatar-rega'] #hair-back-wind,
+[data-component='avatar-rega'] #hair-back-neutral,
+[data-component='avatar-rega'] #scarf-tail-wind,
+[data-component='avatar-rega'] #scarf-tail-rest {
+  transform-box: view-box;
+}
+
+[data-component='avatar-rega'] #head-motion { transform-origin: 65px 42px; }
+[data-component='avatar-rega'] #hair-back-wind { transform-origin: 64px 21px; }
+[data-component='avatar-rega'] #scarf-tail-wind { transform-origin: 70.5px 46px; }
+
+/* Everything below runs only while the reaction is active. iteration-count is 1
+   and there is no fill-mode, so each element lands back on the resting values
+   above by itself -- the loop cannot get stuck mid-gust. */
+[data-component='avatar-rega'][data-wind='true'] #head-motion,
+[data-component='avatar-rega'][data-wind='true'] #hair-back-wind,
+[data-component='avatar-rega'][data-wind='true'] #hair-back-neutral,
+[data-component='avatar-rega'][data-wind='true'] #scarf-tail-wind,
+[data-component='avatar-rega'][data-wind='true'] #scarf-tail-rest {
+  animation-duration: 2600ms;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 1;
+}
+
+[data-component='avatar-rega'][data-wind='true'] #head-motion { animation-name: rega-head-dip; }
+[data-component='avatar-rega'][data-wind='true'] #hair-back-wind { animation-name: rega-hair-wind; }
+[data-component='avatar-rega'][data-wind='true'] #hair-back-neutral { animation-name: rega-swap-out; }
+[data-component='avatar-rega'][data-wind='true'] #scarf-tail-wind { animation-name: rega-scarf-wind; }
+[data-component='avatar-rega'][data-wind='true'] #scarf-tail-rest { animation-name: rega-swap-out; }
+
+@keyframes rega-head-dip {
+  0% { transform: rotate(0deg); }
+  11% { transform: rotate(2.5deg); }   /* quick recoil from the gust */
+  72% { transform: rotate(2.5deg); }   /* hold */
+  100% { transform: rotate(0deg); }    /* settle back */
+}
+
+/* The neutral drawings. Crossfaded rather than hard-switched, over ~130ms --
+   long enough not to pop, short enough that the double image never registers.
+   A gap instead of an overlap would be worse: the hair would vanish for a
+   frame. */
+@keyframes rega-swap-out {
+  0% { opacity: 1; }
+  5%, 82% { opacity: 0; }
+  92%, 100% { opacity: 1; }
+}
+
+/* Wind hair: fades in with the swap, then a SMALL delayed drift -- it starts
+   moving after the head has already dipped, which is what makes it read as
+   hair reacting to the head rather than moving on its own. */
+@keyframes rega-hair-wind {
+  0% { opacity: 0; transform: rotate(0deg); }
+  5% { opacity: 1; transform: rotate(0deg); }
+  26% { transform: rotate(-2deg); }
+  48% { transform: rotate(-1.2deg); }
+  82% { opacity: 1; transform: rotate(-1.5deg); }
+  92% { opacity: 0; }
+  100% { opacity: 0; transform: rotate(0deg); }
+}
+
+/* Scarf: same swap, but a stronger flutter that oscillates rather than settling
+   straight away -- fabric keeps moving after hair has stopped. */
+@keyframes rega-scarf-wind {
+  0% { opacity: 0; transform: rotate(0deg); }
+  5% { opacity: 1; transform: rotate(0deg); }
+  22% { transform: rotate(-3deg); }
+  40% { transform: rotate(1.5deg); }
+  58% { transform: rotate(-2deg); }
+  74% { transform: rotate(0.5deg); }
+  82% { opacity: 1; transform: rotate(0deg); }
+  92% { opacity: 0; }
+  100% { opacity: 0; transform: rotate(0deg); }
+}
+
+/* Reduced motion: no reaction at all. The resting rules at the top already show
+   the static neutral avatar, so this needs to suppress, not restate. */
+@media (prefers-reduced-motion: reduce) {
+  [data-component='avatar-rega'][data-wind='true'] #head-motion,
+  [data-component='avatar-rega'][data-wind='true'] #hair-back-wind,
+  [data-component='avatar-rega'][data-wind='true'] #hair-back-neutral,
+  [data-component='avatar-rega'][data-wind='true'] #scarf-tail-wind,
+  [data-component='avatar-rega'][data-wind='true'] #scarf-tail-rest {
+    animation: none;
+    transform: none;
+  }
+  [data-component='avatar-rega'] #hair-back-wind,
+  [data-component='avatar-rega'] #scarf-tail-wind { opacity: 0; }
+}
