@@ -8,6 +8,39 @@
       name="description"
       content="Flore de Crombrugghe — Senior Product Designer in Zurich, designing consumer apps and internal tools for high-stakes, large-scale services."
     />
+
+    <!-- Link preview. This matters now in a way it didn't before the site was
+         deployed: the portfolio is about to be sent to design managers and HR,
+         and without these a shared link unfurls as a bare URL with no title or
+         summary. og:* covers LinkedIn, Slack, WhatsApp and iMessage; the two
+         twitter:* tags cover X, which ignores og:type.
+
+         STILL MISSING, and it needs an asset from Flore: og:image. Without one
+         the preview is text-only -- correct, but flat next to a card with a
+         picture. It wants a 1200x630 PNG (the ratio every platform crops to);
+         a crop of the illustrated map would do it. Drop one in as
+         public/images/og-preview.png and uncomment the two lines below.
+
+         The URL is absolute because crawlers do not resolve relative paths, and
+         it hardcodes the project-site path for the same reason -- if a custom
+         domain is ever added, this is a third place that changes alongside
+         BASE in vite.config.js. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Flore de Crombrugghe" />
+    <meta property="og:title" content="Flore de Crombrugghe — Senior Product Designer" />
+    <meta
+      property="og:description"
+      content="An illustrated map of my work: consumer apps and internal tools for high-stakes, large-scale services."
+    />
+    <meta property="og:url" content="https://floredc.github.io/flore-de-crombrugghe/" />
+    <!-- <meta property="og:image" content="https://floredc.github.io/flore-de-crombrugghe/images/og-preview.png" /> -->
+    <!-- <meta property="og:image:alt" content="An illustrated city map of Flore de Crombrugghe's design work." /> -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Flore de Crombrugghe — Senior Product Designer" />
+    <meta
+      name="twitter:description"
+      content="An illustrated map of my work: consumer apps and internal tools for high-stakes, large-scale services."
+    />
     <script>
       // Second half of the GitHub Pages deep-link fix -- see public/404.html for
       // the full explanation. That page turns /work/artifakt into /?/work/artifakt
