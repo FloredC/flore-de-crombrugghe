@@ -22,7 +22,7 @@ import { useEffect, useRef, useState } from 'react'
  * row height (108px tall at lg, 89 below it) so the row's height -- and
  * therefore the page's vertical rhythm -- is unchanged. ONE constant to tune.
  */
-const AVATAR_WIDTH = 'w-[112px] lg:w-[136px]'
+const AVATAR_WIDTH = 'w-[80px] lg:w-[96px]'
 
 export default function AvatarPresentingIdle() {
   const ref = useRef(null)

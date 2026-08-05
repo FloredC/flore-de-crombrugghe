@@ -106,10 +106,21 @@ body {
    decrease the degrees; leave the 0deg start/end keyframes alone or the loop
    will visibly snap.
 
-     #head-group     -1.5deg   head tilt toward the "Lab" breadcrumb
-     hair            -0.9deg   secondary follow-through, lags the head by ~4%
-     arm-presenting  -1.8deg   the gentle emphasis on "Lab"
-     arm-resting     +0.6deg   barely-there counterweight
+     #head-group     -4deg     head tilt toward the "Lab" breadcrumb
+     #hair           -2deg     secondary follow-through, lags the head by ~4%
+     #arm-presenting -6deg     the gentle emphasis on "Lab"
+     #arm-resting    +1.5deg   barely-there counterweight
+
+   WHY THESE ARE BIGGER THAN THE 1-2deg BRIEF: degrees are not the thing you
+   perceive -- pixels of travel are, and that depends on how large the avatar
+   renders. At 96px wide the presenting arm is only ~48px long, so 1.8deg moves
+   its tip 1.5px, over three seconds. That is invisible. 6deg moves it ~5px,
+   which reads as a gentle emphasis rather than a wave. If the avatar is ever
+   rendered larger, these should come DOWN proportionally.
+
+   TO EVALUATE QUICKLY: temporarily set animation-duration below to 3s. Half of
+   the 8s loop is deliberately motionless, so at full speed you wait ~4s
+   between gestures. Put it back to 8s afterwards.
 
    Transform origins are anatomical, in viewBox units, via
    `transform-box: view-box` — that makes transform-origin resolve against the
@@ -164,22 +175,22 @@ body {
 
 @keyframes lab-avatar-head {
   0%, 50% { transform: rotate(0deg); }
-  62%, 74% { transform: rotate(-1.5deg); }
+  62%, 74% { transform: rotate(-4deg); }
   86%, 100% { transform: rotate(0deg); }
 }
 @keyframes lab-avatar-hair {
   0%, 54% { transform: rotate(0deg); }
-  66%, 78% { transform: rotate(-0.9deg); }
+  66%, 78% { transform: rotate(-2deg); }
   90%, 100% { transform: rotate(0deg); }
 }
 @keyframes lab-avatar-arm-presenting {
   0%, 52% { transform: rotate(0deg); }
-  64%, 76% { transform: rotate(-1.8deg); }
+  64%, 76% { transform: rotate(-6deg); }
   88%, 100% { transform: rotate(0deg); }
 }
 @keyframes lab-avatar-arm-resting {
   0%, 52% { transform: rotate(0deg); }
-  64%, 76% { transform: rotate(0.6deg); }
+  64%, 76% { transform: rotate(1.5deg); }
   88%, 100% { transform: rotate(0deg); }
 }
 
