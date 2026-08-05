@@ -1,0 +1,115 @@
+[
+  {
+    "id": "hotspot-artifakt",
+    "type": "link",
+    "title": "Artifakt — Tracing Your Way Past the Blank Canvas",
+    "ctaLabel": "View project",
+    "target": {
+      "kind": "project",
+      "slug": "artifakt"
+    },
+    "x": 42.0,
+    "y": 43.4,
+    "markerSide": "right"
+  },
+  {
+    "id": "hotspot-pitchpivot",
+    "type": "link",
+    "title": "PitchPivot — Design Reasoning for Business Impact",
+    "ctaLabel": "View project",
+    "target": {
+      "kind": "project",
+      "slug": "pitchpivot"
+    },
+    "x": 48.3,
+    "y": 29.0,
+    "markerSide": "right"
+  },
+  {
+    "id": "hotspot-myride",
+    "type": "link",
+    "title": "myRIDE — Pricing UX for a 3,000-person pilot",
+    "ctaLabel": "View project",
+    "target": {
+      "kind": "project",
+      "slug": "myride"
+    },
+    "x": 57.8,
+    "y": 42.4,
+    "markerSide": "right"
+  },
+  {
+    "id": "hotspot-rega",
+    "type": "link",
+    "title": "Redesigning Rega's app for 1.1M+ users",
+    "ctaLabel": "View project",
+    "target": {
+      "kind": "project",
+      "slug": "rega"
+    },
+    "x": 81.6,
+    "y": 6.9,
+    "markerSide": "left"
+  },
+  {
+    "id": "hotspot-trail-app",
+    "type": "link",
+    "title": "Faster trail discovery for 80k users",
+    "ctaLabel": "View project",
+    "target": {
+      "kind": "project",
+      "slug": "trail-app"
+    },
+    "x": 19.3,
+    "y": 46.3,
+    "markerSide": "right"
+  },
+  {
+    "id": "hotspot-future-of-ux",
+    "type": "link",
+    "title": "The Future of UX — podcast, episode 140",
+    "ctaLabel": "to podcast",
+    "target": {
+      "kind": "anchor",
+      "href": "#media-future-of-ux"
+    },
+    "x": 52.9,
+    "y": 65.2,
+    "markerSide": "right"
+  },
+  {
+    "id": "hotspot-language-river",
+    "type": "link",
+    "title": "My Language River",
+    "ctaLabel": "Explore",
+    "target": {
+      "kind": "anchor",
+      "href": "#about"
+    },
+    "x": 18.2,
+    "y": 72.5,
+    "markerSide": "right"
+  },
+  {
+    "id": "hotspot-papayas",
+    "type": "link",
+    "title": "333 Saftige Papayas",
+    "ctaLabel": "Read more",
+    "target": {
+      "kind": "anchor",
+      "href": "#about"
+    },
+    "x": 37.7,
+    "y": 85.1,
+    "markerSide": "right"
+  },
+  {
+    "id": "hotspot-say-hi",
+    "type": "contact",
+    "title": "Say hi!",
+    "email": "flore.decrombrugghe@gmail.com",
+    "x": 61.1,
+    "y": 57.5,
+    "markerSide": "right"
+  }
+]

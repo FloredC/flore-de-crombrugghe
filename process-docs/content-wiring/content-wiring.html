@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Wiring — Real Copy, Image Labels & the Language River</title>
+<style>
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk'), local('HKGrotesk-Regular');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk SemiBold'), local('HKGrotesk-SemiBold');
+    font-weight: 600;
+  }
+
+  :root {
+    --accent: #fd6d2b;       /* the portfolio's hotspot/accent orange */
+    --accent-tint: #fff1e9;
+    --ink: #1a1a1a;
+    --paper: #f5f4f0;
+    --muted: #666;
+    --line: #e0ddd8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'HK Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 48px 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .subtitle { font-size: 14px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; max-width: 720px; }
+  .date-range { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 32px; }
+
+  .toc {
+    background: #fff;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 56px;
+  }
+  .toc-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; margin-bottom: 12px; }
+  .toc ol { list-style: none; }
+  .toc li { margin-bottom: 6px; font-size: 13px; }
+  .toc a { color: var(--ink); text-decoration: none; }
+  .toc a:hover { color: var(--accent); text-decoration: underline; }
+  .toc .toc-phase { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-left: 8px; }
+
+  .section {
+    margin-bottom: 80px;
+    border-top: 2px solid var(--ink);
+    padding-top: 24px;
+    scroll-margin-top: 24px;
+  }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 4px; flex-wrap: wrap; }
+  .section-date { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #999; }
+  .section-title { font-size: 20px; font-weight: 600; }
+  .phase-tag {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    padding: 3px 10px; border-radius: 20px; background: var(--accent-tint); color: var(--accent);
+  }
+  .section-desc { font-size: 14px; line-height: 1.7; color: #444; margin: 12px 0 24px; max-width: 720px; }
+  h3.sub { font-size: 14px; font-weight: 600; margin: 32px 0 4px; }
+
+  .status {
+    display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; padding: 3px 10px; border-radius: 20px; margin-left: 12px;
+  }
+  .status.working { background: #e8f5e9; color: #27ae60; }
+  .status.needs-work { background: #fff8e1; color: #f39c12; }
+  .status.abandoned { background: #fbe9e7; color: #c0392b; }
+
+  .concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+  .concept-block { background: #fff; border-radius: 10px; padding: 16px; border: 1.5px solid var(--line); }
+  .concept-block h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .concept-block p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  .decision-log { margin-top: 24px; }
+  .decision {
+    display: grid; grid-template-columns: 100px 1fr 1fr; gap: 16px;
+    padding: 16px 0; border-bottom: 1px solid #e8e5e0; font-size: 13px;
+  }
+  .decision:last-child { border-bottom: none; }
+  .decision-date { color: #999; font-size: 12px; padding-top: 2px; }
+  .decision-what { line-height: 1.5; }
+  .decision-why { color: var(--muted); line-height: 1.5; }
+  .decision.key-decision { box-shadow: -3px 0 0 0 var(--accent); background: var(--accent-tint); padding-left: 12px; }
+  .decision.key-decision .decision-what { color: #c2410c; font-weight: 600; }
+
+  blockquote {
+    margin: 12px 0; padding: 10px 16px; border-left: 3px solid var(--accent);
+    color: #444; font-style: italic; background: #fff; border-radius: 0 8px 8px 0; font-size: 13px;
+  }
+  blockquote cite { display: block; font-style: normal; font-size: 12px; color: #999; margin-top: 4px; }
+
+  .fig-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-top: 24px; }
+  .fig { background: #fff; border: 1.5px solid var(--line); border-radius: 12px; padding: 14px; }
+  .fig img { width: 100%; border-radius: 6px; display: block; background: #faf9f6; border: 1px solid #eee; }
+  .fig-cap { font-size: 12px; line-height: 1.5; color: #555; margin-top: 10px; }
+  .fig-cap b { color: var(--ink); }
+  .fig.pick { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-tint); }
+  .fig-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; }
+  .fig-tag.pick { color: var(--accent); }
+
+  .note {
+    font-size: 13px; background: #fff8e1; border-left: 3px solid #f39c12; padding: 10px 14px;
+    border-radius: 0 6px 6px 0; color: #555; line-height: 1.6; margin-top: 12px;
+  }
+
+  .hook {
+    margin-top: 24px; padding: 18px 20px; background: var(--ink); color: #fff;
+    border-radius: 12px; font-size: 14px; line-height: 1.6;
+  }
+  .hook-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); margin-bottom: 6px; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+  th { text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #999; padding: 8px 12px; border-bottom: 2px solid var(--line); }
+  td { padding: 10px 12px; border-bottom: 1px solid #f0ede8; vertical-align: top; line-height: 1.5; }
+  tr:last-child td { border-bottom: none; }
+
+  code.inline { background: #f0ede8; padding: 1px 6px; border-radius: 5px; font-size: 12px; font-family: 'SF Mono', Menlo, monospace; }
+  pre.code { background: var(--ink); color: #e6e6e6; padding: 16px 18px; border-radius: 10px; font-size: 12px; line-height: 1.6; overflow-x: auto; font-family: 'SF Mono', Menlo, monospace; margin-top: 16px; }
+</style>
+</head>
+<body>
+
+<h1>Content Wiring — Real Copy, Image Labels &amp; the Language River</h1>
+<p class="subtitle">Getting real content out of Figma and into the portfolio build: the ten project cards, the Approach and About sections, and the self-hosted Language River chart. Mostly a story about an AI collaborator offering to write copy I'd already written — and what "content wiring" turned out to mean to each of us.</p>
+<p class="date-range">Sessions: 2 Aug – 3 Aug 2026</p>
+
+<div class="toc">
+  <div class="toc-title">Sessions in this doc</div>
+  <ol>
+    <li><a href="#sec-2026-08-02">Content wiring: cards, captions, embeds</a><span class="toc-phase">Building with Claude</span></li>
+    <li><a href="#sec-2026-08-03">Reading the log back: two words doing too much work</a><span class="toc-phase">Building with Claude</span></li>
+  </ol>
+</div>
+
+<div class="section" id="sec-2026-08-02">
+  <div class="section-header">
+    <span class="section-date">2 Aug 2026</span>
+    <span class="section-title">Content wiring: cards, captions, embeds</span>
+    <span class="phase-tag">Building with Claude</span>
+  </div>
+  <p class="section-desc">
+    The plan was stage 8 of the build order — swap placeholder copy for real copy before doing any type or layout pass. What actually happened: two rounds of me and Claude meaning different things by "content wiring," a detour through where image files live, and a chart version mix-up. The content did land, but the useful material here is the friction, not the result.
+  </p>
+
+  <h3 class="sub">The main misunderstanding — and the part that wasn't a misunderstanding</h3>
+  <p class="section-desc">
+    Claude reported content wiring as basically done. From my side almost nothing that mattered had been added, and I had to ask twice before the real copy got pulled. Two separate things were going on, and only the first is a vocabulary problem.
+  </p>
+
+  <div class="concept-grid">
+    <div class="concept-block">
+      <h4>My definition</h4>
+      <p>Content wiring = <b>the media</b> (images, iframes, embeds) <b>+ the actual written content</b>. Now the agreed definition.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Claude's working definition</h4>
+      <p>"Every field that exists in the content model holds a non-placeholder value." Narrower, and never said out loud so I could disagree with it.</p>
+    </div>
+    <div class="concept-block">
+      <h4>The real failure</h4>
+      <p>It didn't even meet its own definition. Four cards still read <i>"Placeholder one-line hook for the work grid card"</i> and the other six had one-line stubs that just restated the title — while Figma had 2–3 sentence descriptions for all ten, from the start.</p>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>The moment that actually explains the session.</b> At the very start, Claude grepped the content files, found those four literal <code class="inline">Placeholder</code> descriptions, listed them to me — and then asked whether I would supply the copy or whether it should draft some, offering to use my writing-voice skill. It offered to <em>write</em> copy that already existed in the Figma file it had been reading all session. The wrong assumption wasn't about the word "content"; it was treating missing content as <b>not yet written</b> rather than <b>not yet pulled</b>. Default should be the opposite: assume the content exists in Figma and go look, before ever asking me to write anything.
+  </div>
+
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">Turning point</div>
+      <div class="decision-what">Define "content wiring" as: frontmatter + card captions + body prose, listed explicitly</div>
+      <div class="decision-why">Claude marked the stage as done twice while six case-study bodies were still literally "Placeholder case-study body…". Asking for a full placeholder audit (a grep for PLACEHOLDER across <code class="inline">src/content/</code>) surfaced the real remaining list in seconds — that should have been the <em>first</em> move of the stage, not a recovery step.</div>
+    </div>
+    <div class="decision key-decision">
+      <div class="decision-date">Turning point</div>
+      <div class="decision-what">Image labels are a real component element, not alt text</div>
+      <div class="decision-why">I said "the images have labels." Claude assumed I meant screen-reader alt text and asked which I wanted. The answer was neither guess: every ProjectMedia in Figma contains a visible caption inside the bordered frame ("Cost calculator — production web app"). The built component had no caption element at all — not empty, not placeholder, absent since the Skeleton stage. That's why no placeholder audit could have caught it: a field missing from the content model can't be found by searching for unfilled fields. The card also gave no visual tell, since the thumbnail, title, description and button were all real.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Content model</div>
+      <div class="decision-what">Replace <code class="inline">tags: [...]</code> with a single <code class="inline">meta: "..."</code> string</div>
+      <div class="decision-why">Figma renders one grey line ("AI • Vibecoding"), not separate tag chips. Keeping an array meant the component had to invent the separator. Making it one pre-joined string puts that punctuation back in my control as content.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Interaction</div>
+      <div class="decision-what">Podcast hotspot anchor-scrolls to its card instead of opening Spotify in a new tab</div>
+      <div class="decision-why">CLAUDE.md said the podcast hotspot had "no card to scroll to" so it should link out. That stopped being true once the Approach MediaCards existed. Label changed to "to podcast". The spec doc is now stale on this point.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Embed</div>
+      <div class="decision-what">Language River self-hosted in <code class="inline">public/</code>, iframe measures its own height</div>
+      <div class="decision-why">Removes the external-hosting blocker entirely (build order stage 7 is now closed). The chart's height is content-driven and changes with width — 371px on desktop, 387px on mobile when the legend rewraps — so a fixed height clipped it on phones and Figma's aspect-ratio box left dead space on desktop. Because it's served same-origin, the parent can read the chart's real content height directly, with no edit to the generated HTML file.</div>
+    </div>
+  </div>
+
+  <h3 class="sub">Where the time actually went</h3>
+  <div class="concept-grid">
+    <div class="concept-block">
+      <h4>Asset location</h4>
+      <p>I upload images to the GitHub repo <em>root</em> on <code class="inline">main</code>. Claude was checking only the local working tree and the feature branch, concluded a file didn't exist, and asked me for it three times. It was already committed.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Pasting images in chat</h4>
+      <p>I re-sent screenshots twice thinking that delivered the files. It doesn't — pasted images arrive as pixels, not as files on disk that can be committed. Worth knowing so I don't repeat it.</p>
+    </div>
+    <div class="concept-block">
+      <h4>A filename that lied</h4>
+      <p><code class="inline">img-friends-of-figma-read-the-room.png</code> <em>was</em> the Speak the Room photo, already in the repo. Claude ruled it out by reading the filename instead of opening the file, so we both hunted for a missing asset that wasn't missing.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Chart version mix-up</h4>
+      <p>I pointed at <code class="inline">…-framer-previous.html</code> from an archive folder. A checksum showed the file already in <code class="inline">public/</code> was byte-identical to its sibling <code class="inline">…-framer.html</code> — I'd clicked one row off. I still chose the older one after seeing the diff.</p>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>Figma hygiene — four cards carry unedited component defaults.</b> Artifakt's caption, PitchPivot's caption, and Rega's <em>both</em> meta and caption still hold the ProjectCard component's default text (Sinomocene's caption and "Dataviz • NatGeo"). Rather than ship visibly wrong copy or silently invent replacements, these render on the page as <code class="inline">REVIEW — …</code> markers. Same class of problem as the duplicate-frame issue earlier in this build: an instance that was never overridden looks exactly like real content when read through the API.
+  </div>
+
+  <h3 class="sub">Technical difficulties</h3>
+  <table>
+    <tr><th>What broke</th><th>How it was caught / resolved</th></tr>
+    <tr>
+      <td><code class="inline">-rotate-15</code> on the NDA stamp did nothing</td>
+      <td>Tailwind's default rotate scale jumps 12 → 45, so the class doesn't exist and silently produced <code class="inline">transform: none</code>. Only visible via <code class="inline">getComputedStyle</code>; the class name reads fine. Fixed with <code class="inline">-rotate-[15deg]</code>.</td>
+    </tr>
+    <tr>
+      <td>Card anchors landed under the sticky nav</td>
+      <td><code class="inline">scroll-margin-top</code> was scoped to <code class="inline">section[id]</code> only, so every project-card anchor was affected — a latent bug, not new. Extended to <code class="inline">article[id]</code>.</td>
+    </tr>
+    <tr>
+      <td>A batch edit ate the newline after each opening <code class="inline">---</code></td>
+      <td>Produced <code class="inline">---title:</code> across all ten MDX files and crashed every card for a few seconds. Caught in the browser console, fixed with a one-line pass over all ten.</td>
+    </tr>
+    <tr>
+      <td><code class="inline">ProjectPage.jsx</code> still read <code class="inline">project.tags</code></td>
+      <td>Would have crashed every case-study route after the <code class="inline">tags</code> → <code class="inline">meta</code> change. Found by grepping for the removed field rather than by clicking through.</td>
+    </tr>
+    <tr>
+      <td>Phantom React errors in the console</td>
+      <td>Errors persisted across reloads pointing at a stale module id. Opening a <em>fresh tab</em> showed zero errors — the buffer was retaining errors from the broken-frontmatter window. Worth remembering before chasing a bug that's already fixed.</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    <b>Visuals:</b> no screenshots in this entry — this skill only embeds images I've provided, and I didn't hand any over. Worth adding later: a before/after of the ProjectCard (no caption vs. caption + real badge), and the Language River sitting in the About section.
+  </div>
+
+  <h3 class="sub">What I'd do differently next time</h3>
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">Rule</div>
+      <div class="decision-what">Assume the content exists in Figma. Look before asking me to write anything.</div>
+      <div class="decision-why">The single highest-value change. Every time Claude hit missing copy it read that as "Flore hasn't written this yet" and asked me to supply or approve drafted text. The correct reading was "I haven't pulled this yet." Asking me to write copy that already exists is worse than useless — it burns a round trip <em>and</em> risks inventing a second, competing version of my own words.</div>
+    </div>
+    <div class="decision key-decision">
+      <div class="decision-date">Rule</div>
+      <div class="decision-what">Diff the Figma component's layers against the content model — in that direction</div>
+      <div class="decision-why">Mapping Figma <em>onto the fields that already exist</em> can only ever find values for fields someone already thought of. Asked the other way — "what layers does this component have that my model has no field for?" — <code class="inline">meta</code>, the image caption, and the ValueCard image block all surface in one pull. This is the same rule as enumerating a component's full variant/state matrix before building it, applied to content instead of states.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Process</div>
+      <div class="decision-what">A placeholder grep is a starting point, never a completeness check</div>
+      <div class="decision-why">Searching the content files for the word "Placeholder" only matches text inside fields that already exist. A slot that was never modelled has no line to match, so it stays invisible while fake-but-filled values are loud. It reported "four items left" while three whole slots were missing and six descriptions were stubs.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Process</div>
+      <div class="decision-what">Don't trust a "stage done" line in CLAUDE.md over the Figma file</div>
+      <div class="decision-why">A status note reading "all project frontmatter is real" is why the ProjectCard nodes were never pulled in the first round at all. The doc described an earlier session's intent; the file is the truth.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Process</div>
+      <div class="decision-what">Say where a file is, not that I sent it</div>
+      <div class="decision-why">"It's on GitHub, on main, at the repo root" is instantly actionable. "I sent it" cost three rounds because chat images aren't files.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Figma</div>
+      <div class="decision-what">Sweep instances for unedited defaults before a content pull</div>
+      <div class="decision-why">Four of ten cards had leftover component defaults that read as plausible real copy through the API. The instance-naming convention (<code class="inline">ProjectCard — Rega</code>) makes instances easy to find; it doesn't tell you whether their content was ever overridden.</div>
+    </div>
+  </div>
+
+  <div class="hook">
+    <div class="hook-label">Shareable hook</div>
+    Claude found four cards on my site still reading "Placeholder one-line hook" — and asked whether I'd like to write the real copy, or have it drafted for me. The copy already existed. It had been sitting in the Figma file Claude had been reading all afternoon. It hadn't misread the content; it had never occurred to it to go and get it, because missing text reads as <em>not yet written</em> when it almost always means <em>not yet pulled</em>. The lesson I'm keeping: when an AI collaborator offers to write something for you, check whether you've already written it.
+  </div>
+</div>
+
+<div class="section" id="sec-2026-08-03">
+  <div class="section-header">
+    <span class="section-date">3 Aug 2026</span>
+    <span class="section-title">Reading the log back: two words doing too much work</span>
+    <span class="phase-tag">Building with Claude</span>
+  </div>
+  <p class="section-desc">
+    Went back over yesterday's entry the next morning and kept not understanding my own process doc. Both times the sticking point was a word, not a fact — "placeholder" and "frontmatter" were each covering several different things, in a doc I'd have to re-read in six months. Worth its own entry because the fix is vocabulary, and vocabulary is the part that quietly decides whether a status report means anything.
+  </p>
+
+  <h3 class="sub">"Placeholder" was doing three jobs</h3>
+  <table>
+    <tr><th>What</th><th>Where it lives</th><th>Who made it</th><th>What it means</th></tr>
+    <tr>
+      <td><code class="inline">[ img ]</code> in a dashed box</td>
+      <td>Figma</td>
+      <td>Me</td>
+      <td>A deliberate design convention: this image slot is real, the asset is pending.</td>
+    </tr>
+    <tr>
+      <td><i>"Placeholder one-line hook for the work grid card."</i></td>
+      <td><code class="inline">description:</code> in the MDX files</td>
+      <td>An earlier Claude session</td>
+      <td>Stand-in text so the card had something to render while layout got built. Now called <b>scaffolding text</b>, to stop it colliding with mine.</td>
+    </tr>
+    <tr>
+      <td>Dashed "Image placeholder" boxes</td>
+      <td><code class="inline">MediaCard.jsx</code></td>
+      <td>Claude, this session</td>
+      <td>Stand-in UI where no image had been wired yet.</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    When Claude said "placeholder audit" it meant only the middle row. I heard the top row. We each had a coherent picture and they weren't the same picture — which is exactly the shape of the bigger misunderstanding a day earlier, just smaller and easier to see.
+  </div>
+
+  <h3 class="sub">"All project frontmatter is real" — the status line that caused the miss</h3>
+  <p class="section-desc">
+    This sentence sat in <code class="inline">CLAUDE.md</code> as the recorded state of the content stage. Claude read it, believed it, and therefore never pulled the ProjectCard nodes in the first round. It's worth unpicking because it's wrong in an instructive way.
+  </p>
+  <pre class="code">description: "Placeholder one-line hook for the work grid card."
+└─ field ─┘  └────────────── scaffolding text ─────────────────┘
+
+description: "2018 — 200+ icons, one grammar — pharma science communication…"
+└─ field ─┘  └────────────── my actual words ─────────────────────────────┘</pre>
+  <p class="section-desc">
+    <b>Frontmatter</b> is the block of labelled lines at the top of each <code class="inline">.mdx</code> file, between two <code class="inline">---</code> markers; the prose underneath is the body. So the claim meant: <i>on every project file, every one of those lines holds my words rather than a stand-in.</i>
+  </p>
+
+  <div class="concept-grid">
+    <div class="concept-block">
+      <h4>It was false</h4>
+      <p>Four <code class="inline">description:</code> fields still held scaffolding text — written by a previous Claude session, in the very commit that set up the content model.</p>
+    </div>
+    <div class="concept-block">
+      <h4>It was also meaningless</h4>
+      <p>Even where true, it describes internal code fields. It says nothing about body prose, and nothing about a slot like <code class="inline">imageCaption</code> that was never a line in the file — so the claim sails straight past it.</p>
+    </div>
+    <div class="concept-block">
+      <h4>It sounded finished</h4>
+      <p>"Is real" reads as a completeness claim. It isn't one. That's what made it dangerous rather than merely unhelpful.</p>
+    </div>
+  </div>
+
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">Rule</div>
+      <div class="decision-what">Status notes describe what a visitor sees — never which code fields are populated</div>
+      <div class="decision-why">"All project frontmatter is real" is unfalsifiable from my side; I can't see frontmatter. "Titles and CTAs real; descriptions still scaffolding on 4 of 10, stubs on the other 6; image captions not built; case-study bodies all scaffolding" is something I can check against the actual page in ten seconds. Rewritten in <code class="inline">CLAUDE.md</code> in that form.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Rule</div>
+      <div class="decision-what">Name the author of a placeholder when reporting one</div>
+      <div class="decision-why">"Four cards still have scaffolding text an earlier session wrote" points at the fix. "Four cards have placeholders" sounds like I owe someone copy — which is precisely the wrong conclusion that cost two rounds yesterday.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Built</div>
+      <div class="decision-what">Restored the missing image placeholders, using my Figma convention <span class="status working">done</span></div>
+      <div class="decision-why">Filling in real content had made pending images vanish rather than stand out — an <code class="inline">item.image &&</code> guard meant Cold Plunge rendered nothing at all. Now a shared <code class="inline">ImagePlaceholder</code> renders the dashed <code class="inline">[ img ]</code> box. Pulling the ValueCard node to check its size surfaced a fourth missing slot: the ValueCard has an image block in Figma that had never been built either.</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>The pattern across both days.</b> Every miss traced back to a claim that was true in one frame and false in another, with nobody naming the frame: "content wiring is done", "all frontmatter is real", "the images have labels", "I sent them". None were lies and none were understood. The cheap fix is describing things in terms of the artefact we both look at — the page, the Figma node — rather than in terms of whichever internal structure each of us happens to be holding.
+  </div>
+
+  <h3 class="sub">Where the spec should live — and the layer nobody built</h3>
+  <p class="section-desc">
+    The wayfinding text is orange in the code because <code class="inline">CLAUDE.md</code> says it should be. I've since changed my mind in Figma, and the doc never caught up. That surfaced a bigger question I hadn't articulated: I don't actually know what belongs in the written spec versus the design file, and the spec feels too specific in places.
+  </p>
+
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">Rule</div>
+      <div class="decision-what">The written spec contains <em>no sampled values</em> — it points at Figma nodes instead</div>
+      <div class="decision-why">The doc already said "where Figma and this doc disagree, Figma wins." That didn't help, because a conflict only gets resolved if someone notices it — and nobody noticed the orange was stale until it was on the built page. "Don't duplicate" prevents the conflict; "Figma wins" only cleans up after it. Any value I can change in Figma must exist in exactly one place.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Division</div>
+      <div class="decision-what">Figma owns anything visually specifiable; the spec owns everything Figma can't express</div>
+      <div class="decision-why">Figma: tokens, components, states, grids, constraints, copy, and which colour a given element is. Spec: stack and routing, file structure, which HTML tag something becomes (my "Button"/"Link" naming is a visual taxonomy, not a semantic one), behaviours with no visual (copy-to-clipboard, 44px tap targets, <code class="inline">svh</code> vs <code class="inline">vh</code>), plus rationale, bug history and open questions. The wayfinding colour wasn't the only leak — the popover section restates sampled radius, padding and blur values, one of which was already recorded as contradicting a screenshot, and another as an outright guess.</div>
+    </div>
+    <div class="decision key-decision">
+      <div class="decision-date">Gap</div>
+      <div class="decision-what">There was never a "global layout system" stage — and two punch-list items are the same missing layer</div>
+      <div class="decision-why">Reading a standard front-end build order back against ours, the gap is obvious: containers, grid definitions, gutters and a spacing scale in actual use were never established as their own step. The build order went tokens → content model → skeleton → components, then styling much later. So "spacings between sections" and "card behaviour in CSS grid" aren't two problems — they're one absent layer showing up twice. Components got built before the system they sit in.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Correction</div>
+      <div class="decision-what">Worrying about Figma MCP token cost made things more expensive, not less</div>
+      <div class="decision-why">I'd held back on pulling from Figma partly out of a vague sense it would be costly. The opposite happened: the session's real cost was <em>under</em>-pulling — four separate partial pulls plus several rounds of me reporting what was missing. One complete pass over the component library up front would have caught the meta line, the image captions and the ValueCard image slot together. Pull whole components, not the node you think you need.</div>
+    </div>
+  </div>
+
+  <div class="hook">
+    <div class="hook-label">Shareable hook</div>
+    The status note in my project file said "all project frontmatter is real." It was wrong — but the more useful discovery is that it couldn't have been useful even if it were right: it described which code fields were populated, something I can't see and can't check. Every misunderstanding in this build traced back to the same shape — a sentence that was true in one person's frame and false in the other's, with nobody naming the frame. Now the rule is that status gets written in terms of what a visitor sees on the page.
+  </div>
+</div>
+
+</body>
+</html>

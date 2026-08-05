@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Navigation, Buttons & the Figma-to-Code Workflow</title>
+<style>
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk'), local('HKGrotesk-Regular');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk SemiBold'), local('HKGrotesk-SemiBold');
+    font-weight: 600;
+  }
+
+  :root {
+    --accent: #fd6d2b;       /* orange-70, the site's real action-accent token (hotspot markers, Say Hi link) */
+    --accent-tint: #fff1ea;
+    --ink: #1a1a1a;
+    --paper: #f5f4f0;
+    --muted: #666;
+    --line: #e0ddd8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'HK Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 48px 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .subtitle { font-size: 14px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; max-width: 720px; }
+  .date-range { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 32px; }
+
+  .toc {
+    background: #fff;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 56px;
+  }
+  .toc-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; margin-bottom: 12px; }
+  .toc ol { list-style: none; }
+  .toc li { margin-bottom: 6px; font-size: 13px; }
+  .toc a { color: var(--ink); text-decoration: none; }
+  .toc a:hover { color: var(--accent); text-decoration: underline; }
+  .toc .toc-phase { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-left: 8px; }
+
+  .section {
+    margin-bottom: 80px;
+    border-top: 2px solid var(--ink);
+    padding-top: 24px;
+    scroll-margin-top: 24px;
+  }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 4px; flex-wrap: wrap; }
+  .section-date { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #999; }
+  .section-title { font-size: 20px; font-weight: 600; }
+  .phase-tag {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    padding: 3px 10px; border-radius: 20px; background: var(--accent-tint); color: var(--accent);
+  }
+  .section-desc { font-size: 14px; line-height: 1.7; color: #444; margin: 12px 0 24px; max-width: 720px; }
+
+  .subhead { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #999; margin: 32px 0 4px; }
+
+  .decision-log { margin-top: 8px; }
+  .decision {
+    display: grid; grid-template-columns: 100px 1fr 1fr; gap: 16px;
+    padding: 16px 0; border-bottom: 1px solid #e8e5e0; font-size: 13px;
+  }
+  .decision:last-child { border-bottom: none; }
+  .decision-date { color: #999; font-size: 12px; padding-top: 2px; }
+  .decision-what { line-height: 1.5; }
+  .decision-why { color: var(--muted); line-height: 1.5; }
+  .decision.key-decision { box-shadow: -3px 0 0 0 var(--accent); background: var(--accent-tint); padding-left: 12px; }
+  .decision.key-decision .decision-what { color: #b8501a; font-weight: 600; }
+
+  blockquote {
+    margin: 12px 0; padding: 10px 16px; border-left: 3px solid var(--accent);
+    color: #444; font-style: italic; background: #fff; border-radius: 0 8px 8px 0; font-size: 13px;
+  }
+
+  .note {
+    font-size: 13px; background: #fff8e1; border-left: 3px solid #f39c12; padding: 10px 14px;
+    border-radius: 0 6px 6px 0; color: #555; line-height: 1.6; margin-top: 12px;
+  }
+
+  .hook {
+    margin-top: 24px; padding: 18px 20px; background: var(--ink); color: #fff;
+    border-radius: 12px; font-size: 14px; line-height: 1.6;
+  }
+  .hook-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-tint); margin-bottom: 6px; }
+
+  ul.plain { margin-left: 18px; font-size: 13px; line-height: 1.7; color: #333; }
+  ul.plain li { margin-bottom: 4px; }
+
+  code.inline { background: #f0ede8; padding: 1px 6px; border-radius: 5px; font-size: 12px; font-family: 'SF Mono', Menlo, monospace; }
+</style>
+</head>
+<body>
+
+<h1>Navigation, Buttons & the Figma-to-Code Workflow</h1>
+<p class="subtitle">Covers the mobile navbar, the site's full button-state system, the Contact section, and — the part with the most reusable lessons — what actually made Figma easy or hard for Claude to read correctly. This is one logged entry inside a longer build: earlier sessions on 31 Jul and 1 Aug covered the Hero map's pan/zoom and responsive-crop behavior and aren't written up here yet.</p>
+<p class="date-range">Build started 31 Jul 2026 — this entry: 2 Aug 2026</p>
+
+<div class="toc">
+  <div class="toc-title">Sessions in this doc</div>
+  <ol>
+    <li><a href="#sec-2026-08-02">Nav, buttons, Contact section, and Figma-workflow lessons</a><span class="toc-phase">Building with Claude</span></li>
+  </ol>
+</div>
+
+<div class="section" id="sec-2026-08-02">
+  <div class="section-header">
+    <span class="section-date">2 Aug 2026</span>
+    <span class="section-title">Nav, buttons, Contact section, and Figma-workflow lessons</span>
+    <span class="phase-tag">Building with Claude</span>
+  </div>
+  <p class="section-desc">Started as "build the mobile navbar" and grew into a full audit of every button's states (hover/pressed/focus/selected) across the site, a rebuilt Contact section, and — once enough small misses had stacked up — a direct conversation about why the misses were happening and how to fix the working process itself, not just the bugs.</p>
+
+  <div class="subhead">Product / component decisions</div>
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">Nav structure</div>
+      <div class="decision-what">Three distinct nav states, not one component reused loosely: desktop homepage, mobile homepage (closed/open hamburger), and subpage (identical at every width).</div>
+      <div class="decision-why">Flore was explicit that the subpage nav is a deliberate dead end — "no hamburger menu, no access to the anchors, since it's on a different page" — not a state that was forgotten. Encoding that as a real structural difference (no open/closed concept at all for subpages) rather than a prop that has to be remembered-to-be-ignored.</div>
+    </div>
+    <div class="decision key-decision">
+      <div class="decision-date">Buttons</div>
+      <div class="decision-what">One <code class="inline">ButtonLink</code> component for the whole site, variant prop selects the class — not one component per visual treatment.</div>
+      <div class="decision-why">Every button-state bug found this session (see below) got fixed in exactly one place because of this. The alternative — a bespoke button per usage — would have meant fixing the same hover-color bug four separate times.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Contact section</div>
+      <div class="decision-what">Email address renders as a full secondary-styled button that copies to clipboard on click, not a mailto link.</div>
+      <div class="decision-why">Matches the interaction the map's "Say hi" popover already used. Required new shared code (a <code class="inline">useCopyToClipboard</code> hook) since a copy action has to be a real <code class="inline">&lt;button&gt;</code>, not an <code class="inline">&lt;a&gt;</code>, per the project's own tag-follows-behavior rule — but it had to look pixel-identical to the real secondary button, so the styling is imported from the same source rather than duplicated.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">NDA cards</div>
+      <div class="decision-what">NDA project cards (myRIDE, Rega, SAC, SBB) use the outline "secondary" button, not the filled "primary" one every other project card uses.</div>
+      <div class="decision-why">Caught in review — the real Figma card for Rega showed secondary, but every card had been built with primary. Root-caused by opening the actual instance rather than trusting the abstract component swatch, which happened to be ambiguous about which variant applied where.</div>
+    </div>
+  </div>
+
+  <div class="subhead">Bugs found, and what they actually were</div>
+  <div class="decision-log">
+    <div class="decision">
+      <div class="decision-date">Focus states</div>
+      <div class="decision-what">The whole site briefly appeared to have zero keyboard-focus states, anywhere.</div>
+      <div class="decision-why">Real cause was one inline style on the map's hotspot-marker dot silently overriding its focus ring (inline styles always beat stylesheet rules, regardless of specificity). Because hotspot markers are the very first focusable elements in the page's tab order — before the navbar — tabbing from page load hit nothing but broken markers for several presses before ever reaching a working button. The bug's true size was one component; its apparent size, from Flore's seat, was "the entire site." Worth remembering: where a bug sits in the tab/reading order can make it look far more systemic than it is.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Button weight</div>
+      <div class="decision-what">The Contact button's label silently rendered at font-weight 400 instead of the correct 700.</div>
+      <div class="decision-why">A conditional in the button component only applied its bold-text class when a variant had <em>no</em> class of its own — which in practice meant never, since every real variant has one. A pure logic bug, invisible from the design side entirely.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Invented hover state</div>
+      <div class="decision-what">Nav links showed an underline on hover that isn't part of the actual design.</div>
+      <div class="decision-why">The underline treatment had been copied from a different, only visually-similar Figma component. The real signal: nav links carry an underline only to mark the <em>current section</em> (a static content difference in the Figma file, not a hover effect) — a distinction that only became clear by checking the navbar's own instances directly instead of trusting a state-grid screenshot from a nearby component.</div>
+    </div>
+  </div>
+
+  <div class="subhead">What Flore learned about structuring the Figma file for Claude</div>
+  <ul class="plain">
+    <li><b>Name repeating instances by content, not just by component.</b> Every <code class="inline">ProjectCard</code> instance was originally named just "ProjectCard" — finding which one was Rega vs. SBB meant opening several. Renaming to <code class="inline">ProjectCard — Rega</code> etc. made lookups direct. Confirmed this doesn't cost anything: an instance's link to its main component is tracked separately from its display name, so renaming is purely additive.</li>
+    <li><b>Duplicate frames drift silently.</b> A full duplicate of the entire page (a scrolling-prototype frame, probably set up to demo scroll behavior) had been sitting alongside the real page and had already diverged from it in at least one place — a font-weight difference on the Contact section's body copy — before it was found and deleted. If a frame like that needs to exist for prototyping, it's worth either deleting it once it's served its purpose or treating it explicitly as "reference only," never as something that could silently answer a lookup instead of the real page.</li>
+    <li><b>Enumerate a component's full state matrix before building it.</b> Figma's own metadata lists every hover/pressed/focus/selected variant by name. Several of this session's misses came from building against the one state needed for layout and waiting to be told what else was missing, rather than checking the full list up front.</li>
+    <li><b>Code Connect isn't available yet.</b> Looked like the real long-term answer to "map a Figma component straight to its code" — but it requires a Figma Organization or Enterprise plan, and the current plan is Professional. Worth revisiting only if the plan changes.</li>
+  </ul>
+
+  <div class="note">
+    Flore's direct question mid-session — "why did this take so long, I thought it'd be the easiest thing" — is worth keeping as a marker. The honest answer was that five genuinely separate tasks had been bundled into one ask, and that a couple of the "simple" fixes (the NDA button variant, specifically) required real archaeology in a large, partially-duplicated Figma file. Naming that plainly, instead of just working faster next time and hoping it doesn't come up again, is probably worth doing whenever it happens again.
+  </div>
+
+  <div class="hook">
+    <div class="hook-label">Shareable hook</div>
+    A full duplicate of my homepage had been quietly living in my Figma file — and it had already started disagreeing with the real one before I ever noticed it existed. The lesson wasn't really about Claude reading Figma correctly; it was that a design file needs the same "single source of truth" discipline as a codebase, or the AI reading it will confidently build from whichever copy it finds first.
+  </div>
+</div>
+
+</body>
+</html>

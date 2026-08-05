@@ -1,0 +1,61 @@
+# Builds the site and publishes it to GitHub Pages.
+#
+# Uses the Pages "GitHub Actions" source rather than pushing a gh-pages branch,
+# so there's no build output committed to the repo and no second branch to keep
+# straight. This requires a one-time switch in the repo settings:
+#   Settings -> Pages -> Build and deployment -> Source: "GitHub Actions"
+# Until that's set, this workflow will run and then fail at the deploy step.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Lets the deploy be re-run by hand from the Actions tab without an empty
+  # commit -- useful when only the Pages settings changed.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  # Required by deploy-pages: it authenticates via OIDC rather than a token.
+  id-token: write
+
+# Never let two deploys race. `cancel-in-progress: false` because a half-applied
+# deploy is worse than a slow one -- queue instead of interrupting.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` not `npm install`: installs exactly the locked versions and
+      # fails loudly if package.json and package-lock.json have drifted, so a
+      # deploy can't quietly ship a different dependency tree than local.
+      - run: npm ci
+
+      - run: npm run build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

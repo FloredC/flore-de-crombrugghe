@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Language River</title>
+<style>
+@import url('https://fonts.bunny.net/css?family=hk-grotesk:400,500,600,700&display=swap');
+:root {
+  --font:'HK Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --text-primary:#000;
+  --text-secondary:#494747;
+  --text-quaternary:#868383;
+  --fr-fill:#ffedcc;--fr-bd:#e8a020;
+  --nl-fill:#d1e6ff;--nl-bd:#3079e0;
+  --en-fill:#c9f8e2;--en-bd:#34b679;
+  --de-fill:#fedce0;--de-bd:#e4637a;
+  --es-fill:#e2dcfe;--es-bd:#8b5cf6;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:auto;overflow:hidden;background:#fff;}
+body{font-family:var(--font);color:var(--text-primary);}
+.wrap{padding:14px 16px 0;width:100%;overflow:visible;}
+.chart-area{overflow:visible!important;}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary);}
+.leg-sw{width:10px;height:10px;border-radius:2px;flex-shrink:0;border-width:1.5px;border-style:solid;}
+.leg-div{width:1px;height:14px;background:#ddd;margin:0 4px;}
+.leg-pip{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--text-secondary);}
+.pip-l{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.chart-area{position:relative;width:100%;background:#f4f4f4;}
+.tip{position:absolute;background:#fff;border:1px solid #e8e8e8;border-radius:10px;
+  padding:8px 12px;pointer-events:none;opacity:0;transition:opacity .12s;z-index:20;
+  min-width:140px;max-width:220px;box-shadow:0 4px 16px rgba(0,0,0,.07);}
+.tt-year{font-size:13px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:1px;}
+.tt-ctx{font-size:10px;color:var(--text-quaternary);display:block;margin-bottom:6px;font-style:italic;}
+.tt-row{display:flex;align-items:center;gap:5px;padding:1px 0;}
+.tt-chips{display:flex;align-items:center;gap:3px;flex-shrink:0;}
+.tt-chip{display:flex;align-items:center;gap:2px;}
+.tt-sw{width:8px;height:8px;border-radius:2px;border-width:1.5px;border-style:solid;flex-shrink:0;}
+.tt-code{font-size:10px;font-weight:600;color:var(--text-secondary);}
+.tt-dash{color:#d0d0d0;font-size:11px;}
+.tt-desc{font-size:11px;color:var(--text-secondary);}
+#city-card{position:absolute;background:#fff;border:1px solid #e8e8e8;border-radius:10px;
+  padding:8px 12px;pointer-events:none;display:none;z-index:25;
+  box-shadow:0 4px 16px rgba(0,0,0,.1);width:164px;}
+.cc-name{font-size:14px;font-weight:700;color:var(--text-secondary);display:block;margin-bottom:2px;font-family:var(--font);}
+.cc-meta{font-size:10px;color:var(--text-quaternary);display:block;margin-bottom:5px;font-style:italic;font-family:var(--font);}
+.cc-row{display:flex;align-items:center;gap:4px;padding:1px 0;}
+.axis-row{position:relative;width:100%;height:30px;margin-top:0;}
+.yr-tick{position:absolute;top:9px;transform:translateX(-50%);font-size:10px;color:var(--text-quaternary);white-space:nowrap;font-family:var(--font);}
+.chart-title{font-size:20px;font-weight:700;color:var(--text-secondary);line-height:1;margin-bottom:4px;font-family:var(--font);}
+.chart-subtitle{font-size:13px;font-style:italic;color:var(--text-quaternary);line-height:1.2;margin-bottom:12px;font-family:var(--font);}
+canvas{display:block;width:100%!important;overflow:visible;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2 class="chart-title">A Life in Languages</h2>
+  <p class="chart-subtitle">Proportional — each band = share of total daily use. German includes Swiss German from 2017.</p>
+  <div class="legend">
+    <div class="leg-pip"><div class="pip-l" style="background:#222;"></div>lived</div>
+    <div class="leg-pip"><div class="pip-l" style="background:rgba(255,255,255,0.9);border:2px solid #333;"></div>visited</div>
+  </div>
+
+  <div class="chart-area" id="chart-wrap">
+    <div class="tip" id="tip"></div>
+    <div id="city-card"></div>
+    <div style="position:relative;width:100%;height:250px;overflow:visible;">
+      <canvas id="langChart" style="overflow:visible;"></canvas>
+      <div id="overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:5;"></div>
+    </div>
+  </div>
+
+  <div class="axis-row" id="yaxis"></div>
+</div>
+
+<script>
+(function(){
+/* ── DATA ─────────────────────────────────────────────────────────────────── */
+const pts=[
+  [1986,0,75,5,0,0,0],   [1988,0,70,10,0,0,0],
+  [1989,0,60,25,2,0,0],
+  [1991,0,30,72,3,0,0],  [1993,0,20,74,4,0,0],
+  [1995,0,20,74,4,0,0],  [1997,0,20,72,6,0,0],
+  [1999,0,20,70,8,0,0],
+  [2001,0,18,58,20,0,0],                         // NY trip — small EN bump
+  [2002,0,18,54,14,0,0],
+  [2003,0,18,60,10,0,0],                         // high school Brussels
+  [2004,0,18,56,12,0,0],
+  [2005,0,20,54,14,0,0],
+  [2006,0,22,50,14,8,0],                         // German classes starting
+  [2007,9,24,34,40,10,0],                        // Berlin starts September
+  [2008,0,10,10,40,40,0],                        // Exchange year — Berlin
+  [2009,0,10,10,40,40,0],                        // Work — Berlin
+  [2010,0,36,28,16,12,5],                        // Gap year Leuven / Mexico
+  [2011,0,34,26,14,12,8],
+  [2012,0,34,32,16,10,2],
+  [2013,0,28,36,34,14,4],                        // Eindhoven — NL & EN both up
+  [2014,0,20,14,18,16,18],                       // Barcelona
+  [2015,0,18,10,30,40,14],                       // Stuttgart — DE dominant
+  [2016,0,18,8,24,46,6],
+  [2017,0,18,7,28,44,2],                         // Basel
+  [2018,0,16,6,32,44,2],
+  [2019,0,16,6,34,42,2],                         // Zurich
+  [2020,0,15,5,32,44,2],
+  [2021,0,14,5,32,46,2],
+  [2022,0,15,5,32,44,6],
+  [2023,0,16,5,30,44,10],                        // Argentina bump
+  [2024,0,17,5,30,42,9],
+  [2025,0,18,5,30,40,9],
+  [2026,0,18,5,28,38,12],                        // Spain
+];
+
+const xs=pts.map(([yr,mo])=>mo>0?yr+(mo-1)/12:yr);
+const years=xs;
+const minY=1986,maxY=2026,span=maxY-minY;
+const frN=[],nlN=[],enN=[],deN=[],esN=[];
+pts.forEach(([,,fr,nl,en,de,es])=>{
+  const t=fr+nl+en+de+es;
+  frN.push(Math.round(fr/t*100)); nlN.push(Math.round(nl/t*100));
+  enN.push(Math.round(en/t*100)); deN.push(Math.round(de/t*100));
+  esN.push(Math.round(es/t*100));
+});
+
+/* ── TOOLTIP DATA ─────────────────────────────────────────────────────────── */
+const TD={
+  1986:{ctx:'Early childhood — Leuven, Belgium',        FR:'Daily',     NL:'Daily'},
+  1988:{ctx:'Early childhood — Leuven, Belgium',        FR:'Daily',     NL:'Daily'},
+  1989:{ctx:'Primary school — Leuven, Belgium',         FR:'Daily',     NL:'Daily',      EN:'Rare'},
+  1991:{ctx:'Primary school — Leuven, Belgium',         FR:'Regular',   NL:'Daily',      EN:'Rare'},
+  1993:{ctx:'Primary school — Leuven, Belgium',         FR:'Regular',   NL:'Daily',      EN:'Rare'},
+  1995:{ctx:'Primary school — Leuven, Belgium',         FR:'Regular',   NL:'Daily',      EN:'Rare'},
+  1997:{ctx:'High school — Leuven, Belgium',            FR:'Regular',   NL:'Daily',      EN:'Rare'},
+  1999:{ctx:'High school — Leuven, Belgium',            FR:'Regular',   NL:'Daily',      EN:'Rare'},
+  2001:{ctx:'High school — Leuven / Trip — New York',   FR:'Regular',   NL:'Daily',      EN:'Occasional'},
+  2002:{ctx:'High school — Leuven, Belgium',            FR:'Regular',   NL:'Daily',      EN:'Rare'},
+  2003:{ctx:'High school — Brussels, Belgium',          FR:'Regular',   NL:'Daily',      EN:'Rare'},
+  2004:{ctx:'High school — Brussels, Belgium',          FR:'Regular',   NL:'Daily',      EN:'Occasional'},
+  2005:{ctx:'University — Brussels, Belgium',           FR:'Daily',     NL:'Daily',      EN:'Occasional'},
+  2006:{ctx:'University — Brussels, Belgium',           FR:'Daily',     NL:'Daily',      EN:'Occasional',  DE:'Regular'},
+  2007:{ctx:'University — Brussels',                    FR:'Occasional',NL:'Occasional', EN:'Daily',       DE:'Daily'},
+  2008:{ctx:'Exchange year — Berlin',                   FR:'Occasional',NL:'Occasional', EN:'Daily',       DE:'Daily'},
+  2009:{ctx:'Work — Berlin',                            FR:'Occasional',NL:'Occasional', EN:'Daily',       DE:'Daily'},
+  2010:{ctx:'Gap year — Leuven / Mexico',               FR:'Daily',     NL:'Daily',      EN:'Occasional',  DE:'Rare',    ES:'Occasional'},
+  2011:{ctx:'University — Brussels',                    FR:'Daily',     NL:'Daily',      EN:'Occasional',  DE:'Rare',    ES:'Occasional'},
+  2012:{ctx:'University — Brussels',                    FR:'Daily',     NL:'Daily',      EN:'Occasional',  DE:'Rare',    ES:'Rare'},
+  2013:{ctx:'University — Brussels / Work — Eindhoven', FR:'Regular',   NL:'Daily',      EN:'Daily',       DE:'Regular', ES:'Rare'},
+  2014:{ctx:'University — Brussels / Trip — Barcelona', FR:'Regular',   NL:'Regular',    EN:'Regular',     DE:'Regular', ES:'Daily'},
+  2015:{ctx:'Work — Stuttgart',                         FR:'Regular',   NL:'Occasional', EN:'Daily',       DE:'Daily',   ES:'Occasional'},
+  2016:{ctx:'Work — Stuttgart / Trip — Peru & Bolivia', FR:'Regular',   NL:'Occasional', EN:'Daily',       DE:'Daily',   ES:'Occasional'},
+  2017:{ctx:'Work — Basel / Trip — Canada (BC)',        FR:'Regular',   NL:'Occasional', EN:'Daily',       DE:'Daily',   ES:'Rare'},
+  2018:{ctx:'Work — Basel',                             FR:'Occasional',NL:'Rare',       EN:'Daily',       DE:'Daily',   ES:'Rare'},
+  2019:{ctx:'Work — Zurich',                            FR:'Occasional',NL:'Rare',       EN:'Daily',       DE:'Daily',   ES:'Rare'},
+  2020:{ctx:'Work — Zurich',                            FR:'Occasional',NL:'Rare',       EN:'Daily',       DE:'Daily',   ES:'Rare'},
+  2021:{ctx:'Work — Zurich',                            FR:'Occasional',NL:'Rare',       EN:'Regular',     DE:'Daily',   ES:'Rare'},
+  2022:{ctx:'Work — Zurich / Trip — Canada (BC)',       FR:'Occasional',NL:'Rare',       EN:'Regular',     DE:'Daily',   ES:'Rare'},
+  2023:{ctx:'Work — Zurich / Trip — Argentina',         FR:'Occasional',NL:'Rare',       EN:'Regular',     DE:'Daily',   ES:'Regular'},
+  2024:{ctx:'Work — Zurich / Trip — Canada (BC)',       FR:'Occasional',NL:'Rare',       EN:'Regular',     DE:'Daily',   ES:'Occasional'},
+  2025:{ctx:'Work — Zurich / Trip — Canada (BC)',       FR:'Occasional',NL:'Rare',       EN:'Daily',       DE:'Daily',   ES:'Occasional'},
+  2026:{ctx:'Work — Zurich / Trip — Spain',             FR:'Occasional',NL:'Rare',       EN:'Daily',       DE:'Daily',   ES:'Regular'},
+};
+
+/* ── COLORS ───────────────────────────────────────────────────────────────── */
+const C={
+  French: {fill:'rgba(255,237,204,.85)',bd:'#e8a020',hex:'#ffedcc',text:'#995d00'},
+  Dutch:  {fill:'rgba(209,230,255,.85)',bd:'#3079e0',hex:'#d1e6ff',text:'#0044a3'},
+  English:{fill:'rgba(201,248,226,.85)',bd:'#34b679',hex:'#c9f8e2',text:'#2f6a56'},
+  German: {fill:'rgba(254,220,224,.85)',bd:'#e4637a',hex:'#fedce0',text:'#981a31'},
+  Spanish:{fill:'rgba(226,220,254,.85)',bd:'#8b5cf6',hex:'#e2dcfe',text:'#420bc1'},
+};
+const KEYS=['French','Dutch','English','German','Spanish'];
+const TK={French:'FR',Dutch:'NL',English:'EN',German:'DE',Spanish:'ES'};
+const TIER={Daily:4,Regular:3,Occasional:2,Rare:1};
+// Dataset index — stack order bottom to top: ES=0, DE=1, EN=2, NL=3, FR=4
+const DS={Spanish:0,German:1,English:2,Dutch:3,French:4};
+const ND={French:frN,Dutch:nlN,English:enN,German:deN,Spanish:esN};
+
+/* ── ANNOTATIONS ─────────────────────────────────────────────────────────── */
+// lang: "Language + Language" for multi-band ticks
+// month: for ranges (e.g. "2-6"), only the first month is used for positioning
+const ANN=[
+  {year:1990,month:7, lang:'English',          label:'England',        oY:-28, lived:false},
+  {year:1991,         lang:'Dutch',             label:'Leuven',         oY:-28, lived:true },
+  {year:2001,month:5, lang:'English',           label:'New York',       oY:-28, lived:false},
+  {year:2005,         lang:'French',            label:'Brussels',       oY:-28, lived:true },
+  {year:2008,month:9, lang:'German + English',  label:'Berlin',         oY:-28, lived:true },
+  {year:2010,month:7, lang:'Spanish',           label:'Mexico',         oY:-28, lived:false},
+  {year:2013,month:2, lang:'Dutch',             label:'Eindhoven',      oY:-28, lived:true },
+  {year:2014,month:7, lang:'Spanish',           label:'Spain',          oY:-28, lived:false},
+  {year:2015,         lang:'German',            label:'Stuttgart',      oY:-28, lived:true },
+  {year:2017,         lang:'German',            label:'Basel',          oY:-28, lived:true },
+  {year:2019,         lang:'German',            label:'Zurich',         oY:-28, lived:true },
+  {year:2023,         lang:'Spanish',           label:'Argentina',      oY:-28, lived:false},
+];
+
+// Band label positions: year where each language band is wide enough to label clearly
+const BAND_LABELS=[
+  {lang:'French',  abbr:'Français',   targetYear:1988},
+  {lang:'Dutch',   abbr:'Nederlands', targetYear:1997},
+  {lang:'English', abbr:'English',    targetYear:2022},
+  {lang:'German',  abbr:'Deutsch',    targetYear:2018},
+  {lang:'Spanish', abbr:'Español',    targetYear:2014},
+];
+
+const AX_YRS=[1986,1990,1995,2000,2005,2010,2015,2020,2025];
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+let chart=null;
+let annPositions=[];
+
+/* ── CROSSHAIR PLUGIN ─────────────────────────────────────────────────────── */
+const xhair={
+  id:'xhair',
+  afterDraw(c){
+    if(c._cx==null)return;
+    const{ctx,chartArea:{top,bottom}}=c;
+    ctx.save();
+
+    // Find nearest data index by x proximity
+    const meta0=c.getDatasetMeta(0);
+    let nearestIdx=0,minDist=Infinity;
+    meta0.data.forEach((pt,i)=>{const d=Math.abs(pt.x-c._cx);if(d<minDist){minDist=d;nearestIdx=i;}});
+
+    // Vertical line
+    ctx.beginPath();
+    ctx.moveTo(c._cx,top);ctx.lineTo(c._cx,bottom);
+    ctx.strokeStyle='rgba(0,0,0,0.22)';ctx.lineWidth=1.5;
+    ctx.stroke();
+
+    // Dots at each band boundary (top of each dataset band)
+    [0,1,2,3,4].forEach(dsIdx=>{
+      const meta=c.getDatasetMeta(dsIdx);
+      if(!meta.data[nearestIdx])return;
+      const py=meta.data[nearestIdx].y;
+      ctx.beginPath();ctx.arc(c._cx,py,3.5,0,Math.PI*2);
+      ctx.fillStyle='#333';ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.75)';ctx.lineWidth=1;ctx.stroke();
+    });
+
+    ctx.restore();
+  }
+};
+
+/* ── CHART INIT ───────────────────────────────────────────────────────────── */
+function initChart(){
+  const ctx=document.getElementById('langChart').getContext('2d');
+  Chart.register(xhair);
+  chart=new Chart(ctx,{
+    type:'line',
+    data:{labels:years,datasets:[
+      {label:'Spanish',data:esN,backgroundColor:C.Spanish.fill,borderColor:C.Spanish.bd,borderWidth:1.5,fill:true,tension:.3, pointRadius:0,pointHoverRadius:0,
+       segment:{borderColor:ctx=>(esN[ctx.p0DataIndex]===0&&esN[ctx.p1DataIndex]===0)?'transparent':C.Spanish.bd,
+                borderWidth:ctx=>(esN[ctx.p0DataIndex]===0&&esN[ctx.p1DataIndex]===0)?0:1.5}},
+      {label:'German', data:deN,backgroundColor:C.German.fill, borderColor:C.German.bd, borderWidth:1.5,fill:true,tension:.4, pointRadius:0,pointHoverRadius:0,
+       segment:{borderColor:ctx=>(deN[ctx.p0DataIndex]===0&&deN[ctx.p1DataIndex]===0)?'transparent':C.German.bd,
+                borderWidth:ctx=>(deN[ctx.p0DataIndex]===0&&deN[ctx.p1DataIndex]===0)?0:1.5}},
+      {label:'English',data:enN,backgroundColor:C.English.fill,borderColor:C.English.bd,borderWidth:1.5,fill:true,tension:.4, pointRadius:0,pointHoverRadius:0},
+      {label:'Dutch',  data:nlN,backgroundColor:C.Dutch.fill,  borderColor:C.Dutch.bd,  borderWidth:1.5,fill:true,tension:.35,pointRadius:0,pointHoverRadius:0},
+      {label:'French', data:frN,backgroundColor:C.French.fill, borderColor:C.French.bd, borderWidth:1.5,fill:true,tension:.4, pointRadius:0,pointHoverRadius:0},
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      clip:false,
+      layout:{padding:{top:80,bottom:0,left:0,right:0}},
+      animation:{onComplete:()=>placeOverlays()},
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{enabled:false,external:renderTip}
+      },
+      scales:{
+        x:{type:'linear',min:minY,max:maxY,display:false,stacked:true},
+        y:{display:false,stacked:true,min:0,max:100}
+      }
+    }
+  });
+
+  const cv=chart.canvas; let raf;
+  function handlePointer(clientX){
+    const r=cv.getBoundingClientRect();
+    chart._cx=clientX-r.left;
+    cancelAnimationFrame(raf);
+    raf=requestAnimationFrame(()=>chart.draw());
+  }
+  cv.addEventListener('mousemove',e=>handlePointer(e.clientX));
+  cv.addEventListener('mouseleave',()=>{delete chart._cx;chart.draw();});
+  cv.addEventListener('touchstart',e=>handlePointer(e.touches[0].clientX),{passive:true});
+  cv.addEventListener('touchmove', e=>handlePointer(e.touches[0].clientX),{passive:true});
+  cv.addEventListener('touchend',  ()=>{delete chart._cx;chart.draw();});
+}
+
+/* ── TOOLTIP ─────────────────────────────────────────────────────────────── */
+function renderTip(ctx){
+  const tip=document.getElementById('tip');
+  if(ctx.tooltip.opacity===0){tip.style.opacity=0;return;}
+  const idx=ctx.tooltip.dataPoints[0].dataIndex;
+  const yr=Math.floor(xs[idx]);
+  const td=TD[yr]||{};
+  const sorted=KEYS.filter(k=>ND[k][idx]>0&&td[TK[k]])
+    .sort((a,b)=>{
+      const wa=TIER[td[TK[a]]]||0,wb=TIER[td[TK[b]]]||0;
+      return wb-wa||ND[b][idx]-ND[a][idx];
+    });
+  // Group languages by tier
+  const byTier={};
+  sorted.forEach(lang=>{
+    const tier=td[TK[lang]];
+    if(!byTier[tier])byTier[tier]=[];
+    byTier[tier].push(lang);
+  });
+  let h=`<span class="tt-year">${yr}</span>`;
+  if(td.ctx)h+=`<span class="tt-ctx">${td.ctx}</span>`;
+  ['Daily','Regular','Occasional','Rare'].forEach(tier=>{
+    if(!byTier[tier])return;
+    const chips=byTier[tier].map(lang=>
+      `<span class="tt-chip"><div class="tt-sw" style="background:${C[lang].hex};border-color:${C[lang].bd};"></div><span class="tt-code">${TK[lang]}</span></span>`
+    ).join('');
+    h+=`<div class="tt-row"><span class="tt-desc">${tier}</span><span class="tt-dash">—</span><div class="tt-chips">${chips}</div></div>`;
+  });
+  tip.innerHTML=h;
+  tip.style.opacity='1';
+  const tipW=tip.offsetWidth||220;
+  const x=ctx.tooltip.caretX,w=ctx.chart.width;
+  tip.style.left=(x>w/2?Math.max(4,x-tipW-4):x+4)+'px';
+  tip.style.top='10px';
+}
+
+/* ── OVERLAYS ─────────────────────────────────────────────────────────────── */
+function placeOverlays(){
+  if(!chart?.chartArea){setTimeout(placeOverlays,100);return;}
+  const wrap=document.getElementById('chart-wrap');
+  const{left:pL,right:pR}=chart.chartArea;
+  const wW=wrap.getBoundingClientRect().width;
+  if(!wW){setTimeout(placeOverlays,100);return;}
+  const pW=pR-pL;
+  const toPct=y=>(pL+(y-minY)/span*pW)/wW*100;
+
+  const ax=document.getElementById('yaxis');ax.innerHTML='';
+  AX_YRS.forEach(y=>{
+    const lpct=toPct(y)+'%';
+    // Tick mark above the line
+    const tick=document.createElement('div');
+    Object.assign(tick.style,{position:'absolute',left:lpct,top:'0',width:'1px',height:'5px',background:'#c8c8c8',transform:'translateX(-50%)'});
+    ax.appendChild(tick);
+    // Year label
+    const el=document.createElement('div');
+    el.className='yr-tick';el.style.left=lpct;el.textContent=y;
+    ax.appendChild(el);
+  });
+  placeAnnotations();
+  placeBandLabels();
+}
+
+/* ── SINGLE-BAND ANNOTATION ───────────────────────────────────────────────── */
+function drawSingleAnnotation(ann){
+  const ov=document.getElementById('overlay');
+  const dsIdx=DS[ann.lang];
+  const annX=ann.year+((ann.month||0)>0?(ann.month-1)/12:0);
+  const yIdx=xs.reduce((b,x,i)=>Math.abs(x-annX)<Math.abs(xs[b]-annX)?i:b,0);
+  const meta=chart.getDatasetMeta(dsIdx);
+  if(!meta?.data?.[yIdx])return;
+
+  const px=meta.data[yIdx].x;
+  const py=meta.data[yIdx].y;
+  const oY=ann.oY;
+
+  // Dot
+  const dot=document.createElement('div');
+  Object.assign(dot.style,{
+    position:'absolute',left:(px-4)+'px',top:(py-4)+'px',
+    width:'8px',height:'8px',borderRadius:'50%',
+    background:ann.lived?'#222':'rgba(255,255,255,0.92)',
+    border:`2px solid ${ann.lived?'rgba(255,255,255,0.35)':'#333'}`,
+    pointerEvents:'none',
+  });
+  ov.appendChild(dot);
+
+  // Tick (pure vertical, always up)
+  const labelBot=py+oY;
+  const dotTop=py-4;
+  const tick=document.createElement('div');
+  Object.assign(tick.style,{
+    position:'absolute',left:px+'px',
+    top:labelBot+'px',
+    width:'1px',height:Math.max(0,dotTop-labelBot)+'px',
+    background:'rgba(0,0,0,0.18)',pointerEvents:'none',
+  });
+  ov.appendChild(tick);
+
+  // Label
+  const lbl=document.createElement('div');
+  lbl.textContent=ann.label;
+  Object.assign(lbl.style,{
+    position:'absolute',left:px+'px',top:(py+oY-17)+'px',
+    transform:'translateX(-50%)',
+    fontSize:'11px',
+    fontWeight:ann.lived?'700':'500',
+    color:'#494747',whiteSpace:'nowrap',
+    fontFamily:"'HK Grotesk',-apple-system,sans-serif",
+    letterSpacing:'-0.01em',
+    background:'rgba(255,255,255,0.92)',
+    padding:'2px 5px',borderRadius:'4px',
+    pointerEvents:'none',
+  });
+  ov.appendChild(lbl);
+}
+
+/* ── MULTI-BAND ANNOTATION ────────────────────────────────────────────────── */
+// Draws dots on each named band, one shared tick, one shared label.
+// Tick runs from label bottom all the way to the lowest band's dot.
+function drawMultiBandAnnotation(ann){
+  const ov=document.getElementById('overlay');
+  const langs=ann.lang.split('+').map(s=>s.trim());
+  const annX=ann.year+((ann.month||0)>0?(ann.month-1)/12:0);
+  const yIdx=xs.reduce((b,x,i)=>Math.abs(x-annX)<Math.abs(xs[b]-annX)?i:b,0);
+
+  const positions=langs.map(lang=>{
+    const dsIdx=DS[lang];
+    const meta=chart.getDatasetMeta(dsIdx);
+    if(!meta?.data?.[yIdx])return null;
+    return{px:meta.data[yIdx].x,py:meta.data[yIdx].y};
+  }).filter(Boolean);
+  if(!positions.length)return;
+
+  const px=positions[0].px;
+  const pyTop=Math.min(...positions.map(p=>p.py));
+  const pyBottom=Math.max(...positions.map(p=>p.py));
+  const oY=ann.oY;
+
+  // Dots on each band
+  positions.forEach(({py})=>{
+    const dot=document.createElement('div');
+    Object.assign(dot.style,{
+      position:'absolute',left:(px-4)+'px',top:(py-4)+'px',
+      width:'8px',height:'8px',borderRadius:'50%',
+      background:ann.lived?'#222':'rgba(255,255,255,0.92)',
+      border:`2px solid ${ann.lived?'rgba(255,255,255,0.35)':'#333'}`,
+      pointerEvents:'none',
+    });
+    ov.appendChild(dot);
+  });
+
+  // Single tick: from label bottom down to lowest dot
+  const labelBot=pyTop+oY;
+  const tick=document.createElement('div');
+  Object.assign(tick.style,{
+    position:'absolute',left:px+'px',
+    top:labelBot+'px',
+    width:'1px',height:Math.max(0,pyBottom-4-labelBot)+'px',
+    background:'rgba(0,0,0,0.18)',pointerEvents:'none',
+  });
+  ov.appendChild(tick);
+
+  // Label (anchored above the highest band)
+  const lbl=document.createElement('div');
+  lbl.textContent=ann.label;
+  Object.assign(lbl.style,{
+    position:'absolute',left:px+'px',top:(pyTop+oY-17)+'px',
+    transform:'translateX(-50%)',
+    fontSize:'11px',
+    fontWeight:ann.lived?'700':'500',
+    color:'#494747',whiteSpace:'nowrap',
+    fontFamily:"'HK Grotesk',-apple-system,sans-serif",
+    letterSpacing:'-0.01em',
+    background:'rgba(255,255,255,0.92)',
+    padding:'2px 5px',borderRadius:'4px',
+    pointerEvents:'none',
+  });
+  ov.appendChild(lbl);
+}
+
+/* ── MOBILE: DOT ONLY (no label, no tick) ─────────────────────────────────── */
+function drawAnnotationDotsOnly(ann){
+  const ov=document.getElementById('overlay');
+  const langs=ann.lang.includes('+')?ann.lang.split('+').map(s=>s.trim()):[ann.lang];
+  const annX=ann.year+((ann.month||0)>0?(ann.month-1)/12:0);
+  const yIdx=xs.reduce((b,x,i)=>Math.abs(x-annX)<Math.abs(xs[b]-annX)?i:b,0);
+  langs.forEach(lang=>{
+    const meta=chart.getDatasetMeta(DS[lang]);
+    if(!meta?.data?.[yIdx])return;
+    const{x:px,y:py}=meta.data[yIdx];
+    const dot=document.createElement('div');
+    Object.assign(dot.style,{
+      position:'absolute',left:(px-4)+'px',top:(py-4)+'px',
+      width:'8px',height:'8px',borderRadius:'50%',
+      background:ann.lived?'#222':'rgba(255,255,255,0.92)',
+      border:`2px solid ${ann.lived?'rgba(255,255,255,0.35)':'#333'}`,
+      pointerEvents:'none',
+    });
+    ov.appendChild(dot);
+  });
+}
+
+/* ── DISPATCH ANNOTATIONS ─────────────────────────────────────────────────── */
+function placeAnnotations(){
+  const ov=document.getElementById('overlay');ov.innerHTML='';
+  const wW=document.getElementById('chart-wrap').getBoundingClientRect().width;
+  const mobile=wW<580;
+
+  // Compute pixel positions + estimated label dimensions for each annotation
+  const info=ANN.map(ann=>{
+    const annX=ann.year+((ann.month||0)>0?(ann.month-1)/12:0);
+    const yIdx=xs.reduce((b,x,i)=>Math.abs(x-annX)<Math.abs(xs[b]-annX)?i:b,0);
+    const baseLang=ann.lang.includes('+')?ann.lang.split('+')[0].trim():ann.lang;
+    const meta=chart.getDatasetMeta(DS[baseLang]);
+    const px=meta?.data?.[yIdx]?.x??0;
+    const py=meta?.data?.[yIdx]?.y??0;
+    // Bold labels are wider — use 8.5px/char for lived, 7.5px for visited
+    const charW=ann.lived?8.5:7.5;
+    const lw=ann.label.length*charW+22;
+    return{px,py,lw,oY:-28};
+  });
+
+  if(!mobile){
+    // 2D bounding-box collision — labels on different bands (different py) won't
+    // conflict with each other even if they share the same x position.
+    const LH=20; // label height in px
+    const byX=info.map((_,i)=>i).sort((a,b)=>info[a].px-info[b].px);
+
+    // Pre-seed placed[] with band label positions so annotations avoid them
+    const placed=[];
+    BAND_LABELS.forEach(({lang,abbr,targetYear})=>{
+      const dsIdx=DS[lang];
+      const idx=xs.reduce((b,x,i)=>Math.abs(x-targetYear)<Math.abs(xs[b]-targetYear)?i:b,0);
+      const meta=chart.getDatasetMeta(dsIdx);
+      if(!meta?.data?.[idx])return;
+      const bpx=meta.data[idx].x;
+      const bandTop=meta.data[idx].y;
+      const bandBottom=dsIdx>0?chart.getDatasetMeta(dsIdx-1).data[idx].y:chart.chartArea.bottom;
+      const bcy=(bandTop+bandBottom)/2;
+      const blw=abbr.length*8+16;
+      placed.push({cx:bpx,cy:bcy,hw:blw/2+4,hh:10});
+    });
+
+    byX.forEach(i=>{
+      const{px,py,lw}=info[i];
+      const hw=lw/2+4, hh=LH/2;
+      let r=0;
+      while(r<=6){
+        const oY=-28-r*26;
+        const cy=py+oY-17+hh;
+        if(!placed.some(p=>Math.abs(px-p.cx)<hw+p.hw&&Math.abs(cy-p.cy)<hh+p.hh))break;
+        r++;
+      }
+      const oY=-28-r*26;
+      placed.push({cx:px,cy:py+oY-17+hh,hw,hh});
+      info[i].oY=oY;
+    });
+  }
+
+  annPositions=info;
+
+  ANN.forEach((ann,i)=>{
+    const a={...ann,oY:info[i].oY};
+    if(mobile)               drawAnnotationDotsOnly(a);
+    else if(a.lang.includes('+')) drawMultiBandAnnotation(a);
+    else                     drawSingleAnnotation(a);
+  });
+
+  if(mobile) setupMobileCityTaps();
+}
+
+/* ── MOBILE CITY CARD ─────────────────────────────────────────────────────── */
+function showCityCard(ann,px,py){
+  const card=document.getElementById('city-card');
+  const wrap=document.getElementById('chart-wrap');
+  const yr=ann.year;
+  const td=TD[yr]||{};
+  const yrLabel=ann.month>0?`${MONTHS[ann.month-1]} ${yr}`:`${yr}`;
+
+  let h=`<span class="cc-name">${ann.label}</span>`;
+  h+=`<span class="cc-meta">${yrLabel} · ${ann.lived?'Lived':'Visited'}`;
+  if(td.ctx)h+=`<br>${td.ctx}`;
+  h+=`</span>`;
+
+  const langs=ann.lang.includes('+')?ann.lang.split('+').map(s=>s.trim()):[ann.lang];
+  langs.forEach(lang=>{
+    const tier=td[TK[lang]]||'';
+    const sw=`<span class="tt-chip"><div class="tt-sw" style="background:${C[lang]?.hex};border-color:${C[lang]?.bd};"></div><span class="tt-code">${TK[lang]}</span></span>`;
+    if(tier)h+=`<div class="cc-row">${sw}<span class="tt-dash">—</span><span class="tt-desc">${tier}</span></div>`;
+  });
+
+  card.innerHTML=h;
+  card.style.display='block';
+
+  const wW=wrap.getBoundingClientRect().width;
+  const CW=164,CH=92;
+  const left=Math.max(4,Math.min(px-CW/2,wW-CW-4));
+  const top=Math.max(8,py-CH-12);
+  card.style.left=left+'px';
+  card.style.top=top+'px';
+}
+
+function hideCityCard(){
+  const c=document.getElementById('city-card');
+  if(c)c.style.display='none';
+}
+
+function setupMobileCityTaps(){
+  const wrap=document.getElementById('chart-wrap');
+  if(wrap._cityTap){
+    wrap.removeEventListener('touchstart',wrap._cityTap,{capture:true});
+    wrap.removeEventListener('touchmove',wrap._cityMove);
+  }
+
+  wrap._cityTap=function(e){
+    const t=e.touches[0];
+    const r=wrap.getBoundingClientRect();
+    const tx=t.clientX-r.left, ty=t.clientY-r.top;
+    const TAP_R=26;
+    let hit=null, hitDist=TAP_R;
+
+    ANN.forEach((ann,i)=>{
+      if(!annPositions[i])return;
+      const{px}=annPositions[i];
+      const langs=ann.lang.includes('+')?ann.lang.split('+').map(s=>s.trim()):[ann.lang];
+      langs.forEach(lang=>{
+        const annX=ann.year+((ann.month||0)>0?(ann.month-1)/12:0);
+        const yIdx=xs.reduce((b,x,j)=>Math.abs(x-annX)<Math.abs(xs[b]-annX)?j:b,0);
+        const meta=chart.getDatasetMeta(DS[lang]);
+        if(!meta?.data?.[yIdx])return;
+        const dpy=meta.data[yIdx].y;
+        const dist=Math.sqrt((tx-px)**2+(ty-dpy)**2);
+        if(dist<hitDist){hitDist=dist;hit={ann,px,py:dpy};}
+      });
+    });
+
+    if(hit){
+      e.stopPropagation();
+      e.preventDefault();
+      showCityCard(hit.ann,hit.px,hit.py);
+    } else {
+      hideCityCard();
+    }
+  };
+
+  wrap._cityMove=()=>hideCityCard();
+
+  wrap.addEventListener('touchstart',wrap._cityTap,{capture:true,passive:false});
+  wrap.addEventListener('touchmove',wrap._cityMove,{passive:true});
+}
+
+/* ── INLINE BAND LABELS ───────────────────────────────────────────────────── */
+// Places a small abbreviation label at the vertical midpoint of each band.
+// Skips if the band is too thin to label (< 16px).
+function placeBandLabels(){
+  const ov=document.getElementById('overlay');
+  const{chartArea:{bottom}}=chart;
+
+  BAND_LABELS.forEach(({lang,abbr,targetYear})=>{
+    const dsIdx=DS[lang];
+    const idx=xs.reduce((b,x,i)=>Math.abs(x-targetYear)<Math.abs(xs[b]-targetYear)?i:b,0);
+    const meta=chart.getDatasetMeta(dsIdx);
+    if(!meta?.data?.[idx])return;
+
+    const px=meta.data[idx].x;
+    const bandTop=meta.data[idx].y;
+    const bandBottom=dsIdx>0?chart.getDatasetMeta(dsIdx-1).data[idx].y:bottom;
+    const bandHeight=bandBottom-bandTop;
+    if(bandHeight<16)return;
+
+    const midY=(bandTop+bandBottom)/2;
+    const el=document.createElement('div');
+    el.textContent=abbr;
+    Object.assign(el.style,{
+      position:'absolute',
+      left:px+'px',
+      top:midY+'px',
+      transform:'translate(-50%,-50%)',
+      fontSize:'13px',
+      fontWeight:'600',
+      fontStyle:'italic',
+      color:C[lang].text,
+      pointerEvents:'none',
+      fontFamily:"'HK Grotesk',-apple-system,sans-serif",
+      letterSpacing:'0.01em',
+      whiteSpace:'nowrap',
+      background:'rgba(255,255,255,0.45)',
+      padding:'1px 4px',
+      borderRadius:'3px',
+    });
+    ov.appendChild(el);
+  });
+}
+
+/* ── RESIZE ──────────────────────────────────────────────────────────────── */
+function watchResize(){
+  if(typeof ResizeObserver!=='undefined'){
+    new ResizeObserver(()=>{if(chart){chart.resize();placeOverlays();}})
+      .observe(document.getElementById('chart-wrap'));
+  } else {
+    window.addEventListener('resize',()=>{if(chart)placeOverlays();});
+  }
+}
+
+/* ── BOOT ────────────────────────────────────────────────────────────────── */
+const s=document.createElement('script');
+s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
+s.onload=()=>{initChart();watchResize();};
+s.onerror=()=>console.error('Chart.js failed');
+document.head.appendChild(s);
+})();
+</script>
+</body>
+</html>

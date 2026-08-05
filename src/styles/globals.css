@@ -1,0 +1,95 @@
+@import './tokens/primitives.css';
+@import './tokens/semantic.css';
+@import './tokens/components.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'HK Grotesk';
+  src:
+    url('../assets/fonts/HKGrotesk-Regular.woff2') format('woff2'),
+    url('../assets/fonts/HKGrotesk-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'HK Grotesk';
+  src:
+    url('../assets/fonts/HKGrotesk-Italic.woff2') format('woff2'),
+    url('../assets/fonts/HKGrotesk-Italic.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'HK Grotesk';
+  src:
+    url('../assets/fonts/HKGrotesk-Medium.woff2') format('woff2'),
+    url('../assets/fonts/HKGrotesk-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'HK Grotesk';
+  src:
+    url('../assets/fonts/HKGrotesk-SemiBold.woff2') format('woff2'),
+    url('../assets/fonts/HKGrotesk-SemiBold.woff') format('woff');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'HK Grotesk';
+  src:
+    url('../assets/fonts/HKGrotesk-Bold.woff2') format('woff2'),
+    url('../assets/fonts/HKGrotesk-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'HK Grotesk';
+  src:
+    url('../assets/fonts/HKGrotesk-BoldItalic.woff2') format('woff2'),
+    url('../assets/fonts/HKGrotesk-BoldItalic.woff') format('woff');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Sticky nav docks to the top once scrolled past -- without this, jumping to
+   an anchor lands its heading right under/behind the nav. Value is the nav's
+   own rendered height (58px avatar + padding) plus breathing room. */
+section[id],
+article[id] {
+  scroll-margin-top: 120px;
+}
+
+body {
+  margin: 0;
+  font-family: 'HK Grotesk', sans-serif;
+  color: var(--colors-text-text-primary);
+  background: var(--colors-surface-background);
+  /* Desktop/body (18px/1.5) as the base default -- matches Figma's body text
+     style, so unstyled prose (MDX case-study copy, etc.) isn't stuck at the
+     16px browser default until it gets its own explicit type class. */
+  font-size: 18px;
+  line-height: 1.5;
+}

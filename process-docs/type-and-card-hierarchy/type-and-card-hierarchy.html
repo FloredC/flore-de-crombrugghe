@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Type scale &amp; card hierarchy</title>
+<style>
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk'), local('HKGrotesk-Regular');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk SemiBold'), local('HKGrotesk-SemiBold');
+    font-weight: 600;
+  }
+
+  :root {
+    --accent: #fd6d2b;
+    --accent-tint: #fff1e9;
+    --ink: #1a1a1a;
+    --paper: #f5f4f0;
+    --muted: #666;
+    --line: #e0ddd8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'HK Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 48px 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .subtitle { font-size: 14px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; max-width: 720px; }
+  .date-range { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 32px; }
+
+  .toc {
+    background: #fff;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 56px;
+  }
+  .toc-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; margin-bottom: 12px; }
+  .toc ol { list-style: none; }
+  .toc li { margin-bottom: 6px; font-size: 13px; }
+  .toc a { color: var(--ink); text-decoration: none; }
+  .toc a:hover { color: var(--accent); text-decoration: underline; }
+  .toc .toc-phase { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-left: 8px; }
+
+  .section {
+    margin-bottom: 80px;
+    border-top: 2px solid var(--ink);
+    padding-top: 24px;
+    scroll-margin-top: 24px;
+  }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 4px; flex-wrap: wrap; }
+  .section-date { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #999; }
+  .section-title { font-size: 20px; font-weight: 600; }
+  .phase-tag {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    padding: 3px 10px; border-radius: 20px; background: var(--accent-tint); color: var(--accent);
+  }
+  .section-desc { font-size: 14px; line-height: 1.7; color: #444; margin: 12px 0 24px; max-width: 720px; }
+
+  /* Sub-heading within a session, for grouping a long build log */
+  h3.sub {
+    font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--ink); margin: 40px 0 4px; padding-bottom: 8px; border-bottom: 1px solid var(--line);
+  }
+  h3.sub + p.lede { font-size: 13px; color: var(--muted); line-height: 1.7; margin-top: 10px; max-width: 720px; }
+
+  .status {
+    display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; padding: 3px 10px; border-radius: 20px; margin-left: 12px;
+  }
+  .status.working { background: #e8f5e9; color: #27ae60; }
+  .status.needs-work { background: #fff8e1; color: #f39c12; }
+  .status.abandoned { background: #fbe9e7; color: #c0392b; }
+
+  .concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+  .concept-block { background: #fff; border-radius: 10px; padding: 16px; border: 1.5px solid var(--line); }
+  .concept-block h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .concept-block p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  .decision-log { margin-top: 24px; }
+  .decision {
+    display: grid; grid-template-columns: 100px 1fr 1fr; gap: 16px;
+    padding: 16px 0; border-bottom: 1px solid #e8e5e0; font-size: 13px;
+  }
+  .decision:last-child { border-bottom: none; }
+  .decision-date { color: #999; font-size: 12px; padding-top: 2px; }
+  .decision-what { line-height: 1.5; }
+  .decision-why { color: var(--muted); line-height: 1.5; }
+  .decision.key-decision { box-shadow: -3px 0 0 0 var(--accent); background: var(--accent-tint); padding-left: 12px; }
+  .decision.key-decision .decision-what { color: var(--accent); font-weight: 600; }
+
+  blockquote {
+    margin: 12px 0; padding: 10px 16px; border-left: 3px solid var(--accent);
+    color: #444; font-style: italic; background: #fff; border-radius: 0 8px 8px 0; font-size: 13px;
+  }
+  blockquote cite { display: block; font-style: normal; font-size: 12px; color: #999; margin-top: 4px; }
+
+  .fig-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-top: 24px; }
+  .fig { background: #fff; border: 1.5px solid var(--line); border-radius: 12px; padding: 14px; }
+  .fig img { width: 100%; border-radius: 6px; display: block; background: #faf9f6; border: 1px solid #eee; }
+  .fig-cap { font-size: 12px; line-height: 1.5; color: #555; margin-top: 10px; }
+  .fig-cap b { color: var(--ink); }
+  .fig.pick { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-tint); }
+  .fig-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; }
+  .fig-tag.pick { color: var(--accent); }
+
+  /* Placeholder marking a spot where a screenshot would earn its place */
+  .fig-todo {
+    background: #fff; border: 1.5px dashed var(--line); border-radius: 12px; padding: 14px 16px;
+    font-size: 12px; color: #999; line-height: 1.5; margin-top: 16px;
+  }
+  .fig-todo b { color: #777; }
+
+  .note {
+    font-size: 13px; background: #fff8e1; border-left: 3px solid #f39c12; padding: 10px 14px;
+    border-radius: 0 6px 6px 0; color: #555; line-height: 1.6; margin-top: 12px;
+  }
+
+  .hook {
+    margin-top: 24px; padding: 18px 20px; background: var(--ink); color: #fff;
+    border-radius: 12px; font-size: 14px; line-height: 1.6;
+  }
+  .hook-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-tint); margin-bottom: 6px; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+  th { text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #999; padding: 8px 12px; border-bottom: 2px solid var(--line); }
+  td { padding: 10px 12px; border-bottom: 1px solid #f0ede8; vertical-align: top; line-height: 1.5; }
+  tr:last-child td { border-bottom: none; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  /* rem shown alongside px — px is what you read off Figma, rem is what ships */
+  .rem { display: block; font-size: 11px; color: #999; font-variant-numeric: tabular-nums; margin-top: 2px; }
+
+  code.inline { background: #f0ede8; padding: 1px 6px; border-radius: 5px; font-size: 12px; font-family: 'SF Mono', Menlo, monospace; }
+  pre.code { background: var(--ink); color: #e6e6e6; padding: 16px 18px; border-radius: 10px; font-size: 12px; line-height: 1.6; overflow-x: auto; font-family: 'SF Mono', Menlo, monospace; margin-top: 16px; }
+</style>
+</head>
+<body>
+
+<h1>Type scale &amp; card hierarchy</h1>
+<p class="subtitle">Getting the portfolio's visual hierarchy to hold up: a real mobile type scale, and card sizing that keeps the project work dominant over the editorial content around it. Also the session where two separate tooling problems stacked and ate an hour.</p>
+<p class="date-range">Sessions: 4 Aug 2026</p>
+
+<div class="toc">
+  <div class="toc-title">Sessions in this doc</div>
+  <ol>
+    <li><a href="#sec-2026-08-04">Type scale, card weight and the spacing floor</a><span class="toc-phase">Building with Claude</span></li>
+  </ol>
+</div>
+
+<div class="section" id="sec-2026-08-04">
+  <div class="section-header">
+    <span class="section-date">4 Aug 2026</span>
+    <span class="section-title">Type scale, card weight and the spacing floor</span>
+    <span class="phase-tag">Building with Claude</span>
+  </div>
+  <p class="section-desc">
+    Started as a typography pass and turned into a hierarchy pass. The type scale had no mobile end at
+    all, and once that was fixed it became obvious the card sizing had the same problem in a different
+    form: the secondary content was rendering larger than the work it was meant to sit beneath.
+  </p>
+
+  <h3 class="sub">1 — The type scale had no mobile end</h3>
+  <p class="lede">
+    The check started at desktop, and desktop turned out to be entirely correct — every size, weight and
+    line-height matched Figma. The gap was that <em>the same values were rendering at 402px too</em>.
+    An <code class="inline">h1</code> was 36px on a phone where Figma says 28.
+  </p>
+
+  <table>
+    <tr><th>Token</th><th>402</th><th>1622</th><th>Figma styles</th></tr>
+    <tr><td><code class="inline">h1</code></td><td class="num">28px<span class="rem">1.75rem</span></td><td class="num">36px<span class="rem">2.25rem</span></td><td>Mobile/h1 → Desktop/h1</td></tr>
+    <tr><td><code class="inline">h2</code></td><td class="num">24px<span class="rem">1.5rem</span></td><td class="num">32 → 28px<span class="rem">2 → 1.75rem</span></td><td>Desktop/h3 at mobile → Desktop/h2</td></tr>
+    <tr><td><code class="inline">body-lg</code></td><td class="num">16px<span class="rem">1rem</span></td><td class="num">20px<span class="rem">1.25rem</span></td><td>Mobile/body → Desktop/body-lg</td></tr>
+    <tr><td><code class="inline">body</code></td><td class="num">16px<span class="rem">1rem</span></td><td class="num">18px<span class="rem">1.125rem</span></td><td>Mobile/body → Desktop/body</td></tr>
+    <tr><td><code class="inline">body-sm</code></td><td class="num">14px<span class="rem">0.875rem</span></td><td class="num">16px<span class="rem">1rem</span></td><td>Mobile/body-sm → Desktop/body-sm</td></tr>
+    <tr><td><code class="inline">caption</code></td><td class="num">12px<span class="rem">0.75rem</span></td><td class="num">14px<span class="rem">0.875rem</span></td><td>Mobile/caption → Desktop/caption</td></tr>
+    <tr><td><code class="inline">caption-sm</code></td><td class="num">12px<span class="rem">0.75rem</span></td><td class="num">12px<span class="rem">0.75rem</span></td><td>Flat — Figma has no Desktop/caption-sm, so there's no second anchor to clamp between</td></tr>
+  </table>
+  <p class="lede" style="margin-top:12px">
+    px is what you read off Figma; rem is what actually ships. The two only line up at the browser's default
+    16px root — which is the point: if a reader has set their browser text larger, every one of these scales
+    with it. The old px scale couldn't respond to that setting at all.
+  </p>
+
+  <p class="lede" style="margin-top:18px">
+    The important finding is in the <code class="inline">h2</code> row: the mobile card title uses Figma's
+    <em>Desktop/h3</em> style, not a "Mobile/h2". So the mobile scale isn't a shrunk desktop scale — it's a
+    <b>remapping of roles</b>. That's only visible by reading the styles attached to real nodes; it can't be
+    derived by scaling numbers down.
+  </p>
+
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">Type</div>
+      <div class="decision-what">Fluid <code class="inline">clamp()</code> per style, anchored on the two real Figma frames (402 and 1622)</div>
+      <div class="decision-why">Both ends land exactly on a real design value and only the middle interpolates. Breakpoint steps were rejected for the same reason the container padding is a clamp: a step can run the value <em>backwards</em> at the boundary, a clamp can't.</div>
+    </div>
+    <div class="decision key-decision">
+      <div class="decision-date">Type</div>
+      <div class="decision-what">Converted the whole scale from px to rem</div>
+      <div class="decision-why">px ignores the reader's browser font-size setting entirely — the site literally could not be scaled up by anyone who needs that. The <code class="inline">vw</code> term makes it fluid; the <code class="inline">rem</code> term is what makes it accessible.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Type</div>
+      <div class="decision-what">Migrated 10 hardcoded <code class="inline">text-[Npx]</code> call sites onto tokens</div>
+      <div class="decision-why">The plan was "all in the token layer so no call sites change" — which doesn't hold while a third of them opt out. Those elements would have stayed at desktop size on mobile.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Type</div>
+      <div class="decision-what">Weight stays a separate class at the call site</div>
+      <div class="decision-why">Figma's text styles bundle size + weight; Tailwind's <code class="inline">fontSize</code> can't carry weight. This is the one place the token can't enforce the pairing, so it has to be checked against the style name by hand.</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>Deliberate divergences from Figma this session</b> — all recorded at the code site so a future
+    sampling pass doesn't silently restore the file's values: <code class="inline">h2</code> desktop 32→28
+    (card titles read too heavy at wide breakpoints), <code class="inline">body-lg</code> line-height
+    1.5→1.6, button letter-spacing 0→0.02em (bold labels on a filled dark surface), breadcrumb bold→semibold,
+    editorial card widths, AsideCard internal gap. Worth reconciling in the Figma file at some point.
+  </div>
+
+  <h3 class="sub">2 — The cards were competing with the work</h3>
+  <p class="lede">
+    The brief was that the talks/writing and About cards felt too prominent next to the actual project work.
+    The hypothesis was that they spanned too many grid columns. Measuring showed the effect was real and the
+    mechanism wasn't.
+  </p>
+
+  <table>
+    <tr><th>At 1440</th><th>Card width</th><th>Media</th></tr>
+    <tr><td>Project cards (3-up)</td><td class="num">355</td><td class="num">320 × 278</td></tr>
+    <tr><td>MediaCards (talks)</td><td class="num">400</td><td class="num">400 × 300</td></tr>
+    <tr><td>AsideCards (About)</td><td class="num">400 / 600</td><td class="num">400 × 300</td></tr>
+  </table>
+
+  <p class="lede" style="margin-top:18px">
+    The secondary content was measurably <em>wider</em> than the smallest work cards. But
+    <code class="inline">col-span</code> only decides which columns a card's frame occupies — the card is then
+    aligned inside that frame with <code class="inline">justify-self</code> and sized by an explicit
+    <code class="inline">w-[400px]</code>. Dropping a span would have slid the cards sideways and left them
+    exactly as large.
+  </p>
+
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">Cards</div>
+      <div class="decision-what">Editorial cards 400→320, wide card 600→480</div>
+      <div class="decision-why">320 sits clearly below the 355 3-up project card and is already a number in the system (the project artwork's own width). The wide card keeps its 1.5× relation so the editorial zone holds its internal hierarchy, and 480 stays under the 562 2-up card.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Cards</div>
+      <div class="decision-what">Width consolidated into one constant per size</div>
+      <div class="decision-why">It had been repeated across all seven collage entries. Changing editorial weight is now a one-line edit rather than seven.</div>
+    </div>
+    <div class="decision key-decision">
+      <div class="decision-date">Cards</div>
+      <div class="decision-what">ValueCards pinned to a fixed 278 with <code class="inline">auto-fit</code> tracks</div>
+      <div class="decision-why">They had been sized as a share of the container, so they <em>grew</em> as the viewport narrowed — 278 at desktop, ~430 at tablet, full-bleed on a phone. Backwards. The fixed track reflows 4→3→2→1 on its own with no breakpoints to keep in sync, and resolves to exactly the Figma row at 1184.</div>
+    </div>
+  </div>
+
+  <div class="fig-todo">
+    <b>Visual worth adding here:</b> a before/after of the Approach ValueCards at a tablet width (~900px),
+    showing them filling the column vs. holding 278. It's the clearest illustration of "the cards got biggest
+    exactly where there was least room."
+  </div>
+
+  <h3 class="sub">3 — The proximity floor</h3>
+  <p class="lede">
+    Tightening the three About cards took three passes, and the third one hit a real constraint rather than a
+    number that could keep going down.
+  </p>
+
+  <table>
+    <tr><th>Pass</th><th>Between cards</th><th>Inside a card</th><th>What happened</th></tr>
+    <tr><td>Start</td><td class="num">224 / 64</td><td class="num">24</td><td>Uneven — a stagger offset stacked on the row gap, making the first gap 3.5× the second</td></tr>
+    <tr><td>Second</td><td class="num">120 / 40</td><td class="num">24</td><td>Halving the offset didn't fix the unevenness, only reduced it</td></tr>
+    <tr><td>Third</td><td class="num">32 / 32</td><td class="num">24</td><td>Offset removed entirely — gaps finally equal</td></tr>
+    <tr><td>Fourth</td><td class="num">24 / 24</td><td class="num">16</td><td>Floor reached: internal gap had to come down first</td></tr>
+  </table>
+
+  <p class="lede" style="margin-top:18px">
+    The constraint: <b>the gap between two cards has to stay larger than the gap inside one</b>, or proximity
+    stops grouping and it gets ambiguous which caption belongs to which drawing. With the internal gap at
+    Figma's 24, the collage gap couldn't go below 32 without the cards visually merging. Lowering the internal
+    gap to 16 is what made room for 24 between them.
+  </p>
+
+  <div class="note">
+    Practical version for next time: when a "bring these closer together" request stops working, check the
+    <em>internal</em> spacing of the thing being moved. The between-gap can only go as low as the within-gap
+    allows, and reducing it past that point doesn't read as tighter — it reads as broken.
+  </div>
+
+  <h3 class="sub">4 — Spacing that turned out not to be spacing</h3>
+  <p class="lede">
+    Two gaps on the page were mostly made of things that weren't spacing decisions at all.
+  </p>
+
+  <div class="concept-grid">
+    <div class="concept-block">
+      <h4>Map → "Work": 238px</h4>
+      <p>110px of it was the sticky nav, invisible at that scroll position but still holding its full height
+      in layout. 48px was hero padding that read as part of the gap. Only 80px was the actual section
+      padding. Now 80 total, with the nav out of flow.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Podcast card's loose gap</h4>
+      <p>The iframe's own box was flush and exactly 16px from the title — same as every image card. The extra
+      space was <em>inside</em> the Spotify iframe: giving a fixed-height player an aspect-ratio box makes it
+      letterbox itself. Sizing the box to the player (152px) removed it.</p>
+    </div>
+  </div>
+
+  <div class="note">
+    Both cases looked like spacing bugs and measured as correct. The lesson is to measure the
+    <em>element's box</em> and the <em>visible content</em> separately — when they disagree, the problem isn't
+    in the spacing system.
+  </div>
+
+  <h3 class="sub">5 — Mobile spacing, reversed twice</h3>
+  <p class="lede">
+    This one is worth recording because the second decision undoes part of the first, and both were right at
+    the time.
+  </p>
+
+  <div class="decision-log">
+    <div class="decision">
+      <div class="decision-date">First</div>
+      <div class="decision-what">Measured the below-<code class="inline">xl</code> rhythm off the 402 frame</div>
+      <div class="decision-why">Those values had been invented. "Figma has no frames between 402 and 1622" had been read as "no frames at all", so the small end was guessed. The 402 frame does specify a rhythm — and notably it isn't uniformly tighter than 1622, so no small-end number can be derived by scaling a desktop one down.</div>
+    </div>
+    <div class="decision key-decision">
+      <div class="decision-date">Then</div>
+      <div class="decision-what">Deliberately overrode the 402 frame and opened mobile back up</div>
+      <div class="decision-why">On a real phone that rhythm read flat. The ratios showed why: <em>structural</em> gaps had been compressed to 0.40–0.48 of desktop while <em>local</em> ones sat at 0.67–0.75, so a section break came out barely larger than a card gap. Everything now sits on one ~0.7 ratio — the fix was proportional, not a flat increase.</div>
+    </div>
+  </div>
+
+  <h3 class="sub">6 — Working with the Figma file</h3>
+  <p class="lede">
+    Meta-notes about the file itself, which are the easiest thing to forget by the next project.
+  </p>
+
+  <table>
+    <tr><th>What</th><th>Why it matters</th></tr>
+    <tr>
+      <td>The file key wasn't written down anywhere</td>
+      <td>Only bare node IDs were recorded, so every session had to re-ask for the URL before any Figma work could start. Now in <code class="inline">CLAUDE.md</code>.</td>
+    </tr>
+    <tr>
+      <td>Some "component sets" contain only the media, not the card</td>
+      <td>MediaCard's <em>Media</em> and AsideCard's <em>Aside</em> are just the image slot — the card composition (title, description, button, gaps) lives in the page frame. Pulling the component set alone gives an incomplete picture.</td>
+    </tr>
+    <tr>
+      <td>Export slots differ per component</td>
+      <td>The ValueCard export is the whole bordered 278×262 container; the AsideCard export is artwork only, because that component draws its own rounding. Getting this wrong means either a doubled frame or a missing one.</td>
+    </tr>
+    <tr>
+      <td>"Hug" width produces off-ratio assets</td>
+      <td>Two illustrations came in at 403×300 and 401.54×300 against a strict 4:3 slot. Harmless here, but setting a fixed width instead of Hug removes the guesswork.</td>
+    </tr>
+    <tr>
+      <td>Some radii are bound to <em>spacing</em> variables</td>
+      <td>AsideCard's medium variant used <code class="inline">spaces/24</code> as a radius and the large one a raw <code class="inline">28px</code> with no token. Three variants, three different radii, two of them not real radius tokens.</td>
+    </tr>
+    <tr>
+      <td>NavbarMobile contains no text</td>
+      <td>So there's no mobile type anchor for the nav links or the footer — those two sizes are currently inferred from the pattern every other role follows, not measured. Flagged rather than presented as verified.</td>
+    </tr>
+  </table>
+
+  <h3 class="sub">7 — Two tooling problems that stacked</h3>
+  <p class="lede">
+    The most expensive part of the session, and worth writing down precisely because the symptom pointed at
+    the wrong cause for four rounds.
+  </p>
+
+  <div class="decision-log">
+    <div class="decision">
+      <div class="decision-date">Problem 1</div>
+      <div class="decision-what">Tailwind caches its config per Node process</div>
+      <div class="decision-why">Editing <code class="inline">tailwind.config.js</code> never reached a running dev server: the config is resolved once and it's ESM, so it can't be re-imported. Component files hot-reload normally — which is exactly why some changes appeared and others didn't, from the same server.</div>
+    </div>
+    <div class="decision key-decision">
+      <div class="decision-date">Problem 2</div>
+      <div class="decision-what">Two dev servers were holding port 5173 at once</div>
+      <div class="decision-why">One bound narrowly (no <code class="inline">--host</code>), one broadly (with it). Because those aren't literally the same address, the OS allowed both — no "port in use" error — and then routed <code class="inline">localhost</code> to the <em>more specific</em> one, which was the older server. Every restart added a correct server that nothing was talking to.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Fix</div>
+      <div class="decision-what"><code class="inline">npm run dev</code> now supervises Vite and respawns it on config change</div>
+      <div class="decision-why">An in-Vite plugin was tried first and <em>measured</em>: it logged a restart and kept serving the old CSS, because <code class="inline">server.restart()</code> reuses the same process. Removed it — a fix that prints "restarting" while doing nothing is worse than no fix.</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>The diagnostic that was already written down and ignored:</b>
+    <code class="inline">lsof -nP -iTCP:5173 -sTCP:LISTEN</code> — more than one line is the answer. This was
+    in the handoff doc the whole time. Ten seconds would have replaced four rounds of "try restarting it."
+  </div>
+
+  <h3 class="sub">8 — Debugging note: a bug that doesn't vary isn't a timing bug</h3>
+  <p class="lede">
+    Returning from a case study should land the reader back on the card they left from. Getting it to land
+    <em>accurately</em> took three attempts, and the third was diagnosed by a single tell.
+  </p>
+
+  <table>
+    <tr><th>Attempt</th><th>Result</th><th>Cause</th></tr>
+    <tr><td>Single scroll</td><td>948px short</td><td>Hero map (&gt;1MB), card images and two iframes all load <em>after</em> the jump and grow the page underneath it</td></tr>
+    <tr><td>Poll on a timer</td><td>940px short</td><td>Declared the target settled during a lull while its iframes were still loading</td></tr>
+    <tr><td>ResizeObserver</td><td>Exact</td><td>Reacts to the document actually changing size instead of sampling for it</td></tr>
+  </table>
+
+  <p class="lede" style="margin-top:18px">
+    The tell: it landed at <b>the same wrong pixel every single run</b>. A timing bug varies. That pointed at
+    logic, and the logic was a React StrictMode double-invoke — effects run twice in dev, the first run updated
+    the ref the guard depended on, and the second bailed out. The scroll fired from an effect that was
+    immediately torn down.
+  </p>
+
+  <h3 class="sub">What I'd do differently</h3>
+  <div class="concept-grid">
+    <div class="concept-block">
+      <h4>Check the port first</h4>
+      <p>When output looks stale, verify what's actually serving it before changing anything. Reading the
+      served CSS rule directly is faster than reasoning about caches.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Read the code's own comments</h4>
+      <p>The wayfinding colour drift was documented in a comment directly above the offending line — it
+      recorded that Figma showed no orange and the code had overridden it anyway.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Ask what controls a thing before changing it</h4>
+      <p>"Span one less column" was a reasonable guess that would have had no effect. One measurement
+      showed the width came from somewhere else entirely.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Keep handoffs short</h4>
+      <p>The handoff doc had become append-only — every trap recorded, nothing ever deleted. Durable defects
+      belong in their own register; a handoff should be status plus what's next.</p>
+    </div>
+  </div>
+
+  <h3 class="sub">Open threads</h3>
+  <table>
+    <tr><th>Item</th><th>Status</th></tr>
+    <tr><td>Nav + Footer mobile type sizes</td><td>Inferred from the pattern, not measured — Figma has no mobile frame for either <span class="status needs-work">needs work</span></td></tr>
+    <tr><td>Below-<code class="inline">xl</code> spacing outside Work</td><td>Ratio-derived; the 402 frame only draws the hero and Work <span class="status needs-work">needs work</span></td></tr>
+    <tr><td>Contact email button</td><td>322px wide, overflows any viewport ≤340px <span class="status needs-work">needs work</span></td></tr>
+    <tr><td>Six case-study subpages</td><td>Routes work, pages are a 40-line stub — blocked on design <span class="status needs-work">needs work</span></td></tr>
+    <tr><td>Copy gaps</td><td>LinkedIn URL, Contact bubble, "Selected talks" bubble, 4 <code class="inline">REVIEW —</code> captions <span class="status needs-work">needs work</span></td></tr>
+    <tr><td>All homepage image slots</td><td>Real artwork in place — no placeholders left <span class="status working">done</span></td></tr>
+  </table>
+
+  <div class="hook">
+    <div class="hook-label">Shareable hook</div>
+    Spent three rounds pulling three cards closer together before hitting an actual wall: the gap
+    <em>between</em> two cards can't go below the gap <em>inside</em> one, or they stop reading as separate
+    things. Proximity has a floor, and it's set by the component, not the layout — which meant the way to
+    bring the cards closer wasn't to change the spacing between them at all.
+  </div>
+</div>
+
+</body>
+</html>

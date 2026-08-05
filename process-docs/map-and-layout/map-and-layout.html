@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Map &amp; layout system</title>
+<style>
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk'), local('HKGrotesk-Regular');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk SemiBold'), local('HKGrotesk-SemiBold');
+    font-weight: 600;
+  }
+
+  :root {
+    --accent: #fd6d2b;       /* the site's own accent orange (orange-70) */
+    --accent-tint: #fff1ea;
+    --ink: #1a1a1a;
+    --paper: #f5f4f0;
+    --muted: #666;
+    --line: #e0ddd8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'HK Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 48px 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .subtitle { font-size: 14px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; max-width: 720px; }
+  .date-range { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 32px; }
+
+  .toc {
+    background: #fff;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 56px;
+  }
+  .toc-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; margin-bottom: 12px; }
+  .toc ol { list-style: none; }
+  .toc li { margin-bottom: 6px; font-size: 13px; }
+  .toc a { color: var(--ink); text-decoration: none; }
+  .toc a:hover { color: var(--accent); text-decoration: underline; }
+  .toc .toc-phase { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-left: 8px; }
+
+  .section {
+    margin-bottom: 80px;
+    border-top: 2px solid var(--ink);
+    padding-top: 24px;
+    scroll-margin-top: 24px;
+  }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 4px; flex-wrap: wrap; }
+  .section-date { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #999; }
+  .section-title { font-size: 20px; font-weight: 600; }
+  .phase-tag {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    padding: 3px 10px; border-radius: 20px; background: var(--accent-tint); color: var(--accent);
+  }
+  .section-desc { font-size: 14px; line-height: 1.7; color: #444; margin: 12px 0 24px; max-width: 720px; }
+
+  h3.block-title { font-size: 14px; font-weight: 600; margin: 36px 0 4px; }
+
+  .status {
+    display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; padding: 3px 10px; border-radius: 20px; margin-left: 12px;
+  }
+  .status.working { background: #e8f5e9; color: #27ae60; }
+  .status.needs-work { background: #fff8e1; color: #f39c12; }
+  .status.abandoned { background: #fbe9e7; color: #c0392b; }
+
+  .concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+  .concept-block { background: #fff; border-radius: 10px; padding: 16px; border: 1.5px solid var(--line); }
+  .concept-block h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .concept-block p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  .decision-log { margin-top: 24px; }
+  .decision {
+    display: grid; grid-template-columns: 100px 1fr 1fr; gap: 16px;
+    padding: 16px 0; border-bottom: 1px solid #e8e5e0; font-size: 13px;
+  }
+  .decision:last-child { border-bottom: none; }
+  .decision-date { color: #999; font-size: 12px; padding-top: 2px; }
+  .decision-what { line-height: 1.5; }
+  .decision-why { color: var(--muted); line-height: 1.5; }
+  .decision.key-decision { box-shadow: -3px 0 0 0 var(--accent); background: var(--accent-tint); padding-left: 12px; }
+  .decision.key-decision .decision-what { color: var(--accent); font-weight: 600; }
+
+  blockquote {
+    margin: 12px 0; padding: 10px 16px; border-left: 3px solid var(--accent);
+    color: #444; font-style: italic; background: #fff; border-radius: 0 8px 8px 0; font-size: 13px;
+  }
+  blockquote cite { display: block; font-style: normal; font-size: 12px; color: #999; margin-top: 4px; }
+
+  .fig-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-top: 24px; }
+  .fig { background: #fff; border: 1.5px solid var(--line); border-radius: 12px; padding: 14px; }
+  .fig img { width: 100%; border-radius: 6px; display: block; background: #faf9f6; border: 1px solid #eee; }
+  .fig-cap { font-size: 12px; line-height: 1.5; color: #555; margin-top: 10px; }
+  .fig-cap b { color: var(--ink); }
+  .fig.pick { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-tint); }
+  .fig-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; }
+  .fig-tag.pick { color: var(--accent); }
+
+  .note {
+    font-size: 13px; background: #fff8e1; border-left: 3px solid #f39c12; padding: 10px 14px;
+    border-radius: 0 6px 6px 0; color: #555; line-height: 1.6; margin-top: 12px;
+  }
+
+  .hook {
+    margin-top: 24px; padding: 18px 20px; background: var(--ink); color: #fff;
+    border-radius: 12px; font-size: 14px; line-height: 1.6;
+  }
+  .hook-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-tint); margin-bottom: 6px; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+  th { text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #999; padding: 8px 12px; border-bottom: 2px solid var(--line); }
+  td { padding: 10px 12px; border-bottom: 1px solid #f0ede8; vertical-align: top; line-height: 1.5; }
+  tr:last-child td { border-bottom: none; }
+
+  code.inline { background: #f0ede8; padding: 1px 6px; border-radius: 5px; font-size: 12px; font-family: 'SF Mono', Menlo, monospace; }
+  pre.code { background: var(--ink); color: #e6e6e6; padding: 16px 18px; border-radius: 10px; font-size: 12px; line-height: 1.6; overflow-x: auto; font-family: 'SF Mono', Menlo, monospace; margin-top: 16px; }
+</style>
+</head>
+<body>
+
+<h1>Map &amp; layout system</h1>
+<p class="subtitle">Building the layer underneath the portfolio homepage: the global layout system the components were already sitting on without one, the card media treatment, and the map's behaviour across screen sizes. Mostly a story about values that were written down in the wrong place.</p>
+<p class="date-range">Sessions: 4 Aug 2026</p>
+
+<div class="toc">
+  <div class="toc-title">Sessions in this doc</div>
+  <ol>
+    <li><a href="#sec-2026-08-04">Layout system, card media, and making the map fit</a><span class="toc-phase">Building with Claude</span></li>
+  </ol>
+</div>
+
+<div class="section" id="sec-2026-08-04">
+  <div class="section-header">
+    <span class="section-date">4 Aug 2026</span>
+    <span class="section-title">Layout system, card media, and making the map fit</span>
+    <span class="phase-tag">Building with Claude</span>
+  </div>
+  <p class="section-desc">
+    The homepage had components but no system beneath them — sections were spaced with whatever Tailwind default looked fine, and the card grids were invented rather than measured. This session pulled the real layout system out of Figma, finished the card media, and then spent the second half on the map, which turned out to be solving the wrong problem entirely.
+  </p>
+
+  <h3 class="block-title">Decisions</h3>
+  <div class="decision-log">
+
+    <div class="decision key-decision">
+      <div class="decision-date">Layout</div>
+      <div class="decision-what">Two column grids, not one. Work uses a different column count <em>and</em> gutter from Approach/About.</div>
+      <div class="decision-why">Confirmed deliberate rather than drift: project cards get more air than the smaller editorial cards. Both are real layout grids declared in the Figma frames — the mistake was ever inferring them from card widths.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Layout</div>
+      <div class="decision-what">Container padding is fluid (<code class="inline">clamp</code>), not stepped through breakpoints.</div>
+      <div class="decision-why">Not a neatness choice. With breakpoint steps the inner content width ran <em>backwards</em> at each one — 1215px at a 1279 viewport, then 1184px at 1280. Content getting narrower as the window widens reads as a bug. A clamp can't do that.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Layout</div>
+      <div class="decision-what">Approach and About stay staggered collages on desktop, collapse to a plain grid below.</div>
+      <div class="decision-why">The Figma layout is hand-placed cards with vertical offsets, not a grid. Those offsets have nowhere to go on a narrow viewport, so they only survive where the container is a known fixed width.</div>
+    </div>
+
+    <div class="decision key-decision">
+      <div class="decision-date">Cards</div>
+      <div class="decision-what">The artwork inside a project card isn't inset by padding — the "inset" is the tinted background showing around it.</div>
+      <div class="decision-why">This is why the media frames looked unfinished for weeks. The missing piece was colour, not spacing. Once the per-project tints were wired, the frames read as finished without touching a single spacing value.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Cards</div>
+      <div class="decision-what">Card order now comes from an explicit <code class="inline">order</code> field per project.</div>
+      <div class="decision-why">Found while checking something else: all three Work groups were in the wrong order because nothing had ever encoded reading order, so they'd been coming out alphabetically by filename.</div>
+    </div>
+
+    <div class="decision key-decision">
+      <div class="decision-date">Map</div>
+      <div class="decision-what">The map scales to fit instead of cropping — and the constraint is viewport <em>height</em>, not width.</div>
+      <div class="decision-why">The old rule cropped anything narrower than the map's own width, which is wider than any real laptop. But at 1500×820 the width is 92% adequate — it's the 820px height forcing the map down. Width had never been the right thing to switch on.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Map</div>
+      <div class="decision-what">Scale the image with CSS width/height, never <code class="inline">transform: scale()</code>.</div>
+      <div class="decision-why">A transform scales the hotspots' 44×44 tap targets along with the artwork — 33px at 0.75, under the accessibility minimum. Resizing the image leaves the hotspots as fixed-size elements positioned by percentage, so the minimum survives for free.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Map</div>
+      <div class="decision-what">The hero is as tall as the map needs, not as tall as the viewport.</div>
+      <div class="decision-why">Full-viewport height centred the map vertically, parking a band of dead canvas above it and pushing the next section off screen entirely. Now how much of Work shows through falls out of the window's own height and ratio.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Map</div>
+      <div class="decision-what">The Guide's overlay-vs-stacked behaviour needed no fix at all.</div>
+      <div class="decision-why">The empty band at the top-right looked like a z-index problem. It wasn't — the Guide only stacks above the map in the crop branch, where it claims a full row and uses a third of it. Once a 1500px laptop fits instead of cropping, it gets the overlay back and the band disappears.</div>
+    </div>
+
+    <div class="decision key-decision">
+      <div class="decision-date">Map</div>
+      <div class="decision-what">Removed a scale transform on the Guide — it had been setting mobile type sizes by side effect.</div>
+      <div class="decision-why">It looked like an avatar-sizing change. It was scaling the whole group, so the speech bubble's 14px was painting at 12 and the name and role at 15.5. An undocumented mobile type scale, living in a container transform where nobody would look for it.</div>
+    </div>
+
+  </div>
+
+  <h3 class="block-title">Finding the scale floor — the working method that actually worked</h3>
+  <p class="section-desc">
+    Rather than trading screenshots and adjectives about whether the map "felt too small", the build got a temporary dev-only readout in the corner showing viewport size and computed scale. Flore then dragged her window narrower and watched the number. Taste became a number in a single pass, and the screenshots below are that drag.
+  </p>
+
+  <div class="fig-grid">
+    <div class="fig">
+      <div class="fig-tag">scale 1.000</div>
+      <img src="assets/drag-01-scale-1000.png" alt="Map at full size in a wide window">
+      <div class="fig-cap"><b>Starting point</b> — the map at its native size. Note the dead space above it: the hero was still filling the viewport and centring the map inside it.</div>
+    </div>
+    <div class="fig">
+      <div class="fig-tag">scale 0.818</div>
+      <img src="assets/drag-02-scale-0818.png" alt="Map scaled to 0.818">
+      <div class="fig-cap"><b>Still comfortable</b> — the whole map visible, no pan needed. This is the size a real laptop lands on, and the size that used to crop.</div>
+    </div>
+    <div class="fig">
+      <div class="fig-tag">scale 0.617</div>
+      <img src="assets/drag-03-scale-0617.png" alt="Map scaled to 0.617">
+      <div class="fig-cap"><b>Getting tight</b> — the illustration still reads, but the Guide is starting to take up a noticeable share of the map.</div>
+    </div>
+    <div class="fig">
+      <div class="fig-tag">scale 0.483</div>
+      <img src="assets/drag-04-scale-0483.png" alt="Map scaled to 0.483, Guide crowding it">
+      <div class="fig-cap"><b>The real problem shows up</b> — at roughly iPad-portrait width the speech bubble is competing with the city rather than introducing it. Not a scale problem: the bubble has a fixed width, so it never shrinks with anything around it.</div>
+    </div>
+  </div>
+
+  <div class="note">
+    The floor is still unset. The readout stays in the build until it's decided, then comes out. It's dev-only and already confirmed absent from the production bundle — worth noting because it appears in every screenshot here and won't exist in the shipped site.
+  </div>
+
+  <h3 class="block-title">Before and after</h3>
+
+  <div class="fig-grid">
+    <div class="fig">
+      <div class="fig-tag">bug</div>
+      <img src="assets/readout-bug-map-0px.png" alt="Readout showing map 0px and scale 0.000">
+      <div class="fig-cap"><b>The readout lying</b> — <code class="inline">map 0px · scale 0.000</code>. Its observer subscribed once on mount, so after a hot reload it was measuring an element that no longer existed. A measuring instrument reporting zero rather than failing loudly.</div>
+    </div>
+    <div class="fig">
+      <div class="fig-tag">before</div>
+      <img src="assets/crop-branch-no-top-spacing.png" alt="Phone-width layout with the Guide flush against the top edge">
+      <div class="fig-cap"><b>Phone branch, no breathing room</b> — removing the full-height hero left the Guide hard against the top edge. On desktop the map's own artwork carries whitespace so it read fine; at this size that whitespace scales away too.</div>
+    </div>
+    <div class="fig pick">
+      <div class="fig-tag pick">after</div>
+      <img src="assets/hero-top-aligned-after.png" alt="Hero sized to the map with the Work section visible below">
+      <div class="fig-cap"><b>Hero sized to the map</b> — top-aligned with 24px of air, whole map visible, and the Work section now peeking into view. Previously nothing of the next section showed at all.</div>
+    </div>
+  </div>
+
+  <h3 class="block-title">What I'd do differently — Figma file structure</h3>
+  <p class="section-desc">
+    This is the meta-knowledge worth keeping, because it's about how to set the file up so it can be read by someone building from it, not about this site specifically.
+  </p>
+
+  <div class="concept-grid">
+    <div class="concept-block">
+      <h4>Declare grids, don't imply them</h4>
+      <p>Work's card widths happened to fit two different column counts at the same gutter. A pass "corrected" the right reading into the wrong one and every span came out doubled. Identical pixels, unreconcilable numbers.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Edit components, not instances</h4>
+      <p>The badge restyle was made on an instance in the Badges section, so every real card in the file still showed the old treatment. The file quietly disagreed with itself.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Values live in the file, never in the doc</h4>
+      <p>The rule added yesterday earned itself again: the wayfinding colour was still specified in the handover doc, three sections below the rule forbidding it. That bug is still on the built page.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Pull whole components</h4>
+      <p>Trying to be economical with partial pulls cost more than one complete pass would have — several rounds of missing fields that a full read would have caught immediately.</p>
+    </div>
+  </div>
+
+  <h3 class="block-title">Technical difficulties</h3>
+  <table>
+    <tr><th>What happened</th><th>Resolution</th></tr>
+    <tr>
+      <td>Changes appeared not to land — the page kept showing an older version</td>
+      <td>Two dev servers were both holding the same port: one bound to IPv6 loopback, one to all interfaces. Neither failed, and the OS routed <code class="inline">localhost</code> to the older one. No amount of reloading or cache clearing would have helped.</td>
+    </tr>
+    <tr>
+      <td>Spacing utilities silently doing nothing</td>
+      <td>A Tailwind config change never reached a dev server that had been started before the edit. The classes existed in the markup and resolved to <code class="inline">normal</code>.</td>
+    </tr>
+    <tr>
+      <td>Captions clipped at narrow widths</td>
+      <td><code class="inline">aspect-ratio</code> makes a box's height exact, so longer content simply overflows and gets cut. Replaced with a ratio spacer that sets a <em>minimum</em> instead.</td>
+    </tr>
+    <tr>
+      <td>Artwork consistently ~0.4% too narrow</td>
+      <td>The frame's border was shrinking the box that the artwork's percentage widths resolved against. Moved the border to an overlay so it doesn't participate in layout.</td>
+    </tr>
+  </table>
+
+  <div class="hook">
+    <div class="hook-label">Shareable hook</div>
+    I asked for the avatar on my map to shrink on smaller screens. It did — and it quietly took my entire mobile type scale with it. A one-line CSS transform on a container had been setting my speech bubble to 12px and my name to 15.5px, sizes I never chose and couldn't find anywhere in my type styles. The lesson isn't "don't use transforms": it's that when a value doesn't live where you'd look for it, you don't discover it's wrong — you discover it's <em>there</em>, months later, wondering who decided that.
+  </div>
+</div>
+
+</body>
+</html>
