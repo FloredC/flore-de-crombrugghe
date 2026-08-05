@@ -139,7 +139,7 @@ body {
 [data-component='avatar-presenting-idle'] #arm-presenting,
 [data-component='avatar-presenting-idle'] #arm-resting {
   transform-box: view-box;
-  animation-duration: 8s;
+  animation-duration: 7s;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
   /* Paused until the row scrolls into view; the component flips this attribute
@@ -179,25 +179,32 @@ body {
   animation-name: lab-avatar-arm-resting;
 }
 
+/* The action is compressed into a short window near the end of the loop. What
+   made it hard to see was not only how often it happened but how SLOWLY it
+   happened -- a movement spread over three seconds reads as drift, and the eye
+   ignores drift. Each phase below is ~0.42s at 7s, so the whole gesture takes
+   ~1.3s instead of ~3s, and the avatar is still motionless for the first ~4.5s.
+   To make the gesture itself faster, narrow these windows. To make it happen
+   more OFTEN, lower animation-duration above. Those are two different knobs. */
 @keyframes lab-avatar-head {
-  0%, 50% { transform: rotate(0deg); }
-  62%, 74% { transform: rotate(-4deg); }
-  86%, 100% { transform: rotate(0deg); }
+  0%, 64% { transform: rotate(0deg); }
+  70%, 76% { transform: rotate(-4deg); }
+  82%, 100% { transform: rotate(0deg); }
 }
 @keyframes lab-avatar-hair {
-  0%, 54% { transform: rotate(0deg); }
-  66%, 78% { transform: rotate(-2deg); }
-  90%, 100% { transform: rotate(0deg); }
+  0%, 66% { transform: rotate(0deg); }
+  72%, 78% { transform: rotate(-2deg); }
+  84%, 100% { transform: rotate(0deg); }
 }
 @keyframes lab-avatar-arm-presenting {
-  0%, 52% { transform: rotate(0deg); }
-  64%, 76% { transform: rotate(-6deg); }
-  88%, 100% { transform: rotate(0deg); }
+  0%, 65% { transform: rotate(0deg); }
+  71%, 77% { transform: rotate(-6deg); }
+  83%, 100% { transform: rotate(0deg); }
 }
 @keyframes lab-avatar-arm-resting {
-  0%, 52% { transform: rotate(0deg); }
-  64%, 76% { transform: rotate(1.5deg); }
-  88%, 100% { transform: rotate(0deg); }
+  0%, 65% { transform: rotate(0deg); }
+  71%, 77% { transform: rotate(1.5deg); }
+  83%, 100% { transform: rotate(0deg); }
 }
 
 /* Static avatar for anyone who asked not to see motion. */
