@@ -168,8 +168,18 @@ export const VALUE_CARD_GRID =
 // since hand-set offsets have nowhere to go on a narrow viewport.
 const COLLAGE_BASE = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 lg:gap-x-space-24'
 
-// Approach's talks/writing collage, unchanged.
-export const COLLAGE_GRID = `${COLLAGE_BASE} gap-space-80 lg:gap-y-space-64`
+// Approach's talks/writing collage.
+//
+// The sm value is the tablet step these gaps were missing: base doubles as the
+// phone value and ran unchanged all the way to lg, so the 2-up band inherited
+// spacing designed for a single stacked column. Flore's call 2026-08-05, from
+// looking at 976 -- the band needs more air between cards than the phone does,
+// not the same amount.
+//
+// Larger at sm than at lg is correct, not a typo. From lg the collage's own
+// offsets (mt 200/32) do most of the separating, so the row gap can be small;
+// in the flat 2-up band the row gap is the only thing holding the cards apart.
+export const COLLAGE_GRID = `${COLLAGE_BASE} gap-space-80 sm:gap-y-space-120 lg:gap-y-space-64`
 
 // About's aside collage sits tighter, Flore's call 2026-08-04: the three cards
 // read as one group rather than three separate things. Split from COLLAGE_GRID
@@ -188,7 +198,13 @@ export const COLLAGE_GRID = `${COLLAGE_BASE} gap-space-80 lg:gap-y-space-64`
 // one, or proximity stops doing its job and it becomes ambiguous which caption
 // belongs to which drawing. Tightening further means tightening AsideCard's
 // internal gap first, not this number.
-export const ASIDE_COLLAGE_GRID = `${COLLAGE_BASE} gap-space-32 lg:gap-y-space-24`
+// The 32 is the phone value and stays: there the three cards are one stacked
+// group, deliberately tight (see the note above about the AsideCard's own 16
+// internal gap being the floor). But 32 was also running right through the 2-up
+// band, where measured at 976 it left consecutive cards 32px apart with nothing
+// else separating them -- by far the tightest gap on the page. 100 at sm, still
+// below the media collage's 120 since these cards are shorter and carry no CTA.
+export const ASIDE_COLLAGE_GRID = `${COLLAGE_BASE} gap-space-32 sm:gap-y-space-100 lg:gap-y-space-24`
 
 // About only: the gap between the full-width Language River chart and the
 // aside cards under it. Wider than the editorial subsection gap because the
