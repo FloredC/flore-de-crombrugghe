@@ -253,17 +253,32 @@ const EDITORIAL_CARD_WIDE = 'max-w-[400px] lg:max-w-none lg:w-[400px] xl:w-[480p
 // band the inner box grows from 942 to 1184 and the insets drift slightly
 // against it. That's fine for insets -- it would not have been for the card
 // widths, which is why those stay fixed.
+//
+// Below lg the 12-column collage can't be used -- at a 640 viewport a span-7
+// frame is only 345 wide, narrower than the wide card that has to sit in it,
+// so the placements would overflow their own frames. The collage *feel* comes
+// down instead as a vertical stagger on the 2-column grid: the right-hand
+// column is pushed down so the two columns stop sharing a baseline, which is
+// what made the flat band read as a plain table of cards. STAGGER_RIGHT is the
+// offset, cleared again at lg where the real collage takes over.
+//
+// DOM order is what decides which column a card lands in at 2-up (items 0,1 in
+// row one; 2,3 in row two), so the stagger goes on the odd indices.
+const STAGGER_RIGHT = 'sm:mt-space-80'
+
 export const MEDIA_COLLAGE = [
   // Podcast (embed): right-aligned inside a span-10 frame -> x = 582.67.
   `lg:col-start-1 lg:col-span-10 lg:row-start-1 lg:justify-self-end ${EDITORIAL_CARD}`,
-  // Friends of Figma: flush left.
-  `lg:col-start-1 lg:col-span-6 lg:row-start-2 lg:justify-self-start ${EDITORIAL_CARD}`,
+  // Friends of Figma: flush left. Right-hand column at 2-up, so it carries the
+  // stagger -- cleared at lg, which sets no mt of its own here.
+  `${STAGGER_RIGHT} lg:mt-0 lg:col-start-1 lg:col-span-6 lg:row-start-2 lg:justify-self-start ${EDITORIAL_CARD}`,
   // Swisscovid: right half, inset 100, and dropped below its row-mate -- 200 at
   // tablet against 300 at desktop, since the same drop against a shorter
   // container reads as a hole rather than a stagger.
   `lg:col-start-7 lg:col-span-6 lg:row-start-2 lg:justify-self-start lg:ml-space-100 lg:mt-space-200 xl:mt-space-300 ${EDITORIAL_CARD}`,
-  // 10-year quiz: back to the left half, same 100 inset.
-  `lg:col-start-1 lg:col-span-6 lg:row-start-3 lg:justify-self-start lg:ml-space-100 lg:mt-space-32 ${EDITORIAL_CARD}`,
+  // 10-year quiz: back to the left half, same 100 inset. Right-hand column at
+  // 2-up; lg:mt-space-32 below already overrides the stagger, no reset needed.
+  `${STAGGER_RIGHT} lg:col-start-1 lg:col-span-6 lg:row-start-3 lg:justify-self-start lg:ml-space-100 lg:mt-space-32 ${EDITORIAL_CARD}`,
 ]
 
 export const ASIDE_COLLAGE = [
@@ -273,7 +288,8 @@ export const ASIDE_COLLAGE = [
   // offset -- it was 160, then 80, and each time it stacked on the row gap and
   // left the first card-to-card gap much larger than the second. Spacing here
   // is the grid's row gap alone; see ASIDE_COLLAGE_GRID.
-  `lg:col-start-1 lg:col-span-7 lg:row-start-2 lg:justify-self-start ${EDITORIAL_CARD_WIDE}`,
+  // (At 2-up it's the right-hand card in row one, so it takes the stagger.)
+  `${STAGGER_RIGHT} lg:mt-0 lg:col-start-1 lg:col-span-7 lg:row-start-2 lg:justify-self-start ${EDITORIAL_CARD_WIDE}`,
   // Papayas: right-aligned to the full 12-column width -> x = 784.
   `lg:col-start-1 lg:col-span-12 lg:row-start-3 lg:justify-self-end ${EDITORIAL_CARD}`,
 ]
