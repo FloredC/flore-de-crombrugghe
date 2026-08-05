@@ -103,9 +103,12 @@ export const SUBSECTION_GAP_EDITORIAL = 'flex flex-col gap-space-80 xl:gap-space
 
 // --- Work grids (6 col / 60px gutter) ---------------------------------------
 
-// Artifakt spans 5 of 6 -- not the full width. Below xl it's a normal block.
-export const WORK_FEATURED_ROW = 'xl:grid xl:grid-cols-6 xl:gap-x-space-60'
-export const WORK_FEATURED_CARD = 'xl:col-span-5'
+// Artifakt spans 5 of 6 -- not the full width. Below lg it's a normal block.
+// The 6-column grid engages at lg with a 40px gutter rather than 60: at the
+// tablet container (942 at a 1024 viewport) a 60 gutter leaves 97px columns,
+// and the gutter starts to rival the column. 40 keeps col at 123.67.
+export const WORK_FEATURED_ROW = 'lg:grid lg:grid-cols-6 lg:gap-x-space-40 xl:gap-x-space-60'
+export const WORK_FEATURED_CARD = 'lg:col-span-5'
 
 // The featured card sits 100 above the 2-up row beneath it (node 2928:73715).
 // Was 200, matching the top-level section gap; Flore tightened it to 100 on
@@ -117,11 +120,17 @@ export const WORK_FEATURED_STACK = 'flex flex-col gap-space-72 xl:gap-space-100'
 // stack above it, so every Work row-to-row gap on the page is one number.
 // Was 140; Flore aligned it with the projects on 2026-08-04.
 export const WORK_GRID_2UP =
-  'grid grid-cols-1 gap-y-space-72 sm:grid-cols-2 sm:gap-x-space-24 xl:gap-x-space-60 xl:gap-y-space-100'
+  'grid grid-cols-1 gap-y-space-72 sm:grid-cols-2 sm:gap-x-space-24 lg:gap-x-space-40 xl:gap-x-space-60 xl:gap-y-space-100'
 
-// 3-up: span 4 each.
+// 3-up: span 4 each -- but only from xl. It used to go 3-up at lg, which
+// inverted the zone hierarchy this file exists to protect: at a 1024 viewport
+// three-across put the project cards at 298 while the editorial cards sat at
+// their fixed 320/455, so the secondary content rendered wider than the work
+// itself. Measured, not theorised. Staying 2-up through the tablet band puts
+// them at ~451 instead, comfortably above the 320 editorial card, and 3-up
+// resumes at xl where the container is wide enough to afford it.
 export const WORK_GRID_3UP =
-  'grid grid-cols-1 gap-y-space-72 sm:grid-cols-2 sm:gap-x-space-24 lg:grid-cols-3 xl:gap-x-space-60'
+  'grid grid-cols-1 gap-y-space-72 sm:grid-cols-2 sm:gap-x-space-24 lg:gap-x-space-40 xl:grid-cols-3 xl:gap-x-space-60'
 
 // --- Editorial grids (12 col / 24px gutter) ---------------------------------
 
@@ -157,10 +166,10 @@ export const VALUE_CARD_GRID =
 // grids: fixed-width cards hand-placed with horizontal and vertical offsets.
 // Per Flore they stay a collage at xl and collapse to a plain grid below,
 // since hand-set offsets have nowhere to go on a narrow viewport.
-const COLLAGE_BASE = 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-12 xl:gap-x-space-24'
+const COLLAGE_BASE = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 lg:gap-x-space-24'
 
 // Approach's talks/writing collage, unchanged.
-export const COLLAGE_GRID = `${COLLAGE_BASE} gap-space-80 xl:gap-y-space-64`
+export const COLLAGE_GRID = `${COLLAGE_BASE} gap-space-80 lg:gap-y-space-64`
 
 // About's aside collage sits tighter, Flore's call 2026-08-04: the three cards
 // read as one group rather than three separate things. Split from COLLAGE_GRID
@@ -179,7 +188,7 @@ export const COLLAGE_GRID = `${COLLAGE_BASE} gap-space-80 xl:gap-y-space-64`
 // one, or proximity stops doing its job and it becomes ambiguous which caption
 // belongs to which drawing. Tightening further means tightening AsideCard's
 // internal gap first, not this number.
-export const ASIDE_COLLAGE_GRID = `${COLLAGE_BASE} gap-space-32 xl:gap-y-space-24`
+export const ASIDE_COLLAGE_GRID = `${COLLAGE_BASE} gap-space-32 lg:gap-y-space-24`
 
 // About only: the gap between the full-width Language River chart and the
 // aside cards under it. Wider than the editorial subsection gap because the
@@ -211,31 +220,60 @@ export const ABOUT_CONTENT_GAP = 'flex flex-col gap-space-120 xl:gap-space-160'
 // The max-w carries the same intent below xl, where the collage flattens to a
 // plain grid: without it these cards go full-bleed and match the project cards
 // again, which is the whole problem, just on a phone.
-const EDITORIAL_CARD = 'max-w-[320px] xl:w-[320px]'
-const EDITORIAL_CARD_WIDE = 'max-w-[480px] xl:w-[480px]'
+// Fixed from lg, where the collage engages -- the card is a designed size, not
+// a share of the container, so it holds at 320/480 right across the tablet
+// band. What fills the extra width there is the staggered placement, not
+// bigger cards: growing them would put the editorial cards back above the
+// project cards, which is the inversion this file exists to prevent.
+// The wide card steps 400 -> 480 across the band, and that step is load-
+// bearing rather than cosmetic. The rule these two widths encode is a paired
+// one: the normal card must stay under the smallest project card, and the wide
+// card under the 2-up project card. In the tablet band the 2-up project card
+// bottoms out at 451 (at a 1024 viewport), so a flat 480 would have made the
+// widest editorial card the widest card on the page -- the same inversion the
+// 3-up fix above removes, just one card along. 400 clears it, and it is the
+// width Figma draws this card at, so it's a number already in the system.
+// The 1.5x wide-to-normal relation is therefore only exact at xl; below it the
+// ceiling set by the project cards wins, which is the right priority.
+const EDITORIAL_CARD = 'max-w-[320px] lg:w-[320px]'
+// `lg:max-w-none` is required, not tidy-up: max-w applies at every width, so
+// leaving the 400 cap in place silently clamped the xl width back to 400 and
+// quietly regressed the desktop layout. Caught in the browser, not by reading
+// the classes. A max-w cap and a wider w further up the scale can't coexist.
+const EDITORIAL_CARD_WIDE = 'max-w-[400px] lg:max-w-none lg:w-[400px] xl:w-[480px]'
 
 // Placement per card, in content order. Column starts and spans are exact;
 // the vertical offsets approximate Figma's, since real card heights are
 // content-driven and won't match the fixed heights in the design file.
+// Placements engage at lg, not xl. The column maths is fractional so the
+// starts and spans carry straight over to the narrower tablet container; only
+// the absolute offsets needed a second value, since those are real pixels and
+// don't scale with the grid. Note the collage is exact only at >= 1280, where
+// Container pins the inner box to 1184 (see Container.jsx); across the tablet
+// band the inner box grows from 942 to 1184 and the insets drift slightly
+// against it. That's fine for insets -- it would not have been for the card
+// widths, which is why those stay fixed.
 export const MEDIA_COLLAGE = [
   // Podcast (embed): right-aligned inside a span-10 frame -> x = 582.67.
-  `xl:col-start-1 xl:col-span-10 xl:row-start-1 xl:justify-self-end ${EDITORIAL_CARD}`,
+  `lg:col-start-1 lg:col-span-10 lg:row-start-1 lg:justify-self-end ${EDITORIAL_CARD}`,
   // Friends of Figma: flush left.
-  `xl:col-start-1 xl:col-span-6 xl:row-start-2 xl:justify-self-start ${EDITORIAL_CARD}`,
-  // Swisscovid: right half, inset 100, and dropped ~300 below its row-mate.
-  `xl:col-start-7 xl:col-span-6 xl:row-start-2 xl:justify-self-start xl:ml-space-100 xl:mt-space-300 ${EDITORIAL_CARD}`,
+  `lg:col-start-1 lg:col-span-6 lg:row-start-2 lg:justify-self-start ${EDITORIAL_CARD}`,
+  // Swisscovid: right half, inset 100, and dropped below its row-mate -- 200 at
+  // tablet against 300 at desktop, since the same drop against a shorter
+  // container reads as a hole rather than a stagger.
+  `lg:col-start-7 lg:col-span-6 lg:row-start-2 lg:justify-self-start lg:ml-space-100 lg:mt-space-200 xl:mt-space-300 ${EDITORIAL_CARD}`,
   // 10-year quiz: back to the left half, same 100 inset.
-  `xl:col-start-1 xl:col-span-6 xl:row-start-3 xl:justify-self-start xl:ml-space-100 xl:mt-space-32 ${EDITORIAL_CARD}`,
+  `lg:col-start-1 lg:col-span-6 lg:row-start-3 lg:justify-self-start lg:ml-space-100 lg:mt-space-32 ${EDITORIAL_CARD}`,
 ]
 
 export const ASIDE_COLLAGE = [
   // Cold Plunge: right-aligned inside a span-10 frame, same as the podcast.
-  `xl:col-start-1 xl:col-span-10 xl:row-start-1 xl:justify-self-end ${EDITORIAL_CARD}`,
+  `lg:col-start-1 lg:col-span-10 lg:row-start-1 lg:justify-self-end ${EDITORIAL_CARD}`,
   // Data, Illustrated: flush left, the wide card in a span-7 frame. No vertical
   // offset -- it was 160, then 80, and each time it stacked on the row gap and
   // left the first card-to-card gap much larger than the second. Spacing here
   // is the grid's row gap alone; see ASIDE_COLLAGE_GRID.
-  `xl:col-start-1 xl:col-span-7 xl:row-start-2 xl:justify-self-start ${EDITORIAL_CARD_WIDE}`,
+  `lg:col-start-1 lg:col-span-7 lg:row-start-2 lg:justify-self-start ${EDITORIAL_CARD_WIDE}`,
   // Papayas: right-aligned to the full 12-column width -> x = 784.
-  `xl:col-start-1 xl:col-span-12 xl:row-start-3 xl:justify-self-end ${EDITORIAL_CARD}`,
+  `lg:col-start-1 lg:col-span-12 lg:row-start-3 lg:justify-self-end ${EDITORIAL_CARD}`,
 ]

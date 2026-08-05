@@ -24,10 +24,19 @@ export default function ContactEmailButton({ email }) {
   const { status, copy } = useCopyToClipboard(email)
   const label = { idle: email, copied: 'Copied!', failed: 'Copy failed' }[status]
 
+  // An email address is a single unbreakable token, so the pill could only be
+  // as wide as the whole address -- 322px, which overflowed any viewport at or
+  // below ~340 and pushed the document wider than the screen (the page's only
+  // horizontal overflow anywhere). `max-w-full` caps the pill at its container
+  // and `break-all` gives the address somewhere to wrap, so it reflows to two
+  // lines at the small end instead of forcing the page sideways. No breakpoint:
+  // it wraps exactly when it has to, at whatever width that turns out to be.
+  // Not truncation -- the whole point of showing the address is that it can be
+  // read as well as copied. `shrink-0` keeps the icon from being squeezed.
   return (
-    <button type="button" onClick={copy} className={SECONDARY_BUTTON_CLASS}>
-      {label}
-      <CopyIcon width={20} height={20} />
+    <button type="button" onClick={copy} className={`${SECONDARY_BUTTON_CLASS} max-w-full`}>
+      <span className="min-w-0 break-all text-left">{label}</span>
+      <CopyIcon width={20} height={20} className="shrink-0" />
     </button>
   )
 }
