@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Map &amp; layout system</title>
+<style>
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk'), local('HKGrotesk-Regular');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk SemiBold'), local('HKGrotesk-SemiBold');
+    font-weight: 600;
+  }
+
+  :root {
+    --accent: #fd6d2b;       /* the site's own accent orange (orange-70) */
+    --accent-tint: #fff1ea;
+    --ink: #1a1a1a;
+    --paper: #f5f4f0;
+    --muted: #666;
+    --line: #e0ddd8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'HK Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 48px 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .subtitle { font-size: 14px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; max-width: 720px; }
+  .date-range { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 32px; }
+
+  .toc {
+    background: #fff;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 56px;
+  }
+  .toc-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; margin-bottom: 12px; }
+  .toc ol { list-style: none; }
+  .toc li { margin-bottom: 6px; font-size: 13px; }
+  .toc a { color: var(--ink); text-decoration: none; }
+  .toc a:hover { color: var(--accent); text-decoration: underline; }
+  .toc .toc-phase { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-left: 8px; }
+
+  .section {
+    margin-bottom: 80px;
+    border-top: 2px solid var(--ink);
+    padding-top: 24px;
+    scroll-margin-top: 24px;
+  }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 4px; flex-wrap: wrap; }
+  .section-date { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #999; }
+  .section-title { font-size: 20px; font-weight: 600; }
+  .phase-tag {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    padding: 3px 10px; border-radius: 20px; background: var(--accent-tint); color: var(--accent);
+  }
+  .section-desc { font-size: 14px; line-height: 1.7; color: #444; margin: 12px 0 24px; max-width: 720px; }
+
+  h3.block-title { font-size: 14px; font-weight: 600; margin: 36px 0 4px; }
+
+  .status {
+    display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; padding: 3px 10px; border-radius: 20px; margin-left: 12px;
+  }
+  .status.working { background: #e8f5e9; color: #27ae60; }
+  .status.needs-work { background: #fff8e1; color: #f39c12; }
+  .status.abandoned { background: #fbe9e7; color: #c0392b; }
+
+  .concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+  .concept-block { background: #fff; border-radius: 10px; padding: 16px; border: 1.5px solid var(--line); }
+  .concept-block h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .concept-block p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  .decision-log { margin-top: 24px; }
+  .decision {
+    display: grid; grid-template-columns: 100px 1fr 1fr; gap: 16px;
+    padding: 16px 0; border-bottom: 1px solid #e8e5e0; font-size: 13px;
+  }
+  .decision:last-child { border-bottom: none; }
+  .decision-date { color: #999; font-size: 12px; padding-top: 2px; }
+  .decision-what { line-height: 1.5; }
+  .decision-why { color: var(--muted); line-height: 1.5; }
+  .decision.key-decision { box-shadow: -3px 0 0 0 var(--accent); background: var(--accent-tint); padding-left: 12px; }
+  .decision.key-decision .decision-what { color: var(--accent); font-weight: 600; }
+
+  blockquote {
+    margin: 12px 0; padding: 10px 16px; border-left: 3px solid var(--accent);
+    color: #444; font-style: italic; background: #fff; border-radius: 0 8px 8px 0; font-size: 13px;
+  }
+  blockquote cite { display: block; font-style: normal; font-size: 12px; color: #999; margin-top: 4px; }
+
+  .fig-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-top: 24px; }
+  .fig { background: #fff; border: 1.5px solid var(--line); border-radius: 12px; padding: 14px; }
+  .fig img { width: 100%; border-radius: 6px; display: block; background: #faf9f6; border: 1px solid #eee; }
+  .fig-cap { font-size: 12px; line-height: 1.5; color: #555; margin-top: 10px; }
+  .fig-cap b { color: var(--ink); }
+  .fig.pick { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-tint); }
+  .fig-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; }
+  .fig-tag.pick { color: var(--accent); }
+
+  .note {
+    font-size: 13px; background: #fff8e1; border-left: 3px solid #f39c12; padding: 10px 14px;
+    border-radius: 0 6px 6px 0; color: #555; line-height: 1.6; margin-top: 12px;
+  }
+
+  .hook {
+    margin-top: 24px; padding: 18px 20px; background: var(--ink); color: #fff;
+    border-radius: 12px; font-size: 14px; line-height: 1.6;
+  }
+  .hook-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-tint); margin-bottom: 6px; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+  th { text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #999; padding: 8px 12px; border-bottom: 2px solid var(--line); }
+  td { padding: 10px 12px; border-bottom: 1px solid #f0ede8; vertical-align: top; line-height: 1.5; }
+  tr:last-child td { border-bottom: none; }
+
+  code.inline { background: #f0ede8; padding: 1px 6px; border-radius: 5px; font-size: 12px; font-family: 'SF Mono', Menlo, monospace; }
+  pre.code { background: var(--ink); color: #e6e6e6; padding: 16px 18px; border-radius: 10px; font-size: 12px; line-height: 1.6; overflow-x: auto; font-family: 'SF Mono', Menlo, monospace; margin-top: 16px; }
+</style>
+</head>
+<body>
+
+<h1>Deploy &amp; performance</h1>
+<p class="subtitle">Getting the site off localhost and onto a real URL, and finding out what only breaks once it's there. Mostly a story about bugs that are structurally invisible in development — the ones where the code reads correctly, the dev server looks perfect, and production disagrees.</p>
+<p class="date-range">Sessions: 5 Aug 2026</p>
+
+<div class="toc">
+  <div class="toc-title">Sessions in this doc</div>
+  <ol>
+    <li><a href="#sec-2026-08-05">First deploy, and the class of bug dev can't show you</a><span class="toc-phase">Building with Claude</span></li>
+  </ol>
+</div>
+
+<div class="section" id="sec-2026-08-05">
+  <div class="section-header">
+    <span class="section-date">5 Aug 2026</span>
+    <span class="section-title">First deploy, and the class of bug dev can't show you</span>
+    <span class="phase-tag">Building with Claude</span>
+  </div>
+  <p class="section-desc">The site had no deployment setup at all — no workflow, no base path, no SPA fallback. Setting that up surfaced a bug that had been sitting in the repo for days, invisible to every check we'd run, because the only environment that could reveal it didn't exist yet.</p>
+
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">deploy</div>
+      <div class="decision-what">Deep links to case studies would have 404'd in production — only the homepage worked</div>
+      <div class="decision-why">GitHub Pages only serves files that physically exist, and <code class="inline">/work/artifakt</code> exists only inside the JS router. Opening, refreshing, or <em>sharing</em> a case-study link would have hit GitHub's 404. Fixed with a <code class="inline">404.html</code> that re-encodes the path into a query, which an inline snippet in <code class="inline">index.html</code> restores before React Router boots. Worth naming because nobody would have found this by testing locally — the dev server happily serves every route.</div>
+    </div>
+    <div class="decision key-decision">
+      <div class="decision-date">deploy</div>
+      <div class="decision-what">Five project thumbnails were already broken, and nothing could have shown it</div>
+      <div class="decision-why">Vite rewrites asset URLs it can <em>see</em> — imports, CSS <code class="inline">url()</code>. It cannot see a path that arrives as a string from MDX frontmatter, so <code class="inline">/images/…</code> stayed root-absolute: correct on localhost, wrong under <code class="inline">/flore-de-crombrugghe/</code>. 21 paths affected. Fixed at render time with <code class="inline">assetUrl.js</code> so the .mdx files stay portable and the deploy path lives in one place.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">deploy</div>
+      <div class="decision-what">Applied <code class="inline">base</code> to the build only, keeping <code class="inline">npm run dev</code> at the root</div>
+      <div class="decision-why">Daily work stays unchanged rather than requiring a subpath every time. The explicit cost: a base-path bug then <em>cannot</em> appear in dev — which is precisely how the thumbnails got that far. Accepted knowingly, and paid for by committing a Pages simulator (<code class="inline">npm run preview:pages</code>) that serves the built site the way Pages actually serves it. That harness was the only thing that found the bug.</div>
+    </div>
+    <div class="decision key-decision">
+      <div class="decision-date">perf</div>
+      <div class="decision-what">Images were 4–5× larger than they render — 14.1MB down to 4.4MB</div>
+      <div class="decision-why">Everything was exported from Figma at 4x (5x for the About images): 1600px into a 320px slot, 3608px into an 880px one. Retina tops out at 2x, and cost scales with <em>area</em>, so those were 4–6× more pixels than any display can show. Resized to exactly 2× the measured render width — verified every image now resolves at exactly 2.00 natural px per CSS px, so there is no visible change. Plus <code class="inline">loading="lazy"</code> on all 20 content images, none of which are above the fold.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">perf</div>
+      <div class="decision-what">Did not ask Flore to re-export anything</div>
+      <div class="decision-why">Downscaling only ever discards pixels, so Figma stays the source and git history keeps the originals. The export habit doesn't need to change at all — the resize is a committed script with per-image targets, re-runnable if a card's layout width changes.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">tokens</div>
+      <div class="decision-what">Repaired <code class="inline">--white-transparent</code>, which had exported with its alpha dropped</div>
+      <div class="decision-why">It emitted opaque <code class="inline">#ffffff</code>, making a "transparent white" token identical to <code class="inline">--white</code>. Both badges silently worked around it with a literal <code class="inline">bg-white/[0.33]</code> — so the token's value lived as a copy in two component files, the exact drift the token layer exists to prevent. Read the real value back from Figma (<code class="inline">#ffffff54</code> = 32.9%) rather than trusting the workaround. Second export bug of this kind, after the underscore/hyphen mismatch in July.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">meta</div>
+      <div class="decision-what">Added link-preview metadata, which had been deferred as post-validation work</div>
+      <div class="decision-why">That deferral was decided when nothing was shareable. The moment the site had a public URL about to be sent to design managers, a link unfurling as a bare URL became a real cost. <code class="inline">og:image</code> is deliberately left commented out until a 1200×630 asset exists — pointing a preview at a 404 is worse than having none, because some platforms cache the failure.</div>
+    </div>
+  </div>
+
+  <div class="note"><b>Meta-learning about the working process:</b> three separate bugs this session shared one shape — the code read correctly, and the only thing that could disprove it was running the artefact the way it would really be run. Reading classes, reading config, and reasoning about the CSS cascade all said "fine." The browser said otherwise. The generalisable version: when a value is <em>composed</em> rather than declared — a base path prefixed at build time, a custom property inside a shorthand, an alpha channel inside a hex — reading the source is not verification.</div>
+
+  <div class="note"><b>What I'd do differently next time:</b> set up deployment on day one, before any content or layout work, even with a placeholder page. Not because deploying early is virtuous, but because the deployed environment is a <em>test instrument</em>. Without it we had no way to detect an entire category of bug, and accumulated 21 broken paths without a single failing signal.</div>
+
+  <div class="note">Visuals for this section would help — the broken-thumbnail state under the real base path, and a before/after of the network panel showing the image payload drop. Screenshots were taken in-session but pasted into chat rather than saved; drop them into <code class="inline">assets/</code> and they can be wired in.</div>
+
+  <div class="hook">
+    <div class="hook-label">Shareable hook</div>
+    Deploying my portfolio revealed five broken images that had been broken for days. Not a regression — they had never worked in production, and nothing could have told me: the paths came from content files, so the build tool never saw them, and the dev server serves from the root where they happen to resolve. The bug wasn't in the code. It was in the fact that the only environment that disagreed with my code didn't exist yet.
+  </div>
+</div>
+
+</body>
+</html>

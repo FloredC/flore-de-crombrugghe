@@ -133,13 +133,14 @@
 
 <h1>Content Wiring — Real Copy, Image Labels &amp; the Language River</h1>
 <p class="subtitle">Getting real content out of Figma and into the portfolio build: the ten project cards, the Approach and About sections, and the self-hosted Language River chart. Mostly a story about an AI collaborator offering to write copy I'd already written — and what "content wiring" turned out to mean to each of us.</p>
-<p class="date-range">Sessions: 2 Aug – 3 Aug 2026</p>
+<p class="date-range">Sessions: 2 Aug – 5 Aug 2026</p>
 
 <div class="toc">
   <div class="toc-title">Sessions in this doc</div>
   <ol>
     <li><a href="#sec-2026-08-02">Content wiring: cards, captions, embeds</a><span class="toc-phase">Building with Claude</span></li>
     <li><a href="#sec-2026-08-03">Reading the log back: two words doing too much work</a><span class="toc-phase">Building with Claude</span></li>
+    <li><a href="#sec-2026-08-05">Closing the last placeholders</a><span class="toc-phase">Building with Claude</span></li>
   </ol>
 </div>
 
@@ -416,6 +417,33 @@ description: "2018 — 200+ icons, one grammar — pharma science communication�
   <div class="hook">
     <div class="hook-label">Shareable hook</div>
     The status note in my project file said "all project frontmatter is real." It was wrong — but the more useful discovery is that it couldn't have been useful even if it were right: it described which code fields were populated, something I can't see and can't check. Every misunderstanding in this build traced back to the same shape — a sentence that was true in one person's frame and false in the other's, with nobody naming the frame. Now the rule is that status gets written in terms of what a visitor sees on the page.
+  </div>
+</div>
+
+<div class="section" id="sec-2026-08-05">
+  <div class="section-header">
+    <span class="section-date">5 Aug 2026</span>
+    <span class="section-title">Closing the last placeholders</span>
+    <span class="phase-tag">Building with Claude</span>
+  </div>
+  <p class="section-desc">Re-pulled the copy Flore had corrected in Figma. Started the day with 4 <code class="inline">REVIEW</code> markers and 2 placeholders visible on the page; ended with none.</p>
+
+  <div class="decision-log">
+    <div class="decision">
+      <div class="decision-date">re-pull</div>
+      <div class="decision-what">Carried a likely typo through verbatim instead of fixing it</div>
+      <div class="decision-why">New bubble copy read "documenting an retrospect projects." Correcting it in code is exactly how the design file and the site start diverging — the fix has to happen in Figma or the next pull silently reverts it. Flagged instead. Flore then supplied corrected wording directly, which inverted the usual direction: for that one string the code is now <em>ahead</em> of Figma, so a re-pull of that node would reintroduce the typo. Noted at the line rather than only in a commit.</div>
+    </div>
+    <div class="decision key-decision">
+      <div class="decision-date">re-pull</div>
+      <div class="decision-what">Chasing the "Plaza speech bubble" revealed the Contact section shouldn't have one at all</div>
+      <div class="decision-why">Contact's Wayfinding in Figma is the breadcrumb alone — no avatar, no bubble — while the code was rendering one from a placeholder. Confirmed intentional. Implemented by making Wayfinding render the Guide only when bubble copy exists, so the copy's presence <em>is</em> the condition and no section can end up with an avatar beside an empty bubble. A question asked about one placeholder found a structural mismatch behind it.</div>
+    </div>
+  </div>
+
+  <div class="hook">
+    <div class="hook-label">Shareable hook</div>
+    A placeholder I'd been treating as "copy still to write" turned out to be a section that shouldn't have had that element at all. The design file had already answered it — nobody had thought to check the empty slot against the design, only to fill it. Worth asking of every placeholder: is this waiting for content, or is it waiting to be deleted?
   </div>
 </div>
 
