@@ -50,11 +50,29 @@ const WIND_MS = 2600
 // build time, so this branch is removed entirely from the production bundle.
 const DEV_CLICK_TO_REPLAY = import.meta.env.DEV
 
+// ---------------------------------------------------------------------------
+// REVIEW LOOP — TURN THIS OFF WHEN DONE ITERATING ON THE ARTWORK.
+//
+// Repeats the wind reaction while the row is on screen, so the movement can be
+// watched over and over without scrolling away and back. This deliberately
+// contradicts the brief's "do not loop the full wind reaction continuously" --
+// the shipped behaviour is still once-on-entry, and flipping this back to
+// `false` restores it exactly.
+//
+// Dev-gated as well as flag-gated, so even left on it cannot reach production.
+// It also stops when the row scrolls out of view, so it never runs unseen.
+const DEV_LOOP_FOR_REVIEW = import.meta.env.DEV && true
+
+// Quiet pause between repeats. The reaction itself is WIND_MS; this is the gap
+// after it settles, so one cycle is WIND_MS + this.
+const DEV_LOOP_GAP_MS = 1200
+
 export default function AvatarRega({ windActive }) {
   const ref = useRef(null)
   const [selfWind, setSelfWind] = useState(false)
   const firedOnce = useRef(false)
   const timer = useRef(null)
+  const loop = useRef(null)
 
   // A controlled `windActive` prop wins outright; otherwise we drive ourselves.
   const controlled = windActive !== undefined
@@ -76,8 +94,21 @@ export default function AvatarRega({ windActive }) {
 
     const io = new IntersectionObserver(
       ([entry]) => {
-        // ONCE. firedOnce is what stops it re-triggering every time the row
-        // scrolls back into view, which would read as a loop.
+        if (DEV_LOOP_FOR_REVIEW) {
+          // Review mode: repeat while visible, stop the moment it isn't. The
+          // observer stays connected precisely so it can stop the loop again.
+          if (entry.isIntersecting) {
+            if (loop.current) return
+            gust()
+            loop.current = setInterval(gust, WIND_MS + DEV_LOOP_GAP_MS)
+          } else {
+            clearInterval(loop.current)
+            loop.current = null
+          }
+          return
+        }
+        // Shipped behaviour: ONCE. firedOnce is what stops it re-triggering
+        // every time the row scrolls back into view, which would read as a loop.
         if (!entry.isIntersecting || firedOnce.current) return
         firedOnce.current = true
         gust()
@@ -86,10 +117,20 @@ export default function AvatarRega({ windActive }) {
       { rootMargin: '0px 0px -15% 0px' }
     )
     io.observe(el)
-    return () => io.disconnect()
+    return () => {
+      io.disconnect()
+      clearInterval(loop.current)
+      loop.current = null
+    }
   }, [controlled, gust])
 
-  useEffect(() => () => clearTimeout(timer.current), [])
+  useEffect(
+    () => () => {
+      clearTimeout(timer.current)
+      clearInterval(loop.current)
+    },
+    []
+  )
 
   return (
     <svg
