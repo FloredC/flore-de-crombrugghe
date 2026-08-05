@@ -22,10 +22,17 @@ export default function Wayfinding({
   return (
     <div data-component="wayfinding" className="flex flex-wrap items-center justify-between gap-8">
       <DistrictBreadcrumb zone={zone} subsection={subsection} />
-      <div data-component="guide" className="flex items-center gap-2">
-        <Avatar variant={avatarVariant} />
-        <SpeechBubble variant={bubbleVariant}>{bubbleCopy}</SpeechBubble>
-      </div>
+      {/* No bubbleCopy means no Guide at all -- not an empty bubble. Contact is
+          the real case: its Wayfinding in Figma (node 4522:18469) is the
+          breadcrumb alone, with no avatar and no speech bubble, and Flore
+          confirmed that's intended rather than missing. Driving it off the
+          copy's presence keeps the two in step without a separate flag. */}
+      {bubbleCopy && (
+        <div data-component="guide" className="flex items-center gap-2">
+          <Avatar variant={avatarVariant} />
+          <SpeechBubble variant={bubbleVariant}>{bubbleCopy}</SpeechBubble>
+        </div>
+      )}
     </div>
   )
 }
