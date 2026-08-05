@@ -266,30 +266,51 @@ const EDITORIAL_CARD_WIDE = 'max-w-[400px] lg:max-w-none lg:w-[400px] xl:w-[480p
 // row one; 2,3 in row two), so the stagger goes on the odd indices.
 const STAGGER_RIGHT = 'sm:mt-space-80'
 
+// Horizontal half of the same idea. The 2-up columns are wider than the cards
+// they hold -- 435 against 320 at a 976 viewport -- and all that slack was
+// going unused with every card flush to its column start, which is most of why
+// the band read as a table. Alternating justify-self spends it: row one pushes
+// its two cards apart to the outer edges, row two pulls them toward the middle,
+// so the block zigzags instead of ruling up.
+//
+// Deliberately NOT the real 12-column collage. That needs frames wider than the
+// cards sitting in them, and at 640 a span-7 frame is 345 against a 400 wide
+// card -- the placements would overflow themselves. Working inside the existing
+// two columns can't overflow, because a card is never wider than its own
+// column, and it degrades on its own: by 640 the slack has gone to zero and the
+// zigzag simply flattens back to the vertical stagger.
+//
+// No lg reset needed on these -- every entry sets its own lg:justify-self.
+const NUDGE_OUT = 'sm:justify-self-end'
+const NUDGE_IN = 'sm:justify-self-start'
+
+// At 2-up the zigzag runs: row one apart (left card left, right card right),
+// row two together (left card right, right card left).
 export const MEDIA_COLLAGE = [
   // Podcast (embed): right-aligned inside a span-10 frame -> x = 582.67.
-  `lg:col-start-1 lg:col-span-10 lg:row-start-1 lg:justify-self-end ${EDITORIAL_CARD}`,
+  `${NUDGE_IN} lg:col-start-1 lg:col-span-10 lg:row-start-1 lg:justify-self-end ${EDITORIAL_CARD}`,
   // Friends of Figma: flush left. Right-hand column at 2-up, so it carries the
   // stagger -- cleared at lg, which sets no mt of its own here.
-  `${STAGGER_RIGHT} lg:mt-0 lg:col-start-1 lg:col-span-6 lg:row-start-2 lg:justify-self-start ${EDITORIAL_CARD}`,
+  `${STAGGER_RIGHT} ${NUDGE_OUT} lg:mt-0 lg:col-start-1 lg:col-span-6 lg:row-start-2 lg:justify-self-start ${EDITORIAL_CARD}`,
   // Swisscovid: right half, inset 100, and dropped below its row-mate -- 200 at
   // tablet against 300 at desktop, since the same drop against a shorter
   // container reads as a hole rather than a stagger.
-  `lg:col-start-7 lg:col-span-6 lg:row-start-2 lg:justify-self-start lg:ml-space-100 lg:mt-space-200 xl:mt-space-300 ${EDITORIAL_CARD}`,
+  `${NUDGE_OUT} lg:col-start-7 lg:col-span-6 lg:row-start-2 lg:justify-self-start lg:ml-space-100 lg:mt-space-200 xl:mt-space-300 ${EDITORIAL_CARD}`,
   // 10-year quiz: back to the left half, same 100 inset. Right-hand column at
   // 2-up; lg:mt-space-32 below already overrides the stagger, no reset needed.
-  `${STAGGER_RIGHT} lg:col-start-1 lg:col-span-6 lg:row-start-3 lg:justify-self-start lg:ml-space-100 lg:mt-space-32 ${EDITORIAL_CARD}`,
+  `${STAGGER_RIGHT} ${NUDGE_IN} lg:col-start-1 lg:col-span-6 lg:row-start-3 lg:justify-self-start lg:ml-space-100 lg:mt-space-32 ${EDITORIAL_CARD}`,
 ]
 
+// Same zigzag, three cards: row one apart, then Papayas pulled in on row two.
 export const ASIDE_COLLAGE = [
   // Cold Plunge: right-aligned inside a span-10 frame, same as the podcast.
-  `lg:col-start-1 lg:col-span-10 lg:row-start-1 lg:justify-self-end ${EDITORIAL_CARD}`,
+  `${NUDGE_IN} lg:col-start-1 lg:col-span-10 lg:row-start-1 lg:justify-self-end ${EDITORIAL_CARD}`,
   // Data, Illustrated: flush left, the wide card in a span-7 frame. No vertical
   // offset -- it was 160, then 80, and each time it stacked on the row gap and
   // left the first card-to-card gap much larger than the second. Spacing here
   // is the grid's row gap alone; see ASIDE_COLLAGE_GRID.
   // (At 2-up it's the right-hand card in row one, so it takes the stagger.)
-  `${STAGGER_RIGHT} lg:mt-0 lg:col-start-1 lg:col-span-7 lg:row-start-2 lg:justify-self-start ${EDITORIAL_CARD_WIDE}`,
+  `${STAGGER_RIGHT} ${NUDGE_OUT} lg:mt-0 lg:col-start-1 lg:col-span-7 lg:row-start-2 lg:justify-self-start ${EDITORIAL_CARD_WIDE}`,
   // Papayas: right-aligned to the full 12-column width -> x = 784.
-  `lg:col-start-1 lg:col-span-12 lg:row-start-3 lg:justify-self-end ${EDITORIAL_CARD}`,
+  `${NUDGE_OUT} lg:col-start-1 lg:col-span-12 lg:row-start-3 lg:justify-self-end ${EDITORIAL_CARD}`,
 ]
