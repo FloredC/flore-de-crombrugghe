@@ -122,6 +122,12 @@ body {
    the 8s loop is deliberately motionless, so at full speed you wait ~4s
    between gestures. Put it back to 8s afterwards.
 
+   Origins below are for the CURRENT artboard (viewBox 0 0 107 93). They are
+   anatomical points in viewBox units, so a re-export that changes the artboard
+   invalidates them -- re-derive, never rescale. (The first export was 275x218
+   with a different aspect ratio; carrying those numbers over would have put
+   every pivot in the wrong place without any error to notice.)
+
    Transform origins are anatomical, in viewBox units, via
    `transform-box: view-box` — that makes transform-origin resolve against the
    SVG's own coordinate system instead of each path's bounding box, which is
@@ -153,23 +159,23 @@ body {
    -- the hair sits inside this group so it inherits the tilt and stays welded
    to the skull; see the note in AvatarPresentingIdle.jsx. */
 [data-component='avatar-presenting-idle'] #head-group {
-  transform-origin: 180px 79px;
+  transform-origin: 65px 43px;
   animation-name: lab-avatar-head;
 }
 /* Upper skull. This rotation is ON TOP of the group's, so it's pure
    follow-through rather than independent motion. */
 [data-component='avatar-presenting-idle'] #hair {
-  transform-origin: 182px 40px;
+  transform-origin: 66px 25px;
   animation-name: lab-avatar-hair;
 }
 /* left shoulder — where this arm joins the torso */
 [data-component='avatar-presenting-idle'] #arm-presenting {
-  transform-origin: 131px 102px;
+  transform-origin: 46.5px 52px;
   animation-name: lab-avatar-arm-presenting;
 }
 /* right shoulder */
 [data-component='avatar-presenting-idle'] #arm-resting {
-  transform-origin: 230px 105px;
+  transform-origin: 83px 52.7px;
   animation-name: lab-avatar-arm-resting;
 }
 
