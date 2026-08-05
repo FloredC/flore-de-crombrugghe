@@ -1,4 +1,5 @@
 import ButtonLink from './ButtonLink'
+import useIframeFocusRing, { IFRAME_FOCUS_RING } from '../lib/useIframeFocusRing'
 import ImagePlaceholder from './ImagePlaceholder'
 import { ExternalLinkIcon } from './icons'
 
@@ -7,6 +8,8 @@ import { ExternalLinkIcon } from './icons'
 // an iframe rather than an image, so it keeps its own height.
 
 export default function MediaCard({ item }) {
+  const [embedRef, embedFocused] = useIframeFocusRing()
+
   return (
     <article
       // Anchor target for the map's matching hotspot popover (e.g.
@@ -37,10 +40,18 @@ export default function MediaCard({ item }) {
               artwork-to-title gap than its neighbours even though the iframe's
               own box was flush. Sizing the box to the player removes the band.
               Still far short of the 352px block this started as. */}
+          {/* An iframe is focusable, so it lands in the tab order whether or
+              not we give it a state -- and it had neither a name nor a visible
+              focus indicator, so keyboard focus simply vanished here. `title`
+              is what a screen reader announces for the frame; the ring can't
+              be a `focus-visible:` class on an iframe (see useIframeFocusRing
+              for why) so it's applied conditionally instead. */}
           <iframe
+            ref={embedRef}
             data-component="media-embed"
             src={item.embedSrc}
-            className="h-[152px] w-full"
+            title={`${item.title} — audio player`}
+            className={`h-[152px] w-full ${embedFocused ? IFRAME_FOCUS_RING : ''}`}
             frameBorder="0"
             allowFullScreen
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"

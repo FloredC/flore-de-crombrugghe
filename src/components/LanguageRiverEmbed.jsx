@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import useIframeFocusRing, { IFRAME_FOCUS_RING } from '../lib/useIframeFocusRing'
 
 // Used only for the first paint and if measurement is ever unavailable --
 // close to the real rendered height (371-387px depending on width) so the
@@ -21,6 +22,8 @@ const FALLBACK_HEIGHT = 380
 // is readable directly and no postMessage bridge is needed.
 export default function LanguageRiverEmbed({ src, title }) {
   const frameRef = useRef(null)
+  // Reuses frameRef rather than putting a second ref on the same node.
+  const [, frameFocused] = useIframeFocusRing(frameRef)
   const [height, setHeight] = useState(FALLBACK_HEIGHT)
 
   const measure = useCallback(() => {
@@ -74,7 +77,11 @@ export default function LanguageRiverEmbed({ src, title }) {
         title={title}
         loading="lazy"
         scrolling="no"
-        className="block w-full border-0"
+        // Focusable by virtue of being an iframe, so it takes a Tab stop
+        // regardless -- and nothing inside the chart is focusable, so without
+        // a ring here focus vanished entirely for that stop. Driven from JS
+        // rather than a focus-visible: class; see useIframeFocusRing.
+        className={`block w-full border-0 ${frameFocused ? IFRAME_FOCUS_RING : ''}`}
         style={{ height }}
       />
     </div>
