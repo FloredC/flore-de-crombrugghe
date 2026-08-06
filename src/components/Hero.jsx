@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import heroMapBackground from '../assets/illustrations/hero-map-background.svg'
 import PanZoomContainer from './PanZoomContainer'
 import Hotspot from './Hotspot'
-import Avatar from './Avatar'
+import AvatarPresentingIdle from './AvatarPresentingIdle'
 import SpeechBubble from './SpeechBubble'
 import { hotspots } from '../lib/content'
 import { hotspotHighlights } from '../lib/hotspotHighlights'
@@ -125,7 +125,11 @@ function Guide() {
   return (
     <>
       <SpeechBubble variant="top">{GREETING}</SpeechBubble>
-      <Avatar variant="hero" />
+      {/* Same drawing as the Lab wayfinding avatar, mirrored so the presenting
+          arm points right. In Work it gestures left at the "Lab" breadcrumb;
+          here there's nothing on the left to point at, and the map is to the
+          right. Flore's call 2026-08-05. */}
+      <AvatarPresentingIdle size="hero" flipped />
       {/* No gap and tighter leading: at 1.5 line-height the two lines carry
           ~7px of leading each, so a 4px gap read as ~18px of space. Figma's
           own name/title containers overlap slightly, i.e. tighter than the

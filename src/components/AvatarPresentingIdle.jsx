@@ -27,7 +27,12 @@ import { useEffect, useRef, useState } from 'react'
  * viewBox from 275x218 to 107x93 and changed its aspect ratio, which would
  * have silently thrown every pivot off if carried over.
  */
-const AVATAR_WIDTH = 'w-[80px] lg:w-[96px]'
+// Wayfinding rows and the hero want different sizes: the hero avatar has always
+// been the larger one (it was 70/108 before this replaced it).
+const AVATAR_WIDTH = {
+  wayfinding: 'w-[80px] lg:w-[96px]',
+  hero: 'w-[80px] lg:w-[108px]',
+}
 
 // Line weight of the figure, overriding the 1.45455 in the exported asset.
 //
@@ -43,7 +48,18 @@ const AVATAR_WIDTH = 'w-[80px] lg:w-[96px]'
 // The halo keeps its own lighter weight from the asset and is unaffected.
 const STROKE_WIDTH = 1.05
 
-export default function AvatarPresentingIdle() {
+/**
+ * `flipped` mirrors the whole drawing so the presenting arm points RIGHT
+ * instead of left — used in the hero, where there's no breadcrumb on the left
+ * to gesture at. Done with scaleX(-1) on the <svg> rather than by editing
+ * geometry, so it stays one asset with one source of truth.
+ *
+ * The animation mirrors coherently for free: the inner rotations happen in the
+ * SVG's own coordinate space and the flip is applied on top, so a head that
+ * tilts toward the arm keeps tilting toward the arm. Transform origins are
+ * unaffected — they're resolved inside that same inner space.
+ */
+export default function AvatarPresentingIdle({ size = 'wayfinding', flipped = false }) {
   const ref = useRef(null)
   // Paused until the row is actually on screen. Starting paused rather than
   // running-then-pausing avoids a frame of motion for a row far below the fold.
@@ -72,7 +88,7 @@ export default function AvatarPresentingIdle() {
       aria-hidden="true"
       // h-auto + the viewBox keeps the aspect ratio exact, so nothing stretches
       // and the box is reserved before paint -- no layout shift.
-      className={`${AVATAR_WIDTH} h-auto shrink-0`}
+      className={`${AVATAR_WIDTH[size]} h-auto shrink-0 ${flipped ? '-scale-x-100' : ''}`}
     >
       {/* From the asset, deliberately not animated. */}
       <circle id="avatar-halo" cx="66.1035" cy="43.9736" r="39.4959" stroke="#D2D2D2" strokeWidth="1.00824" />
