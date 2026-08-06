@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Flore de Crombrugghe — Senior Product Designer</title>
+    <!-- SVG favicon: scales to every size a browser asks for, so there's no
+         separate 16/32/180 set to keep in sync. Referenced with BASE_URL's
+         literal path rather than a root-relative "/favicon.svg", which would
+         resolve to the domain root and 404 on a project site. -->
+    <link rel="icon" type="image/svg+xml" href="/flore-de-crombrugghe/favicon.svg" />
+
     <meta
       name="description"
       content="Flore de Crombrugghe — Senior Product Designer in Zurich, designing consumer apps and internal tools for high-stakes, large-scale services."
@@ -15,11 +21,10 @@
          summary. og:* covers LinkedIn, Slack, WhatsApp and iMessage; the two
          twitter:* tags cover X, which ignores og:type.
 
-         STILL MISSING, and it needs an asset from Flore: og:image. Without one
-         the preview is text-only -- correct, but flat next to a card with a
-         picture. It wants a 1200x630 PNG (the ratio every platform crops to);
-         a crop of the illustrated map would do it. Drop one in as
-         public/images/og-preview.png and uncomment the two lines below.
+         og:image is live, 1200x630 as every platform expects. The explicit
+         width/height let a crawler reserve the space before the image loads.
+         twitter:image is separate because X does not read og:image when a
+         twitter:card is declared.
 
          The URL is absolute because crawlers do not resolve relative paths, and
          it hardcodes the project-site path for the same reason -- if a custom
@@ -33,8 +38,11 @@
       content="An illustrated map of my work: consumer apps and internal tools for high-stakes, large-scale services."
     />
     <meta property="og:url" content="https://floredc.github.io/flore-de-crombrugghe/" />
-    <!-- <meta property="og:image" content="https://floredc.github.io/flore-de-crombrugghe/images/og-preview.png" /> -->
-    <!-- <meta property="og:image:alt" content="An illustrated city map of Flore de Crombrugghe's design work." /> -->
+    <meta property="og:image" content="https://floredc.github.io/flore-de-crombrugghe/images/og-preview.png" />
+    <meta property="og:image:alt" content="An illustrated city map of Flore de Crombrugghe's design work." />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:image" content="https://floredc.github.io/flore-de-crombrugghe/images/og-preview.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Flore de Crombrugghe — Senior Product Designer" />
     <meta
