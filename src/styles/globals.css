@@ -93,3 +93,301 @@ body {
   font-size: 18px;
   line-height: 1.5;
 }
+
+/* ---------------------------------------------------------------------------
+   Lab wayfinding avatar — idle animation
+   ---------------------------------------------------------------------------
+   An 8s loop that is deliberately STILL for the first half. All four parts move
+   in the same window (roughly 50%–88%) so it reads as one gesture rather than
+   four things twitching independently, then everything returns to exactly 0deg
+   — first and last keyframes are identical, so the loop never jumps.
+
+   TO TUNE: every movement is a single rotation value, listed here. Increase or
+   decrease the degrees; leave the 0deg start/end keyframes alone or the loop
+   will visibly snap.
+
+     #head-group     -9deg     head tilt toward the "Lab" breadcrumb
+     #hair           -4deg     secondary follow-through, lags the head by ~2%
+     #arm-presenting -9deg     the emphasis on "Lab"
+     #arm-resting    +3deg     counterweight
+
+   DEGREES ARE NOT WHAT YOU SEE. What reads is how far the far end of a part
+   travels, and that depends on its distance from the pivot -- so the same
+   number of degrees is far more visible on an arm than on a head. Measured
+   lever arms for THIS avatar at its current 96px render:
+
+     part             1 degree buys    current value    travel
+     #head-group        0.45 px          9 deg          4.0 px
+     #hair              0.36 px          4 deg          1.4 px
+     #arm-presenting    0.82 px          9 deg          7.4 px
+     #arm-resting       0.69 px          3 deg          2.1 px
+
+   So: to move something by N pixels, divide N by the "1 degree buys" column.
+   Anything under ~1.5px of travel is effectively invisible at this size --
+   that's why the head needed nearly double the arm's degrees to read at all.
+   These scale with render width: at 80px (the mobile size) multiply travel by
+   0.83, so it's proportionally the same.
+
+   WHY THESE ARE BIGGER THAN THE 1-2deg BRIEF: degrees are not the thing you
+   perceive -- pixels of travel are, and that depends on how large the avatar
+   renders. At 96px wide the presenting arm is only ~48px long, so 1.8deg moves
+   its tip 1.5px, over three seconds. That is invisible. 6deg moves it ~5px,
+   which reads as a gentle emphasis rather than a wave. If the avatar is ever
+   rendered larger, these should come DOWN proportionally.
+
+   TO EVALUATE QUICKLY: temporarily set animation-duration below to 3s. Half of
+   the 8s loop is deliberately motionless, so at full speed you wait ~4s
+   between gestures. Put it back to 8s afterwards.
+
+   Origins below are for the CURRENT artboard (viewBox 0 0 107 93). They are
+   anatomical points in viewBox units, so a re-export that changes the artboard
+   invalidates them -- re-derive, never rescale. (The first export was 275x218
+   with a different aspect ratio; carrying those numbers over would have put
+   every pivot in the wrong place without any error to notice.)
+
+   Transform origins are anatomical, in viewBox units, via
+   `transform-box: view-box` — that makes transform-origin resolve against the
+   SVG's own coordinate system instead of each path's bounding box, which is
+   what lets a shoulder be a shoulder rather than the centre of the arm.
+   Rotating around a bbox centre is what tears a limb off at the joint.
+--------------------------------------------------------------------------- */
+[data-component='avatar-presenting-idle'] #head-group,
+[data-component='avatar-presenting-idle'] #hair,
+[data-component='avatar-presenting-idle'] #arm-presenting,
+[data-component='avatar-presenting-idle'] #arm-resting {
+  transform-box: view-box;
+  animation-duration: 7s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  /* Paused until the row scrolls into view; the component flips this attribute
+     from an IntersectionObserver. Pausing (rather than removing the animation)
+     means it resumes mid-pose instead of snapping back to frame zero. */
+  animation-play-state: paused;
+}
+
+[data-component='avatar-presenting-idle'][data-animate='true'] #head-group,
+[data-component='avatar-presenting-idle'][data-animate='true'] #hair,
+[data-component='avatar-presenting-idle'][data-animate='true'] #arm-presenting,
+[data-component='avatar-presenting-idle'][data-animate='true'] #arm-resting {
+  animation-play-state: running;
+}
+
+/* Base of the skull, where the neck meets it. On the GROUP, not the #head path
+   -- the hair sits inside this group so it inherits the tilt and stays welded
+   to the skull; see the note in AvatarPresentingIdle.jsx. */
+[data-component='avatar-presenting-idle'] #head-group {
+  transform-origin: 65px 43px;
+  animation-name: lab-avatar-head;
+}
+/* Upper skull. This rotation is ON TOP of the group's, so it's pure
+   follow-through rather than independent motion. */
+[data-component='avatar-presenting-idle'] #hair {
+  transform-origin: 66px 25px;
+  animation-name: lab-avatar-hair;
+}
+/* left shoulder — where this arm joins the torso */
+[data-component='avatar-presenting-idle'] #arm-presenting {
+  transform-origin: 46.5px 52px;
+  animation-name: lab-avatar-arm-presenting;
+}
+/* right shoulder */
+[data-component='avatar-presenting-idle'] #arm-resting {
+  transform-origin: 83px 52.7px;
+  animation-name: lab-avatar-arm-resting;
+}
+
+/* The action is compressed into a short window near the end of the loop. What
+   made it hard to see was not only how often it happened but how SLOWLY it
+   happened -- a movement spread over three seconds reads as drift, and the eye
+   ignores drift. Each phase below is ~0.42s at 7s, so the whole gesture takes
+   ~1.3s instead of ~3s, and the avatar is still motionless for the first ~4.5s.
+   To make the gesture itself faster, narrow these windows. To make it happen
+   more OFTEN, lower animation-duration above. Those are two different knobs. */
+@keyframes lab-avatar-head {
+  0%, 64% { transform: rotate(0deg); }
+  70%, 76% { transform: rotate(-9deg); }
+  82%, 100% { transform: rotate(0deg); }
+}
+@keyframes lab-avatar-hair {
+  0%, 66% { transform: rotate(0deg); }
+  72%, 78% { transform: rotate(-4deg); }
+  84%, 100% { transform: rotate(0deg); }
+}
+@keyframes lab-avatar-arm-presenting {
+  0%, 65% { transform: rotate(0deg); }
+  71%, 77% { transform: rotate(-9deg); }
+  83%, 100% { transform: rotate(0deg); }
+}
+@keyframes lab-avatar-arm-resting {
+  0%, 65% { transform: rotate(0deg); }
+  71%, 77% { transform: rotate(3deg); }
+  83%, 100% { transform: rotate(0deg); }
+}
+
+/* Static avatar for anyone who asked not to see motion. */
+@media (prefers-reduced-motion: reduce) {
+  [data-component='avatar-presenting-idle'] #head-group,
+  [data-component='avatar-presenting-idle'] #hair,
+  [data-component='avatar-presenting-idle'] #arm-presenting,
+  [data-component='avatar-presenting-idle'] #arm-resting {
+    animation: none;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Harbour / Rega wayfinding avatar — wind reaction
+   ---------------------------------------------------------------------------
+   RESTING STATE IS THE DEFAULT below, not an animation. That matters: with
+   JavaScript disabled, prefers-reduced-motion on, or the reaction simply not
+   running, the avatar is already correct — neutral hair and resting scarf
+   visible, wind versions at zero opacity. Nothing has to run for it to look
+   right.
+
+   The reaction fires once when the row enters the viewport (or on click in dev)
+   and lasts 2.6s, which must stay in step with WIND_MS in AvatarRega.jsx.
+
+   TO TUNE — each movement is one value:
+
+     head dip          #head-motion        rotate  2.5deg   about the neck
+     hair secondary    #hair-back-wind     rotate -2deg     about the crown
+     scarf flutter     #scarf-tail-wind    rotate -3/+1.5/-2deg  about the collar
+
+   Direction: the wind comes from above-left and blows the hair and scarf to the
+   avatar's right, so the head tilts AWAY from it (positive = clockwise). Keep
+   the head at or below ~3deg; beyond that the neck starts to open a gap,
+   because the head is a separate path from the torso and only the pivot holds
+   them together.
+
+   Rotations are about anatomical points in viewBox units via
+   transform-box: view-box, measured from the exported geometry:
+     neck   65, 42     crown  64, 21     collar 70.5, 46
+--------------------------------------------------------------------------- */
+[data-component='avatar-rega'] #hair-back-neutral,
+[data-component='avatar-rega'] #scarf-tail-rest {
+  opacity: 1;
+}
+[data-component='avatar-rega'] #hair-back-wind,
+[data-component='avatar-rega'] #scarf-tail-wind {
+  opacity: 0;
+}
+
+[data-component='avatar-rega'] #head-motion,
+[data-component='avatar-rega'] #hair-back-wind,
+[data-component='avatar-rega'] #hair-back-neutral,
+[data-component='avatar-rega'] #scarf-tail-wind,
+[data-component='avatar-rega'] #scarf-tail-rest {
+  transform-box: view-box;
+}
+
+[data-component='avatar-rega'] #head-motion { transform-origin: 65px 42px; }
+[data-component='avatar-rega'] #hair-back-wind { transform-origin: 64px 21px; }
+[data-component='avatar-rega'] #scarf-tail-wind { transform-origin: 70.5px 46px; }
+
+/* Everything below runs only while the reaction is active. iteration-count is 1
+   and there is no fill-mode, so each element lands back on the resting values
+   above by itself -- the loop cannot get stuck mid-gust. */
+[data-component='avatar-rega'][data-wind='true'] #head-motion,
+[data-component='avatar-rega'][data-wind='true'] #hair-back-wind,
+[data-component='avatar-rega'][data-wind='true'] #hair-back-neutral,
+[data-component='avatar-rega'][data-wind='true'] #scarf-tail-wind,
+[data-component='avatar-rega'][data-wind='true'] #scarf-tail-rest {
+  animation-duration: 2600ms;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 1;
+}
+
+[data-component='avatar-rega'][data-wind='true'] #head-motion { animation-name: rega-head-dip; }
+[data-component='avatar-rega'][data-wind='true'] #hair-back-wind { animation-name: rega-hair-wind; }
+[data-component='avatar-rega'][data-wind='true'] #hair-back-neutral { animation-name: rega-swap-out; }
+[data-component='avatar-rega'][data-wind='true'] #scarf-tail-wind { animation-name: rega-scarf-wind; }
+[data-component='avatar-rega'][data-wind='true'] #scarf-tail-rest { animation-name: rega-swap-out; }
+
+@keyframes rega-head-dip {
+  0% { transform: rotate(0deg); }
+  11% { transform: rotate(2.5deg); }   /* quick recoil from the gust */
+  72% { transform: rotate(2.5deg); }   /* hold */
+  100% { transform: rotate(0deg); }    /* settle back */
+}
+
+/* The neutral drawings. Crossfaded rather than hard-switched, over ~130ms --
+   long enough not to pop, short enough that the double image never registers.
+   A gap instead of an overlap would be worse: the hair would vanish for a
+   frame. */
+@keyframes rega-swap-out {
+  0% { opacity: 1; }
+  5%, 82% { opacity: 0; }
+  92%, 100% { opacity: 1; }
+}
+
+/* Wind hair: fades in with the swap, then a SMALL delayed drift -- it starts
+   moving after the head has already dipped, which is what makes it read as
+   hair reacting to the head rather than moving on its own. */
+@keyframes rega-hair-wind {
+  0% { opacity: 0; transform: rotate(0deg); }
+  5% { opacity: 1; transform: rotate(0deg); }
+  26% { transform: rotate(-2deg); }
+  48% { transform: rotate(-1.2deg); }
+  82% { opacity: 1; transform: rotate(-1.5deg); }
+  92% { opacity: 0; }
+  100% { opacity: 0; transform: rotate(0deg); }
+}
+
+/* Scarf: same swap, but a stronger flutter that oscillates rather than settling
+   straight away -- fabric keeps moving after hair has stopped. */
+@keyframes rega-scarf-wind {
+  0% { opacity: 0; transform: rotate(0deg); }
+  5% { opacity: 1; transform: rotate(0deg); }
+  22% { transform: rotate(-3deg); }
+  40% { transform: rotate(1.5deg); }
+  58% { transform: rotate(-2deg); }
+  74% { transform: rotate(0.5deg); }
+  82% { opacity: 1; transform: rotate(0deg); }
+  92% { opacity: 0; }
+  100% { opacity: 0; transform: rotate(0deg); }
+}
+
+/* Reduced motion: no reaction at all. The resting rules at the top already show
+   the static neutral avatar, so this needs to suppress, not restate. */
+@media (prefers-reduced-motion: reduce) {
+  [data-component='avatar-rega'][data-wind='true'] #head-motion,
+  [data-component='avatar-rega'][data-wind='true'] #hair-back-wind,
+  [data-component='avatar-rega'][data-wind='true'] #hair-back-neutral,
+  [data-component='avatar-rega'][data-wind='true'] #scarf-tail-wind,
+  [data-component='avatar-rega'][data-wind='true'] #scarf-tail-rest {
+    animation: none;
+    transform: none;
+  }
+  [data-component='avatar-rega'] #hair-back-wind,
+  [data-component='avatar-rega'] #scarf-tail-wind { opacity: 0; }
+}
+
+/* ---------------------------------------------------------------------------
+   Hero avatar — arm lifts instead of dips
+   ---------------------------------------------------------------------------
+   The hero renders the SAME drawing as the Lab wayfinding avatar, mirrored
+   (see Hero.jsx), so by default it inherits the same gesture. Flore wanted the
+   hero's arm to travel UP, both to read more clearly at hero size and to tell
+   the two apart.
+
+   This is a SIGN FLIP, not just a bigger number, and that's the non-obvious
+   part. The presenting arm hangs down-and-out from the shoulder, so a negative
+   rotation swings the hand further DOWN -- measured from the geometry, the
+   Lab's -9deg moves the hand tip from y 81.9 to 88.3. Positive lifts it: +12deg
+   brings it to 72.3, about 9.6 units up, ~10px at the hero's 108px render.
+
+   Mirroring does not affect this. scaleX(-1) flips the horizontal only, so
+   "up" stays up; it just reverses which side of the body the arm sweeps.
+
+   Only the presenting arm is overridden -- head, hair and resting arm keep the
+   shared idle, so the two avatars still feel like the same character.
+--------------------------------------------------------------------------- */
+[data-component='avatar-presenting-idle'][data-avatar-size='hero'][data-animate='true'] #arm-presenting {
+  animation-name: hero-avatar-arm-lift;
+}
+
+@keyframes hero-avatar-arm-lift {
+  0%, 65% { transform: rotate(0deg); }
+  71%, 77% { transform: rotate(12deg); }
+  83%, 100% { transform: rotate(0deg); }
+}

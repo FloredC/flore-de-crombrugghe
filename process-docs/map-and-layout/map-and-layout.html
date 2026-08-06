@@ -134,12 +134,13 @@
 
 <h1>Map &amp; layout system</h1>
 <p class="subtitle">Building the layer underneath the portfolio homepage: the global layout system the components were already sitting on without one, the card media treatment, and the map's behaviour across screen sizes. Mostly a story about values that were written down in the wrong place.</p>
-<p class="date-range">Sessions: 4 Aug 2026</p>
+<p class="date-range">Sessions: 4 Aug – 5 Aug 2026</p>
 
 <div class="toc">
   <div class="toc-title">Sessions in this doc</div>
   <ol>
     <li><a href="#sec-2026-08-04">Layout system, card media, and making the map fit</a><span class="toc-phase">Building with Claude</span></li>
+    <li><a href="#sec-2026-08-05">The tablet band nobody had designed</a><span class="toc-phase">Building with Claude</span></li>
   </ol>
 </div>
 
@@ -318,6 +319,45 @@
   <div class="hook">
     <div class="hook-label">Shareable hook</div>
     I asked for the avatar on my map to shrink on smaller screens. It did — and it quietly took my entire mobile type scale with it. A one-line CSS transform on a container had been setting my speech bubble to 12px and my name to 15.5px, sizes I never chose and couldn't find anywhere in my type styles. The lesson isn't "don't use transforms": it's that when a value doesn't live where you'd look for it, you don't discover it's wrong — you discover it's <em>there</em>, months later, wondering who decided that.
+  </div>
+</div>
+
+<div class="section" id="sec-2026-08-05">
+  <div class="section-header">
+    <span class="section-date">5 Aug 2026</span>
+    <span class="section-title">The tablet band nobody had designed</span>
+    <span class="phase-tag">Building with Claude</span>
+  </div>
+  <p class="section-desc">Figma has a 402 frame and a 1622 frame and nothing between, so everything from 768 to 1279 had been inheriting phone rules. Auditing that band turned up a hierarchy inversion that had been shipping unnoticed.</p>
+
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">audit</div>
+      <div class="decision-what">The work/editorial hierarchy inverted below 1280 — the secondary content was rendering wider than the actual project work</div>
+      <div class="decision-why">Project cards went 3-up at 1024 and shrank to 298px, while the editorial cards sat at a fixed 320/455. The rule that project cards stay dominant held at desktop and quietly reversed below it. Measured, not theorised: 56 <code class="inline">xl:</code> rules against 2 <code class="inline">lg:</code> ones meant the band was barely designed at all. Fixed by keeping project cards 2-up until xl (~451px).</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">audit</div>
+      <div class="decision-what">Same inversion one card along, caught only by checking</div>
+      <div class="decision-why">A flat 480px wide-aside card would have beaten the 451px tablet project card. Steps 400 → 480 across the band now. The 1.5× wide-to-normal relation is therefore exact only at xl — below it the ceiling set by the project cards wins, which is the right priority.</div>
+    </div>
+    <div class="decision key-decision">
+      <div class="decision-date">collage</div>
+      <div class="decision-what">The collage <em>feel</em> came down to the 2-up band as a zigzag, not as the real 12-column collage</div>
+      <div class="decision-why">The real collage can't survive there: at 640px a span-7 frame is 345px against a 400px card, so the placements would overflow themselves. Instead the existing two columns were used — row one pushes its cards to the outer edges, row two pulls them in. The slack was already there and going unused (435px columns holding 320px cards, all flush left), which is most of why the band read as a table. It also turns itself off: by 640 the slack is zero and it flattens back on its own, no breakpoint needed.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">rhythm</div>
+      <div class="decision-what">Gave the 2-up band its own vertical rhythm, larger than desktop's</div>
+      <div class="decision-why">Both collage row gaps had no tablet value — the phone value ran unchanged to 1280, so the band used spacing designed for a single stacked column. The About cards sat 32px apart, the tightest gap on the page. Now 120/100 at sm. Larger than the desktop 64/24 is correct, not a typo: from lg the collage's own offsets do the separating, so the row gap can drop back.</div>
+    </div>
+  </div>
+
+  <div class="note"><b>What I'd do differently next time:</b> draw one intermediate frame in Figma, even roughly. Not for fidelity — for the questions it forces. Every problem in this band existed because no one had ever looked at the page at 1024, and the values that were "correct" at both designed widths were wrong in between.</div>
+
+  <div class="hook">
+    <div class="hook-label">Shareable hook</div>
+    My Figma file has a phone frame and a desktop frame. Everything in between was inheriting phone rules — and at 1024 that meant my project cards had shrunk to 298px while the smaller "supporting" cards sat at 320. The work was literally being displayed as less important than the sidenotes, at exactly the width a lot of people browse at. Two designed breakpoints is not the same as a design that works at every width.
   </div>
 </div>
 

@@ -1,4 +1,6 @@
 import Avatar from './Avatar'
+import AvatarPresentingIdle from './AvatarPresentingIdle'
+import AvatarRega from './AvatarRega'
 import SpeechBubble from './SpeechBubble'
 import DistrictBreadcrumb from './DistrictBreadcrumb'
 
@@ -29,7 +31,16 @@ export default function Wayfinding({
           copy's presence keeps the two in step without a separate flag. */}
       {bubbleCopy && (
         <div data-component="guide" className="flex items-center gap-2">
-          <Avatar variant={avatarVariant} />
+          {/* One opt-in variant, currently used by the Lab — Own products row
+              only (see HomePage). Every other row keeps the existing static
+              <img> avatar untouched. */}
+          {avatarVariant === 'presenting-idle' ? (
+            <AvatarPresentingIdle />
+          ) : avatarVariant === 'rega-wind' ? (
+            <AvatarRega />
+          ) : (
+            <Avatar variant={avatarVariant} />
+          )}
           <SpeechBubble variant={bubbleVariant}>{bubbleCopy}</SpeechBubble>
         </div>
       )}
