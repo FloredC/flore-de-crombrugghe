@@ -82,6 +82,9 @@ export default function AvatarPresentingIdle({ size = 'wayfinding', flipped = fa
       ref={ref}
       data-component="avatar-presenting-idle"
       data-animate={inView ? 'true' : 'false'}
+      // Lets the hero take a different arm gesture from the wayfinding copy --
+      // see the hero override in globals.css.
+      data-avatar-size={size}
       viewBox="0 0 107 93"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

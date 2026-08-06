@@ -361,3 +361,33 @@ body {
   [data-component='avatar-rega'] #hair-back-wind,
   [data-component='avatar-rega'] #scarf-tail-wind { opacity: 0; }
 }
+
+/* ---------------------------------------------------------------------------
+   Hero avatar — arm lifts instead of dips
+   ---------------------------------------------------------------------------
+   The hero renders the SAME drawing as the Lab wayfinding avatar, mirrored
+   (see Hero.jsx), so by default it inherits the same gesture. Flore wanted the
+   hero's arm to travel UP, both to read more clearly at hero size and to tell
+   the two apart.
+
+   This is a SIGN FLIP, not just a bigger number, and that's the non-obvious
+   part. The presenting arm hangs down-and-out from the shoulder, so a negative
+   rotation swings the hand further DOWN -- measured from the geometry, the
+   Lab's -9deg moves the hand tip from y 81.9 to 88.3. Positive lifts it: +12deg
+   brings it to 72.3, about 9.6 units up, ~10px at the hero's 108px render.
+
+   Mirroring does not affect this. scaleX(-1) flips the horizontal only, so
+   "up" stays up; it just reverses which side of the body the arm sweeps.
+
+   Only the presenting arm is overridden -- head, hair and resting arm keep the
+   shared idle, so the two avatars still feel like the same character.
+--------------------------------------------------------------------------- */
+[data-component='avatar-presenting-idle'][data-avatar-size='hero'][data-animate='true'] #arm-presenting {
+  animation-name: hero-avatar-arm-lift;
+}
+
+@keyframes hero-avatar-arm-lift {
+  0%, 65% { transform: rotate(0deg); }
+  71%, 77% { transform: rotate(12deg); }
+  83%, 100% { transform: rotate(0deg); }
+}
