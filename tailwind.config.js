@@ -61,6 +61,12 @@ export default {
         'caption-sm': ['0.75rem', { lineHeight: '1.4' }],
       },
       colors: {
+        // The one primitive exposed directly. Normally components reference the
+        // semantic layer, but Figma has no semantic wrapper for this -- it's a
+        // raw variable used by the two badges and nothing else. Exposing it here
+        // is still better than the literal bg-white/[0.33] they used before,
+        // which was a copy of the token's value living in two component files.
+        'white-transparent': 'var(--white-transparent)',
         text: {
           primary: 'var(--colors-text-text-primary)',
           secondary: 'var(--colors-text-text-secondary)',

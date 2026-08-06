@@ -49,6 +49,21 @@ function WorkSubsection({ subsection }) {
         zone={subsection.zone}
         subsection={subsection.subsection}
         bubbleCopy={subsection.bubbleCopy}
+        // Micro-animation test, scoped to this one row. Keyed on zone AND
+        // subsection because "Harbour" appears twice in Work -- zone alone
+        // would light up more rows than intended. Every other Wayfinding on
+        // the site, here and in Approach/About, is untouched.
+        // Both keyed on zone AND subsection: "Harbour" appears twice in Work
+        // (Client work at scale, Feature cases), so zone alone would light up
+        // a row that wasn't asked for. Rega lives in "Client work at scale".
+        // Every other Wayfinding, here and in Approach/About, is untouched.
+        avatarVariant={
+          subsection.zone === 'Lab' && subsection.subsection === 'Own products'
+            ? 'presenting-idle'
+            : subsection.zone === 'Harbour' && subsection.subsection === 'Client work at scale'
+              ? 'rega-wind'
+              : undefined
+        }
       />
       {subsection.layout === 'featured' && (
         <div className={WORK_FEATURED_STACK}>

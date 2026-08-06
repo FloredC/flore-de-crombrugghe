@@ -122,6 +122,8 @@ export default function ProjectMedia({ src, alt, caption, size = 'medium', badge
             src={src}
             alt={alt}
             className="w-full object-cover"
+            loading="lazy"
+            decoding="async"
             style={{ aspectRatio: IMAGE_ASPECT[size] }}
           />
           {caption && (

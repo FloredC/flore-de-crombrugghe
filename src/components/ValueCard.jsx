@@ -24,12 +24,16 @@ export default function ValueCard({ item }) {
           directly beneath it; captioning it would make a screen reader
           announce "Editing" twice. */}
       {item.image ? (
-        <img src={assetUrl(item.image)} alt="" className="aspect-[278/262] w-full" />
+        <img src={assetUrl(item.image)} alt="" loading="lazy" decoding="async" className="aspect-[278/262] w-full" />
       ) : (
         <ImagePlaceholder className="aspect-[278/262] w-full rounded-radius-32" />
       )}
       <div className="flex w-full flex-col gap-space-12">
-        <h4 className="text-body font-bold">{item.title}</h4>
+        {/* h3, not h4: this sits directly under its section's <h2>, the same
+            level as a ProjectCard title. h4 here skipped a level, which
+            breaks the document outline a screen reader announces. Size is
+            set by the type class, so the tag change is invisible. */}
+        <h3 className="text-body font-bold">{item.title}</h3>
         <p className="text-body font-normal">{item.description}</p>
       </div>
     </article>

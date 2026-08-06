@@ -22,7 +22,7 @@ export default function Badge({ status }) {
           // -rotate-[15deg], not -rotate-15: Tailwind's default rotate scale
           // jumps 12 -> 45, so `-rotate-15` is not a real class and silently
           // rendered transform:none (confirmed via getComputedStyle).
-          className="relative flex size-[66px] -rotate-[15deg] items-center justify-center rounded-full border-[2.357px] border-black bg-white/[0.33] text-body-sm font-bold text-text-primary"
+          className="relative flex size-[66px] -rotate-[15deg] items-center justify-center rounded-full border-[2.357px] border-black bg-white-transparent text-body-sm font-bold text-text-primary"
         >
           {/* The stamp's second, inner ring. */}
           <span aria-hidden="true" className="absolute inset-[6.5px] rounded-full border border-black" />
@@ -45,11 +45,14 @@ export default function Badge({ status }) {
       // Flore's call, and a step quieter than Figma, which still has it at
       // text-primary. Text stays black. NOTE: Figma is behind on this one.
       //
-      // bg-white/[0.33] rather than the --white-transparent token, same as the
-      // NDA badge: that token exported as opaque #ffffff and lost its alpha.
+      // bg-white-transparent is the real --white-transparent token again, here
+      // and on the NDA badge. Both used to hardcode bg-white/[0.33] because the
+      // token had exported as opaque #ffffff with its alpha dropped, making it
+      // indistinguishable from --white. Fixed at the root in primitives.css
+      // (#ffffff54, read back from Figma), so the copies are gone.
       <span
         data-badge="case-study"
-        className="pointer-events-none absolute right-0 top-0 rounded-bl-radius-12 rounded-tr-radius-12 border-b border-l border-border-grey bg-white/[0.33] px-space-10 py-space-4 text-body-sm font-semibold text-text-primary"
+        className="pointer-events-none absolute right-0 top-0 rounded-bl-radius-12 rounded-tr-radius-12 border-b border-l border-border-grey bg-white-transparent px-space-10 py-space-4 text-body-sm font-semibold text-text-primary"
       >
         Case study
       </span>
