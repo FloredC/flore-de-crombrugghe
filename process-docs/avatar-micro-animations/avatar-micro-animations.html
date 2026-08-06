@@ -198,11 +198,40 @@
   </table>
   <p class="section-desc" style="margin-top:12px">Rules of thumb that fell out of measuring: under ~1.5px of travel is invisible at this size; 3–5px reads as a subtle idle; above ~10px starts looking like a wave rather than an idle.</p>
 
-  <div class="note"><b>Meta-learning about structuring the Figma file:</b> the two exports behaved very differently. The Lab avatar came through with <em>no</em> layer names, so its paths are identified by document order — which works, but is fragile: reordering anything in Figma would silently reassign which path is the arm. The Rega avatar kept its names, so it's addressed by real IDs. The difference is worth chasing down, because named layers are the difference between "re-export freely" and "re-verify every path by its coordinates." Including the halo in the asset also removed a whole class of guesswork — I'd hand-placed a circle by reading path coordinates, and it was visibly wrong.</div>
+  <div class="note"><b>Meta-learning about structuring the Figma file — and a correction worth keeping.</b> The first assumption here was wrong: the Lab avatar's paths arrived with no ids, and that was read as "the layers aren't named." They were named, all of them, and correctly. The cause was an export setting — <em>Include "id" attribute</em>, off by default in Figma's SVG export. So the fix isn't a naming discipline, it's one checkbox. That's a much better outcome, because naming discipline has to be re-earned on every file and a checkbox doesn't. Worth noting how invisible the failure is: the export succeeds, the drawing is perfect, and only the machine-readable structure is silently missing. Including the halo in the asset removed a second class of guesswork — I'd hand-placed that circle by reading path coordinates, and it was visibly wrong.</div>
 
-  <div class="note"><b>What I'd do differently next time:</b> specify motion in pixels of travel, not degrees — or at minimum state the intended render size alongside the degrees, since the two are meaningless apart. "The arm tip should move about 5px" survives a change of artboard, avatar size, or breakpoint. "1–2 degrees" doesn't.</div>
+  <div class="fig-grid">
+    <div class="fig">
+      <div class="fig-tag">the layers were fine</div>
+      <img src="assets/figma-named-layers.png" alt="Figma layer panel showing named layers inside the lab-avatar-gesture-peak frame">
+      <div class="fig-cap"><b>Named all along</b> — <code class="inline">arm-presenting</code>, <code class="inline">arm-resting</code>, <code class="inline">torso-neck</code>, and a group holding <code class="inline">head</code> + <code class="inline">hair</code>. Note that grouping: it independently matches the nesting the animation turned out to need, so the hair inherits the head's tilt instead of sliding off the skull.</div>
+    </div>
+    <div class="fig pick">
+      <div class="fig-tag pick">the actual cause</div>
+      <img src="assets/figma-export-include-id-attribute.png" alt="Figma SVG export dialog with the Include id attribute checkbox">
+      <div class="fig-cap"><b>One checkbox</b> — <em>Include "id" attribute</em> in the SVG export options. Off by default. With it on, layer names come through as real ids and the code can address <code class="inline">#arm-presenting</code> by name; without it, paths can only be identified by document order, which silently reassigns if anything is ever reordered.</div>
+    </div>
+  </div>
 
-  <div class="note">Visuals would help here: the Lab avatar at its original 136px next to the final 96px, and a frame from the wind reaction at full extension. Screenshots were shared in-session but pasted into chat rather than saved as files — drop them into <code class="inline">assets/</code> and they can be wired in.</div>
+  <div class="fig-grid">
+    <div class="fig">
+      <div class="fig-tag">held at peak</div>
+      <img src="assets/lab-avatar-gesture-peak.svg" alt="Lab avatar frozen at the peak of its idle gesture">
+      <div class="fig-cap"><b>Lab avatar, gesture held</b> — the full extent of the idle: head 9°, presenting arm 9°, about 4px and 7.4px of travel respectively. Captured by pausing the animation mid-hold, because the movement is too brief and too small to catch by hand.</div>
+    </div>
+    <div class="fig">
+      <div class="fig-tag">wind, frame 1</div>
+      <img src="assets/rega-avatar-wind-peak-1.svg" alt="Rega avatar during the wind reaction">
+      <div class="fig-cap"><b>Rega, wind reaction</b> — neutral hair and resting scarf swapped for their windblown versions, head dipped 2.5° away from the gust.</div>
+    </div>
+    <div class="fig">
+      <div class="fig-tag">wind, frame 2</div>
+      <img src="assets/rega-avatar-wind-peak-2.svg" alt="Rega avatar at a second point in the wind reaction">
+      <div class="fig-cap"><b>Rega, later in the flutter</b> — the scarf oscillates after the hair has settled. Two frames rather than one because the difference between them is the whole point: fabric keeps moving once hair has stopped.</div>
+    </div>
+  </div>
+
+  <div class="note"><b>What I'd do differently next time:</b> turn on <em>Include "id" attribute</em> as a default habit for anything destined to be animated — it costs nothing and it's invisible when missing. And specify motion in pixels of travel, not degrees — or at minimum state the intended render size alongside the degrees, since the two are meaningless apart. "The arm tip should move about 5px" survives a change of artboard, avatar size, or breakpoint. "1–2 degrees" doesn't.</div>
 
   <div class="hook">
     <div class="hook-label">Shareable hook</div>
