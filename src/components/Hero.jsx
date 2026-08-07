@@ -6,6 +6,7 @@ import AvatarPresentingIdle from './AvatarPresentingIdle'
 import SpeechBubble from './SpeechBubble'
 import { hotspots } from '../lib/content'
 import { hotspotHighlights } from '../lib/hotspotHighlights'
+import { getDiscipline } from '../lib/disciplines'
 
 // Real copy sampled from Figma's Hero "Guide" component -- not placeholder.
 const GREETING = (
@@ -162,16 +163,28 @@ function MapContent({ activeHotspotId, setActiveHotspotId }) {
           onOpenChange={(open) => setActiveHotspotId(open ? hotspot.id : null)}
         />
       ))}
-      {Object.entries(hotspotHighlights).map(([id, src]) => (
-        <img
-          key={id}
-          src={src}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 h-full w-full transition-opacity duration-150"
-          style={{ opacity: activeHotspotId === id ? 1 : 0 }}
-        />
-      ))}
+      {/* Driven off `hotspots` rather than off the highlight map's own keys, so
+          each highlight is looked up next to the record that says which
+          discipline it belongs to -- iterating the two lists separately is how
+          a highlight ends up painted in the wrong colour. `color` feeds the
+          currentColor fill the svgr rewrite leaves in the exported artwork. */}
+      {hotspots.map((hotspot) => {
+        const Highlight = hotspotHighlights[hotspot.id]
+        if (!Highlight) return null
+        return (
+          <Highlight
+            key={hotspot.id}
+            aria-hidden="true"
+            focusable="false"
+            data-hotspot-highlight={hotspot.id}
+            className="pointer-events-none absolute inset-0 h-full w-full transition-opacity duration-150"
+            style={{
+              color: getDiscipline(hotspot.discipline).marker,
+              opacity: activeHotspotId === hotspot.id ? 1 : 0,
+            }}
+          />
+        )
+      })}
     </>
   )
 }

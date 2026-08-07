@@ -80,7 +80,27 @@ export const SECONDARY_BUTTON_CLASS = `${CHROME_CLASS} ${TYPE_CLASS} bg-transpar
 const VARIANT_CLASS = {
   primary: `${CHROME_CLASS} ${TYPE_CLASS} bg-action-primary-surface border-action-primary-border text-action-primary-foreground hover:bg-action-primary-surface-hover hover:border-action-primary-border-hover hover:text-action-primary-foreground-hover active:bg-action-primary-surface-pressed active:border-action-primary-border-pressed active:text-action-primary-foreground-pressed`,
   secondary: SECONDARY_BUTTON_CLASS,
-  popover: `inline-flex items-center gap-1 text-caption font-semibold text-action-accent-foreground hover:text-action-accent-foreground-hover active:text-action-accent-foreground-pressed ${FOCUS_CLASS}`,
+  // Reworked 2026-08-07 for the discipline-colour concept. It used to be plain
+  // orange text with no chrome; Figma's Hotspot Popover (node 2760:18699) now
+  // gives it a filled pill whose colour is the hotspot's discipline, so the
+  // popover carries the same grouping the marker does.
+  //
+  // The surface is --discipline-surface, set by Popover rather than picked
+  // here: this file has no idea which hotspot it's rendering for, and pushing
+  // a colour prop through would put four hardcoded colour branches in a
+  // component whose whole job is that there's one of each thing.
+  //
+  // Label colour steps to the SECONDARY foreground tokens, not the accent ones
+  // it used before -- Figma's default state samples as button/secondary/text
+  // (#0e0e0e), which is a real change, not a mis-sample. Hover and pressed
+  // follow the same family. Figma defines no hover/pressed *surface* for this
+  // button, so the fill holds and only the label moves; flagged to Flore.
+  //
+  // rounded-full, not a radius token: Figma's value is 64px on a pill roughly
+  // 20px tall, and CSS clamps any radius past half the short side, so 64 and
+  // "fully round" paint identically here. rounded-full can't go stale if the
+  // label size changes; a literal 64 could.
+  popover: `inline-flex items-center gap-1 rounded-full bg-[var(--discipline-surface)] px-space-8 py-space-0 text-caption font-semibold text-action-secondary-foreground hover:text-action-secondary-foreground-hover active:text-action-secondary-foreground-pressed ${FOCUS_CLASS}`,
   tertiary: `inline-flex items-center gap-1 ${LINK_CLASS}`,
   menu: `inline-flex items-center gap-1 ${LINK_CLASS}`,
 }

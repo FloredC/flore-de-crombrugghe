@@ -45,9 +45,20 @@ export default defineConfig(({ command }) => ({
     // into every export into `currentColor` -- without this the icons render
     // as fixed near-black and can't take the hover/pressed/focus colors the
     // button states call for.
+    // #FD6D2B (orange-70) added 2026-08-07 for the map highlight overlays.
+    // Every one of the nine was exported as flat orange back when all markers
+    // were orange; they now take their hotspot's discipline colour. Rewriting
+    // the fill here means the colour comes from a token at render time and
+    // Flore doesn't have to re-export nine files to change a palette.
+    // No icon in src/assets/icons uses this colour, so nothing else moves.
     svgr({
       svgrOptions: {
-        replaceAttrValues: { '#0E0E0E': 'currentColor', '#0e0e0e': 'currentColor' },
+        replaceAttrValues: {
+          '#0E0E0E': 'currentColor',
+          '#0e0e0e': 'currentColor',
+          '#FD6D2B': 'currentColor',
+          '#fd6d2b': 'currentColor',
+        },
       },
     }),
   ],
