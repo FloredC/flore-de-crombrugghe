@@ -13,6 +13,7 @@ import {
   FloatingPortal,
 } from '@floating-ui/react'
 import Popover from './Popover'
+import { getDiscipline } from '../lib/disciplines'
 
 /**
  * Desktop: hover opens directly (bridged hit area via safePolygon, so moving
@@ -41,11 +42,11 @@ const MARKER_OFFSET_PX = 26
 // Marker pulse. A ripple that starts at the dot's own edge and fades outward,
 // so it reads as the dot breathing rather than as a second object.
 //
-// Colour is `color-mix` on the semantic accent token, not `--orange-20` and not
-// a solid fill: a solid tint sits on top of the illustration and hides the
-// linework underneath it, which is the one thing the map can't afford. Mixing
-// toward transparent keeps the artwork legible through it. Per Flore, and per
-// the no-raw-primitives rule -- the token is the same one the dot itself uses.
+// Colour is `color-mix` on --discipline-marker, not a solid fill: a solid tint
+// sits on top of the illustration and hides the linework underneath it, which
+// is the one thing the map can't afford. Mixing toward transparent keeps the
+// artwork legible through it. Per Flore. It reads the same variable the dot
+// itself does, so the two can't drift when a hotspot changes discipline.
 const PULSE_MS = 2400
 
 // Nine markers pulsing in lockstep reads as a synchronised alarm; out of phase
@@ -60,6 +61,7 @@ function pulseDelay(id) {
 }
 
 export default function Hotspot({ hotspot, isOpen, onOpenChange }) {
+  const discipline = getDiscipline(hotspot.discipline)
   const side = hotspot.markerSide === 'left' ? 'left' : 'right'
   const sideSign = side === 'left' ? -1 : 1
   const { refs, floatingStyles, context } = useFloating({
@@ -85,8 +87,19 @@ export default function Hotspot({ hotspot, isOpen, onOpenChange }) {
       data-component="hotspot"
       data-hotspot-id={hotspot.id}
       data-marker-side={side}
+      data-discipline={hotspot.discipline}
       className="absolute"
+      // --discipline-marker is declared here, once, and inherited by the dot,
+      // the pulse, and (via Hero) the map highlight, so one hotspot changing
+      // discipline recolours all three together.
+      //
+      // Setting a custom property inline is safe in a way that setting a real
+      // property is not: the focus-ring bug this file already carries a note
+      // about came from an inline `box-shadow` outranking a stylesheet rule.
+      // A custom property is only ever read by the class that consumes it, so
+      // there is nothing for it to clobber.
       style={{
+        '--discipline-marker': discipline.marker,
         left: `${hotspot.x}%`,
         top: `${hotspot.y}%`,
         transform: `translate(calc(-50% + ${sideSign * MARKER_OFFSET_PX}px), -50%)`,
@@ -111,7 +124,7 @@ export default function Hotspot({ hotspot, isOpen, onOpenChange }) {
             marker looks precisely as it does today. */}
         <span
           aria-hidden="true"
-          className={`pointer-events-none absolute inset-0 m-auto size-[18px] rounded-full bg-[color-mix(in_srgb,var(--colors-action-accent-foreground-default)_45%,transparent)] ${
+          className={`pointer-events-none absolute inset-0 m-auto size-[18px] rounded-full bg-[color-mix(in_srgb,var(--discipline-marker)_45%,transparent)] ${
             isOpen ? '' : 'motion-safe:animate-marker-pulse'
           }`}
           style={{ animationDelay: pulseDelay(hotspot.id) }}
@@ -132,7 +145,7 @@ export default function Hotspot({ hotspot, isOpen, onOpenChange }) {
           // `relative` so the dot stays above the pulse halo. Positioned
           // elements paint over non-positioned ones regardless of DOM order, so
           // without this the absolutely-positioned halo would cover the dot.
-          className="relative rounded-full border-2 border-white bg-action-accent-foreground shadow-[0px_0px_10px_0px_rgba(0,0,0,0.25)] group-focus-visible:ring-2 group-focus-visible:ring-focus-ring group-focus-visible:ring-offset-2"
+          className="relative rounded-full border-2 border-white bg-[var(--discipline-marker)] shadow-[0px_0px_10px_0px_rgba(0,0,0,0.25)] group-focus-visible:ring-2 group-focus-visible:ring-focus-ring group-focus-visible:ring-offset-2"
           style={{ width: 18, height: 18 }}
         />
       </button>

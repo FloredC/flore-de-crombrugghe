@@ -135,15 +135,28 @@ One `.json` file per illustration (e.g., `hero-map-hotspots.json`). Structure:
 [
   {
     "id": "hotspot-artifakt",
-    "label": "Artifakt",
-    "description": "Tracing Your Way Past the Blank Canvas",
-    "x": 28,
-    "y": 42,
-    "slug": "artifakt"
+    "type": "link",
+    "discipline": "own-products",
+    "title": "Artifakt — Tracing Your Way Past the Blank Canvas",
+    "ctaLabel": "View project",
+    "target": { "kind": "project", "slug": "artifakt" },
+    "x": 42,
+    "y": 43.4,
+    "markerSide": "right"
   },
   ...
 ]
 ```
+
+**`discipline`** (added 2026-08-07) is a key into `src/lib/disciplines.js`, not a
+label — one of `own-products`, `client-work`, `selected-talks`,
+`outside-of-work`, `contact`. That one field decides four things at once: the
+popover's eyebrow label, the marker dot, its pulse, and the map highlight's
+colour. Grouping is the whole point of the concept, so the colour lives on the
+*discipline*, never on the hotspot; a per-hotspot colour would let two markers
+in the same group drift apart silently. `getDiscipline()` throws on an unknown
+key rather than falling back, since a wrong-but-plausible colour is exactly the
+kind of thing that survives review.
 
 **Coordinates:** `x` and `y` as integers (0–100, percentage of viewBox). These map directly to SVG/viewport units.
 

@@ -11,6 +11,12 @@ import ButtonLink from '../components/ButtonLink'
 import ContactEmailButton from '../components/ContactEmailButton'
 import Footer from '../components/Footer'
 import Container from '../components/Container'
+// Imported rather than read from contact.mdx frontmatter as a path string.
+// One fixed asset for one component, so an import buys the thing frontmatter
+// paths can't have: Vite rewrites the URL, which means the GitHub Pages base
+// prefix is applied automatically and this can't join the class of bugs that
+// broke five thumbnails in production while looking fine in dev.
+import portraitFlore from '../assets/illustrations/portrait-flore.png'
 import {
   PAGE_STACK,
   SECTION_PAD_WORK,
@@ -196,32 +202,57 @@ export default function HomePage() {
               subsection={contactSection.subsection}
               bubbleCopy={contactSection.bubbleCopy}
             />
-            {/* 846px in Figma -- off both column grids, so it reads as a
-                readable-measure cap on the text block rather than a span. */}
-            <div className="flex max-w-[846px] flex-col gap-space-16">
-              <h2 className="text-h2 font-semibold">{contactSection.heading}</h2>
-              <p className="text-body-lg font-normal">{contactSection.description}</p>
-              {/* Sampled from the real Contact Section node (2928:73875 /
-                  4533:27939): LinkedIn as the filled primary button, the email
-                  as a secondary-chrome button that copies to clipboard rather
-                  than a mailto link -- matching the "Say hi" popover's own
-                  contact pattern (copy, no navigation) rather than the two
-                  generic ButtonLinks this rendered before. */}
-              {/* flex-col on mobile: the two buttons together are wider than a
-                  402px viewport (the email address alone doesn't leave room
-                  for LinkedIn beside it), so a single non-wrapping row pushed
-                  the second button off-screen. Same stacking pattern already
-                  used for the Footer's row at this breakpoint. */}
-              <div className="mt-space-32 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-space-24">
-                <ButtonLink
-                  variant="primary"
-                  href={contactSection.linkedinUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  LinkedIn
-                </ButtonLink>
-                <ContactEmailButton email={contactSection.email} />
+            {/* Portrait beside the text on desktop, stacked above it on mobile
+                (Flore's call -- portrait first, then heading, copy, buttons).
+                Figma has no mobile Contact frame at all, so the stacking order
+                is hers rather than sampled. items-center matches the desktop
+                node, where the 180px portrait sits 16.5px from the top and
+                bottom of the 213px row.
+
+                RENDERED AT 187, NOT 180, and with no CSS shadow: the export
+                carries the circle's drop shadow baked in as a ~7px
+                semi-transparent halo (measured -- the fully-opaque circle runs
+                7..366 of 374, i.e. exactly 180 CSS px at 2x). Sizing the file
+                at 180 would shrink the visible circle to ~173 and adding a CSS
+                shadow on top would double it. The negative margin pulls the
+                layout box back to 180 so the halo overlaps rather than
+                displacing the 48px gap -- what you measure in Figma is the
+                circle, not the shadow. */}
+            <div className="flex flex-col items-start gap-space-24 md:flex-row md:items-center md:gap-space-48">
+              <img
+                src={portraitFlore}
+                alt="Flore de Crombrugghe"
+                width={187}
+                height={187}
+                className="-m-[3.5px] w-[187px] shrink-0"
+              />
+              {/* 846px in Figma -- off both column grids, so it reads as a
+                  readable-measure cap on the text block rather than a span. */}
+              <div className="flex max-w-[846px] flex-col gap-space-16">
+                <h2 className="text-h2 font-semibold">{contactSection.heading}</h2>
+                <p className="text-body-lg font-normal">{contactSection.description}</p>
+                {/* Sampled from the real Contact Section node (2928:73875 /
+                    4533:27939): LinkedIn as the filled primary button, the email
+                    as a secondary-chrome button that copies to clipboard rather
+                    than a mailto link -- matching the "Say hi" popover's own
+                    contact pattern (copy, no navigation) rather than the two
+                    generic ButtonLinks this rendered before. */}
+                {/* flex-col on mobile: the two buttons together are wider than a
+                    402px viewport (the email address alone doesn't leave room
+                    for LinkedIn beside it), so a single non-wrapping row pushed
+                    the second button off-screen. Same stacking pattern already
+                    used for the Footer's row at this breakpoint. */}
+                <div className="mt-space-32 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-space-24">
+                  <ButtonLink
+                    variant="primary"
+                    href={contactSection.linkedinUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    LinkedIn
+                  </ButtonLink>
+                  <ContactEmailButton email={contactSection.email} />
+                </div>
               </div>
             </div>
           </Container>

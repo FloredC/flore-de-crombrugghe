@@ -46,4 +46,46 @@
   --button-accent-label-hover: var(--colors-action-secondary-foreground-hover);
   --button-accent-label-pressed: var(--colors-action-secondary-foreground-pressed);
   --button-accent-label-disabled: var(--colors-action-secondary-foreground-disabled);
+
+  /* Discipline colours, added 2026-08-07 with the grouped-marker concept.
+     Hand-added rather than re-exported: Flore created `marker/*` and
+     `button/popover/surface/*` in Figma the same day, and the three token CSS
+     files in this folder are a point-in-time export that predates them. If
+     she re-exports, this block should be replaced by whatever the export
+     produces rather than kept alongside it.
+
+     These reference PRIMITIVES, not the semantic layer, which is the one
+     deliberate exception to the cascade the rest of this file follows.
+     There is no semantic role for "client work" -- the closest existing
+     tokens are the chart-* colours, and those mean data-viz series, not
+     disciplines. Borrowing them would make a legend colour and a map marker
+     look like the same decision when they aren't. Figma does the same thing:
+     its `marker/*` variables resolve straight to the raw colour.
+
+     Values verified against the file, not inferred: marker/orange #fd6d2b =
+     orange-70, marker/green #34b679 = green-50, marker/purple #8b5cf6 =
+     purple-50, marker/red #e4637a = red-50, and each popover surface is the
+     -20 step of the same hue. */
+  --marker-orange: var(--orange-70);
+  --marker-green: var(--green-50);
+  --marker-purple: var(--purple-50);
+  --marker-red: var(--red-50);
+
+  /* Hover step for the one marker-coloured thing that is interactive: the
+     Say-hi popover's copy button. EXTRAPOLATED, not sampled -- Figma's
+     ButtonAction still specs that icon as button/accent/icon (orange), which
+     Flore overrode verbally on 2026-08-07 ("this copy icon should be in
+     purple too") without the file catching up yet.
+     The rule used is the one orange already follows: accent-hover IS
+     orange-80, so each discipline hovers to the -80 step of its own hue.
+     Pressed reuses hover because only orange has a -90 step to darken to --
+     replace these the moment the real states land in Figma. */
+  --marker-orange-hover: var(--orange-80);
+  --marker-green-hover: var(--green-80);
+  --marker-purple-hover: var(--purple-80);
+  --marker-red-hover: var(--red-80);
+  --button-popover-surface-orange: var(--orange-20);
+  --button-popover-surface-green: var(--green-20);
+  --button-popover-surface-purple: var(--purple-20);
+  --button-popover-surface-red: var(--red-20);
 }

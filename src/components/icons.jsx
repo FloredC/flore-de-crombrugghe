@@ -12,6 +12,12 @@
 // set, 24px for menu/close); pass width/height to override.
 export { default as ArrowDownIcon } from '../assets/icons/ic-arrow-down.svg?react'
 export { default as ArrowBackIcon } from '../assets/icons/ic-arrow-back.svg?react'
+// The one exception to the currentColor rule above: the home button's arrow is
+// a *stroked* vector bound to the `Black` variable (#000000, not the #0E0E0E
+// the rest of the set fills with), and Figma holds it at that same black
+// through reg/hover/pressed/focus -- only the ring around it dims. So it stays
+// a literal stroke colour and deliberately doesn't follow the parent's text.
+export { default as ArrowUpIcon } from '../assets/icons/ic-arrow-up.svg?react'
 export { default as CopyIcon } from '../assets/icons/ic-copy.svg?react'
 export { default as ExternalLinkIcon } from '../assets/icons/ic-external-link.svg?react'
 export { default as MenuIcon } from '../assets/icons/ic-menu.svg?react'

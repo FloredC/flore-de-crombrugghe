@@ -4,8 +4,10 @@ import PanZoomContainer from './PanZoomContainer'
 import Hotspot from './Hotspot'
 import AvatarPresentingIdle from './AvatarPresentingIdle'
 import SpeechBubble from './SpeechBubble'
+import { FOCUS_CLASS } from './ButtonLink'
 import { hotspots } from '../lib/content'
 import { hotspotHighlights } from '../lib/hotspotHighlights'
+import { getDiscipline } from '../lib/disciplines'
 
 // Real copy sampled from Figma's Hero "Guide" component -- not placeholder.
 const GREETING = (
@@ -134,10 +136,26 @@ function Guide() {
           ~7px of leading each, so a 4px gap read as ~18px of space. Figma's
           own name/title containers overlap slightly, i.e. tighter than the
           line boxes, not looser. */}
-      <div className="flex flex-col">
+      {/* Anchor-scrolls to Contact. Deliberately carries NO visual affordance
+          -- per Flore, the name and title keep exactly the look they have now
+          and only become clickable, so there is no hover colour, no underline,
+          and no ButtonLink variant here. `w-fit` keeps the hit area on the two
+          lines rather than stretching across the column beside them.
+
+          The focus ring is the one exception, and it isn't a design change:
+          it paints only on keyboard focus, it's the same FOCUS_CLASS every
+          other interactive element uses, and without it this would be the one
+          focusable thing on the page that gives a keyboard user nothing to
+          see. Mouse users will never render it.
+
+          The <h1> stays an <h1> -- wrapping it is valid (<a> is transparent
+          content model) and keeps the page's single top-level heading where it
+          belongs, which nesting the link inside the heading instead would not
+          do for the title line. */}
+      <a href="#contact" className={`flex w-fit flex-col rounded-radius-4 ${FOCUS_CLASS}`}>
         <h1 className="text-body font-bold leading-[1.3]">Flore de Crombrugghe</h1>
         <p className="text-body font-normal leading-[1.3]">Senior Product Designer</p>
-      </div>
+      </a>
     </>
   )
 }
@@ -162,16 +180,28 @@ function MapContent({ activeHotspotId, setActiveHotspotId }) {
           onOpenChange={(open) => setActiveHotspotId(open ? hotspot.id : null)}
         />
       ))}
-      {Object.entries(hotspotHighlights).map(([id, src]) => (
-        <img
-          key={id}
-          src={src}
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 h-full w-full transition-opacity duration-150"
-          style={{ opacity: activeHotspotId === id ? 1 : 0 }}
-        />
-      ))}
+      {/* Driven off `hotspots` rather than off the highlight map's own keys, so
+          each highlight is looked up next to the record that says which
+          discipline it belongs to -- iterating the two lists separately is how
+          a highlight ends up painted in the wrong colour. `color` feeds the
+          currentColor fill the svgr rewrite leaves in the exported artwork. */}
+      {hotspots.map((hotspot) => {
+        const Highlight = hotspotHighlights[hotspot.id]
+        if (!Highlight) return null
+        return (
+          <Highlight
+            key={hotspot.id}
+            aria-hidden="true"
+            focusable="false"
+            data-hotspot-highlight={hotspot.id}
+            className="pointer-events-none absolute inset-0 h-full w-full transition-opacity duration-150"
+            style={{
+              color: getDiscipline(hotspot.discipline).marker,
+              opacity: activeHotspotId === hotspot.id ? 1 : 0,
+            }}
+          />
+        )
+      })}
     </>
   )
 }
