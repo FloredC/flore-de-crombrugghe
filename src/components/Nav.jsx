@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import ButtonLink, { FOCUS_CLASS, LINK_CLASS, LINK_UNDERLINE_CLASS } from './ButtonLink'
-import { ArrowBackIcon, MenuIcon, CloseIcon } from './icons'
+import { ArrowBackIcon, ArrowUpIcon, MenuIcon, CloseIcon } from './icons'
 import homeIcon from '../assets/icons/ic-home.svg'
 
 const LINKS = [
@@ -70,12 +70,19 @@ const PILL_CLASS =
 // It had no states at all before -- a static border. The ring lives in CSS
 // rather than the asset (ic-home.svg is a stroke-less circle filled with the
 // map image), which is what makes it animatable at all.
+//
+// The up arrow sits centred on top of the map thumbnail (node 4449:12869, and
+// present unchanged in all four states) -- testers read the bare thumbnail as
+// decoration rather than as a way back up to the map. It's a separate overlay
+// rather than baked into ic-home.svg so the arrow can't be re-exported away
+// with the thumbnail, and it's pointer-events-none so the whole 58px circle
+// stays one hit target instead of the arrow eating the middle of it.
 function HomeAvatar({ href, label }) {
   return (
     <a
       href={href}
       aria-label={label}
-      className={`group rounded-full ${FOCUS_CLASS}`}
+      className={`group relative block shrink-0 rounded-full ${FOCUS_CLASS}`}
     >
       <img
         src={homeIcon}
@@ -83,6 +90,10 @@ function HomeAvatar({ href, label }) {
         width={58}
         height={58}
         className="rounded-full border border-action-secondary-border transition-colors group-hover:border-action-secondary-border-hover group-active:border-action-secondary-border-pressed"
+      />
+      <ArrowUpIcon
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
       />
     </a>
   )
