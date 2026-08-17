@@ -189,13 +189,24 @@ export const GUIDE_AVATAR_WIDTH = 106
 //
 //   hero      449.46  image 8,   right column of the 1232 hero content frame
 //   banner   1164.67  image 12,  inset in the 1282x407 stage
-//   feature   400     Container, centred in the 617 VisualFrame
-//   curve     724     image 9,   in the 1184 Process frame
+//   feature   560     Was 400, measured from Figma's VisualFrame. Raised on
+//                     2026-08-14 at Flore's request: the two screencasts are
+//                     the only place the product's actual UI is shown at size,
+//                     and at 400 the panel's own type was too small to read.
+//                     560 fills the FeatureBlock's half of the 1184 `wide`
+//                     block (two columns, 48 gap => 568 each), so the video now
+//                     uses its column rather than sitting small inside it.
+//                     A deliberate divergence from the frame, not a sample.
+//
+// `curve` is GONE, deliberately. It was 724 when the momentum graphic was a
+// single asset. Flore split it into chart + legend on 2026-08-14 so the two can
+// be arranged by screen size, and they are now sized by the grid that holds
+// them (CaseStudy.jsx, 65/35 after Figma) rather than by a fixed cap. A cap
+// here would fight that grid. Nothing else referenced it.
 export const MEDIA_WIDTH = {
   hero: 450,
   banner: 1164,
-  feature: 400,
-  curve: 724,
+  feature: 560,
 }
 
 // A Thesis gets DOUBLE break above and below. Applied as padding on the block

@@ -391,3 +391,46 @@ body {
   71%, 77% { transform: rotate(12deg); }
   83%, 100% { transform: rotate(0deg); }
 }
+
+/* ---------------------------------------------------------------------------
+   NOTEBOOK GRID
+
+   The graph-paper background from Flore's "Speak the Room" talk deck, reused on
+   the PitchPivot case study so page and presentation share one surface.
+
+   Values are copied from that deck verbatim -- `.slide` in
+   speak-the-room_44.html: two 1px linear-gradients crossed, rgba(0,0,0,0.055),
+   40px cells. It is a CSS pattern, not an asset, so there is nothing to export
+   and nothing to go stale.
+
+   NOT a token. It is one decorative surface used by one page, and the token
+   files are a verbatim Figma export -- adding to them would put a variable in
+   the export that Figma has never heard of (see caseStudyLayout.js).
+
+   THE SURFACE COLOUR LIVES HERE TOO, and that is a deliberate exception.
+
+   Flore's value is #fbfbfb (2026-08-14) -- a near-white grey, much lighter than
+   anything in the scale. It is not a token: the closest, `surface-subtle`
+   (grey-10, #e6e6e3), is far too dark, and `surface-canvas` is blue-10, which
+   is what made the hero read blue in the first place.
+
+   Rather than hand-add a variable to the token files -- a verbatim Figma export
+   that must not grow values Figma has never heard of -- the hex sits in this
+   one rule, with the pattern it belongs to. Component code stays free of it,
+   which is what the no-hardcoded-primitives rule is actually protecting. If
+   Figma ever names this colour, replace the literal here and nowhere else.
+
+   Callers therefore need `bg-notebook` ALONE. Pairing it with a surface class
+   would put a second background-color on the element and win by cascade order.
+
+   The deck also uses 30px/0.045 and 28px/0.04 variants for smaller cards. One
+   value is used here on purpose; if a finer grid is wanted on the media frames,
+   that is the number to change.
+--------------------------------------------------------------------------- */
+.bg-notebook {
+  background-color: #fbfbfb;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.055) 1px, transparent 1px);
+  background-size: 40px 40px;
+}

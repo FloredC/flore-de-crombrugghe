@@ -77,7 +77,14 @@ export default function CaseStudy({ data }) {
         ))}
       </Block>
       <Block width="wide" as="div">
-        <Media {...data.what.media} className="border border-border-grey bg-surface-canvas" />
+        {/* Same padded notebook panel as the momentum figure below: the panel
+            carries the border, radius and grid, and the Media inside is
+            frameless, so the artwork sits ON the grid with a margin rather than
+            running into the border. Before this the image met the border on all
+            four sides. */}
+        <div className="overflow-hidden rounded-radius-24 border border-border-grey bg-notebook p-space-24">
+          <Media {...data.what.media} />
+        </div>
       </Block>
 
       {/* 3 — Why This Matters. Narrow prose + sources, then the StatGrid wide. */}
@@ -132,16 +139,27 @@ export default function CaseStudy({ data }) {
       {/* 5 — The Two Core Features. The page's one side-by-side pattern. */}
       <Block width="wide" className="flex flex-col gap-space-64 xl:gap-space-80">
         <SectionHeader title={data.features.title} />
-        {data.features.items.map((feature, index) => (
-          <FeatureBlock
-            key={feature.title}
-            {...feature}
-            // Alternates from the index rather than being set per item in the
-            // data file: the alternation is a property of the sequence, so a
-            // reordered or added feature can't accidentally repeat a side.
-            mediaSide={index % 2 === 0 ? 'right' : 'left'}
-          />
+        {data.features.items.map((feature) => (
+          // BOTH MEDIA ON THE RIGHT, text on the left — Flore, 2026-08-14.
+          // This alternated by index, which was a known, flagged conflict:
+          // the build spec asked for alternation while the Figma frame draws
+          // both rows with text at x=0 (nodes 4774:7607 and 4774:7622). Figma
+          // was right. `mediaSide` stays a prop rather than being hardcoded in
+          // FeatureBlock, so a future row can still flip if it needs to.
+          <FeatureBlock key={feature.title} {...feature} mediaSide="right" />
         ))}
+        {/* Closing visual for the section, in the SAME padded notebook panel as
+            the "What is PitchPivot" banner and the momentum figure — Flore's
+            ask: treat it the same way.
+            Rendered inside this block rather than as a block of its own, which
+            keeps it part of the Features section and leaves the page's width
+            sequence untouched. It already spans the full content width, since
+            the block is `wide`. */}
+        {data.features.visual && (
+          <div className="overflow-hidden rounded-radius-24 border border-border-grey bg-notebook p-space-24">
+            <Media {...data.features.visual} />
+          </div>
+        )}
       </Block>
 
       {/* 6 — Takeaways. All three LearningBlocks in ONE narrow block, each with
@@ -204,12 +222,29 @@ export default function CaseStudy({ data }) {
           ))}
         </Block>
       )}
-      {/* The curve moves to `medium` purely to keep Rule 1 alive now that the
-          block above is wide. It changes nothing visually: the image is capped
-          at its 724 design width (MEDIA_WIDTH.curve), which is well inside
-          both 860 and 1184, so it renders at exactly the same size either way. */}
-      <Block width="medium" as="div">
-        <Media {...data.process.media} className="border border-border-grey bg-surface-canvas" />
+      {/* `wide` — full content width, margin to margin — Flore, 2026-08-14.
+          This was `medium` (860) purely to satisfy Rule 1 while Onward below it
+          was also `wide`. Onward is now `medium` instead, which frees this one:
+          the momentum panel is the page's largest single piece of evidence and
+          the one that most needs the room, whereas Onward is a single card and
+          a CTA that never filled 1184. */}
+      <Block width="wide" as="div">
+        {/* ONE notebook panel holding BOTH assets, not two panels: the chart
+            and its legend are a single figure, and Figma composes them that way
+            (node 4787:7879, 1282 wide overall).
+            The panel carries the border, radius and grid; each Media inside is
+            frameless so the grid runs behind both and the two share one edge.
+            65/35 matches Figma's split. Stacks below `lg`, where a legend
+            beside a chart would leave both too narrow to read -- which is why
+            Flore exported them separately in the first place. */}
+        <div className="flex flex-col items-center gap-space-24 overflow-hidden rounded-radius-24 border border-border-grey bg-notebook p-space-24 lg:flex-row">
+          <div className="w-full lg:basis-[65%]">
+            <Media {...data.process.media} />
+          </div>
+          <div className="w-full lg:basis-[35%]">
+            <Media {...data.process.legend} />
+          </div>
+        </div>
       </Block>
 
       {/* 8 — Onward. */}

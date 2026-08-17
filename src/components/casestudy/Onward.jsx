@@ -22,7 +22,11 @@ import { MEASURE } from '../../lib/caseStudyLayout'
 // divider under the card spans the full content width as intended.
 export default function Onward({ heading, project, contact }) {
   return (
-    <Block width="wide" className="flex flex-col gap-space-40 xl:gap-space-64">
+    // `medium`, not `wide` — changed 2026-08-14 so the momentum panel above can
+    // take the full content width (Flore's call). Rule 1 allows only one of the
+    // two to be `wide`, and this block is a single 562-wide card plus a CTA,
+    // which never filled 1184; the divider now spans 860 instead.
+    <Block width="medium" className="flex flex-col gap-space-40 xl:gap-space-64">
       {/* Was `uppercase tracking-[0.08em]`. Both came out of my own v2 pass,
           not the design file: every text style in the Figma frame sets
           letterSpacing 0, and there is no uppercase eyebrow anywhere on the

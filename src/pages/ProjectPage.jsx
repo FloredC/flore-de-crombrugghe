@@ -29,11 +29,19 @@ export default function ProjectPage() {
         // spacing and its bleed blocks must reach the window edges. A padded
         // wrapper here is what would stop them.
         //
-        // pt clears the fixed nav pill, which is out of flow (see Nav.jsx) and
-        // therefore reserves no space of its own.
-        // pb matches the homepage's own last-section-to-footer gap (200), so
-        // a case study meets the footer at the same distance the homepage does.
-        <main className="pt-space-120 pb-space-140 xl:pt-space-160 xl:pb-space-200">
+        // NO TOP PADDING — removed 2026-08-14. It was `pt-space-120
+        // xl:pt-space-160`, to clear the fixed nav pill (which is out of flow
+        // and reserves no space of its own). That worked while the hero was a
+        // plain stage, but once the hero took the notebook grid the padding
+        // became a white band ABOVE the grid: the page appeared to start, then
+        // shift down into a second surface. Flore saw it as the page "moving
+        // down" on scroll.
+        //
+        // The clearance did not disappear, it moved INTO the hero (Frame.jsx),
+        // so the grid now starts at the very top of the page and the nav floats
+        // over it, which is what a full-bleed stage is for.
+        // pb still matches the homepage's last-section-to-footer gap (200).
+        <main className="pb-space-140 xl:pb-space-200">
           <CaseStudy data={caseStudy} />
         </main>
       ) : (

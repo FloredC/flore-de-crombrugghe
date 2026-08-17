@@ -1,7 +1,6 @@
 import Block from './Block'
 import Container from '../Container'
 import Media from './Media'
-import DistrictBreadcrumb from '../DistrictBreadcrumb'
 import ButtonLink from '../ButtonLink'
 import { ExternalLinkIcon } from '../icons'
 
@@ -39,22 +38,30 @@ export default function Frame({
   media,
 }) {
   return (
-    <Block width="bleed" as="header" className="bg-surface-canvas py-space-64 xl:py-space-120">
+    // `bg-notebook` over the canvas token: the graph-paper surface from Flore's
+    // talk deck (see globals.css). This closes a gap flagged when the hero was
+    // built -- Figma's hero background is a grid illustration, and the stage was
+    // rendering as flat canvas because no asset existed for it. It never needed
+    // an asset; it is a CSS pattern.
+    // The top padding absorbed from ProjectPage's <main> (see the note there):
+    // 120 + 64 = 184 at small, 160 + 120 = 280 at xl, so the spacing above the
+    // hero content is unchanged while the grid itself now reaches y=0.
+    // Asymmetric on purpose -- the extra top is nav clearance, not rhythm.
+    <Block
+      width="bleed"
+      as="header"
+      className="bg-notebook pb-space-64 pt-space-160 xl:pb-space-120 xl:pt-space-280"
+    >
       <Container className="flex flex-col gap-space-40 xl:gap-space-64">
-        {/* "You are here" sits at the TOP of the page, right-aligned — Flore's
-            note 2026-08-12, matching the frame, where the Breadcrumb instance
-            is at x=1094.5 y=41.75 of a 1622-wide frame: level with the navbar,
-            hard right, well above the hero content.
-            It was previously buried in the left-hand column under the Role
-            line, which is not where the design puts it and made it read as
-            page metadata rather than as wayfinding.
-            Known divergence: Figma has it level with the navbar itself, which
-            would mean rendering it inside Nav (a shared component). Here it is
-            the first thing inside the hero stage instead — visually top-right
-            of the page, without reaching into the nav. Flagged. */}
-        <div className="flex justify-end">
-          <DistrictBreadcrumb zone={zone} subsection={subsection} />
-        </div>
+        {/* The "You are here: Lab — Own products" breadcrumb was removed here on
+            2026-08-14 — Flore: it reads out of context on a subpage. The map
+            wayfinding belongs to the homepage, where the district illustration
+            has a map to refer back to; on a standalone case study it points at
+            something the reader cannot see.
+            `zone` and `subsection` stay in the content file and in this
+            component's props: they are still the project's real place in the
+            taxonomy, and the homepage card uses them. Nothing renders them
+            here any more. */}
 
         {/* The page's hero pairing. Note this is a second side-by-side
             composition alongside FeatureBlock, which the build spec caps at
@@ -94,7 +101,7 @@ export default function Frame({
           </div>
 
           <div className="flex flex-col items-center gap-space-24">
-            <Media {...media} className="border border-border-grey bg-surface-background" />
+            <Media {...media} className="border border-text-primary bg-surface-background" />
             {liveUrl && (
               // Figma floats this button over the media's bottom edge; placed
               // below it here instead, so it can never cover the artwork at a

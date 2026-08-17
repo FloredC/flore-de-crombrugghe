@@ -40,7 +40,8 @@ export default function FeatureBlock({ title, body, media, mediaSide = 'right' }
           {...media}
           // The tinted stage belongs on the media frame, so the placeholder and
           // the real video occupy an identically-styled box.
-          className="border border-border-grey bg-surface-canvas"
+          // Black border, not grey — Flore, 2026-08-14. Matches the hero media.
+          className="border border-text-primary bg-surface-canvas"
         />
       </div>
     </div>
