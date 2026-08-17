@@ -1,6 +1,6 @@
 import Avatar from '../Avatar'
 import SpeechBubble from '../SpeechBubble'
-import { MEASURE } from '../../lib/caseStudyLayout'
+import { MEASURE, GUIDE_AVATAR_WIDTH } from '../../lib/caseStudyLayout'
 
 // The Guide making a first-person point: illustration + speech bubble. Two
 // instances -- the research reversal in The Turning Point, and the process
@@ -28,8 +28,11 @@ export default function AvatarNote({ body, align = 'end' }) {
       data-component="avatar-note"
       className={`flex items-center gap-space-8 ${align === 'end' ? 'justify-end' : 'justify-start'}`}
     >
-      <Avatar variant="sections-left" />
-      <SpeechBubble variant="right" maxWidth={MEASURE.guideBubble}>
+      {/* `shrink-0` because the avatar is now wider than its natural size:
+          without it the flex row would squeeze the illustration before the
+          bubble gives up any of its 38ch at narrow widths. */}
+      <Avatar variant="sections-left" width={GUIDE_AVATAR_WIDTH} className="shrink-0" />
+      <SpeechBubble variant="right" size="comfortable" maxWidth={MEASURE.guideBubble}>
         {body}
       </SpeechBubble>
     </div>

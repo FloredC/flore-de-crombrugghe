@@ -31,6 +31,7 @@ export default function Frame({
   title,
   oneLiner,
   role,
+  date,
   liveUrl,
   liveLabel,
   zone,
@@ -70,11 +71,23 @@ export default function Frame({
               <p className="m-0 text-body-lg font-normal text-text-primary">{oneLiner}</p>
             </div>
 
-            {role && (
-              // A description list because the label genuinely names the value.
-              <dl className="m-0 flex flex-col gap-space-4 sm:flex-row sm:gap-space-8">
-                <dt className="text-body-sm font-semibold text-text-secondary">Role</dt>
-                <dd className="m-0 text-body-sm font-normal text-text-primary">{role}</dd>
+            {(role || date) && (
+              // A description list because each label genuinely names its value.
+              // The <div> wrappers are valid inside <dl> and keep each dt/dd
+              // pair on its own row.
+              <dl className="m-0 flex flex-col gap-space-8">
+                {role && (
+                  <div className="flex flex-col gap-space-4 sm:flex-row sm:gap-space-8">
+                    <dt className="text-body-sm font-semibold text-text-secondary">Role</dt>
+                    <dd className="m-0 text-body-sm font-normal text-text-primary">{role}</dd>
+                  </div>
+                )}
+                {date && (
+                  <div className="flex flex-col gap-space-4 sm:flex-row sm:gap-space-8">
+                    <dt className="text-body-sm font-semibold text-text-secondary">Date</dt>
+                    <dd className="m-0 text-body-sm font-normal text-text-primary">{date}</dd>
+                  </div>
+                )}
               </dl>
             )}
 

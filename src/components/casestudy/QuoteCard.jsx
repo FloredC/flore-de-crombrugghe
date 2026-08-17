@@ -18,9 +18,10 @@ export default function QuoteCard({ quote, attribution }) {
       className="m-0 flex h-full flex-col gap-space-16 border-l-4 pl-space-20"
       style={{ borderColor: 'var(--button-popover-surface-orange)' }}
     >
-      {/* body-lg (20 desktop), matching Figma's Desktop/body-lg on the quote
-          text -- deliberately larger than the attribution under it. */}
-      <p className="m-0 text-body-lg font-normal text-text-primary">{quote}</p>
+      {/* `text-body` = Desktop/body (18 / 1.5), re-sampled from node 4774:7580
+          on 2026-08-14 -- this was body-lg (20). The token, not a literal 18px,
+          so it keeps the rem-based clamp and scales with the reader's font. */}
+      <p className="m-0 text-body font-normal text-text-primary">{quote}</p>
       {attribution && (
         // mt-auto so attributions sit on the card's bottom edge and line up
         // across a row of quotes of differing length, instead of floating

@@ -127,9 +127,48 @@ export const SPACE = {
 //                 in Onward renders at a real homepage size instead of
 //                 stretching to fill whatever block holds it.
 export const MEASURE = {
-  guideBubble: 'max-w-[38ch]',
+  // RE-DERIVED 2026-08-14 for the bubble's new 18px text, matched to a real
+  // node: Flore's mock (4825:2590) draws the bubble 396.5 wide.
+  //
+  // Still `ch` rather than px, for the reason the long note above gives -- but
+  // the number had to move, because `ch` scales with the font and the font
+  // just changed. Two things made that harder than it sounds, and both were
+  // only visible by measuring in the browser:
+  //
+  //  1. `ch` resolved in the WRONG font size. The cap sits on SpeechBubble's
+  //     outer wrapper, which inherited the body's 16px while the text rendered
+  //     at 18. Fixed there by moving the size class onto that same element;
+  //     until that fix, no value here could be reasoned about.
+  //  2. HK Grotesk's `0` is ~0.56em, not the ~0.63em an earlier probe in this
+  //     file's history suggested. So 1ch is ~10.1px at the 18px desktop end,
+  //     and the mock's 396.5 is ~39ch -- NOT the 35ch a naive rescale of the
+  //     old 38ch gives, which measured 342 and pushed the Process note from
+  //     7 rendered lines to 8.
+  //
+  // Measure, don't rescale: a ch value carried across a type change is a
+  // different width, and it looks untouched in the diff.
+  guideBubble: 'max-w-[39ch]',
   nextCard: 'max-w-[562px]',
 }
+
+// The case-study Guide's avatar width, in px.
+//
+// Now sampled: the Avatar instance in Flore's mock (node 4825:2590) is 106
+// wide. This was briefly 112, a judgment call made before the Figma MCP was
+// available in the session.
+//
+// KNOWN DISCREPANCY, flagged. Figma draws that avatar 106 x 78.5 -- ratio
+// 1.35 -- while `avatar-sections-left.svg` is 80 x 75, ratio 1.07. Same width
+// therefore does NOT give the same height: at 106 wide this renders ~99 tall
+// against the mock's 78.5. Either the mock uses a different illustration, or
+// it was scaled non-proportionally when it was detached. Width is matched
+// here because squashing the SVG to hit both numbers would distort the
+// drawing, which is never the right trade. Worth Flore confirming which
+// avatar the mock is using.
+//
+// Homepage avatars are untouched: they pass no `width` at all and keep
+// rendering at their natural 80 (see Avatar.jsx).
+export const GUIDE_AVATAR_WIDTH = 106
 
 // --- Media display widths ---------------------------------------------------
 //

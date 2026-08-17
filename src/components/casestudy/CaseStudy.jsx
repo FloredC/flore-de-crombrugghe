@@ -96,8 +96,13 @@ export default function CaseStudy({ data }) {
 
       {/* 4 — The Turning Point. Sits before the features deliberately: it is
           why they exist. */}
-      <Block width="narrow">
+      <Block width="narrow" className="flex flex-col gap-space-24">
         <SectionHeader title={data.turningPoint.title} />
+        {data.turningPoint.body?.map((paragraph) => (
+          <p key={paragraph} className="m-0 text-body-lg font-normal">
+            {paragraph}
+          </p>
+        ))}
       </Block>
       {/* The Guide gets its OWN `wide` block so it can reach the right margin.
           Flore's note 2026-08-12: the avatar and bubble are right-aligned AND
@@ -108,16 +113,13 @@ export default function CaseStudy({ data }) {
       <Block width="wide" as="div">
         <AvatarNote body={data.turningPoint.note} />
       </Block>
-      {/* Label and quotes nested at the `default` step rather than sitting as
-          flat siblings at a `break`-sized gap -- the label names the quotes, so
-          it has to be closer to them than anything else. Same nesting reason as
-          the ProjectCard text block. */}
-      <Block width="medium" as="div" className="flex flex-col gap-space-16">
-        <p className="m-0 text-body-sm font-normal text-text-secondary">
-          {data.turningPoint.quotesLabel}
-        </p>
-        {/* h-full per item so every card's rule runs the full row height and
-            the attributions line up, rather than three ragged columns. */}
+      {/* The "User Interview Quotes" label above these was cut 2026-08-14: the
+          section's opening paragraph now says "five interviews", so a heading
+          announcing interview quotes two lines later was naming what the reader
+          had just been told.
+          h-full per item so every card's rule runs the full row height and the
+          attributions line up, rather than three ragged columns. */}
+      <Block width="medium" as="div">
         <ul className="m-0 grid list-none grid-cols-1 gap-space-24 p-0 sm:grid-cols-3">
           {data.turningPoint.quotes.map((quote) => (
             <li key={quote.quote} className="h-full">
@@ -150,8 +152,25 @@ export default function CaseStudy({ data }) {
           bars out of the evidence slot -- which the build spec calls the most
           important thing about this component. (Tried the split first; it also
           produced three consecutive `narrow` blocks and tripped Rule 1.) */}
-      <Block width="narrow" className="flex flex-col gap-space-64">
+      {/* ALL THREE GUIDES SIT AT THE PAGE MARGIN — Flore's call, 2026-08-14,
+          and it is what forces the header and the Guide into separate blocks
+          here.
+          A Guide only reaches the right margin inside a `wide` block, but the
+          features block directly above is `wide` too, and Rule 1 forbids two in
+          a row. Splitting gives narrow -> wide -> narrow across the header,
+          the Guide and the takeaways, which alternates cleanly.
+          The cost: header and Guide are now a `break` apart rather than the 40
+          they'd share inside one block. Consistency of the Guide won over
+          tightness of that one gap. */}
+      <Block width="narrow">
         <SectionHeader title={data.takeaways.title} />
+      </Block>
+      {data.takeaways.note && (
+        <Block width="wide" as="div">
+          <AvatarNote body={data.takeaways.note} />
+        </Block>
+      )}
+      <Block width="narrow" as="div" className="flex flex-col gap-space-64">
         {data.takeaways.items.map((takeaway) => (
           <LearningBlock
             key={takeaway.index}
@@ -171,6 +190,20 @@ export default function CaseStudy({ data }) {
         <SectionHeader title={data.process.title} />
         <AvatarNote body={data.process.note} />
       </Block>
+      {/* Prose at `narrow`, its own block: this is the section's reading
+          measure and it cannot share the Guide's `wide` block without running
+          to 1184px a line. Sits after the Guide rather than before it, which
+          also mirrors the Takeaways section (header + Guide, then content) and
+          keeps the width sequence alternating. */}
+      {data.process.body && (
+        <Block width="narrow" as="div" className="flex flex-col gap-space-24">
+          {data.process.body.map((paragraph) => (
+            <p key={paragraph} className="m-0 text-body-lg font-normal">
+              {paragraph}
+            </p>
+          ))}
+        </Block>
+      )}
       {/* The curve moves to `medium` purely to keep Rule 1 alive now that the
           block above is wide. It changes nothing visually: the image is capped
           at its 724 design width (MEDIA_WIDTH.curve), which is well inside

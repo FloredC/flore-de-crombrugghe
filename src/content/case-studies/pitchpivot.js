@@ -84,7 +84,7 @@ export default {
     // is real — they are the reason this framing is right, not an instance of
     // it being wrong.
     oneLiner:
-      'An AI tool that helps designers reframe design decisions so they answer real business needs, and prepare for the tough questions before they’re asked.',
+      'A tool that helps designers reframe design decisions so they answer real business needs, and prepare for the tough questions before they’re asked.',
     // Flore's own wording, 2026-08-14 — this was a `REVIEW —` placeholder
     // reading "Solo project: research, PRD, product design, build. Oct 2025."
     // which was inferred, not sourced, and was visible on the live page.
@@ -92,7 +92,11 @@ export default {
     // The date is dropped rather than carried over: it already appears on the
     // homepage card ("Oct 2025 — ...") in projects/pitchpivot.mdx, and a Role
     // line answers "what did you do", not "when".
-    role: '0→1 designer — from research to final product',
+    role: '0→1 designer, from research to final product',
+    // Re-added 2026-08-14 at Flore's request. It was briefly dropped on the
+    // grounds that the homepage card already carries "Oct 2025 —"; her call is
+    // that the date matters enough to repeat on the page itself.
+    date: 'Oct 2025',
     liveUrl: LIVE_URL,
     // Figma's hero button label.
     liveLabel: 'Try it out',
@@ -123,33 +127,21 @@ export default {
   what: {
     title: 'What is PitchPivot',
     body: [
-      // TWO PARAGRAPHS, TWO JOBS — Flore's structure, 2026-08-14: the first
-      // says what PitchPivot does, the second says where it came from. The
-      // market case stays out of both; that is the `why` section's job, which
-      // comes next.
+      // ORDER REVERSED 2026-08-14, Flore's call: the observation and the
+      // origin question open the section, and the product description follows.
+      // Her earlier structure ran the other way round.
       //
-      // This replaces a single paragraph that restated the hero one-liner
-      // thirty words after it ("helps designers translate design thinking into
-      // business language..."). Two product descriptions back to back left the
-      // second with nowhere to go. The fix is not a shorter restatement but a
-      // different job per slot.
-      //
-      // P1 EXPANDS the one-liner rather than repeating it, carrying the two
-      // things the hook has no room for: the substance-not-vocabulary point
-      // (Flore's correction — the decision has to answer a real business need,
-      // not be reworded into business register), and the two exercises, which
-      // sets up the `features` section without pre-empting it.
-      'PitchPivot helps designers rethink and reframe a design decision so that it answers a real business need — not just by rewording it, but by connecting it to what the business is actually trying to solve. It then helps them anticipate the questions that decision will attract, and rehearse the answers against the audience they will be facing: an executive, a PM, whoever is in the room.',
-      // P2 is Flore's own copy, near-verbatim.
-      //
-      // "frame ideas in business terms" is KEPT here deliberately, though the
-      // same phrase was corrected out of the hero. It is not the same claim:
-      // there it described what the product IS, here it is the question the
-      // project STARTED from — and the case study goes on to show that the
-      // question was narrower than the real skill. Rewriting it for
-      // consistency would erase that arc. If a future pass "fixes" this for
-      // consistency with the hero, it is removing something load-bearing.
+      // P1 is Flore's own copy, near-verbatim. "frame ideas in business terms"
+      // is KEPT here deliberately, though the same phrase was corrected out of
+      // the hero: there it described what the product IS, here it is the
+      // question the project STARTED from, and the case study goes on to show
+      // that question was narrower than the real skill. Don't "fix" it for
+      // consistency — that erases the arc.
       'Designers are often judged not just by what they create — but by how convincingly they present it. This project began with a simple question: why do designers — despite strong storytelling skills — still struggle to gain influence in strategic conversations? And how might AI help them frame ideas in business terms and respond with confidence when challenged?',
+      // P2 EXPANDS the hero one-liner rather than repeating it, carrying what
+      // the hook has no room for: the substance-not-vocabulary point, and the
+      // two exercises, which set up the `features` section.
+      'PitchPivot helps designers rethink and reframe design decisions so that they answer real business needs — not just by rewording them, but by connecting them to what the business is actually trying to solve. It then helps them anticipate the questions those decisions will attract, and rehearse the answers against the audience they will be facing: an executive, a PM, whoever is in the room.',
     ],
     // PNG, not SVG — Flore's correction, 2026-08-12. With this one all five
     // page graphics are raster, so none of them can inherit a design token;
@@ -184,8 +176,46 @@ export default {
 
   turningPoint: {
     title: 'The Turning Point: What User Research Revealed',
-    note: 'I assumed designers needed help presenting. The research said they needed help framing their designs better and responding to tough questions by non-designers.',
-    quotesLabel: 'User Interview Quotes',
+    // Added 2026-08-14: the section had no method paragraph at all, so three
+    // quotes arrived with nothing saying who was interviewed or how many.
+    //
+    // Sentence 1 is fact: five interviews (Flore), and the roles/industries are
+    // read off the three quote attributions below.
+    // Sentence 2 is INFERRED from the quotes' subject matter, not sourced.
+    // Needs Flore's confirmation or her own wording.
+    // RESTRUCTURED 2026-08-14, Flore's diagnosis: the paragraph and the bubble
+    // were both first person, breaking the rule that only the bubble speaks as
+    // "I" — and the section's most important content (the assumption being
+    // overturned) was sitting in the bubble, which is an ASIDE device: small,
+    // right-aligned, illustrated, read as a margin note.
+    //
+    // The split: main text carries the FINDING, bubble keeps the personal
+    // ADMISSION. That solves the "can't write about assumptions in third
+    // person" problem by not trying to — the prose states what the research
+    // found, which is third person, and the bubble says "I was wrong", which
+    // is the one thing only a first-person aside can do.
+    //
+    // The bubble is also now two lines instead of seven, which is the other
+    // half of Flore's note: a long bubble is hard to read at that size and
+    // alignment. Shortening it was the fix, not moving it.
+    body: [
+      // CORRECTED 2026-08-14. This said "individual contributors through to
+      // design leads in fintech, SaaS and agency teams" — invented, in the
+      // worst way: I derived it from the three `quotes` attributions below
+      // rather than from anything Flore said. She interviewed NO design leads.
+      // Real spread, her words: three senior product designers plus a couple of
+      // juniors. Industries dropped entirely, same bad source.
+      //
+      // SEE THE NOTE ON `quotes` BELOW — the attributions this came from are
+      // themselves unconfirmed, and one of them contradicts this sentence.
+      'Five interviews, three with senior product designers and two with junior designers, moved the problem somewhere else. The difficulty wasn’t presenting: it was framing a decision so that it answered a business question in the first place, and holding that framing when a non-designer pushed back.',
+    ],
+    note: 'I went in convinced this was a presentation problem. It wasn’t.',
+    // "Design lead, SaaS" was Figma placeholder text -- Flore interviewed no
+    // design leads. Corrected to "Senior product designer, SaaS", her wording,
+    // 2026-08-14. The other two she did not flag, so they stand.
+    //
+    // Quote TEXT is participant wording and stays verbatim.
     quotes: [
       {
         quote:
@@ -195,7 +225,7 @@ export default {
       {
         quote:
           "The hardest part is not the slides, it's when someone challenges your work and you don't know how to respond right away.",
-        attribution: 'Design lead, SaaS',
+        attribution: 'Senior product designer, SaaS',
       },
       {
         quote:
@@ -210,7 +240,9 @@ export default {
     items: [
       {
         title: 'Impact Framing',
-        body: 'AI analyzes design text and translates UX jargon into clear, business-oriented language, highlighting measurable outcomes so designers can communicate value beyond usability or visuals.',
+        // Flore's own copy, 2026-08-14, verbatim apart from a closing full stop
+        // to match the second feature.
+        body: 'Detect UX jargon and translate your design reasoning into clear, outcome-focused business language — before the meeting.',
         media: {
           kind: 'video',
           src: `${M}/impact-framing.mp4`,
@@ -224,7 +256,8 @@ export default {
       },
       {
         title: 'Pushback Pivot',
-        body: 'Simulates tough stakeholder questions based on audience type — from executives to PMs. AI prompts designers to practice confident, structured responses and strengthen their reasoning.',
+        // Flore's own copy, 2026-08-14, verbatim.
+        body: 'Practice responding to challenging questions from specific stakeholder types — so you’re never caught off guard.',
         media: {
           kind: 'video',
           src: `${M}/pushback-pivot.mp4`,
@@ -241,6 +274,27 @@ export default {
 
   takeaways: {
     title: 'Takeaways',
+    // Added 2026-08-14 at Flore's request: the charts above are all from the
+    // Friends of Figma event, but that was the SECOND round of testing, and
+    // nothing on the page said so. Without this the reader assumes one study.
+    //
+    // First person, because it is a Guide bubble (that is the rule), and short,
+    // because a long bubble is hard to read at that size and alignment.
+    //
+    // The first round is named but not detailed — Flore's call: "not worth
+    // noting down too concretely". Its findings (missed "Generate Example"
+    // button, unclear link between exercises) stay out.
+    //
+    // THE PRODUCT DIDN'T CHANGE, THE LANDSCAPE DID — Flore's correction. An
+    // earlier draft said "on a product that had changed a lot since", which was
+    // wrong and also the less interesting claim. What moved between the two
+    // rounds was the AI tooling around it, and with it what people expected.
+    // That is a real caveat on the closing survey's 5.5 output-relevance score:
+    // the same output is judged against a higher bar six months on.
+    //
+    // "seven months" — corrected from six by Flore, and it matches the dates:
+    // Oct 2025 build, 20 May 2026 event.
+    note: 'I tested twice: think-aloud sessions with four designers right after building it, then these numbers at a Friends of Figma event seven months on. The AI landscape had changed, and expectations with it.',
     // REORDERED per BUILD v3, and the order is the argument: what the product
     // must become (01), why good UX wasn't enough (02), then the part a tool
     // can't fix and where the next version aims (03). Figma still has these in
@@ -267,10 +321,11 @@ export default {
     // on each. That is why the "Maybe" figure sits in 01's prose rather than
     // in its chart: same survey, different question from the barrier counts.
     //
-    // UNVERIFIED: the 24 is inherited from the previous version of this file,
-    // not read off the closing-survey PDF (no PDF text extractor on the
-    // machine — see the note on the "Maybe" line below). It is consistent with
-    // everything here, but it has not been checked at source.
+    // VERIFIED 2026-08-14 against both source PDFs and the Mentimeter results.
+    // Closing survey: "Respondents: 24 (23/24 answered most questions)".
+    // Opening survey: "Respondents: 28 (27/28 answered most questions)" -- 27
+    // answered the role, company-size and blockers questions, which is why the
+    // opening-survey figures on this page are out of 27, not 28.
     items: [
       {
         index: '01',
@@ -287,7 +342,9 @@ export default {
         // there is no repetition, since the body no longer carries it.
         //
         // Matches the claim-shaped full sentences of takeaways 02 and 03.
-        title: 'A tool in its own tab has to earn its place in the first minute.',
+        // Retitled with the theme split: the old title's "first minute" was about
+        // session length, which now belongs to 02.
+        title: 'It has to live where the work already happens.',
         body: [
           // REFRAMED 2026-08-14. This read "Users questioned both the
           // standalone format and the differentiation from ChatGPT, pointing
@@ -315,11 +372,12 @@ export default {
           // section (Impact Framing, Pushback Pivot) rather than restated, so
           // it can't drift from what the page shows further up.
           //
-          // UNVERIFIED: "asked what it gave them that a general-purpose chatbot
-          // wouldn't" is a reshaping of the finding's FRAMING, not of the
-          // finding. The underlying free-text responses haven't been read (no
-          // PDF extractor on the machine). If people put it more bluntly or
-          // more narrowly than this, the sentence should follow them.
+          // VERIFIED 2026-08-14. The closing survey's open answers contain, in
+          // a participant's own words: "What would be main differentiator if I
+          // paste idea into ChatGPT by saying 'you are a skeptical
+          // stakeholder'?" -- so the objection is real and almost this
+          // sentence. Another wrote "Integrated into my workflow, not a
+          // standalone application", which is the standalone half.
           // TIGHTENED 2026-08-14 — four paragraphs to three, ~40 % shorter.
           //
           // The bloat was one beat stated three times: "structure wasn't
@@ -334,7 +392,13 @@ export default {
           // this file's own `features` copy, where Pushback Pivot works "based
           // on audience type", so the reader meets the same idea in the same
           // words twice.
-          'Users questioned the standalone format, and asked what it gave them that a general-purpose chatbot wouldn’t. What makes PitchPivot more than a prompt is its structure — a guided reframe, and pushback rehearsed against a chosen audience — and in six minutes on a phone, that never got the chance to show.',
+          // ONE THEME PER TAKEAWAY -- Flore, 2026-08-14. 01 is workflow, 02 is
+          // specificity, and neither borrows the other's material. Cut from
+          // here: the chatbot question and the structure explanation (both
+          // differentiation, so they moved to 02) and the phone/session
+          // conditions (now stated once, in 02, where the score they qualify
+          // lives). "joint-top" does the work the old tie paragraph did.
+          'Workflow fit was the joint-top barrier: nine of the twenty who hesitated said it did not fit how they already work. A tool in its own tab has to be opened on purpose, and it competes with everything already open.',
           // THE TRADEOFF PARAGRAPH — added 2026-08-14, and it replaces a
           // sentence I had cut ("The opportunity is deeper workflow integration
           // and domain-specific coaching") on the grounds that the takeaway's
@@ -354,27 +418,35 @@ export default {
           // verdict on ONE design decision, and it can afford to be hard
           // because the sentences before it establish she saw the cost coming.
           //
-          // NOT CLAIMED HERE: that the project was solo. The Role line still
-          // carries a `REVIEW —` marker because that was inferred, not sourced,
-          // so this says "a five-week project" instead. The five weeks are
-          // real — see the Process note.
+          // NOT CLAIMED HERE: that the project was solo. Flore's confirmed
+          // Role is "0→1 designer, from research to final product", which says
+          // scope, not headcount — so this still says "a five-week project"
+          // rather than "solo". The five weeks are real, see the Process note.
           // "The test didn't teach me that — it priced it." replaces a longer
           // close that ended on a bare "It didn't." Shorter, and it carries the
           // criticality better: the blunt version was a second statement of the
           // failure already described above, while this states the RELATIONSHIP
           // between the decision and the research, which is the actual point.
-          'None of that was a surprise. A tool living inside the design workflow was always the stronger answer; I built standalone because a five-week project makes integration a build problem before it is a design one. The test didn’t teach me that — it priced it.',
+          // THIRD PERSON, and forward-looking — Flore, 2026-08-14. This was
+          // "I built standalone because a five-week project makes integration a
+          // build problem... The test didn't teach me that, it priced it."
+          // First person belongs to the Guide bubbles, and there is already one
+          // at the top of this section.
+          //
+          // "None of that was a surprise" still does the important work: it
+          // stops the paragraph reading as though workflow integration were a
+          // lesson learned late. The scope constraint is named without "I", and
+          // the paragraph now ends on the priority rather than on the verdict.
+          'None of that was a surprise. A tool living inside the design workflow was always the stronger answer; a five-week scope made standalone the only buildable option.',
           // COUNT, NOT PERCENTAGE — Flore's call, 2026-08-14. This read
           // "Sixty-three per cent said they would maybe use it again". On 24
           // people a percentage claims a precision the sample cannot carry,
           // and spelling it out made it sound more survey-grade still.
           //
-          // UNVERIFIED: 15 is derived, not read off the closing survey —
-          // 15/24 = 62.5 %, which is what the old 63 % rounds from. The
-          // machine has no PDF text extractor (`brew install poppler` would
-          // fix it), so this is the arithmetic that fits rather than the
-          // figure at source. Worth one look at the closing survey before
-          // this ships; if the real count is 14 or 16 only this line changes.
+          // VERIFIED 2026-08-14 against the closing-survey PDF's Tool Intent
+          // table: Yes 4, Maybe 15, No 5, totalling the 24 respondents. The 15
+          // was originally derived by arithmetic from the old "63 %"; it
+          // happened to be exactly right, but it was luck, not method.
           // Merged with the tie paragraph below. Both are closing-survey
           // findings sitting directly above the closing-survey chart, so they
           // were two paragraphs doing one job.
@@ -399,7 +471,11 @@ export default {
           // between two equal bars — and the grey one then turned up as the
           // headline of takeaway 02, which read as a contradiction. Saying it
           // out loud turns that into a handoff. Flore's note, 2026-08-14.
-          'Asked whether they would use it again, 15 of the 24 said maybe. Two barriers came back in equal measure: the output felt too generic, and the tool did not fit an existing workflow — this takeaway is about the second.',
+          // The "would you use it again" figure moved to takeaway 02 (Flore,
+          // 2026-08-14). It answers a different question from the barrier
+          // counts, and it is evidence for 02's claim — good UX not converting
+          // — rather than for this one. What stays here is the tie, which has
+          // to sit next to the chart it explains.
         ],
         chart: {
           caption: 'Barriers to adoption',
@@ -416,23 +492,71 @@ export default {
             // isn't in the data.
             { label: 'Doesn’t fit my workflow', value: 9, emphasis: true },
             { label: 'Already handle this differently', value: 7 },
-            { label: 'Don’t trust the output', value: 6 },
+            // "I would need to trust it more first" in the survey — a bar to
+            // clear, not a rejection. The old label, "Don't trust the output",
+            // overstated those six people.
+            { label: 'Would need to trust it more', value: 6 },
           ],
-          // Closing survey, and named as such now that the page cites two.
-          // "n=" dropped for plain language — Flore's call, 2026-08-14: the
-          // readers are design managers and HR, so the notation costs more
-          // than it saves. "each" (not "allowed") is what explains why these
-          // four bars sum to 31 across 24 people.
-          source: 'Friends of Figma Zurich, May 2026 — closing survey, 24 participants, multiple answers each.',
+          // DENOMINATOR CORRECTED 2026-08-14 against the closing-survey PDF:
+          // this question is headed "Barriers to Adoption (if Maybe or No,
+          // n=20)". It was NOT asked of all 24 — only of the 20 who said maybe
+          // or no. The line said "24 participants", which made every bar read
+          // against the wrong base (9 of 20 is 45%, not 9 of 24).
+          //
+          // FOUR BARS OF SIX, and that is deliberate — Flore's decision,
+          // 2026-08-14, not an oversight. The closing-survey PDF also lists
+          // "Something else" (4) and "I do not present often enough" (2).
+          // Both stay out: the first is a non-answer, and the second describes
+          // people outside the problem the product addresses rather than a
+          // barrier to adopting it. Do not "restore" them for completeness.
+          source: 'Friends of Figma Zurich, May 2026. Closing survey, asked of the 20 who said maybe or no, multiple answers each.',
         },
       },
       {
         index: '02',
         title: "Good UX couldn't compensate for generic AI.",
         body: [
+          // WHAT TO DO WITH THE STATS: the full Yes/Maybe/No split, in prose,
+          // here rather than as a fourth chart.
+          //
+          // The closing-survey PDF's Tool Intent table is Yes 4, Maybe 15,
+          // No 5. Giving all three is more useful than the Maybe count alone —
+          // "only four said yes" is the part that actually lands, and it is the
+          // evidence for this takeaway's claim that good UX didn't convert.
+          // Three numbers don't need a chart, and 02 already carries one.
+          // QUESTION WORDING CORRECTED 2026-08-14 against the closing-survey
+          // Mentimeter (slide 4). This said "whether they would use it again",
+          // which is a different question: "again" implies they had adopted it
+          // and might return. What was actually asked is forward intent for a
+          // specific upcoming occasion, which is a fairer thing to report and
+          // makes the four Yes votes mean more.
           // Opens by picking up 01's handoff, so the two takeaways read as one
           // argument in two parts rather than as the same finding twice.
-          'That other joint-top barrier — generic output — shows up in the scores too. Ease of use scored 8.2/10, while output usefulness scored only 5.5/10. The next design challenge shifted from interface usability to gathering enough context for genuinely specific advice.',
+          'Only four of the 24 would use it before their next stakeholder buy-in; fifteen said maybe. Ease of use scored 8.2 out of 10, output relevance only 5.5: the interface worked, what it produced did not. Nine of the twenty who hesitated called the output too generic, and one asked outright what the tool gave them that a chatbot prompt would not.',
+          // CUT 2026-08-14. There was a second paragraph here on testing
+          // conditions ("Everyone tested on a phone, in a room, in six
+          // minutes..."). It raised a caveat and then dismissed its own caveat,
+          // so it cost ~43 words to leave the reader exactly where the
+          // paragraph above had already left them. An earlier draft of it was
+          // worse still — it argued the 5.5 was measured unfairly, which is a
+          // claim no desktop data supports.
+          //
+          // NOTE: the phone / six-minutes detail now appears NOWHERE on the
+          // page. That is deliberate, not an oversight — takeaway 01 no longer
+          // carries it either, since 01 and 02 were separated by theme. If it
+          // is ever wanted back, it belongs in one place only.
+          // THE FORMAT CAVEAT — added 2026-08-14 after Flore asked whether
+          // testing on phones was a mistake worth owning.
+          //
+          // Deliberately NOT written as a mistake. Testing live at a talk means
+          // phones; the alternative was not the same test on desktop, it was no
+          // test with 24 people. The honest finding is that the format answered
+          // one question well and the other badly, and that knowing which of
+          // your own numbers to trust is the actual skill. That reads as
+          // stronger judgment than an apology would.
+          //
+          // Third person, per the rule that first person belongs in the Guide
+          // bubbles only.
         ],
         chart: {
           caption: 'Tool quality',
@@ -441,7 +565,7 @@ export default {
             // The emphasised bar: the score that undercuts the interface work.
             { label: 'Output relevance', value: 5.5, max: 10, emphasis: true },
           ],
-          source: 'Friends of Figma Zurich, May 2026 — closing survey, 24 participants, average score out of 10.',
+          source: 'Friends of Figma Zurich, May 2026. Closing survey, 24 participants, average score out of 10.',
         },
       },
       {
@@ -449,7 +573,10 @@ export default {
         // REFRAMED FORWARD per BUILD v3, from the frame's "The problem is real,
         // but narrower than initially assumed" — which ended the page on what
         // the product doesn't do. This ends it on direction.
-        title: "A tool can't fix org politics — which is where the next version has to aim.",
+        // NO ROADMAP LANGUAGE — Flore is not continuing the product (2026-08-14).
+        // This read "which is where the next version has to aim", which promised
+        // work that isn't happening. The finding stands on its own without it.
+        title: "The biggest blocker is the one no tool reaches.",
         body: [
           // Was "Designers struggle with framing and pushback…". Corrected
           // 2026-08-14: this chart is the OPENING survey, and that room was
@@ -476,8 +603,17 @@ export default {
           // just qualifying it. Prose, not a fourth chart — a data display
           // about the sample would compete with the three that carry the
           // actual argument.
-          'Framing and pushback are real struggles, but “stakeholder buy-in” also depends heavily on organizational politics that a tool can’t solve. This came from the room before anyone had seen the tool — 27 people, 19 of them UX/UI designers and the rest design leaders, product managers and other product roles, and 13 of the 27 at companies of 200 or more.',
-          'That is the tallest bar below, and it is the one the current product doesn’t touch. The next version has to work where those conversations actually happen — in the room, with the decision-makers, not in a separate tab.',
+          // ONE PARAGRAPH, 2026-08-14. The second one was cut: it made the
+          // "no tool solves this" claim a THIRD time, after the title and after
+          // this paragraph's own opening. Its one irreplaceable line —
+          // "arguably not in a tool at all" — was folded in here.
+          //
+          // Reordered so the FINDING leads. Cutting the second paragraph alone
+          // would have left this one opening on "framing and pushback are real
+          // struggles" and spending most of its words on who answered, which
+          // buries the point under the sample description.
+          'Organizational politics was the top blocker by a wide margin, and it is the one thing the product does not touch. Those conversations happen in the room, with the decision-makers. Arguably not in a tool at all.',
+          'That answer came from 27 people before any of them had seen it: 19 UX/UI designers, the rest design leaders, product managers and other product roles, 13 of them at companies of 200 or more.',
         ],
         chart: {
           caption: 'Blockers to design influence',
@@ -492,7 +628,12 @@ export default {
           ],
           // OPENING survey, 27 — not the 24 this shared with the other two
           // charts before. See the two-survey note at the top of `takeaways`.
-          source: 'Friends of Figma Zurich, May 2026 — opening survey, 27 participants, multiple answers each.',
+          // "max 2", not unlimited — the PDF heads this "Biggest Blockers to
+          // Influence (max 2, n=27)". "multiple answers each" implied people
+          // could pick everything, which would make the 17 mean something
+          // different. 28 responded to the opening survey overall; 27 answered
+          // this question.
+          source: 'Friends of Figma Zurich, May 2026. Opening survey, 27 responses, up to two blockers each.',
         },
       },
     ],
@@ -500,7 +641,33 @@ export default {
 
   process: {
     title: 'The Process — Exploring AI in the Design Workflow',
-    note: 'I created this project during the 5-week “AI for Designers”, exploring how AI can enhance the creative process. Each week followed a design-sprint rhythm: from research insights to AI-powered prototyping and testing. The process was an experiment in collaboration — using AI not just as a tool, but as a partner that challenged assumptions and sped iteration.',
+    // SHORTENED 2026-08-14, 57 words to 41. This is the longer of the two
+    // Guide notes and so the one that sets how tall the bubble gets — see the
+    // note on MEASURE.guideBubble in caseStudyLayout.js, which flags exactly
+    // this note as the one to judge the cap against.
+    //
+    // Cut: "exploring how AI can enhance the creative process" (generic, and
+    // the sentence that follows shows the how) and "The process was an
+    // experiment in collaboration" (a label for the point rather than the
+    // point). The weekly rhythm survives in compressed form because the
+    // momentum curve directly below is a chart OF that rhythm, so the prose
+    // only has to name it, not describe it.
+    //
+    // Kept deliberately: first person and the partner-not-tool contrast, which
+    // is the only claim here that isn't just course logistics.
+    // THE FACTS GO IN `body`, THE REFLECTION STAYS IN THE BUBBLE — 2026-08-14.
+    // The note used to open "I built this over five weeks on the AI for
+    // Designers course, a design-sprint rhythm each week...", which the new
+    // paragraph below now says. Same duplication problem takeaways 01 and 02
+    // had. What is left here is the only thing that has to be first person.
+    note: 'The real experiment was treating AI as a partner, not a tool: something that challenged assumptions instead of just executing them.',
+    // Week names, dates and the curve's actual shape are read off the graphic
+    // itself (momentum-curve.png), not from the old alt text -- which claimed
+    // it dipped "during testing". It does not: the dip is at the end of week 1,
+    // and the line climbs steeply from prototyping to the end.
+    body: [
+      'The project ran over five weeks on Patricia Reiners’ “AI for Designers” course, from mid-September to late October 2025, with one focus per week: research, insights, prototype, testing, reflection. The curve below plots momentum against how heavily AI tools were leaned on each week. It dips early, then climbs steeply from prototyping onward.',
+    ],
     // PNG, not SVG — Flore's correction, 2026-08-12.
     //
     // This drops one requirement from the asset contract rather than deferring
@@ -515,7 +682,9 @@ export default {
       label: '[ momentum-curve.png — 2880x2048 weekly momentum curve ]',
       placeholderAspect: '2880 / 2048',
       maxWidth: MEDIA_WIDTH.curve,
-      alt: 'Weekly project momentum across the five-week course, rising through prototyping and dipping during testing',
+      // Corrected 2026-08-14 against the image: the curve dips at the end of
+      // week 1 and rises from prototyping on. The old text had it backwards.
+      alt: 'Weekly project momentum across the five-week course, dipping at the end of week one and climbing steeply from prototyping to the end',
     },
   },
 
