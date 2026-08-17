@@ -12,6 +12,7 @@ import Media from './Media'
 import Onward from './Onward'
 import { SPACE } from '../../lib/caseStudyLayout'
 import { getProjectBySlug } from '../../lib/content'
+import { FOCUS_CLASS } from '../ButtonLink'
 
 // Rule 1 -- no two consecutive blocks share a width -- checked against the
 // RENDERED DOM in dev, not against the data.
@@ -95,7 +96,28 @@ export default function CaseStudy({ data }) {
             {paragraph}
           </p>
         ))}
-        <p className="m-0 text-caption font-normal text-text-secondary">{data.why.sources}</p>
+        {/* Source citations, each a real outbound link. `FOCUS_CLASS` is
+            reused from ButtonLink so these keep the site's one focus ring
+            rather than inventing a second — they are inline text links inside a
+            caption, so they are not ButtonLink instances themselves.
+            The <span> wrapper carries the comma separator; it avoids importing
+            Fragment just to hold two children. */}
+        <p className="m-0 text-caption font-normal text-text-secondary">
+          Sources:{' '}
+          {data.why.sources.map((source, index) => (
+            <span key={source.href}>
+              {index > 0 && ', '}
+              <a
+                href={source.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`underline underline-offset-2 hover:text-text-primary ${FOCUS_CLASS}`}
+              >
+                {source.label}
+              </a>
+            </span>
+          ))}
+        </p>
       </Block>
       <Block width="wide" as="div">
         <StatGrid stats={data.why.stats} />

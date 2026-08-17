@@ -163,7 +163,25 @@ export default {
       'Product design is a proven growth driver — yet it still struggles to gain influence in strategic decisions. Despite a $200 billion market, only 13 % of companies have a UX leader at the executive level. Design-led businesses grow 32 % faster, while poor UX contributes to 65 % of failed digital products.',
       'These numbers reveal a persistent gap between design impact and design influence. Designers create measurable value but often lack the visibility and vocabulary to express it. That’s the gap PitchPivot aims to close — helping designers communicate their impact with the clarity and confidence needed to earn that seat at the table.',
     ],
-    sources: 'Sources: DesignRush, Flynn, McKinsey',
+    // Was the plain string 'Sources: DesignRush, Flynn, McKinsey'. Real URLs
+    // from Flore, 2026-08-14 — the three figures in the paragraph above are
+    // other people's research, so a reader should be able to check them.
+    // All open in a new tab: they lead off-site mid-case-study, same rule the
+    // NDA project cards follow.
+    sources: [
+      {
+        label: 'DesignRush',
+        href: 'https://www.designrush.com/agency/product-design/trends/product-design-statistics',
+      },
+      {
+        label: 'Flynn',
+        href: 'https://flynn-product-design.com/post/why-being-a-design-led-company-is-key-to-product-innovation-and-success',
+      },
+      {
+        label: 'McKinsey',
+        href: 'https://www.mckinsey.com/capabilities/tech-and-ai/our-insights/the-business-value-of-design',
+      },
+    ],
     // Green for the two figures that describe the opportunity, orange for the
     // two that describe the gap — the split Figma draws (cards 1-2 vs 3-4).
     stats: [
