@@ -1,3 +1,4 @@
+import emphasise from '../../lib/emphasis'
 // A numbered takeaway: index, claim title, body, and an open evidence slot.
 //
 // The evidence slot is the point of this component, per the build spec: it
@@ -22,7 +23,7 @@ export default function LearningBlock({ index, title, body = [], evidence }) {
       </h3>
       {body.map((paragraph) => (
         <p key={paragraph} className="m-0 text-body-lg font-normal text-text-primary">
-          {paragraph}
+          {emphasise(paragraph)}
         </p>
       ))}
       {/* Rendered only when there is something to render, so an evidence-less

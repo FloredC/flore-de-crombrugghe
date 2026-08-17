@@ -137,11 +137,11 @@ export default {
       // question the project STARTED from, and the case study goes on to show
       // that question was narrower than the real skill. Don't "fix" it for
       // consistency — that erases the arc.
-      'Designers are often judged not just by what they create — but by how convincingly they present it. This project began with a simple question: why do designers — despite strong storytelling skills — still struggle to gain influence in strategic conversations? And how might AI help them frame ideas in business terms and respond with confidence when challenged?',
+      'Designers are often judged not just by what they create — but by **how convincingly they present it**. This project began with a simple question: why do designers — despite strong storytelling skills — still struggle to gain influence in strategic conversations? And how might AI help them frame ideas in business terms and respond with confidence when challenged?',
       // P2 EXPANDS the hero one-liner rather than repeating it, carrying what
       // the hook has no room for: the substance-not-vocabulary point, and the
       // two exercises, which set up the `features` section.
-      'PitchPivot helps designers rethink and reframe design decisions so that they answer real business needs — not just by rewording them, but by connecting them to what the business is actually trying to solve. It then helps them anticipate the questions those decisions will attract, and rehearse the answers against the audience they will be facing: an executive, a PM, whoever is in the room.',
+      'PitchPivot helps designers rethink and reframe design decisions so that they **answer real business needs** — not just by rewording them, but by connecting them to what the business is actually trying to solve. It then helps them anticipate the questions those decisions will attract, and **rehearse the answers against the audience they will be facing**: an executive, a PM, whoever is in the room.',
     ],
     // PNG, not SVG — Flore's correction, 2026-08-12. With this one all five
     // page graphics are raster, so none of them can inherit a design token;
@@ -160,8 +160,8 @@ export default {
   why: {
     title: 'Why This Matters',
     body: [
-      'Product design is a proven growth driver — yet it still struggles to gain influence in strategic decisions. Despite a $200 billion market, only 13 % of companies have a UX leader at the executive level. Design-led businesses grow 32 % faster, while poor UX contributes to 65 % of failed digital products.',
-      'These numbers reveal a persistent gap between design impact and design influence. Designers create measurable value but often lack the visibility and vocabulary to express it. That’s the gap PitchPivot aims to close — helping designers communicate their impact with the clarity and confidence needed to earn that seat at the table.',
+      'Product design is a proven growth driver — yet it **still struggles to gain influence in strategic decisions**. Despite a $200 billion market, only 13 % of companies have a UX leader at the executive level. Design-led businesses grow 32 % faster, while poor UX contributes to 65 % of failed digital products.',
+      'These numbers reveal a persistent gap between **design impact and design influence**. Designers create measurable value but often lack the visibility and vocabulary to express it. That’s the gap PitchPivot aims to close — helping designers communicate their impact with the clarity and confidence needed to earn that seat at the table.',
     ],
     // Was the plain string 'Sources: DesignRush, Flynn, McKinsey'. Real URLs
     // from Flore, 2026-08-14 — the three figures in the paragraph above are
@@ -226,7 +226,7 @@ export default {
       //
       // SEE THE NOTE ON `quotes` BELOW — the attributions this came from are
       // themselves unconfirmed, and one of them contradicts this sentence.
-      'Five interviews, three with senior product designers and two with junior designers, moved the problem somewhere else. The difficulty wasn’t presenting: it was framing a decision so that it answered a business question in the first place, and holding that framing when a non-designer pushed back.',
+      'Five interviews, three with senior product designers and two with junior designers, moved the problem somewhere else. **The difficulty wasn’t presenting**: it was framing a decision so that it answered a business question in the first place, and holding that framing when a non-designer pushed back.',
     ],
     note: 'I went in convinced this was a presentation problem. It wasn’t.',
     // "Design lead, SaaS" was Figma placeholder text -- Flore interviewed no
@@ -429,7 +429,7 @@ export default {
           // differentiation, so they moved to 02) and the phone/session
           // conditions (now stated once, in 02, where the score they qualify
           // lives). "joint-top" does the work the old tie paragraph did.
-          'Workflow fit was the joint-top barrier: nine of the twenty who hesitated said it did not fit how they already work. A tool in its own tab has to be opened on purpose, and it competes with everything already open.',
+          'Workflow fit was the joint-top barrier: nine of the twenty who hesitated said it did not fit how they already work. **A tool in its own tab has to be opened on purpose**, and it competes with everything already open.',
           // THE TRADEOFF PARAGRAPH — added 2026-08-14, and it replaces a
           // sentence I had cut ("The opportunity is deeper workflow integration
           // and domain-specific coaching") on the grounds that the takeaway's
@@ -468,7 +468,7 @@ export default {
           // stops the paragraph reading as though workflow integration were a
           // lesson learned late. The scope constraint is named without "I", and
           // the paragraph now ends on the priority rather than on the verdict.
-          'None of that was a surprise. A tool living inside the design workflow was always the stronger answer; a five-week scope made standalone the only buildable option.',
+          '**None of that was a surprise.** A tool living inside the design workflow was always the stronger answer; a five-week scope made standalone the only buildable option.',
           // COUNT, NOT PERCENTAGE — Flore's call, 2026-08-14. This read
           // "Sixty-three per cent said they would maybe use it again". On 24
           // people a percentage claims a precision the sample cannot carry,
@@ -563,7 +563,7 @@ export default {
           // makes the four Yes votes mean more.
           // Opens by picking up 01's handoff, so the two takeaways read as one
           // argument in two parts rather than as the same finding twice.
-          'Only four of the 24 would use it before their next stakeholder buy-in; fifteen said maybe. Ease of use scored 8.2 out of 10, output relevance only 5.5: the interface worked, what it produced did not. Nine of the twenty who hesitated called the output too generic, and one asked outright what the tool gave them that a chatbot prompt would not.',
+          'Only four of the 24 would use it before their next stakeholder buy-in; fifteen said maybe. Ease of use scored 8.2 out of 10, output relevance only 5.5: the interface worked, **what it produced did not**. Nine of the twenty who hesitated called the output too generic, and one asked outright what the tool gave them that a chatbot prompt would not.',
           // CUT 2026-08-14. There was a second paragraph here on testing
           // conditions ("Everyone tested on a phone, in a room, in six
           // minutes..."). It raised a caveat and then dismissed its own caveat,
@@ -643,7 +643,7 @@ export default {
           // would have left this one opening on "framing and pushback are real
           // struggles" and spending most of its words on who answered, which
           // buries the point under the sample description.
-          'Organizational politics was the top blocker by a wide margin, and it is the one thing the product does not touch. Those conversations happen in the room, with the decision-makers. Arguably not in a tool at all.',
+          'Organizational politics was the top blocker by a wide margin, and it is **the one thing the product does not touch**. Those conversations happen in the room, with the decision-makers. **Arguably not in a tool at all.**',
           'That answer came from 27 people before any of them had seen it: 19 UX/UI designers, the rest design leaders, product managers and other product roles, 13 of them at companies of 200 or more.',
         ],
         chart: {

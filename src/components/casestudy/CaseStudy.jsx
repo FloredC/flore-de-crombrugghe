@@ -13,6 +13,7 @@ import Onward from './Onward'
 import { SPACE } from '../../lib/caseStudyLayout'
 import { getProjectBySlug } from '../../lib/content'
 import { FOCUS_CLASS } from '../ButtonLink'
+import emphasise from '../../lib/emphasis'
 
 // Rule 1 -- no two consecutive blocks share a width -- checked against the
 // RENDERED DOM in dev, not against the data.
@@ -61,130 +62,144 @@ export default function CaseStudy({ data }) {
       ref={ref}
       data-component="case-study"
       data-slug={data.slug}
-      // `break` is the only gap in this stack; every other distance is set
-      // inside a block. That's what holds the spacing scale to three steps.
+      // TWO LEVELS, since 2026-08-14: this stack holds CHAPTERS at `break`,
+      // and each chapter groups its own blocks at the smaller `chapter` step.
+      // Before, every block was a flat sibling here, so a header sat as far
+      // from its own prose as from the next chapter and nothing read as a unit.
+      //
+      // The Rule 1 check is unaffected: it reads `[data-width]` with
+      // querySelectorAll, which returns document order regardless of nesting.
       className={`flex flex-col ${SPACE.break}`}
     >
       <Frame {...data.frame} />
 
       {/* 2 — What is PitchPivot. Narrow prose, then the explanatory
           illustration at `wide`. */}
-      <Block width="narrow" className="flex flex-col gap-space-24">
-        <SectionHeader title={data.what.title} />
-        {data.what.body.map((paragraph) => (
-          <p key={paragraph} className="m-0 text-body-lg font-normal">
-            {paragraph}
-          </p>
-        ))}
-      </Block>
-      <Block width="wide" as="div">
-        {/* Same padded notebook panel as the momentum figure below: the panel
+      <div className={`flex flex-col ${SPACE.chapter}`}>
+        <Block width="narrow" className="flex flex-col gap-space-24">
+          <SectionHeader title={data.what.title} />
+          {data.what.body.map((paragraph) => (
+            <p key={paragraph} className="m-0 text-body-lg font-normal">
+              {emphasise(paragraph)}
+            </p>
+          ))}
+        </Block>
+        <Block width="wide" as="div">
+          {/* Same padded notebook panel as the momentum figure below: the panel
             carries the border, radius and grid, and the Media inside is
             frameless, so the artwork sits ON the grid with a margin rather than
             running into the border. Before this the image met the border on all
             four sides. */}
-        <div className="overflow-hidden rounded-radius-24 border border-border-grey bg-notebook p-space-24">
-          <Media {...data.what.media} />
-        </div>
-      </Block>
+          <div className="overflow-hidden rounded-radius-24 border border-border-grey bg-notebook p-space-24">
+            <Media {...data.what.media} />
+          </div>
+        </Block>
+      </div>
 
       {/* 3 — Why This Matters. Narrow prose + sources, then the StatGrid wide. */}
-      <Block width="narrow" className="flex flex-col gap-space-24">
-        <SectionHeader title={data.why.title} />
-        {data.why.body.map((paragraph) => (
-          <p key={paragraph} className="m-0 text-body-lg font-normal">
-            {paragraph}
-          </p>
-        ))}
-        {/* Source citations, each a real outbound link. `FOCUS_CLASS` is
+      <div className={`flex flex-col ${SPACE.chapter}`}>
+        <Block width="narrow" className="flex flex-col gap-space-24">
+          <SectionHeader title={data.why.title} />
+          {data.why.body.map((paragraph) => (
+            <p key={paragraph} className="m-0 text-body-lg font-normal">
+              {emphasise(paragraph)}
+            </p>
+          ))}
+          {/* Source citations, each a real outbound link. `FOCUS_CLASS` is
             reused from ButtonLink so these keep the site's one focus ring
             rather than inventing a second — they are inline text links inside a
             caption, so they are not ButtonLink instances themselves.
             The <span> wrapper carries the comma separator; it avoids importing
             Fragment just to hold two children. */}
-        <p className="m-0 text-caption font-normal text-text-secondary">
-          Sources:{' '}
-          {data.why.sources.map((source, index) => (
-            <span key={source.href}>
-              {index > 0 && ', '}
-              <a
-                href={source.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`underline underline-offset-2 hover:text-text-primary ${FOCUS_CLASS}`}
-              >
-                {source.label}
-              </a>
-            </span>
-          ))}
-        </p>
-      </Block>
-      <Block width="wide" as="div">
-        <StatGrid stats={data.why.stats} />
-      </Block>
+          <p className="m-0 text-caption font-normal text-text-secondary">
+            Sources:{' '}
+            {data.why.sources.map((source, index) => (
+              <span key={source.href}>
+                {index > 0 && ', '}
+                <a
+                  href={source.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`underline underline-offset-2 hover:text-text-primary ${FOCUS_CLASS}`}
+                >
+                  {source.label}
+                </a>
+              </span>
+            ))}
+          </p>
+        </Block>
+        <Block width="wide" as="div">
+          <StatGrid stats={data.why.stats} />
+        </Block>
+      </div>
 
       {/* 4 — The Turning Point. Sits before the features deliberately: it is
           why they exist. */}
-      <Block width="narrow" className="flex flex-col gap-space-24">
-        <SectionHeader title={data.turningPoint.title} />
-        {data.turningPoint.body?.map((paragraph) => (
-          <p key={paragraph} className="m-0 text-body-lg font-normal">
-            {paragraph}
-          </p>
-        ))}
-      </Block>
-      {/* The Guide gets its OWN `wide` block so it can reach the right margin.
+      <div className={`flex flex-col ${SPACE.chapter}`}>
+        <Block width="narrow" className="flex flex-col gap-space-24">
+          <SectionHeader title={data.turningPoint.title} />
+          {data.turningPoint.body?.map((paragraph) => (
+            <p key={paragraph} className="m-0 text-body-lg font-normal">
+              {emphasise(paragraph)}
+            </p>
+          ))}
+        </Block>
+        {/* The Guide gets its OWN `wide` block so it can reach the right margin.
           Flore's note 2026-08-12: the avatar and bubble are right-aligned AND
           touch the margin. It was right-aligned inside the 860 `medium` block
           below, which left it stopping 324px short of the content edge —
           right-aligned to the wrong thing. `wide` is the full content column,
           so its right edge and the page's right margin are the same line. */}
-      <Block width="wide" as="div">
-        <AvatarNote body={data.turningPoint.note} />
-      </Block>
-      {/* The "User Interview Quotes" label above these was cut 2026-08-14: the
+        <Block width="wide" as="div">
+          <AvatarNote body={data.turningPoint.note} />
+        </Block>
+        {/* The "User Interview Quotes" label above these was cut 2026-08-14: the
           section's opening paragraph now says "five interviews", so a heading
           announcing interview quotes two lines later was naming what the reader
           had just been told.
           h-full per item so every card's rule runs the full row height and the
           attributions line up, rather than three ragged columns. */}
-      <Block width="medium" as="div">
-        <ul className="m-0 grid list-none grid-cols-1 gap-space-24 p-0 sm:grid-cols-3">
-          {data.turningPoint.quotes.map((quote) => (
-            <li key={quote.quote} className="h-full">
-              <QuoteCard {...quote} />
-            </li>
-          ))}
-        </ul>
-      </Block>
+        <Block width="medium" as="div">
+          <ul className="m-0 grid list-none grid-cols-1 gap-space-24 p-0 sm:grid-cols-3">
+            {data.turningPoint.quotes.map((quote) => (
+              <li key={quote.quote} className="h-full">
+                <QuoteCard {...quote} />
+              </li>
+            ))}
+          </ul>
+        </Block>
+      </div>
 
       {/* 5 — The Two Core Features. The page's one side-by-side pattern. */}
-      <Block width="wide" className="flex flex-col gap-space-64 xl:gap-space-80">
-        <SectionHeader title={data.features.title} />
-        {data.features.items.map((feature) => (
-          // BOTH MEDIA ON THE RIGHT, text on the left — Flore, 2026-08-14.
-          // This alternated by index, which was a known, flagged conflict:
-          // the build spec asked for alternation while the Figma frame draws
-          // both rows with text at x=0 (nodes 4774:7607 and 4774:7622). Figma
-          // was right. `mediaSide` stays a prop rather than being hardcoded in
-          // FeatureBlock, so a future row can still flip if it needs to.
-          <FeatureBlock key={feature.title} {...feature} mediaSide="right" />
-        ))}
-        {/* Closing visual for the section, in the SAME padded notebook panel as
+      <div className={`flex flex-col ${SPACE.chapter}`}>
+        <Block width="wide" className="flex flex-col gap-space-64 xl:gap-space-80">
+          <SectionHeader title={data.features.title} />
+          {data.features.items.map((feature) => (
+            // BOTH MEDIA ON THE RIGHT, text on the left — Flore, 2026-08-14.
+            // This alternated by index, which was a known, flagged conflict:
+            // the build spec asked for alternation while the Figma frame draws
+            // both rows with text at x=0 (nodes 4774:7607 and 4774:7622). Figma
+            // was right. `mediaSide` stays a prop rather than being hardcoded in
+            // FeatureBlock, so a future row can still flip if it needs to.
+            <FeatureBlock key={feature.title} {...feature} mediaSide="right" />
+          ))}
+          {/* Closing visual for the section, in the SAME padded notebook panel as
             the "What is PitchPivot" banner and the momentum figure — Flore's
             ask: treat it the same way.
             Rendered inside this block rather than as a block of its own, which
             keeps it part of the Features section and leaves the page's width
             sequence untouched. It already spans the full content width, since
             the block is `wide`. */}
-        {data.features.visual && (
-          <div className="overflow-hidden rounded-radius-24 border border-border-grey bg-notebook p-space-24">
-            <Media {...data.features.visual} />
-          </div>
-        )}
-      </Block>
+          {data.features.visual && (
+            <div className="overflow-hidden rounded-radius-24 border border-border-grey bg-notebook p-space-24">
+              <Media {...data.features.visual} />
+            </div>
+          )}
+        </Block>
+      </div>
 
-      {/* 6 — Takeaways. All three LearningBlocks in ONE narrow block, each with
+      <div className={`flex flex-col ${SPACE.chapter}`}>
+        {/* 6 — Takeaways. All three LearningBlocks in ONE narrow block, each with
           its RankedBars in its own evidence slot.
           One block rather than one per takeaway, for two reasons that happen to
           agree: Figma draws the whole section in a single 720 text container,
@@ -192,66 +207,68 @@ export default function CaseStudy({ data }) {
           bars out of the evidence slot -- which the build spec calls the most
           important thing about this component. (Tried the split first; it also
           produced three consecutive `narrow` blocks and tripped Rule 1.) */}
-      {/* ALL THREE GUIDES SIT AT THE PAGE MARGIN — Flore's call, 2026-08-14,
+        {/* ALL THREE GUIDES SIT AT THE PAGE MARGIN — Flore's call, 2026-08-14,
           and it is what forces the header and the Guide into separate blocks
           here.
           A Guide only reaches the right margin inside a `wide` block, but the
           features block directly above is `wide` too, and Rule 1 forbids two in
           a row. Splitting gives narrow -> wide -> narrow across the header,
           the Guide and the takeaways, which alternates cleanly.
-          The cost: header and Guide are now a `break` apart rather than the 40
-          they'd share inside one block. Consistency of the Guide won over
-          tightness of that one gap. */}
-      <Block width="narrow">
-        <SectionHeader title={data.takeaways.title} />
-      </Block>
-      {data.takeaways.note && (
-        <Block width="wide" as="div">
-          <AvatarNote body={data.takeaways.note} />
+          The old cost of that split -- header and Guide a full `break` apart --
+          is gone as of 2026-08-14: they are siblings inside this chapter group,
+          so the gap is the 40 the frame draws. */}
+        <Block width="narrow">
+          <SectionHeader title={data.takeaways.title} />
         </Block>
-      )}
-      <Block width="narrow" as="div" className="flex flex-col gap-space-64">
-        {data.takeaways.items.map((takeaway) => (
-          <LearningBlock
-            key={takeaway.index}
-            index={takeaway.index}
-            title={takeaway.title}
-            body={takeaway.body}
-            evidence={<RankedBars {...takeaway.chart} />}
-          />
-        ))}
-      </Block>
+        {data.takeaways.note && (
+          <Block width="wide" as="div">
+            <AvatarNote body={data.takeaways.note} />
+          </Block>
+        )}
+        <Block width="narrow" as="div" className="flex flex-col gap-space-64">
+          {data.takeaways.items.map((takeaway) => (
+            <LearningBlock
+              key={takeaway.index}
+              index={takeaway.index}
+              title={takeaway.title}
+              body={takeaway.body}
+              evidence={<RankedBars {...takeaway.chart} />}
+            />
+          ))}
+        </Block>
+      </div>
 
-      {/* 7 — The Process. `wide` so this Guide reaches the right margin too,
+      <div className={`flex flex-col ${SPACE.chapter}`}>
+        {/* 7 — The Process. `wide` so this Guide reaches the right margin too,
           same as the Turning Point one. The header sits in the same block and
           left-aligns at the content edge, so the two ends of the row are the
           page's two margins. */}
-      <Block width="wide" className="flex flex-col gap-space-40">
-        <SectionHeader title={data.process.title} />
-        <AvatarNote body={data.process.note} />
-      </Block>
-      {/* Prose at `narrow`, its own block: this is the section's reading
+        <Block width="wide" className="flex flex-col gap-space-40">
+          <SectionHeader title={data.process.title} />
+          <AvatarNote body={data.process.note} />
+        </Block>
+        {/* Prose at `narrow`, its own block: this is the section's reading
           measure and it cannot share the Guide's `wide` block without running
           to 1184px a line. Sits after the Guide rather than before it, which
           also mirrors the Takeaways section (header + Guide, then content) and
           keeps the width sequence alternating. */}
-      {data.process.body && (
-        <Block width="narrow" as="div" className="flex flex-col gap-space-24">
-          {data.process.body.map((paragraph) => (
-            <p key={paragraph} className="m-0 text-body-lg font-normal">
-              {paragraph}
-            </p>
-          ))}
-        </Block>
-      )}
-      {/* `wide` — full content width, margin to margin — Flore, 2026-08-14.
+        {data.process.body && (
+          <Block width="narrow" as="div" className="flex flex-col gap-space-24">
+            {data.process.body.map((paragraph) => (
+              <p key={paragraph} className="m-0 text-body-lg font-normal">
+                {emphasise(paragraph)}
+              </p>
+            ))}
+          </Block>
+        )}
+        {/* `wide` — full content width, margin to margin — Flore, 2026-08-14.
           This was `medium` (860) purely to satisfy Rule 1 while Onward below it
           was also `wide`. Onward is now `medium` instead, which frees this one:
           the momentum panel is the page's largest single piece of evidence and
           the one that most needs the room, whereas Onward is a single card and
           a CTA that never filled 1184. */}
-      <Block width="wide" as="div">
-        {/* ONE notebook panel holding BOTH assets, not two panels: the chart
+        <Block width="wide" as="div">
+          {/* ONE notebook panel holding BOTH assets, not two panels: the chart
             and its legend are a single figure, and Figma composes them that way
             (node 4787:7879, 1282 wide overall).
             The panel carries the border, radius and grid; each Media inside is
@@ -259,15 +276,16 @@ export default function CaseStudy({ data }) {
             65/35 matches Figma's split. Stacks below `lg`, where a legend
             beside a chart would leave both too narrow to read -- which is why
             Flore exported them separately in the first place. */}
-        <div className="flex flex-col items-center gap-space-24 overflow-hidden rounded-radius-24 border border-border-grey bg-notebook p-space-24 lg:flex-row">
-          <div className="w-full lg:basis-[65%]">
-            <Media {...data.process.media} />
+          <div className="flex flex-col items-center gap-space-24 overflow-hidden rounded-radius-24 border border-border-grey bg-notebook p-space-24 lg:flex-row">
+            <div className="w-full lg:basis-[65%]">
+              <Media {...data.process.media} />
+            </div>
+            <div className="w-full lg:basis-[35%]">
+              <Media {...data.process.legend} />
+            </div>
           </div>
-          <div className="w-full lg:basis-[35%]">
-            <Media {...data.process.legend} />
-          </div>
-        </div>
-      </Block>
+        </Block>
+      </div>
 
       {/* 8 — Onward. */}
       <Onward heading={data.onward.heading} project={nextProject} contact={data.onward.contact} />

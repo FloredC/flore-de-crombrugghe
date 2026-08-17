@@ -1,4 +1,5 @@
 import Media from './Media'
+import emphasise from '../../lib/emphasis'
 
 // One product feature: title + body beside its screencast. Two instances.
 //
@@ -32,7 +33,7 @@ export default function FeatureBlock({ title, body, media, mediaSide = 'right' }
             stays h1 -> h2 -> h3 with no skipped level. Type is `text-h2`,
             the nearest token to Figma's Desktop/h3 (24 SemiBold). */}
         <h3 className="m-0 text-h2 font-semibold text-text-primary">{title}</h3>
-        <p className="m-0 text-body-lg font-normal text-text-primary">{body}</p>
+        <p className="m-0 text-body-lg font-normal text-text-primary">{emphasise(body)}</p>
       </div>
 
       <div className={mediaSide === 'left' ? 'lg:order-1' : ''}>

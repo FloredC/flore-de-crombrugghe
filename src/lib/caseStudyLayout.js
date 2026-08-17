@@ -81,10 +81,26 @@ export const WIDTHS = Object.keys(WIDTH)
 //   break    between blocks. Same rhythm as the homepage's editorial
 //            subsection gap, so a case study breathes like the rest of the
 //            site rather than inventing a second tempo.
+//   chapter  between BLOCKS INSIDE one chapter. Added 2026-08-14 after Flore
+//            reported the chapters were hard to tell apart, and it is the step
+//            the scale was missing rather than a tweak to the others.
+//
+//            Every block used to be a flat sibling at `break`, so a section
+//            header sat exactly as far from its own prose as from the next
+//            chapter — there was no distance that meant "these belong
+//            together", so nothing grouped. Measured off the Figma frame
+//            (4774:7504), where consecutive blocks inside a section are 40
+//            apart: title frame ends 110, speech bubble starts 150; bubble ends
+//            288, quotes start 328.
 export const SPACE = {
   tight: 'gap-space-12',
   default: 'gap-space-24',
-  break: 'gap-space-80 xl:gap-space-120',
+  chapter: 'gap-space-40',
+  // Raised from 120 to 140 at xl, also from the frame: content-to-content
+  // across a section boundary measures 130-144 there (e.g. the What image ends
+  // at 650 and the Why title starts at 794). 80 stays at small sizes -- the
+  // frame is a desktop layout and 140 is too much of a hole on a phone.
+  break: 'gap-space-80 xl:gap-space-140',
 }
 
 // --- Named measures ---------------------------------------------------------
