@@ -14,13 +14,16 @@ import { ExternalLinkIcon } from '../icons'
 // "You are here: Zone — Subsection". Reusing it means a subpage and its
 // homepage section can't drift on either the drawing or the wording.
 //
-// TYPE, and the one thing in this file that is not a token match:
-// Figma sets the title in `Desktop/display` -- 48px Bold, line-height 1.2 --
-// which has no counterpart in the type scale (the largest is `h1` at 36). 48 vs
-// 36 is a third larger, well outside anything I'd call the nearest step, so
-// rather than inventing a token or hardcoding 48 this renders at `text-h1` and
-// the gap is flagged for Flore. It is the same decision the v2 Thesis raised,
-// so a `display` step would settle both at once.
+// TYPE: the title renders at `text-display`, Figma's `Desktop/display` -- 48px
+// Bold, line-height 1.2. That step did not exist when this page was first
+// built, so the title rendered a third too small at `text-h1` (36); the token
+// was added 2026-08-19 and this is its only call site so far. The v2 Thesis
+// raised the same gap, so it is now settled for both.
+//
+// Its mobile anchor is the one unmeasured number in the type scale -- see the
+// note on `display` in tailwind.config.js. Nothing else in this file needs to
+// know that, but if the hero title ever reads wrong on a phone, that is where
+// it lives, not here.
 //
 // STAGE COLOUR: `surface-canvas`, a real token, and the one Figma binds for the
 // feature stages on this same page. Figma's actual hero background is a subtle
@@ -68,36 +71,52 @@ export default function Frame({
             one -- Figma draws the hero this way, so Figma's composition won
             and the conflict is flagged rather than silently resolved. */}
         <div className="grid grid-cols-1 items-center gap-space-40 lg:grid-cols-2 lg:gap-space-64">
-          <div className="flex flex-col gap-space-24">
-            {/* Sentence case and text-secondary, straight off the Figma meta
-                node -- not the uppercase eyebrow this had before. */}
-            <p className="m-0 text-body-sm font-normal text-text-secondary">{category}</p>
+          {/* GAPS ARE 10 THROUGHOUT — resampled 2026-08-19 from Flore's restructure
+              of `section hero`. Both this column and the title group below ran at
+              24 and 16, which were never sampled and had no rationale recorded;
+              `Spaces/10` is the only spacing variable bound anywhere in the block
+              (nodes 4774:7531 / 4774:7533), and the node geometry agrees -- meta
+              ends at y=22 and the title group starts at y=32.
+              The two nested flex columns mirror Figma's two nested auto-layout
+              frames exactly, even though one column at gap 10 would render
+              identically. Same structure, same place to look. */}
+          <div className="flex flex-col gap-space-10">
+            {/* Sentence case, and `text-primary` as of Flore's 2026-08-19 pass --
+                this was `text-secondary`, correctly sampled at the time. The
+                hero text block now binds exactly one colour variable,
+                Colors/Text/text-primary, with no per-node override, so all four
+                lines here are primary. */}
+            <p className="m-0 text-body-sm font-normal text-text-primary">{category}</p>
 
-            <div className="flex flex-col gap-space-16">
-              <h1 className="m-0 text-h1 font-bold text-text-primary">{title}</h1>
+            <div className="flex flex-col gap-space-10">
+              <h1 className="m-0 text-display font-bold text-text-primary">{title}</h1>
               <p className="m-0 text-body-lg font-normal text-text-primary">{oneLiner}</p>
+
+              {/* ROLE AND DATE ON ONE LINE — Flore's restructure, 2026-08-19
+                  (node 4863:2346). This was a <dl> of two labelled rows, "Role"
+                  and "Date" in semibold text-secondary. Figma now draws a single
+                  body-sm line with no labels at all, so the <dl> went with them:
+                  a description list with nothing doing the describing is markup
+                  claiming a relationship the page no longer shows.
+
+                  They stay TWO fields in the content file and two props here.
+                  Role and date are different facts, the homepage card reads
+                  `date` on its own, and joining them is a presentation choice --
+                  so the join happens here, at the point of presentation, and
+                  nowhere else. `filter(Boolean)` so a project carrying only one
+                  of the two doesn't render a stray comma.
+
+                  Note this drops the "Role"/"Date" labels from the accessibility
+                  tree as well as the page -- the line now reads as one
+                  uninterrupted phrase to a screen reader. That follows the
+                  design; flagged to Flore rather than compensated for with a
+                  visually-hidden label she didn't ask for. */}
+              {(role || date) && (
+                <p className="m-0 text-body-sm font-normal text-text-primary">
+                  {[role, date].filter(Boolean).join(', ')}
+                </p>
+              )}
             </div>
-
-            {(role || date) && (
-              // A description list because each label genuinely names its value.
-              // The <div> wrappers are valid inside <dl> and keep each dt/dd
-              // pair on its own row.
-              <dl className="m-0 flex flex-col gap-space-8">
-                {role && (
-                  <div className="flex flex-col gap-space-4 sm:flex-row sm:gap-space-8">
-                    <dt className="text-body-sm font-semibold text-text-secondary">Role</dt>
-                    <dd className="m-0 text-body-sm font-normal text-text-primary">{role}</dd>
-                  </div>
-                )}
-                {date && (
-                  <div className="flex flex-col gap-space-4 sm:flex-row sm:gap-space-8">
-                    <dt className="text-body-sm font-semibold text-text-secondary">Date</dt>
-                    <dd className="m-0 text-body-sm font-normal text-text-primary">{date}</dd>
-                  </div>
-                )}
-              </dl>
-            )}
-
           </div>
 
           {/* The button now FLOATS over the media's bottom edge, as Figma draws

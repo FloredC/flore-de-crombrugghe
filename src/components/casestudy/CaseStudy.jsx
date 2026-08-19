@@ -239,19 +239,17 @@ export default function CaseStudy({ data }) {
       </div>
 
       <div className={`flex flex-col ${SPACE.chapter}`}>
-        {/* 7 — The Process. `wide` so this Guide reaches the right margin too,
-          same as the Turning Point one. The header sits in the same block and
-          left-aligns at the content edge, so the two ends of the row are the
-          page's two margins. */}
-        <Block width="wide" className="flex flex-col gap-space-40">
+        {/* 7 — The Process. The header sits alone: at `wide` it left-aligns at
+          exactly the same content edge it would at any other width, so the
+          width here buys nothing visual -- it is Rule 1 bookkeeping. The last
+          Takeaways block above is `narrow`, so this chapter cannot open on
+          `narrow`. */}
+        <Block width="wide">
           <SectionHeader title={data.process.title} />
-          <AvatarNote body={data.process.note} />
         </Block>
         {/* Prose at `narrow`, its own block: this is the section's reading
-          measure and it cannot share the Guide's `wide` block without running
-          to 1184px a line. Sits after the Guide rather than before it, which
-          also mirrors the Takeaways section (header + Guide, then content) and
-          keeps the width sequence alternating. */}
+          measure and it cannot share a `wide` block without running to 1184px
+          a line. */}
         {data.process.body && (
           <Block width="narrow" as="div" className="flex flex-col gap-space-24">
             {data.process.body.map((paragraph) => (
@@ -261,13 +259,29 @@ export default function CaseStudy({ data }) {
             ))}
           </Block>
         )}
-        {/* `wide` — full content width, margin to margin — Flore, 2026-08-14.
-          This was `medium` (860) purely to satisfy Rule 1 while Onward below it
-          was also `wide`. Onward is now `medium` instead, which frees this one:
-          the momentum panel is the page's largest single piece of evidence and
-          the one that most needs the room, whereas Onward is a single card and
-          a CTA that never filled 1184. */}
-        <Block width="wide" as="div">
+        {/* GUIDE BELOW THE PROSE — Flore, 2026-08-19. It used to open the
+          section, sharing the header's block; it now follows the paragraph, so
+          the reader gets the section's own account first and the aside comments
+          on something they have already read. That is also the order The
+          Turning Point already runs in, so the page's two Guides now sit the
+          same way relative to their prose.
+
+          It shares ONE `wide` block with the momentum figure instead of taking
+          its own, and that is forced rather than chosen: a Guide only reaches
+          the right margin at `wide`, the momentum panel is `wide` by Flore's
+          2026-08-14 call below, and Rule 1 forbids two `wide` blocks in a row.
+          Nesting both keeps the sequence wide -> narrow -> wide. The inner gap
+          is SPACE.chapter -- the same 40 the parent puts between sibling
+          blocks -- so nesting them changes the rhythm by nothing.
+
+          Why the panel is `wide` — Flore, 2026-08-14. It was `medium` (860)
+          purely to satisfy Rule 1 while Onward below it was also `wide`. Onward
+          is now `medium` instead, which freed this one: the momentum panel is
+          the page's largest single piece of evidence and the one that most
+          needs the room, whereas Onward is a single card and a CTA that never
+          filled 1184. */}
+        <Block width="wide" as="div" className={`flex flex-col ${SPACE.chapter}`}>
+          <AvatarNote body={data.process.note} />
           {/* ONE notebook panel holding BOTH assets, not two panels: the chart
             and its legend are a single figure, and Figma composes them that way
             (node 4787:7879, 1282 wide overall).

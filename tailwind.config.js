@@ -24,6 +24,23 @@ export default {
       // weight stays a separate class at the call site -- the one place the
       // token can't enforce the pairing. Check it against the style name.
       fontSize: {
+        // 36 -> 48 (Desktop/h1 -> Desktop/display), Bold 700, line-height 1.2.
+        //
+        // The case-study hero title, and the only step whose mobile end is not
+        // measured: Figma draws the subpage at 1622 only, so `Mobile/display`
+        // does not exist -- there is no 402 frame to sample. Rather than invent
+        // a value, the low anchor is Desktop/h1 (36), which IS a real Figma
+        // size and the same move `h2` already makes at its own low end (see
+        // below: it lands on Desktop/h3 at 402). So both ends are values Figma
+        // actually defines, even though only the top one is defined *here*.
+        //
+        // Flagged to Flore: 36 at 402 is the judgement call in this file. If
+        // the hero title reads too heavy on a phone, this anchor is the one to
+        // move -- the 48 end is measured and should stay.
+        //
+        // Line height is 1.2, not the 1.4 the rest of the headings carry --
+        // that is Figma's own `Desktop/display`, not a divergence.
+        display: ['clamp(2.25rem, 2.0029rem + 0.9836vw, 3rem)', { lineHeight: '1.2' }],
         // 28 -> 36 (Mobile/h1 -> Desktop/h1), Bold 700
         h1: ['clamp(1.75rem, 1.5852rem + 0.6557vw, 2.25rem)', { lineHeight: '1.4' }],
         // 24 -> 28. At 402 this lands on Figma's Desktop/h3, which is what the
