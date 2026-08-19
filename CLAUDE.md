@@ -55,6 +55,31 @@ To re-check: grep `src/` for `\d+:\d+`, then probe each id with the Figma MCP's
 across the whole set in one pass. Worth doing when a page is finished, not
 continuously.
 
+### `[BUILT]` frames: after a page ships, code wins (added 2026-08-19)
+
+Drift runs **both ways**, and one session proved it: Figma was ahead of the code
+on the hero's meta colour and its role/date structure, while the code was ahead
+of Figma on the hero's title and description, which Flore had rewritten on the
+14th and never back-ported. "Figma wins" cannot resolve that, because it is true
+in one direction and false in the other on the same frame.
+
+The rule that does resolve it is temporal:
+
+**Figma leads before a thing is built. Code leads after.**
+
+- Not yet built — a new page, component, or token: Figma is the brief. Sample it.
+- Already built and reviewed in the browser: the running site is the truth.
+  Do not re-pull that frame's copy or re-sync it.
+
+Frames whose page has shipped are marked **`[BUILT]`** in the file name (Flore,
+2026-08-19). Treat a `[BUILT]` frame as a historical record of the design, not a
+spec: its structure and tokens are still worth reading, but **its copy is stale
+by default** and must not be pulled over what the content files say.
+
+This is also why Flore is not expected to keep the file mirrored. Back-porting
+copy edits into shipped frames is maintenance with no payoff — the marker is what
+makes that safe rather than lossy.
+
 **Do not build a registry of Figma values to check automatically.** It was
 proposed and rejected on 2026-08-19: the observed drift is in pointers, not
 values, so a value-checker would automate the problem we don't have. Revisit only
@@ -236,7 +261,7 @@ kind of thing that survives review.
 **Contact Section** — the full-page section (`id="contact"`), distinct from the map's "Say hi" popover above even though both are contact-flavored
 - Real content, not placeholder: heading "Say Hi!", real body copy (both sampled from the Contact Section node — present twice in the Figma file before the duplicate-frame cleanup, now once)
 - Two buttons, not a generic link list: LinkedIn as the filled primary `ButtonLink`, and the email as a **secondary-chrome button that copies to clipboard on click**, not a mailto link — same interaction pattern as the map popover's Contact variant, applied here too. Built as `ContactEmailButton.jsx` (a real `<button>`, per the tag-follows-behavior principle below) rather than a `ButtonLink` instance, but sharing `SECONDARY_BUTTON_CLASS` so it can't drift from the real secondary button. Copy logic lives in `src/lib/useCopyToClipboard.js`, shared with the popover's own `CopyButton`.
-- **Open:** LinkedIn URL is a literal `PLACEHOLDER_LINKEDIN_URL` in `contact.mdx` — Figma's button has no URL attached to it. Needs the real profile URL from Flore.
+- **Resolved 2026-08-19:** the real LinkedIn URL is wired in `contact.mdx`. Figma's button still carries no URL, which is fine — the link is content, and content lives in the content file, not the design file.
 
 **Pan/Zoom Container (Map Illustration)** — resolved, no longer "if enabled"
 - Wraps the SVG illustration (`PanZoomContainer.jsx`)
@@ -484,7 +509,7 @@ Revised estimate — original 6-hour estimate below was written before the Popov
 
    Done: all 10 project cards (meta, title, description, image caption, CTA), Approach ValueCards + MediaCards, About AsideCards, NDA external links, the Language River embed.
 
-   Still outstanding: all six case-study/feature-case **bodies** are scaffolding prose; Contact bubble copy; the Approach "Selected talks & writing" bubble (marked `TO COMPLETE`); the LinkedIn URL; and four cards whose Figma instances still hold unedited component defaults, shipped as visible `REVIEW —` markers (Artifakt caption, PitchPivot caption, Rega meta + caption).
+   Still outstanding, rechecked 2026-08-19: **five** case-study bodies are scaffolding prose — PitchPivot is now a real, shipped case study built on `src/content/case-studies/`; Contact bubble copy; and the Approach "Selected talks & writing" bubble. The LinkedIn URL and every `REVIEW —` marker are done — the markers no longer appear anywhere in `src/content/`.
 9. 🟡 **Styling & layout** — the global layout system is in (see below); card refinements and responsiveness are not.
 10. ⬜ **Polish & QA** — not started.
 
@@ -569,7 +594,6 @@ tailwind.config.js       # custom spacing/radius keys are prefixed space-N/radiu
 - ~~NDA project content home~~ → real `.mdx` files, no route.
 
 **Still open:**
-- **LinkedIn URL** — Contact section's primary button has no URL in Figma. Currently `PLACEHOLDER_LINKEDIN_URL` in `contact.mdx`. Needs Flore's real profile URL.
 - **Type scale compression across mobile breakpoints** — not yet audited as a dedicated pass (see Build Order stage 4).
 - **Nav breakpoint (768px)** — my judgment call, not a Figma sample (the file only has the `402-mobile` and `bp-1622-desktop` frames). No objection raised, but not explicitly confirmed either — revisit if it feels wrong on a real device.
 - **"menu" vs "Tertiary" naming** — same button treatment, two names (Figma vs. this doc). Both map to the same code today; worth collapsing to one in Figma eventually.

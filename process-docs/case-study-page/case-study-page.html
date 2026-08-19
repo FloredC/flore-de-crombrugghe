@@ -281,7 +281,7 @@
   </div>
 
   <div class="note">
-    <b>Baked chrome in exports fights CSS chrome.</b> The hero asset shipped with a light-blue outline and 14px-rounded corners drawn into the PNG, while the frame applies its own border and a 24px radius — so the grid showed through as a crescent at each corner. <b>Export artwork square and unstroked; let CSS own the border and radius.</b> Same rule for the two video posters.
+    <b>Baked chrome in exports fights CSS chrome.</b> The hero asset shipped with a light-blue outline and 14px-rounded corners drawn into the PNG, while the frame applies its own border and a 24px radius — so the grid showed through as a crescent at each corner. <b>Resolved 2026-08-19: Flore confirms the outline is intentional and the result is not a problem.</b> This stands as something to be aware of when composing an export against a CSS frame, not as a defect to fix. It was raised as an open task several times before she was asked — the lesson is to check whether an apparent artefact is a choice.
   </div>
 
   <h3 class="sub">Figma → Claude working notes</h3>
@@ -298,7 +298,7 @@
 
   <h3 class="sub">Still open</h3>
   <ul style="font-size:13px; line-height:1.8; color:#444; margin-left:18px; max-width:760px;">
-    <li>The hero asset still needs re-exporting square and unstroked.</li>
+    <li><s>The hero asset still needs re-exporting square and unstroked.</s> Closed 2026-08-19 — intentional, per Flore. Not an issue.</li>
     <li>Whether 140 <em>feels</em> like a chapter break — the numbers match Figma, the judgement is Flore's, deferred to tomorrow.</li>
     <li>Takeaway 01 carries two bolded phrases, the densest on the page. If it reads heavy, "None of that was a surprise." is the one to cut.</li>
     <li>The other five case studies haven't been migrated onto this system — PitchPivot is still the only page using it, deliberately.</li>
