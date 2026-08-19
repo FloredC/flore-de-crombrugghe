@@ -30,7 +30,13 @@ export default function Wayfinding({
           confirmed that's intended rather than missing. Driving it off the
           copy's presence keeps the two in step without a separate flag. */}
       {bubbleCopy && (
-        <div data-component="guide" className="flex items-center gap-2">
+        // `ml-auto` so the Guide stays right-aligned even once the row wraps.
+        // `justify-between` on the parent only right-aligns it while both
+        // groups share a line; the moment it wraps to its own line each item
+        // starts at the left, which put the bubble on the left at narrow
+        // widths. Flore's note 2026-08-12: these are right-aligned in the
+        // design, everywhere.
+        <div data-component="guide" className="ml-auto flex items-center gap-2">
           {/* One opt-in variant, currently used by the Lab — Own products row
               only (see HomePage). Every other row keeps the existing static
               <img> avatar untouched. */}

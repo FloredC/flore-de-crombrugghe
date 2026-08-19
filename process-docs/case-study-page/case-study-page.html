@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case-study page — the block system, built on PitchPivot</title>
+<style>
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk'), local('HKGrotesk-Regular');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk SemiBold'), local('HKGrotesk-SemiBold');
+    font-weight: 600;
+  }
+
+  :root {
+    --accent: #fd6d2b;       /* the site's accent orange (orange-70), same as the other process docs */
+    --accent-tint: #fff1e9;
+    --ink: #1a1a1a;
+    --paper: #f5f4f0;
+    --muted: #666;
+    --line: #e0ddd8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'HK Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 48px 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .subtitle { font-size: 14px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; max-width: 720px; }
+  .date-range { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 32px; }
+
+  .toc {
+    background: #fff;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 56px;
+  }
+  .toc-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; margin-bottom: 12px; }
+  .toc ol { list-style: none; }
+  .toc li { margin-bottom: 6px; font-size: 13px; }
+  .toc a { color: var(--ink); text-decoration: none; }
+  .toc a:hover { color: var(--accent); text-decoration: underline; }
+  .toc .toc-phase { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-left: 8px; }
+
+  .section {
+    margin-bottom: 80px;
+    border-top: 2px solid var(--ink);
+    padding-top: 24px;
+    scroll-margin-top: 24px;
+  }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 4px; flex-wrap: wrap; }
+  .section-date { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #999; }
+  .section-title { font-size: 20px; font-weight: 600; }
+  .phase-tag {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    padding: 3px 10px; border-radius: 20px; background: var(--accent-tint); color: var(--accent);
+  }
+  .section-desc { font-size: 14px; line-height: 1.7; color: #444; margin: 12px 0 24px; max-width: 720px; }
+  h3.sub { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #999; margin: 40px 0 4px; }
+
+  .status {
+    display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; padding: 3px 10px; border-radius: 20px; margin-left: 12px;
+  }
+  .status.working { background: #e8f5e9; color: #27ae60; }
+  .status.needs-work { background: #fff8e1; color: #f39c12; }
+  .status.abandoned { background: #fbe9e7; color: #c0392b; }
+
+  .concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+  .concept-block { background: #fff; border-radius: 10px; padding: 16px; border: 1.5px solid var(--line); }
+  .concept-block h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .concept-block p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  .decision-log { margin-top: 24px; }
+  .decision {
+    display: grid; grid-template-columns: 100px 1fr 1fr; gap: 16px;
+    padding: 16px 0; border-bottom: 1px solid #e8e5e0; font-size: 13px;
+  }
+  .decision:last-child { border-bottom: none; }
+  .decision-date { color: #999; font-size: 12px; padding-top: 2px; }
+  .decision-what { line-height: 1.5; }
+  .decision-why { color: var(--muted); line-height: 1.5; }
+  .decision.key-decision { box-shadow: -3px 0 0 0 var(--accent); background: var(--accent-tint); padding-left: 12px; }
+  .decision.key-decision .decision-what { color: var(--accent); font-weight: 600; }
+
+  blockquote {
+    margin: 12px 0; padding: 10px 16px; border-left: 3px solid var(--accent);
+    color: #444; font-style: italic; background: #fff; border-radius: 0 8px 8px 0; font-size: 13px;
+  }
+  blockquote cite { display: block; font-style: normal; font-size: 12px; color: #999; margin-top: 4px; }
+
+  .note {
+    font-size: 13px; background: #fff8e1; border-left: 3px solid #f39c12; padding: 10px 14px;
+    border-radius: 0 6px 6px 0; color: #555; line-height: 1.6; margin-top: 12px;
+  }
+
+  .hook {
+    margin-top: 24px; padding: 18px 20px; background: var(--ink); color: #fff;
+    border-radius: 12px; font-size: 14px; line-height: 1.6;
+  }
+  .hook-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-tint); margin-bottom: 6px; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+  th { text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #999; padding: 8px 12px; border-bottom: 2px solid var(--line); }
+  td { padding: 10px 12px; border-bottom: 1px solid #f0ede8; vertical-align: top; line-height: 1.5; }
+  tr:last-child td { border-bottom: none; }
+
+  code.inline { background: #f0ede8; padding: 1px 6px; border-radius: 5px; font-size: 12px; font-family: 'SF Mono', Menlo, monospace; }
+  pre.code { background: var(--ink); color: #e6e6e6; padding: 16px 18px; border-radius: 10px; font-size: 12px; line-height: 1.6; overflow-x: auto; font-family: 'SF Mono', Menlo, monospace; margin-top: 16px; }
+</style>
+</head>
+<body>
+
+<h1>Case-study page — the block system, built on PitchPivot</h1>
+<p class="subtitle">The subpage system for <code class="inline">/work/:slug</code>: a width-based block vocabulary, its spacing rhythm, and the copy and research data that fill it. PitchPivot is the reference implementation — the other five case studies are meant to inherit this.</p>
+<p class="date-range">Sessions: 17 Aug 2026</p>
+
+<div class="toc">
+  <div class="toc-title">Sessions in this doc</div>
+  <ol>
+    <li><a href="#sec-2026-08-17">Copy, research integrity, spacing and assets</a><span class="toc-phase">Building with Claude</span></li>
+  </ol>
+</div>
+
+<div class="section" id="sec-2026-08-17">
+  <div class="section-header">
+    <span class="section-date">17 Aug 2026</span>
+    <span class="section-title">Copy, research integrity, spacing and assets</span>
+    <span class="phase-tag">Building with Claude</span>
+  </div>
+  <p class="section-desc">
+    A long pass over the PitchPivot page, which had been built the previous session but never read end to end. What started as a copy edit turned into a data-integrity audit — several numbers on the page turned out to be unsourced, and one claim about the research participants was invented outright. The session ended on the spacing system and the asset pipeline.
+  </p>
+
+  <h3 class="sub">The research data — five real errors found</h3>
+  <p class="section-desc">
+    The charts and figures had been carried over from an earlier build with no link back to source. Opening the two survey PDFs (a <code class="inline">pypdf</code> install in a scratch venv — the machine had no PDF text extractor) and the two Mentimeter results pages settled every number. Worth doing early next time: it took ten minutes and found five things.
+  </p>
+
+  <table>
+    <tr><th>Was on the page</th><th>Actually</th><th>Why it mattered</th></tr>
+    <tr>
+      <td>All three charts labelled <code class="inline">n=24</code></td>
+      <td>Two different surveys: opening (28 respondents, 27 answered most questions) and closing (24)</td>
+      <td>"Blockers to design influence" is an opening-survey question, so its base was 27, not 24</td>
+    </tr>
+    <tr>
+      <td>Barriers chart against 24 participants</td>
+      <td>Asked only of the 20 who said "maybe" or "no"</td>
+      <td>Every bar was reading against the wrong base — 9 of 20 is 45%, not 9 of 24</td>
+    </tr>
+    <tr>
+      <td>"multiple answers allowed"</td>
+      <td>Mentimeter question is literally "Pick your <b>2</b> biggest blockers"</td>
+      <td>Changes what the top bar's 17 means</td>
+    </tr>
+    <tr>
+      <td>"whether they would use it again"</td>
+      <td>"Would you use PitchPivot <b>before your next stakeholder buy-in</b>?"</td>
+      <td>"Again" implies prior adoption; the real question is forward intent</td>
+    </tr>
+    <tr>
+      <td>"Sixty-three per cent said maybe"</td>
+      <td>Yes 4 / Maybe 15 / No 5</td>
+      <td>A percentage on 24 people claims precision the sample can't carry. The full split — "only four said yes" — is also the stronger finding</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    <b>The one that stings.</b> The page claimed the interviews ran "from individual contributors to design leads." That was derived from the three quote attributions below it — one of which read "Design lead, SaaS." Those attributions were unedited Figma placeholder text. Flore interviewed no design leads. So design-file copy was treated as research data, and a false claim about real participants ended up on a portfolio page. <b>Rule for next time: nothing in a Figma instance is evidence. Only the survey exports and Flore's own words are.</b>
+  </div>
+
+  <h3 class="sub">Decisions</h3>
+  <div class="decision-log">
+
+    <div class="decision key-decision">
+      <div class="decision-date">Takeaways</div>
+      <div class="decision-what">One theme per takeaway — 01 is workflow, 02 is output quality, and neither borrows the other's material</div>
+      <div class="decision-why">Both had accreted paragraphs until each carried both themes: the phone and the "too generic" finding appeared in both. Cutting the overlap took the three takeaways from 155/180/99 words to 67/62/72 — evenly weighted, and each one now readable on its own.</div>
+    </div>
+
+    <div class="decision key-decision">
+      <div class="decision-date">Takeaway 01</div>
+      <div class="decision-what">Name the scope constraint as a chosen tradeoff, not a finding</div>
+      <div class="decision-why">"Users said it should fit the workflow, so that's next" reads as learning something obvious late. Flore knew workflow integration was stronger before building; standalone was a five-week scope decision. Saying so is the difference between showing judgement and admitting an oversight.</div>
+    </div>
+
+    <div class="decision key-decision">
+      <div class="decision-date">Takeaway 02</div>
+      <div class="decision-what">Refuse the excuse about testing conditions</div>
+      <div class="decision-why">A draft argued the 5.5 output score was measured unfairly (everyone tested on a phone, in six minutes). Flore flagged it as defensive — and it was: an untested hypothesis used as mitigation, with no desktop data behind it. It also contradicted takeaway 01 directly above, which owns a tradeoff. The paragraph was eventually cut entirely: it raised a caveat and then dismissed its own caveat.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Voice</div>
+      <div class="decision-what">First person belongs to the Guide speech bubbles only</div>
+      <div class="decision-why">The Turning Point had a first-person paragraph <em>and</em> a first-person bubble. The fix wasn't to write about assumptions in third person — it was to move the finding into the prose (naturally third person) and leave the bubble the one thing only an aside can do: "I went in convinced this was a presentation problem. It wasn't."</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Voice</div>
+      <div class="decision-what">No roadmap language anywhere</div>
+      <div class="decision-why">Flore isn't continuing the product. "The next version has to aim…" promised work that isn't happening. Reframing to what such a tool <em>would</em> need made takeaway 03 stronger, not weaker — it now ends "arguably not in a tool at all," which is a bolder conclusion than a plan.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Copy</div>
+      <div class="decision-what">Substance, not vocabulary: "answer real business needs", not "in business terms"</div>
+      <div class="decision-why">Flore's correction, and it's the sharpest distinction in the page. "Business terms" is a translation problem — say it in different words. The real claim is that the decision itself has to answer a business need. An intermediate draft ("pivot how they frame it for whoever is in the room") drifted the same way from the other side, into audience-adaptation.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Copy</div>
+      <div class="decision-what">29 em dashes → 14</div>
+      <div class="decision-why">Flore asked why so many. Honest answer: habit, not 29 decisions. An em dash earns its place on a sharp reversal or an aside with internal commas; everywhere else a comma or full stop is quieter. Overused, none of them land — and it reads as machine-written, which is the last thing a portfolio page in her voice needs.</div>
+    </div>
+
+    <div class="decision key-decision">
+      <div class="decision-date">Spacing</div>
+      <div class="decision-what">Add a "within a chapter" step: 40 inside, 140 between</div>
+      <div class="decision-why">The scale had <code class="inline">tight</code> 12, <code class="inline">default</code> 24 and <code class="inline">break</code> 80/120 — but every block was a flat sibling at <code class="inline">break</code>, so a section header sat exactly as far from its own prose as from the next chapter. There was no distance meaning "these belong together," which is exactly why the chapters were hard to grasp. Both numbers measured off the Figma frame.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Layout</div>
+      <div class="decision-what">Onward drops to <code class="inline">medium</code> so the momentum figure can be full width</div>
+      <div class="decision-why">Rule 1 (no two consecutive blocks share a width) allows only one of them to be <code class="inline">wide</code>. The momentum panel is the page's largest evidence; Onward is a 562px card and a CTA that never filled 1184.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Emphasis</div>
+      <div class="decision-what"><code class="inline">**bold**</code> markers in content strings, rendered as <code class="inline">&lt;strong&gt;</code></div>
+      <div class="decision-why">Content stays plain strings — countable, diffable, movable between fields. A markdown library would be a dependency and a much larger surface for one construct. Eleven phrases marked, one per paragraph, on the claim rather than the evidence: read the bold alone and you get the argument.</div>
+    </div>
+
+  </div>
+
+  <h3 class="sub">What didn't survive contact with the build</h3>
+  <div class="concept-grid">
+    <div class="concept-block">
+      <h4>Alternating feature rows</h4>
+      <p>The build spec asked for media alternating left/right. Figma draws both rows with text at x=0. Figma was right — flagged as a conflict for weeks, settled in one sentence.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Button below the hero media</h4>
+      <p>An earlier pass moved "Try it out" below the image, reasoning that overlapping could cover artwork. Flore's mock put it back on the edge — and the risk didn't apply, since the button is centred and the only content along that edge is left-aligned.</p>
+    </div>
+    <div class="concept-block">
+      <h4>"You are here" on subpages</h4>
+      <p>Reusing the homepage breadcrumb seemed like good component hygiene. It reads out of context on a standalone page: it points at a map the reader can't see.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Rule 1 as a free constraint</h4>
+      <p>The no-two-consecutive-widths rule forced three separate compromises this session (Guide alignment twice, curve width once). It's still worth keeping, but it isn't free — every new block negotiates with its neighbours.</p>
+    </div>
+  </div>
+
+  <h3 class="sub">Technical traps worth remembering</h3>
+
+  <div class="note">
+    <b>Vite doesn't fingerprint <code class="inline">public/</code> assets.</b> Re-exported PNGs keep the same URL, so the browser serves the old bytes. This cost real back-and-forth — twice, an asset that had been correctly replaced on disk looked "not replaced" in the browser. <b>Hard-reload after every asset swap</b>, and verify assets by reading the pixels, not the file timestamp.
+  </div>
+
+  <div class="note">
+    <b>The <code class="inline">ch</code> unit resolves against the element it's written on.</b> The speech bubble's <code class="inline">max-w-[38ch]</code> sat on a wrapper that inherited the body's 16px while the text rendered at 18px, so every measure came out ~10% narrow — and looked completely correct in the code. Only visible by measuring in the browser. Also: HK Grotesk's <code class="inline">0</code> is ~0.56em, not the 0.63em an earlier note in the repo assumed.
+  </div>
+
+  <div class="note">
+    <b>Prettier without the project's config rewrote a file to double quotes and semicolons</b>, inconsistent with the rest of the codebase — and silently broke a scripted edit that was matching on single quotes. Run it with <code class="inline">--single-quote --no-semi</code> or not at all.
+  </div>
+
+  <div class="note">
+    <b>Baked chrome in exports fights CSS chrome.</b> The hero asset shipped with a light-blue outline and 14px-rounded corners drawn into the PNG, while the frame applies its own border and a 24px radius — so the grid showed through as a crescent at each corner. <b>Export artwork square and unstroked; let CSS own the border and radius.</b> Same rule for the two video posters.
+  </div>
+
+  <h3 class="sub">Figma → Claude working notes</h3>
+  <p class="section-desc">
+    Meta-knowledge, and the most reusable part of this session.
+  </p>
+  <ul style="font-size:13px; line-height:1.8; color:#444; margin-left:18px; max-width:760px;">
+    <li><b>The Figma MCP works from this repo.</b> It had been assumed to need authorisation; it doesn't. Sampling nodes directly settled several questions in seconds that would otherwise have been guesses — <code class="inline">Desktop/body</code> is 18px/1.5, bubble padding is 14 all round, section spacing is 40 within and ~140 between.</li>
+    <li><b>Node <em>geometry</em> is more reliable than any screenshot.</b> The spacing system came from reading y-positions and frame heights, not from eyeballing the frame. Text at y=40 in a 704-tall section, next section starting 40 later — that's a rhythm you can implement exactly.</li>
+    <li><b>Name instances with real content, and edit the placeholder copy.</b> The one genuinely damaging error this session came from an unedited component default being read as data.</li>
+    <li><b>Export composite graphics as parts.</b> Splitting the momentum curve from its tool legend is what let them sit side by side on desktop and stack on mobile. A single flattened export can only ever have one arrangement.</li>
+    <li><b>Give Claude the raw research files early.</b> The PDFs and Mentimeter links resolved every open number and found five errors. Ten minutes, at the start, not the end.</li>
+  </ul>
+
+  <h3 class="sub">Still open</h3>
+  <ul style="font-size:13px; line-height:1.8; color:#444; margin-left:18px; max-width:760px;">
+    <li>The hero asset still needs re-exporting square and unstroked.</li>
+    <li>Whether 140 <em>feels</em> like a chapter break — the numbers match Figma, the judgement is Flore's, deferred to tomorrow.</li>
+    <li>Takeaway 01 carries two bolded phrases, the densest on the page. If it reads heavy, "None of that was a surprise." is the one to cut.</li>
+    <li>The other five case studies haven't been migrated onto this system — PitchPivot is still the only page using it, deliberately.</li>
+    <li>A <code class="inline">display</code> type step (48px) is still missing; the hero title renders at <code class="inline">h1</code> (36) as the nearest token.</li>
+  </ul>
+
+  <div class="hook">
+    <div class="hook-label">Shareable hook</div>
+    I spent a session fact-checking my own case study and found five errors — including a sentence describing research participants I never interviewed. It came from reading placeholder text in my Figma file as if it were data. The numbers on a portfolio page are claims about real people; they deserve the same rigour as the research itself.
+  </div>
+</div>
+
+</body>
+</html>

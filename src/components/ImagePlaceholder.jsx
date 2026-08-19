@@ -1,5 +1,5 @@
 // Flore's own placeholder convention, sampled from the ValueCard component
-// (4533:19711/19712): a dashed grey container with a centered "[ img ]" label
+// (4533:19717): a dashed grey container with a centered "[ img ]" label
 // in 12px text-secondary. Used wherever a real image hasn't landed yet, so a
 // pending asset is visible on the page instead of silently rendering nothing.
 //
