@@ -112,7 +112,7 @@ export const SPACE = {
 //
 //   guideBubble   the case-study Guide's speech bubble.
 //
-//                 Figma draws this at 520px (nodes 4774:7579 / 4774:7661) and
+//                 Figma draws this at 520px (nodes 4774:7579 / 4825:2590) and
 //                 it was built at that, but Flore found the result too long on
 //                 the page and asked for shorter lines, 2026-08-12 — so this is
 //                 a deliberate override of the frame, not a sample from it.

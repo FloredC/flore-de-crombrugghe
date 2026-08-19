@@ -16,9 +16,16 @@
 // a wrapper and let every child inherit -- see Hotspot.jsx.
 //
 // The mapping is NOT one label per colour: Contact and Selected talks are both
-// purple in Figma (verified on the marker instances themselves, node
-// 4606:2343 and 4606:2339, not read off a screenshot). Flagged to Flore as
-// possibly unintended; until she says otherwise it's what the file shows.
+// purple in Figma -- verified on the marker instances themselves rather than
+// read off a screenshot, and corroborated by the desktop page frame
+// (2928:73693), which binds only four `marker/*` colours across five
+// disciplines. Flagged to Flore as possibly unintended; until she says
+// otherwise it's what the file shows.
+//
+// No node ids here on purpose. This cited two marker-instance sublayers and
+// both had stopped resolving by 2026-08-19 -- Figma reissues sublayer ids
+// whenever an instance changes, so those citations rot on their own even if
+// nobody touches the design. Name the component, not the sublayer.
 export const DISCIPLINES = {
   'own-products': {
     label: 'Own Products',

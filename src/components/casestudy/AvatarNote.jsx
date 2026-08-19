@@ -8,7 +8,7 @@ import { MEASURE, GUIDE_AVATAR_WIDTH } from '../../lib/caseStudyLayout'
 //
 // Reuses the homepage's real `Avatar` and `SpeechBubble` rather than a
 // lookalike, which is what Figma's "Guide" instance is too (nodes 4774:7579
-// and 4774:7661). It is deliberately NOT `Wayfinding`: that component pairs
+// and 4825:2590). It is deliberately NOT `Wayfinding`: that component pairs
 // the Guide with a DistrictBreadcrumb and belongs at the top of a homepage
 // section. Here the Guide appears on its own, mid-page.
 //

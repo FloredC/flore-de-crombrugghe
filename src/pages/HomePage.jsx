@@ -231,8 +231,8 @@ export default function HomePage() {
               <div className="flex max-w-[846px] flex-col gap-space-16">
                 <h2 className="text-h2 font-semibold">{contactSection.heading}</h2>
                 <p className="text-body-lg font-normal">{contactSection.description}</p>
-                {/* Sampled from the real Contact Section node (2928:73875 /
-                    4533:27939): LinkedIn as the filled primary button, the email
+                {/* Sampled from the real Contact Section node (2928:73875):
+                    LinkedIn as the filled primary button, the email
                     as a secondary-chrome button that copies to clipboard rather
                     than a mailto link -- matching the "Say hi" popover's own
                     contact pattern (copy, no navigation) rather than the two

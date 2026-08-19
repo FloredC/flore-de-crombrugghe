@@ -31,6 +31,35 @@ Read in this order before writing any code:
 
 If a section here starts listing pixel values, it has drifted out of scope — cut it back to a node reference.
 
+### Node references: cite the instance, never a sublayer inside it (added 2026-08-19)
+
+The no-duplication rule above says to reference the node instead of copying the
+value. That only works while the reference resolves — so **which** node you cite
+matters as much as citing one.
+
+**Figma does not keep node ids for sublayers inside an instance.** It reissues
+them whenever the instance changes, so a citation pointing at a layer *inside*
+an instance breaks on its own, with nobody editing anything. Cite the top-level
+instance or component and name the layer in prose ("the marker dot in
+`ValueCard`"), rather than citing the layer's own id.
+
+Measured on 2026-08-19: of the 41 node ids cited across `src/`, **5 no longer
+resolved** — and the ones we could attribute were exactly this, sublayers of
+marker and card instances. The claims they backed were all still *correct*; it
+was only the pointers that had died, which is the failure mode to expect. Two of
+them sat under a comment boasting it had been "verified on the marker instances
+themselves, not read off a screenshot."
+
+To re-check: grep `src/` for `\d+:\d+`, then probe each id with the Figma MCP's
+`get_variable_defs` — it errors cleanly on a dead node and is small enough to run
+across the whole set in one pass. Worth doing when a page is finished, not
+continuously.
+
+**Do not build a registry of Figma values to check automatically.** It was
+proposed and rejected on 2026-08-19: the observed drift is in pointers, not
+values, so a value-checker would automate the problem we don't have. Revisit only
+if a *value* claim is ever found wrong.
+
 **First task:** don't start building yet. Read the above, review the Figma file, and cross-check what this doc and the PRD describe against what's actually in Figma — structure, zone/component naming, hotspot count and roster, anything else load-bearing. Report any inconsistencies you find before starting implementation, rather than silently resolving them in Figma's favor. Then summarize back what you understand the build to be, so we can confirm alignment before Skeleton starts.
 
 ---
@@ -55,10 +84,14 @@ If a section here starts listing pixel values, it has drifted out of scope — c
 
 **Structure:**
 - `primitives.css` — raw values: the colour scales (each with light/mid/dark steps), the spacing scale, the radius scale. Read the actual names and values from the file, not from here.
-- `semantic.css` — role-based tokens referencing primitives: text, border, chart (data-viz colors — used by the Language River / Belonging charts), action (primary/secondary/accent/link, each with hover/pressed/disabled states), surface, focus ring. Re-exports only a subset of the primitive spacing/radius scale — build Tailwind's `theme.extend` from this semantic subset, not the full primitive list, since primitives include scale steps that aren't meant to be used directly.
+- `semantic.css` — role-based tokens referencing primitives: text, border, chart (data-viz colors — used by the Language River / Belonging charts), action (primary/secondary/accent/link, each with hover/pressed/disabled states), surface, focus ring. **Colour only.** An earlier version of this line said it also re-exported a spacing/radius subset that Tailwind should build from; it does not, and never did — corrected 2026-08-19 by reading the file. See the spacing note below.
 - `components.css` — component-specific tokens (button variants × states, navbar) referencing semantic tokens. Note the loose mapping to the Button family naming used elsewhere in this doc: `action-accent` ≈ the Popover/hotspot elements, `action-link` ≈ Tertiary, `action-primary`/`action-secondary` map directly.
 
-**Tailwind integration:** reference the semantic layer in `theme.extend`, not primitives directly, e.g. `colors: { text: { primary: 'var(--colors-text-text-primary)' } }` — component code should never hardcode a primitive.
+**Tailwind integration:** for **colour**, reference the semantic layer in `theme.extend`, not primitives directly, e.g. `colors: { text: { primary: 'var(--colors-text-text-primary)' } }` — component code should never hardcode a colour primitive.
+
+**Spacing and radius are deliberately flat, with no semantic layer** (confirmed 2026-08-19). Tailwind maps `space-N` / `radius-N` straight onto the `--spaces-N` / `--radius-N` primitives, and that is correct, not an oversight. The indirection earns its place for colour because a role can be re-pointed — `text-primary` could become a different grey, or a second theme. Spacing has no equivalent: `24` is 24 under every theme, so a `spacing/card-gap → Spaces/24` alias would add a layer that can only ever forward one value, plus a second name for the same number to keep in sync.
+
+Six of the 29 spacing primitives are used nowhere in `src/`: **2, 128, 144, 176, 192, 240.** Left in place — they're an exported scale, not dead code, and pruning them means re-exporting from Figma for no rendering benefit. Worth knowing before treating the scale's size as meaningful.
 
 **Resolved from Open Decisions:** token structure is semantic + primitives (not flat-primitives-only), and all previously-flagged spacing values (10, 14, 40, 100, 200) are real, defined primitives already in use at the semantic layer — keep them, nothing to merge or drop.
 

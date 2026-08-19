@@ -19,7 +19,7 @@ const TAIL_CLASS = {
 // `maxWidth` defaults to the original hard `max-w-[300px]`, so every existing
 // homepage call site renders byte-identically and the map cannot regress. It
 // exists because the case-study Guide is drawn at 520 wide in Figma (nodes
-// 4774:7579 and 4774:7661) against the map's 300 -- the same component at two
+// 4774:7579 and 4825:2590) against the map's 300 -- the same component at two
 // deliberately different measures, since one sits beside an illustration in a
 // crowded map and the other carries a full paragraph on an open page.
 //
