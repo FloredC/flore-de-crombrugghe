@@ -43,8 +43,10 @@ visible focus ring. Verified 2026-08-06 by hovering a real marker and watching
 
 **Flore's, and blocking nothing else**
 
-- The six case-study bodies are still scaffolding prose. Deliberate — the subpages
-  haven't been designed yet. `/work/:slug` routes work; the pages are stubs.
+- **Four** of the six case-study bodies are still scaffolding prose, as of
+  2026-08-21: Welcome to my city, Sinomocene, Teamchatviz and Roche. PitchPivot
+  and Artifakt are built pages. `/work/:slug` routes work for all six; the other
+  four render the stub template.
 - Lab avatar wants re-exporting with Figma's **Include "id" attribute** ticked, from
   the **107×93 frame that contains the halo** (an attempt on 2026-08-06 came from the
   older 275×218 frame and had no halo, so it wasn't used). Until then that component

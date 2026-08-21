@@ -39,6 +39,24 @@ export default function Frame({
   zone,
   subsection,
   media,
+  // THE STAGE AND THE MEDIA CHROME ARE PER-PAGE, since 2026-08-21.
+  //
+  // Both default to exactly what PitchPivot already renders, so that page is
+  // untouched -- these exist because Artifakt's hero diverges on both counts
+  // and the divergence is real, not drift:
+  //
+  //   stage           PitchPivot's hero is the graph-paper `bg-notebook`
+  //                   surface (see the note above). Artifakt's is a flat
+  //                   `surface-highlight` fill, sampled at node 4897:4515.
+  //   mediaClassName  PitchPivot's hero screenshot takes a hard black border
+  //                   on a white ground. Artifakt's takes a grey border, a
+  //                   16 radius and a soft drop shadow (node 4897:4524).
+  //
+  // Passed from the content file rather than switched on `slug` here: this
+  // component has no business knowing which case study it is rendering, and a
+  // slug branch would need editing every time a page is added.
+  stage = 'bg-notebook',
+  mediaClassName = 'mx-auto border border-text-primary bg-surface-background',
 }) {
   return (
     // `bg-notebook` over the canvas token: the graph-paper surface from Flore's
@@ -53,7 +71,7 @@ export default function Frame({
     <Block
       width="bleed"
       as="header"
-      className="bg-notebook pb-space-64 pt-space-160 xl:pb-space-120 xl:pt-space-280"
+      className={`${stage} pb-space-64 pt-space-160 xl:pb-space-120 xl:pt-space-280`}
     >
       <Container className="flex flex-col gap-space-40 xl:gap-space-64">
         {/* The "You are here: Lab — Own products" breadcrumb was removed here on
@@ -140,7 +158,7 @@ export default function Frame({
                 column, so left-aligned it sat 55px left of the column's middle
                 — and the button centres on the wrapper, not on the artwork.
                 Centring the media makes the two centres the same line. */}
-            <Media {...media} className="mx-auto border border-text-primary bg-surface-background" />
+            <Media {...media} className={mediaClassName} />
             {liveUrl && (
               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2">
                 <ButtonLink variant="primary" href={liveUrl} target="_blank" rel="noopener noreferrer">

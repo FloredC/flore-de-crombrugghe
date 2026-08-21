@@ -509,7 +509,7 @@ Revised estimate — original 6-hour estimate below was written before the Popov
 
    Done: all 10 project cards (meta, title, description, image caption, CTA), Approach ValueCards + MediaCards, About AsideCards, NDA external links, the Language River embed.
 
-   Still outstanding, rechecked 2026-08-19: **five** case-study bodies are scaffolding prose — PitchPivot is now a real, shipped case study built on `src/content/case-studies/`; Contact bubble copy; and the Approach "Selected talks & writing" bubble. The LinkedIn URL and every `REVIEW —` marker are done — the markers no longer appear anywhere in `src/content/`.
+   Still outstanding, rechecked 2026-08-21: **four** case-study bodies are scaffolding prose — PitchPivot and Artifakt are now real, built case studies on `src/content/case-studies/`; Contact bubble copy; and the Approach "Selected talks & writing" bubble. The LinkedIn URL and every `REVIEW —` marker are done — the markers no longer appear anywhere in `src/content/`.
 9. 🟡 **Styling & layout** — the global layout system is in (see below); card refinements and responsiveness are not.
 10. ⬜ **Polish & QA** — not started.
 

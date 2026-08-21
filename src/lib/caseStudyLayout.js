@@ -230,3 +230,46 @@ export const MEDIA_WIDTH = {
 // value for every boundary — special-casing one child from the parent would
 // mean the parent knowing which child is a Thesis.
 export const THESIS_BREATH = 'py-space-80 xl:py-space-120'
+
+// --- The Artifakt page's own measure ----------------------------------------
+//
+// A SECOND READING MEASURE ON THE SITE, and deliberately not reconciled with
+// `WIDTH.narrow` above. Flagged rather than unified, 2026-08-21.
+//
+// PitchPivot's prose runs at `narrow` (62ch, ~560px at the desktop body size).
+// Every text container in the Artifakt frame is 720 — not approximately, but
+// the same literal 720 on all ten sections (nodes 4897:4528, 4897:4537,
+// 4897:4559, 4897:4565, 4897:4584, 4897:4595, 4897:4607, 4897:4618, 4897:4624).
+// That is a design decision, not a drafting accident, and it is load-bearing:
+// Artifakt's page holds its text column still and gets its rhythm from the
+// media widths instead, where PitchPivot moves the column and keeps the media
+// uniform. Two coherent answers to the same question.
+//
+// PX, NOT `ch`, which is the opposite of the choice made for `narrow`. The
+// reason is which quantity is the real one. `narrow` exists to cap LINE
+// LENGTH, so it is expressed in characters and tracks the reader's font size.
+// 720 here is a COLUMN the media aligns to — the `text-width` stage sits at
+// exactly the same 720 so the two share both edges — and a measure that drifts
+// with the font size would break that alignment at any zoom level. When a
+// number's job is to match another number, it has to be the same kind of
+// number.
+export const ARTIFAKT = {
+  prose: 'max-w-[720px]',
+
+  // The hero phone screenshot's display width, in px.
+  //
+  // 272 is sampled (node 4897:4524). It has to be its own number rather than
+  // reusing MEDIA_WIDTH.hero, and the reason is worth recording because the
+  // symptom was severe and looked like a layout bug rather than a sizing one:
+  // MEDIA_WIDTH.hero is 450, measured from PitchPivot's hero, whose asset is
+  // 1798x2234 -- ratio 0.80. Artifakt's hero.png is 545x1185 -- ratio 0.46,
+  // because it is a phone inside browser chrome rather than a cropped screen.
+  // At 450 wide that renders 976px TALL, taller than most laptop viewports, so
+  // the hero alone filled the screen and the page appeared to start empty.
+  //
+  // Same class of mistake as the momentum curve on the PitchPivot page (see
+  // MEDIA_WIDTH above): a display width carried across to an asset with a
+  // different aspect ratio is a different height, and it looks untouched in
+  // the diff. Measure the asset, don't reuse the constant.
+  heroMedia: 272,
+}
