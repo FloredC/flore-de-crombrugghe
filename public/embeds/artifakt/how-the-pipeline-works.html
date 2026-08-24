@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Artifakt — how the pipeline works</title>
+
+<!--
+  Standalone embed, iframed into the Artifakt case study's "The reveal" section.
+
+  WHY IT IS A SEPARATE FILE AND NOT JSX
+  It is a document, not a component: its own reading order, no shared state with
+  the page. In `public/` it is served verbatim, opens on its own, and never
+  enters the app bundle.
+
+  SELF-CONTAINED. No CDN, no external stylesheet, no webfont service.
+  `public/language-river.html` pulls Chart.js from cdnjs and is the one thing on
+  this site that can visibly fail mid-demo; this does not repeat that.
+
+  PREVIEW IMAGES are real files in ./img/, extracted from Flore's own
+  prompting-process.html (they were base64-inlined there) along with their
+  captions. Files rather than data: URIs on purpose — five images totalling
+  ~3.1MB would triple this document's parse cost and block first paint, where as
+  files the browser fetches them lazily on hover and caches them. Re-extract
+  from the source doc if the previews are ever regenerated; don't hand-edit.
+
+  FONTS from `../../fonts/` = `public/fonts/`, three HK Grotesk weights copied
+  there for exactly this. RELATIVE paths throughout (fonts and images): the site
+  is served from /flore-de-crombrugghe/ in production and / in dev, and a
+  root-absolute path works in one and 404s in the other with no warning. That
+  bug already bit this embed once — the parent's iframe src was root-absolute
+  and silently collapsed the frame to 15px in production while dev looked fine.
+
+  COLOURS are literals, not var(--colors-*). This document is outside the app so
+  it never sees the token stylesheet; an iframe cannot inherit its parent's
+  custom properties. Copied from primitives.css / semantic.css. If the palette
+  changes, this file changes too.
+
+  HEIGHT is not set here. The parent measures real content height and sizes the
+  iframe to it (see LanguageRiverEmbed) — so keep `html,body { height: auto }`
+  and never introduce an internal scroller.
+-->
+
+<style>
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: url('../../fonts/HKGrotesk-Regular.woff2') format('woff2');
+    font-weight: 400; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: url('../../fonts/HKGrotesk-SemiBold.woff2') format('woff2');
+    font-weight: 600; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: url('../../fonts/HKGrotesk-Bold.woff2') format('woff2');
+    font-weight: 700; font-style: normal; font-display: swap;
+  }
+
+  :root {
+    --ink: #0e0e0e;          /* colors/text/text-primary   → grey-90 */
+    --ink-soft: #494747;     /* colors/text/text-secondary → grey-80 */
+    --line: #d2d2d2;         /* colors/border/grey         → grey-20 */
+    --paper: #ffffff;        /* colors/surface/background  → white   */
+    --accent: #420bc1;       /* purple-80 */
+    --accent-line: #8b5cf6;  /* purple-50 */
+  }
+
+  /* BORDER-BOX EVERYWHERE, and not boilerplate here: the step cards set
+     `min-width: 190px` and carry 28px padding + 2px border, so under
+     content-box each occupies 220px. Five of those plus arrows and gaps came to
+     1224 against a 1114 row, wrapping the last step onto its own line when all
+     five had room. Measured, not guessed. */
+  *, *::before, *::after { box-sizing: border-box; }
+
+  /* `height: auto` is load-bearing — the parent reads scrollHeight. */
+  html, body { height: auto; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'HK Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color: var(--ink); background: var(--paper);
+    line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+
+  /* Bottom padding leaves room for the preview popovers that open DOWNWARD on
+     the top row; without it the parent's height measurement clips them. */
+  .wrap { padding: 24px; padding-bottom: 32px; }
+
+  h1 { font-size: 20px; font-weight: 700; line-height: 1.4; margin: 0 0 12px; }
+  .intro { font-size: 15px; margin: 0 0 28px; max-width: 68ch; }
+
+  /* --- the pipeline row --------------------------------------------------- */
+  .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px; margin: 0 0 28px; }
+
+  .step {
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px 14px 12px; background: var(--paper);
+    flex: 1 1 190px; min-width: 190px;
+    /* Caps the stretch: without it a step that wraps onto a row alone grows to
+       the full row width and reads as a different kind of object. */
+    max-width: 280px;
+    position: relative; cursor: pointer;
+  }
+  .step.pass { border-color: var(--accent-line); }
+
+  /* The affordance. Flore's point: the previews ARE the strength of this
+     diagram, so the badge has to advertise them rather than let them be
+     discovered by accident. */
+  .step::after {
+    content: '⊡ preview'; position: absolute; top: 8px; right: 10px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+    color: var(--accent); line-height: 1;
+  }
+  .step:hover, .step:focus-visible { border-color: var(--accent); outline: none; }
+
+  .kicker {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--ink-soft); margin: 0 0 6px;
+    /* Clears the preview badge sitting top-right. */
+    padding-right: 62px;
+  }
+  .step.pass .kicker { color: var(--accent); }
+  .step h2 { font-size: 15px; font-weight: 600; margin: 0 0 4px; line-height: 1.3; }
+  .step > p:last-child { font-size: 13px; margin: 0; color: var(--ink-soft); line-height: 1.4; }
+
+  /* --- the hover preview --------------------------------------------------
+     Opens BELOW by default rather than above: this document sits at the top of
+     an iframe, so a popover above the first row would be clipped by the frame
+     with no way to scroll to it. The source document could open upward because
+     it lives on a full page with room overhead. */
+  .preview {
+    display: none; position: absolute; top: calc(100% + 10px); left: 50%;
+    transform: translateX(-50%); width: 300px; background: var(--paper);
+    border: 1.5px solid var(--accent-line); border-radius: 10px; padding: 8px;
+    box-shadow: 0 8px 28px rgba(80, 40, 140, 0.18); z-index: 60;
+  }
+  .preview::after {
+    content: ''; position: absolute; bottom: 100%; left: 50%;
+    transform: translateX(-50%);
+    border: 7px solid transparent; border-bottom-color: var(--accent-line);
+  }
+  .preview img {
+    width: 100%; border-radius: 5px; display: block; background: #faf9f6;
+  }
+  .preview .cap {
+    display: block; font-size: 11px; line-height: 1.45;
+    color: var(--ink-soft); margin-top: 6px;
+  }
+  /* `:focus-within` alongside `:hover` so the previews are reachable by
+     keyboard — each step is focusable (tabindex="0"). The source document was
+     hover + click only. */
+  .step:hover .preview,
+  .step:focus-within .preview,
+  .step.open .preview { display: block; }
+
+  /* --- the notes ---------------------------------------------------------- */
+  .notes { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+  .note { border: 1px solid var(--line); border-radius: 10px; padding: 14px; background: var(--paper); }
+  .note h3 { font-size: 14px; font-weight: 600; margin: 0 0 6px; }
+  .note p { font-size: 13px; margin: 0; color: var(--ink-soft); line-height: 1.45; }
+
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.92em; }
+
+  @media (max-width: 560px) {
+    .wrap { padding: 16px; padding-bottom: 24px; }
+    .arrow { display: none; }
+    /* Full-width popover once the steps stack: a 300px box centred on a ~290px
+       card would hang off both edges. */
+    .preview { width: 100%; left: 0; transform: none; }
+    .preview::after { left: 24px; transform: none; }
+  }
+
+  .arrow { align-self: center; color: var(--line); font-size: 18px; line-height: 1; flex: 0 0 auto; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>How the pipeline works</h1>
+  <p class="intro">
+    Artifakt uses a two-pass image-to-image pipeline. The user draws a sketch;
+    that sketch is preprocessed per artist, then sent through two sequential API
+    calls to fal.ai’s Flux Dev model. Pass 1 establishes gesture and material
+    quality. Pass 2 applies the artist’s full visual identity on top.
+  </p>
+
+  <div class="flow">
+    <div class="step" tabindex="0">
+      <div class="preview">
+        <img src="./img/input.png" alt="A loose pencil sketch on the Artifakt canvas" loading="lazy">
+        <span class="cap">Raw user sketch on the canvas — loose pencil lines, no colour.</span>
+      </div>
+      <p class="kicker">Input</p>
+      <h2>User sketch</h2>
+      <p>Canvas drawing, 768px wide</p>
+    </div>
+    <div class="arrow" aria-hidden="true">→</div>
+
+    <div class="step pass" tabindex="0">
+      <div class="preview">
+        <img src="./img/pre-process.png" alt="The same sketch after cleaning and per-artist line-weight adjustment" loading="lazy">
+        <span class="cap">Sketch cleaned &amp; line-weight adjusted per artist before the model sees it. Think of it as defining brushes in Procreate — but this time to support the unique gesture of each artist.</span>
+      </div>
+      <p class="kicker">Pre-process</p>
+      <h2>Sketch config</h2>
+      <p>Line width, invert, flood fill — per artist</p>
+    </div>
+    <div class="arrow" aria-hidden="true">→</div>
+
+    <div class="step pass" tabindex="0">
+      <div class="preview">
+        <img src="./img/pass-1.png" alt="Output of pass one: strong form and material, no artist colour yet" loading="lazy">
+        <span class="cap">Gesture + material established — strong form, no artist colour yet.</span>
+      </div>
+      <p class="kicker">Pass 1</p>
+      <h2>Gesture + Material</h2>
+      <p>Flux Dev img2img · no artist name · strength 0.75–0.82</p>
+    </div>
+    <div class="arrow" aria-hidden="true">→</div>
+
+    <div class="step pass" tabindex="0">
+      <div class="preview">
+        <img src="./img/pass-2.png" alt="Output of pass two: the artist's colour, motifs and full style applied" loading="lazy">
+        <span class="cap">Artist identity applied — colour, motifs and full style on top.</span>
+      </div>
+      <p class="kicker">Pass 2</p>
+      <h2>Finish</h2>
+      <p>Flux Dev img2img · artist name + colour + motifs · strength 0.70–0.90</p>
+    </div>
+    <div class="arrow" aria-hidden="true">→</div>
+
+    <div class="step" tabindex="0">
+      <div class="preview">
+        <img src="./img/output.png" alt="The finished artwork as shown on Screen 2" loading="lazy">
+        <span class="cap">Final artwork shown on Screen 2.</span>
+      </div>
+      <p class="kicker">Output</p>
+      <h2>Artwork</h2>
+      <p>Displayed on Screen 2</p>
+    </div>
+  </div>
+
+  <!--
+    FOUR NOTES, NOT SIX. "Why two passes?" and "Scaffold (Screen 1)" are cut
+    from the source document on purpose:
+      Why two passes?      The case-study prose beside this embed already says
+                           it, so repeating it makes the embed argue with the
+                           page instead of supporting it.
+      Scaffold (Screen 1)  Belongs to "The scaffold" section further down, where
+                           the reader actually meets that problem.
+    The four kept are the ones the prose does NOT cover. Restoring the other two
+    is a paste job if Flore wants the full set.
+  -->
+  <div class="notes">
+    <div class="note">
+      <h3>What strength controls</h3>
+      <p>
+        Strength is how much the model departs from the input image.
+        <code>0.0</code> returns the input untouched; <code>1.0</code> ignores it
+        entirely. Higher strength means more artistic transformation but looser
+        sketch fidelity.
+      </p>
+    </div>
+    <div class="note">
+      <h3>Why results vary</h3>
+      <p>
+        Diffusion models start from random noise (the seed), so two identical
+        prompts produce different results every time. That variance compounds
+        across two passes. The regenerate button on the canvas lets users reroll.
+      </p>
+    </div>
+    <div class="note">
+      <h3>Model used</h3>
+      <p>
+        <code>fal-ai/flux/dev/image-to-image</code>. 28 inference steps, guidance
+        scale 3.5. No LoRA fine-tuning — style is driven entirely through
+        prompting. LoRA is a future option once the artist roster is validated.
+      </p>
+    </div>
+    <div class="note">
+      <h3>Cost</h3>
+      <p>
+        Two API calls per artist per generation. All five artists are generated
+        in parallel when Screen 2 loads. Regenerating one artist is two fresh
+        calls for that artist only.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/*
+  TOUCH SUPPORT ONLY. Hover and keyboard focus are handled in CSS above; this
+  adds tap-to-open for coarse pointers, where :hover either never fires or
+  sticks until you tap elsewhere.
+
+  Gated on `(pointer: coarse)` so it does not intercept clicks on desktop, where
+  CSS hover already works and a click handler would fight it. Same reasoning as
+  PanZoomContainer's coarse-pointer gate.
+*/
+(function () {
+  if (!window.matchMedia('(pointer: coarse)').matches) return;
+
+  var steps = document.querySelectorAll('.step');
+
+  function closeAll() {
+    document.querySelectorAll('.step.open').forEach(function (s) { s.classList.remove('open'); });
+  }
+
+  steps.forEach(function (step) {
+    step.addEventListener('click', function (event) {
+      event.stopPropagation();
+      var wasOpen = step.classList.contains('open');
+      closeAll();
+      if (!wasOpen) step.classList.add('open');
+    });
+  });
+
+  document.addEventListener('click', closeAll);
+})();
+</script>
+</body>
+</html>

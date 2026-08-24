@@ -43,6 +43,76 @@ const LIVE_URL = 'https://floredc.github.io/Artifakt/'
 // and so every path below is visibly the same shape.
 const M = '/images/artifakt'
 
+// Route root for the process logs. NOT the files themselves: the documents live
+// in public/process/artifakt/*.html, but every link goes through
+// /work/artifakt/process/:log, which frames them with the site's navigation
+// (see ProcessLogPage.jsx). Linking straight to the .html would drop the reader
+// into a document with no way back.
+const LOGS = '/work/artifakt/process'
+
+// The six process logs, as data rather than as six card literals.
+//
+// ONE LIST, TWO CONSUMERS: the thumbnail grid in "The Process" above, and the
+// `/work/artifakt/process/:log` route that frames each document with the site's
+// navigation (see ProcessLogPage.jsx). The route validates its `:log` param
+// against these slugs, so an unknown slug redirects instead of framing an
+// arbitrary path.
+//
+// `slug` is the URL and `file` is the document on disk; they match today but
+// are separate fields on purpose — the files are Flore's generated exports and
+// their names belong to that export, while the slugs are public URLs that
+// should not churn if a filename does.
+//
+// THUMBNAIL NAMES DO NOT MATCH THEIR CONTENT for two of the six, and that is
+// not a mistake to tidy: `card-final-product.png` pictures loading-state specs
+// and `card-loading-animations.png` pictures the final-screen "one shell, five
+// faces" page. Each thumbnail was opened and matched to what it actually shows.
+// Renaming the files is the real fix; pairing them by filename is the bug.
+export const processLogs = [
+  {
+    slug: 'reveal-ai-integration',
+    file: 'reveal-ai-integration.html',
+    title: 'Reveal & AI integration',
+    thumb: 'card-reveal.png',
+    alt: 'First page of the “Reveal — AI Integration Visual Process” log',
+  },
+  {
+    slug: 'prompting-process',
+    file: 'prompting-process.html',
+    title: 'Prompting process',
+    thumb: 'card-two-pipeline.png',
+    alt: 'First page of the “Image Generation & Prompting Process” log, showing the two-pass pipeline diagram',
+  },
+  {
+    slug: 'visual-system',
+    file: 'visual-system.html',
+    title: 'Visual system',
+    thumb: 'card-visual-system.png',
+    alt: 'A page of design tokens, type scale and icon decisions',
+  },
+  {
+    slug: 'loading-animations',
+    file: 'loading-animations.html',
+    title: 'Loading animations',
+    thumb: 'card-final-product.png',
+    alt: 'Loading-state screen specs and a five-step animation sequence',
+  },
+  {
+    slug: 'scaffold-process',
+    file: 'scaffold-process.html',
+    title: 'Scaffold process',
+    thumb: 'card-scaffold.png',
+    alt: 'Experiment 006, contour reduction variants of a horse sketch',
+  },
+  {
+    slug: 'final-screen-redesign',
+    file: 'final-screen-redesign.html',
+    title: 'Final screen redesign',
+    thumb: 'card-loading-animations.png',
+    alt: 'The “one shell, five faces” page showing the five artist portraits and copy decisions',
+  },
+]
+
 export default {
   slug: 'artifakt',
 
@@ -105,6 +175,19 @@ export default {
           type: 'p',
           text: 'You type a word, trace a loose scaffold by hand, and your line comes back transformed through the style of a real artist. The AI does the finishing — it never touches the making.',
         },
+        {
+          // THE STAKES, added by Flore in the frame 2026-08-24 after the
+          // narration review flagged that the page had no problem statement —
+          // every problem in it was a design problem she hit, not a human one
+          // the product solves. This is the reader's problem, and it belongs in
+          // the establishing section rather than in a section of its own.
+          //
+          // Its other half ("effort only counts if the recipient can see it")
+          // deliberately does NOT live here: it motivates the reveal, so it
+          // opens that section instead.
+          type: 'p',
+          text: 'Digital gifting has an effort problem. When sending costs nothing, it reads as nothing — and the obvious fix is to make something by hand, except most adults stopped drawing at eleven and have no intention of starting again in front of someone they love.',
+        },
       ],
       // FULL CONTENT WIDTH, matching Figma's 1282 stage (node 4897:4533).
       //
@@ -117,6 +200,11 @@ export default {
       // doing different jobs.
       media: {
         layout: 'full',
+        // One of the four stages that KEPT the yellow when Flore stripped it
+        // off the rest, 2026-08-24 (node 4897:4533 still binds
+        // Colors/Surface/highlight at Radius/4).
+        tint: 'bg-surface-highlight',
+        radius: 'rounded-radius-4',
         src: `${M}/how-it-works.png`,
         label: '[ how-it-works.png — 2457x820 core flow banner ]',
         placeholderAspect: '2457 / 820',
@@ -128,6 +216,11 @@ export default {
     {
       id: 'what-it-is',
       title: 'What it is',
+      // THE SCREENCAST LIVES HERE NOW — Flore's layout pass, 2026-08-24. It was
+      // its own untitled section directly below this one; Figma has merged the
+      // two into a single row (node 4897:4535 now holds both the text container
+      // and a `video wrapper` beside it). One fewer section, and the video
+      // finally has a caption above it that says what it is showing.
       prose: [
         {
           type: 'p',
@@ -146,29 +239,13 @@ export default {
           text: '**Bring an artist in.** A fixed, curated roster — Louise Bourgeois, Kara Walker, Niki de Saint Phalle, Naoko Takeuchi, Keith Haring. Most people will meet at least one of them here for the first time. It’s also the part that would make this work in a museum: the exhibition already supplies the artist — Artifakt gives visitors something to make with them.',
         },
       ],
-    },
-
-    // 3 --------------------------------------------------------------------
-    // No title and no prose in Figma — the screencast stands alone, sized 400
-    // and pushed to the right edge of the content column (node 4897:4547).
-    //
-    // The ONLY asset on this page that is not a tinted MediaStage: Figma gives
-    // it the site's product-screencast treatment instead (canvas fill, radius
-    // 24, caption below the box), the same one PitchPivot's feature videos use.
-    // See SCREENCAST_CLASS in CaseStudyArtifakt.jsx.
-    {
-      id: 'screencast',
       media: {
-        layout: 'aside-right',
-        // No `maxWidth` here on purpose. Figma's container is 400 wide (node
-        // 4897:4548), but this asset is capped by HEIGHT so the figure fits the
-        // viewport — Flore, 2026-08-21 — and the width is derived from that.
-        // See SCREENCAST_MAX_WIDTH in CaseStudyArtifakt.jsx, which keeps 400 as
-        // the ceiling.
-        //
-        // Because the cap is a viewport-relative expression rather than a
-        // number, it belongs to the layout and not to the content: this file
-        // should not have to know what `svh` is.
+        layout: 'split',
+        // `plain` opts out of the tinted stage: this keeps the site's
+        // product-screencast treatment (canvas fill, radius 24, caption below),
+        // which is what Figma still binds on its container (node 4897:4548) and
+        // what PitchPivot's feature videos use.
+        plain: true,
         kind: 'video',
         src: `${M}/artifakt.mp4`,
         poster: `${M}/artifakt-poster.png`,
@@ -177,16 +254,64 @@ export default {
         alt: 'A screen recording of Artifakt: typing an intention, tracing the scaffold, and the finished artwork appearing',
         caption: 'state 21.08.26',
       },
+      // THE ARTIST ROSTER, added 2026-08-24. The narration review's biggest
+      // gap: "Bring an artist in" is one of the three stated goals and the page
+      // argued most readers would meet one of these artists for the first time
+      // here — while showing nothing but five names in a bullet.
+      //
+      // Placed INSIDE this section rather than in one of its own, which is
+      // Flore's call and the tighter answer: the roster now appears directly
+      // under the goal that claims it, and it is a premise for "Designing
+      // against the model's defaults" much later — that section's argument
+      // (the roster is deliberately not Picasso) only lands once the reader
+      // has seen the roster.
+      //
+      // WHITE STAGE, sampled: node 4931:4525 is `bg-white`, not the page's
+      // yellow. Same reasoning as the cake panel — the outputs are artwork and
+      // a tint would sit on top of five artists' colour.
+      extraMedia: {
+        layout: 'full',
+        // A plain white band, no radius at all (node 4931:4525 is `bg-white`
+        // with no corner rounding) -- the only stage on the page without one.
+        radius: 'rounded-none',
+        src: `${M}/five-artists.png`,
+        label: '[ five-artists.png — 2598x1136 one sketch, five artist styles ]',
+        placeholderAspect: '2598 / 1136',
+        alt: 'One traced sketch rendered five ways, labelled Louise Bourgeois, Kara Walker, Niki de Saint Phalle, Naoko Takeuchi and Keith Haring',
+        // Figma has a double space after the comma (node 4931:4523); single here.
+        caption: 'Five artists, a fixed curated roster',
+      },
     },
 
     // 4 --------------------------------------------------------------------
     {
       id: 'question',
       title: 'The question: made by me — but make it good',
+      // THE GUIDE IS AN ASIDE AGAIN, not narration — Flore, 2026-08-24, after
+      // the narration review. It briefly carried this section's opening
+      // question, which left the prose starting on "sharpened *it*" with the
+      // referent living inside a speech bubble a skimmer would skip.
+      //
+      // Now it does what PitchPivot's Guide does: react to prose that already
+      // stands alone. Compare that page's Turning Point note, "I went in
+      // convinced this was a presentation problem. It wasn't." Same register on
+      // purpose — one Guide contract across both case studies.
+      //
+      // Figma has a stray closing quote mark on this line ("It wasn't."");
+      // dropped here. Fix the frame so a re-pull doesn't restore it.
+      note: 'I went in assuming the barrier was emotional. It wasn’t.',
       prose: [
         {
+          // The opening question is BACK in the prose, which is what makes the
+          // next sentence's "it" resolve without reading the bubble.
           type: 'p',
-          text: 'I started with a practical question: how do you help someone make a unique visual for another person, when most people freeze the moment they’re asked to create something themselves? Interviews across ages 28 to 75 sharpened it — people aren’t reluctant, they’re blocked by *what* to make, not *how*.',
+          text: 'I started with a practical question: how do you help someone make a unique visual for another person, when most people freeze the moment they’re asked to create something themselves?',
+        },
+        {
+          // "Six interviews", not Figma's "Six Interviews" — a mid-sentence
+          // capital, treated as a typo rather than carried over.
+          type: 'p',
+          text: 'Six interviews across ages 28 to 75 sharpened it — people aren’t reluctant, they’re blocked by *what* to make, not *how*.',
         },
         {
           type: 'p',
@@ -205,16 +330,43 @@ export default {
           text: '**When AI helps you make something, at what point does it stop being yours?**',
         },
       ],
+      // THE CAKE TEST, new asset 2026-08-24. Three drawings of the same cake at
+      // increasing finish — the stimulus behind the contradiction the paragraph
+      // above describes, which until now the reader had to take on trust.
+      //
+      // WHITE STAGE, not the page's yellow one. Sampled: node 4928:2804 binds
+      // Radius/20 and NO surface variable, unlike every other stage here. The
+      // artwork is loose black line-work on white and the tint muddies it.
+      media: {
+        layout: 'split',
+        // White is MediaStage's default now; only the radius is unusual here.
+        radius: 'rounded-radius-20',
+        src: `${M}/the-cakes.png`,
+        label: '[ the-cakes.png — 987x342 three-cake stimulus ]',
+        placeholderAspect: '987 / 342',
+        alt: 'Three drawings of the same birthday cake at increasing levels of finish: a rough outline, a more detailed line drawing, and a coloured illustration',
+        caption: 'Testing question “Which one feels like it came from someone who cares and why?”',
+      },
     },
 
     // 5 --------------------------------------------------------------------
     {
       id: 'reveal',
       title: 'The reveal: separating structure from style',
+      note: 'With the reveal being the primary design focus, I knew the result had to strike the right balance between the trace and the artist’s style, but this proved to be more complicated than I had anticipated.',
+      // OPENS ON THE OTHER HALF OF THE STAKES — added 2026-08-24. "Made by
+      // you" establishes that digital gifting has an effort problem; this is
+      // the consequence that makes the reveal necessary, and it was the one
+      // piece of the argument the page never made. It also gives the section a
+      // paragraph of its own again: it previously opened straight onto a bullet
+      // list, with the Guide carrying all the setup.
+      //
+      // DRAFT COPY, not pulled from Figma — flagged for Flore's sign-off and a
+      // sync back into the frame.
       prose: [
         {
           type: 'p',
-          text: 'I built the transformation before the drawing tool. It didn’t work the way I expected.',
+          text: 'Effort only counts if the recipient can see it. The wobble in a traced line is the proof, and the reveal is where it gets shown — which is why I built the transformation before the drawing tool.',
         },
         {
           type: 'list',
@@ -231,7 +383,21 @@ export default {
           text: '**Lesson:** when the same trade-off appears at every value you test, the problem is structural. Change the shape of the pipeline, not the dial.',
         },
       ],
-      link: { label: 'The 14 phases behind this pipeline' },
+      link: { label: 'The 14 phases behind this pipeline', href: `${LOGS}/prompting-process` },
+      // NEW ASSET, 2026-08-24: the art-class metaphor the prose describes —
+      // look at art, study the technique, study the subject, then make your own
+      // without the reference in front of you. It is the clearest statement of
+      // why the pipeline is split in two, and it was text-only before.
+      media: {
+        layout: 'split',
+        src: `${M}/the-reveal.png`,
+        label: '[ the-reveal.png — 993x731 two-pass mental model ]',
+        placeholderAspect: '993 / 731',
+        alt: 'A diagram of the two-pass approach: a Van Gogh sunflowers painting labelled “look at art”, a detail of the brushwork labelled “study the technique”, a photograph of real sunflowers labelled “study the subject”, and a new painting labelled “create your own art”',
+        // Figma reads "Mental modal for fix 1" — "modal" for "model".
+        // Corrected here; fix the frame so a re-pull doesn't restore it.
+        caption: 'Mental model for fix 1',
+      },
       // TWO EMBEDS, NOT YET BUILT. Figma draws both as empty dashed
       // placeholders (nodes 4897:4571 / 4897:4577) and Flore confirmed
       // 2026-08-21 that they are iframes or similar, to be done later. They
@@ -239,20 +405,31 @@ export default {
       // gap is visible and self-documenting on the page rather than an
       // unexplained blank — the same way PitchPivot handled its missing assets.
       // `src` is deliberately absent; that is what triggers the placeholder.
-      embeds: [
-        { layout: 'full', label: '[ How the pipeline works — embed ]', placeholderAspect: '1282 / 406' },
-        {
-          layout: 'full',
-          label: '[ Two-pass progression strip — embed ]',
-          placeholderAspect: '1282 / 406',
-        },
-      ],
+      // ONE EMBED, not two. Figma drew a second stage labelled "Two-pass
+      // progression strip"; Flore confirmed on 2026-08-24 that was a mistake
+      // and only this one is real. Remove the second stage from the frame too,
+      // or a re-pull reintroduces an empty panel.
+      //
+      // A LIVE IFRAME, not an image: the diagram reflows (the five pipeline
+      // steps wrap, the note grid re-columns) so it stays legible in a half
+      // column and on a phone, which a flattened PNG of a 5-across diagram
+      // cannot do. Source is public/embeds/artifakt/how-the-pipeline-works.html
+      // — self-contained, no CDN, using the HK Grotesk copies in public/fonts.
+      embed: {
+        src: '/embeds/artifakt/how-the-pipeline-works.html',
+        title: 'How the Artifakt image pipeline works',
+      },
     },
 
     // 6 --------------------------------------------------------------------
     {
       id: 'scaffold',
       title: 'The scaffold: leaving room to make it yours',
+      // DRAFT — my wording, not pulled from Figma, where this bubble still
+      // holds the section's moved opening line. Written to the same contract as
+      // the other Guides (react, don't set up) and needs Flore's sign-off plus
+      // a sync back into the frame.
+      note: 'I built the scaffold to help. Testers experienced it as being told what to draw.',
       prose: [
         { type: 'p', text: 'Testing gave me the sharpest question of the project:' },
         {
@@ -282,20 +459,25 @@ export default {
           text: '**Lesson:** when a UX complaint won’t resolve with UX tools, look upstream. This one was a generation problem wearing an interaction problem’s clothes.',
         },
       ],
-      link: { label: 'The contour-reduction experiments' },
-      // FULL WIDTH, a deliberate override of the frame — Flore, 2026-08-21
-      // ("the scaffold image should be bigger"). Figma draws this stage at 720
-      // (node 4897:4590), matching the text above it, and at that size the
-      // contour-reduction sheet inside it — eight horse sketches with labels —
-      // rendered too small to read, which defeats the point of showing it.
-      // `full` takes it to the 1184 content column like the other evidence
-      // stages on the page.
+      link: { label: 'The contour-reduction experiments', href: `${LOGS}/scaffold-process` },
+      // NOW A SPLIT COLUMN, and the asset was re-exported PORTRAIT to suit it
+      // (835x1365, was 1334x753 landscape). This supersedes the 2026-08-21
+      // "make it bigger" call, which pushed the old landscape asset to full
+      // width so the horse sketches were readable — the new export stacks the
+      // phone above the experiment sheet instead, solving the same problem
+      // inside half a column.
       media: {
-        layout: 'full',
+        layout: 'split',
         src: `${M}/the-scaffold.png`,
-        label: '[ the-scaffold.png — 1334x753 scaffold + contour experiments ]',
-        placeholderAspect: '1334 / 753',
-        alt: 'The Artifakt scaffold screen beside a sheet of contour-reduction experiments showing a horse sketch reduced to progressively simpler outlines',
+        label: '[ the-scaffold.png — 835x1365 scaffold + contour experiments ]',
+        placeholderAspect: '835 / 1365',
+        alt: 'The Artifakt scaffold screen above a sheet of contour-reduction experiments showing a horse sketch reduced to progressively simpler outlines',
+        // FIGMA'S CAPTION HERE IS WRONG and is deliberately not carried over:
+        // node 4928:2867 reads "Representation biases", which belongs to the
+        // NEXT section's image — a paste that landed on the wrong stage. This
+        // panel shows contour reduction, not representation. Written to match
+        // what is pictured; confirm the wording and fix the frame.
+        caption: 'Reducing the scaffold to its outer contours',
       },
     },
 
@@ -303,10 +485,14 @@ export default {
     {
       id: 'defaults',
       title: 'Designing against the model’s defaults',
+      note: 'Creating this tool with the goal of featuring “less generic” content by showcasing female and/or queer artists challenged me to think more deeply about how the source images were represented from the start and later reinterpreted.',
       prose: [
         {
+          // "strong", not "swimmer" — changed in the frame on 2026-08-24, and
+          // the new asset shows a footballer, so the keyword and the picture
+          // now agree. They did not before.
           type: 'p',
-          text: 'Type "swimmer" and Flux gives you a white man. Ask Naoko Takeuchi for a character and you get a blonde, blue-eyed one regardless of the keyword. The defaults are thin, white and European, and they hold until you actively displace them.',
+          text: 'Type "strong" and Flux gives you a white man. Ask Naoko Takeuchi for a character and you get a blonde, blue-eyed one regardless of the keyword. The defaults are thin, white and European, and they hold until you actively displace them.',
         },
         {
           type: 'list',
@@ -324,14 +510,29 @@ export default {
           text: '**Honest note:** I built this as a remediation pass after noticing skewed output, not as a first-draft requirement. Given that representation is a stated value here, it should have been in the first prompt I wrote, not the twentieth.',
         },
       ],
-      link: { label: 'The per-artist prompt table' },
+      // POINTS AT THE SAME DOCUMENT as "The 14 phases behind this pipeline"
+      // above, which is the honest mapping -- the per-artist prompts live
+      // inside the prompting-process log rather than in one of their own.
+      // Two links to one page is defensible; if that log grows an anchor for
+      // the table, add it here (`...#per-artist`). Flagged: if the table is
+      // somewhere else entirely, this is the line to change.
+      link: { label: 'The per-artist prompt table', href: `${LOGS}/prompting-process` },
+      // RE-EXPORTED TWICE on 2026-08-24. It now shows the fix rather than only
+      // the problem: before/after pairs with arrows, where the original asset
+      // was two unlabelled default outputs. The caption changed with it —
+      // "Correcting representation biases", not "Representation biases".
+      //
+      // Dimensions are the CURRENT file's (691x1100, re-measured after the
+      // second export — it was 818x1302 for a few hours). These numbers only
+      // matter before the image loads, but a stale pair reserves the wrong
+      // space and the page jumps when the real one arrives.
       media: {
-        layout: 'beside',
+        layout: 'split',
         src: `${M}/against-the-defaults.png`,
-        label: '[ against-the-defaults.png — 694x910 generated-figure comparison ]',
-        placeholderAspect: '694 / 910',
-        alt: 'Two generated figures showing the model’s default output: a pale swimmer sketch and a muscular light-skinned male figure',
-        caption: 'Representation biases',
+        label: '[ against-the-defaults.png — 691x1100 before/after grid ]',
+        placeholderAspect: '691 / 1100',
+        alt: 'Two before-and-after pairs of generated figures for the keyword “strong”: in each row an arrow leads from the model’s default output to a corrected version with explicit attribute language',
+        caption: 'Correcting representation biases',
       },
     },
 
@@ -339,6 +540,13 @@ export default {
     {
       id: 'testing',
       title: 'Hesitation, then delight',
+      // DRAFT — my wording, not pulled from Figma, where this bubble still
+      // reads "I conducted 4 moderated in -person testing sessions. Here are
+      // the results" (stray space, no full stop). That is setup, and the prose
+      // below already counts the sessions, so the bubble was saying nothing the
+      // reader was not about to be told. Reacts instead. Needs Flore's sign-off
+      // and a sync back into the frame.
+      note: 'I expected the tracing to be the fun part. It was the part people dreaded.',
       prose: [
         { type: 'p', text: 'Four moderated in-person sessions.' },
         {
@@ -366,12 +574,19 @@ export default {
           text: '**Next test:** promise the reveal before the trace, and see whether the hesitation drops.',
         },
       ],
+      // Re-exported larger, 2026-08-24 (1183x749, was 923x584).
+      //
+      // WHITE STAGE — Flore, 2026-08-24, a deliberate override of the frame,
+      // which still binds Colors/Surface/highlight at Radius/4 here (node
+      // 4929:2906). Asked for after seeing it built: the photographs carry
+      // their own colour and the tint fought them. Sync the frame, or a re-pull
+      // puts the yellow back.
       media: {
-        layout: 'beside',
+        layout: 'split',
         src: `${M}/user-testing.png`,
-        label: '[ user-testing.png — 923x584 test session photos ]',
-        placeholderAspect: '923 / 584',
-        alt: 'Two photographs from a moderated session: a tester tracing on a phone held in one hand',
+        label: '[ user-testing.png — 1183x749 test session photos ]',
+        placeholderAspect: '1183 / 749',
+        alt: 'Two photographs from a moderated session: a tester tracing an Artifakt sketch on a phone held in both hands',
         caption: 'User testing session',
       },
     },
@@ -380,6 +595,10 @@ export default {
     {
       id: 'reflection',
       title: 'What this changed about how I work',
+      // NARROWER THAN THE REST — Flore's call, confirmed 2026-08-24. The two
+      // closing sections read at the split-column measure rather than the
+      // page's 720, so the page tapers as it ends. See ARTIFAKT.proseNarrow.
+      measure: 'narrow',
       prose: [
         {
           type: 'p',
@@ -395,7 +614,19 @@ export default {
     // 10 -------------------------------------------------------------------
     {
       id: 'how-i-worked',
-      title: 'How I worked',
+      // RETITLED 2026-08-24, and matched in the frame (node 4897:4626).
+      //
+      // This section sits AFTER the reflection on purpose — Flore's call. That
+      // order only reads as deliberate if the section is clearly an appendix
+      // rather than a chapter that arrived late, which is what the new title
+      // does: it names the parallel to PitchPivot's "The Process" and puts the
+      // number up front, so the scale of the work argues before anyone opens a
+      // log. "How I worked" read like a mislaid chapter.
+      //
+      // The `id` stays `how-i-worked`: it is a stable anchor, not a label, and
+      // renaming it would break any link already pointing at it.
+      title: 'The Process — 14 phases, documented',
+      measure: 'narrow',
       prose: [
         {
           type: 'p',
@@ -431,47 +662,16 @@ export default {
       // actually pictured. Flagged to Flore — if the intended pairing is the
       // other way round for these two, it is a one-line swap here.
       //
-      // `href` is deliberately absent on all six: the logs need somewhere to
-      // live first (Flore, 2026-08-21). ProcessLogCards renders an unlinked
-      // card when there is no href, rather than a dead anchor.
-      logs: [
-        {
-          title: 'Reveal & AI integration',
-          src: `${M}/card-reveal.png`,
-          label: '[ card-reveal.png ]',
-          alt: 'First page of the “Reveal — AI Integration Visual Process” log',
-        },
-        {
-          title: 'Prompting process',
-          src: `${M}/card-two-pipeline.png`,
-          label: '[ card-two-pipeline.png ]',
-          alt: 'First page of the “Image Generation & Prompting Process” log, showing the two-pass pipeline diagram',
-        },
-        {
-          title: 'Visual system',
-          src: `${M}/card-visual-system.png`,
-          label: '[ card-visual-system.png ]',
-          alt: 'A page of design tokens, type scale and icon decisions',
-        },
-        {
-          title: 'Loading animations',
-          src: `${M}/card-final-product.png`,
-          label: '[ card-final-product.png ]',
-          alt: 'Loading-state screen specs and a five-step animation sequence',
-        },
-        {
-          title: 'Scaffold process',
-          src: `${M}/card-scaffold.png`,
-          label: '[ card-scaffold.png ]',
-          alt: 'Experiment 006, contour reduction variants of a horse sketch',
-        },
-        {
-          title: 'Final screen redesign',
-          src: `${M}/card-loading-animations.png`,
-          label: '[ card-loading-animations.png ]',
-          alt: 'The “one shell, five faces” page showing the five artist portraits and copy decisions',
-        },
-      ],
+      // Mapped from the `processLogs` export at the bottom of this file, so the
+      // cards here and the /work/artifakt/process/:log route read ONE list.
+      // Duplicating it would let a card and its page disagree about a title.
+      logs: processLogs.map((log) => ({
+        title: log.title,
+        href: `/work/artifakt/process/${log.slug}`,
+        src: `${M}/${log.thumb}`,
+        label: `[ ${log.thumb} ]`,
+        alt: log.alt,
+      })),
     },
 
     // 11 -------------------------------------------------------------------
@@ -482,6 +682,10 @@ export default {
       id: 'final-product',
       media: {
         layout: 'showcase',
+        // WHITE STAGE — Flore, 2026-08-24, same call as the testing photos and
+        // the same divergence from the frame, which still binds
+        // Colors/Surface/highlight here (node 4897:4639). The radius-60 mount
+        // stays; only the fill changed.
         // Smaller than the panel that holds it — Flore, 2026-08-21 ("the final
         // product image should be a bit smaller"). The radius-60 panel still
         // spans the full content column; only the artwork inside it shrinks, so

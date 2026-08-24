@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import useIframeFocusRing, { IFRAME_FOCUS_RING } from '../lib/useIframeFocusRing'
+import assetUrl from '../lib/assetUrl'
 
 // Used only for the first paint and if measurement is ever unavailable --
 // close to the real rendered height (371-387px depending on width) so the
@@ -73,7 +74,19 @@ export default function LanguageRiverEmbed({ src, title }) {
     >
       <iframe
         ref={frameRef}
-        src={src}
+        // RESOLVED HERE, not at the call site -- moved inside on 2026-08-24
+        // after the second call site forgot it and shipped a 404.
+        //
+        // `src` arrives as a content-supplied string ("/embeds/..."), which
+        // Vite never sees and therefore never rewrites, so it resolves against
+        // the domain root: correct on localhost, wrong under the deployed
+        // /flore-de-crombrugghe/ base. The failure is silent and invisible in
+        // dev -- the iframe simply collapses to ~15px in production.
+        //
+        // assetUrl is NOT idempotent (it would prefix an already-prefixed
+        // path), so no call site may pre-resolve. HomePage's call was changed
+        // in the same commit to pass the raw path.
+        src={assetUrl(src)}
         title={title}
         loading="lazy"
         scrolling="no"

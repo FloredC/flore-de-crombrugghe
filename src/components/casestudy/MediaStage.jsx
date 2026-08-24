@@ -19,12 +19,29 @@ import Media from './Media'
  * frame -- flagged to Flore as a divergence between the two case studies
  * rather than silently unified.
  *
- * RADIUS: `radius-4` on the section stages, sampled -- Figma binds `Radius/4`
- * on every one of them (e.g. node 4897:4533). It is nearly square, which looks
- * like a mistake next to the site's usual 24, and it is not: the artwork
- * inside carries its own generous rounding, so a big radius on the panel too
- * would read as two nested pills. The final-product panel overrides to
- * `radius-60`, also sampled (node 4897:4639).
+ * RADIUS AND TINT ARE BOTH PER-STAGE, and neither default is worth trusting
+ * blind. Flore stripped the yellow off most of the stages on 2026-08-24, so the
+ * page now runs a mix. Read off the frame, stage by stage:
+ *
+ *   how-it-works     highlight   radius 4    (node 4897:4533)
+ *   five-artists     white       radius 0    (node 4931:4525)
+ *   cake             white       radius 20   (node 4928:2804)
+ *   the-reveal       white       radius 12   (node 4930:2994)
+ *   the-scaffold     white       radius 12   (node 4929:2872)
+ *   the-defaults     white       radius 12   (node 4929:2871)
+ *   user-testing     highlight   radius 4    (node 4929:2906)
+ *   final-product    highlight   radius 60   (node 4897:4639)
+ *   pipeline embeds  highlight   radius 4    (node 4897:4571)
+ *
+ * The defaults below are white + radius 12, which is the plurality (the three
+ * mid-page evidence panels) and NOT a rule -- every other stage names its own.
+ * Worth knowing before anyone "simplifies" this: the yellow is now the
+ * exception, and it lands on the establishing image, the testing photos, the
+ * closing gallery and the two pending embeds.
+ *
+ * The white stages bind `Colors/Surface/background`, a real token -- except the
+ * cake panel, which has no surface fill at all. Same painted result, so it uses
+ * the same token here rather than inventing a "no fill" case.
  *
  * PADDING: one value, `space-24`, for every stage. Figma's own insets vary
  * between roughly 27 and 45 depending on the artwork -- hand-placed, not a
@@ -41,7 +58,8 @@ import Media from './Media'
  */
 export default function MediaStage({
   caption,
-  radius = 'rounded-radius-4',
+  radius = 'rounded-radius-12',
+  tint = 'bg-surface-background',
   className = '',
   children,
   ...media
@@ -49,7 +67,7 @@ export default function MediaStage({
   return (
     <figure
       data-component="media-stage"
-      className={`m-0 flex flex-col items-center gap-space-16 overflow-hidden bg-surface-highlight p-space-24 ${radius} ${className}`}
+      className={`m-0 flex flex-col items-center gap-space-16 overflow-hidden p-space-24 ${tint} ${radius} ${className}`}
     >
       {/* `children` is the escape hatch for the two stages that hold something
           other than a single asset -- today that is the pair of pipeline

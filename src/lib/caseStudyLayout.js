@@ -256,6 +256,23 @@ export const THESIS_BREATH = 'py-space-80 xl:py-space-120'
 export const ARTIFAKT = {
   prose: 'max-w-[720px]',
 
+  // The narrower measure the page's two CLOSING sections use -- "What this
+  // changed about how I work" and "The Process". Flore narrowed both in the
+  // frame on 2026-08-24 (nodes 4897:4618 and 4897:4624, 720 -> 591.5) and
+  // confirmed it was deliberate.
+  //
+  // 572, not Figma's 591.5, and the 19px is the point rather than sloppiness:
+  // 572 is exactly what a split column resolves to at the 1184 content width
+  // ((1184 - 40) / 2). So the page ends up with ONE narrow measure that every
+  // half-width column and both closing sections share, instead of two that sit
+  // 19px apart and look like a mistake. Figma's 591.5 is the same fraction of
+  // ITS 1283 row; the ratio matches even though the pixels don't.
+  //
+  // A literal rather than a calc so it can be read at a glance. If Container's
+  // width or the split gap ever changes, this needs changing with them --
+  // which is why the derivation is written out above.
+  proseNarrow: 'max-w-[572px]',
+
   // The hero phone screenshot's display width, in px.
   //
   // 272 is sampled (node 4897:4524). It has to be its own number rather than

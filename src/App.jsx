@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import ProjectPage from './pages/ProjectPage'
+import ProcessLogPage from './pages/ProcessLogPage'
 
 // Scrolls to `#some-id` when arriving at a route that carries a hash.
 //
@@ -88,6 +89,13 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/work/:slug" element={<ProjectPage />} />
+        {/* One level below a case study: a generated process-log document,
+            framed with the site's nav. See ProcessLogPage on why the documents
+            themselves are left untouched.
+            Two path segments deep, which `public/404.html` already handles --
+            it re-encodes the whole path regardless of depth, so no change to
+            `pathSegmentsToKeep` is needed. */}
+        <Route path="/work/:slug/process/:log" element={<ProcessLogPage />} />
       </Routes>
     </>
   )

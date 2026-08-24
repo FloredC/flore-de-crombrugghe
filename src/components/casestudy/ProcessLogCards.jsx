@@ -1,14 +1,15 @@
 import Media from './Media'
 import { FOCUS_CLASS } from '../ButtonLink'
+import { Link } from 'react-router-dom'
 import { ARTIFAKT } from '../../lib/caseStudyLayout'
 
 /**
  * The six process-log thumbnails under "How I worked" -- a screenshot of each
  * log document with its name underneath.
  *
- * NOT LINKED YET, ON PURPOSE. Flore's call, 2026-08-21: the process logs are
- * real documents that still need somewhere to live, and wiring that is a later
- * task. So a log with no `href` renders as a plain <div> -- not as an <a> with
+ * LINKED as of 2026-08-24 to the standalone documents in
+ * `public/process/artifakt/` (see the README there). A log with no `href` still
+ * renders as a plain <div> -- not as an <a> with
  * a dead or placeholder target, and not as a disabled-looking control that
  * promises an interaction the page can't honour.
  *
@@ -36,6 +37,20 @@ import { ARTIFAKT } from '../../lib/caseStudyLayout'
  * unusual -- every other bordered surface on the site is 1px -- so it is
  * written as an explicit `border-2` rather than left to the default.
  *
+ * HOVER: the border goes grey -> black. Sampled from the component's `hover`
+ * variant, which Flore added 2026-08-24 (node 4932:4708): it swaps
+ * Colors/Border/grey for Colors/Action/primary/border/default and changes
+ * nothing else -- no lift, no shadow, no scale.
+ *
+ * The small translate that used to be here is gone with it. It was invented,
+ * not sampled, and the reason Flore drew this variant was that the cards did
+ * not read as clickable; a 2px border darkening to near-black states that far
+ * more plainly than a 2px nudge. `border-color` is also cheap to animate,
+ * where the transform was compositing six cards on every pointer move.
+ *
+ * On the LINK, not the card div, so the border responds to keyboard focus as
+ * well -- the focus ring and the darkened border now arrive together.
+ *
  * CROPPING IS CORRECT HERE, and it is the one place on this page that crops.
  * These are thumbnails of long documents; the delivered files are all 432x300
  * (exactly 2x Figma's 216x150), so `object-cover` in a fixed-ratio box shows
@@ -49,7 +64,7 @@ export default function ProcessLogCards({ logs }) {
       {logs.map((log) => {
         const card = (
           <>
-            <div className="w-full overflow-hidden rounded-radius-12 border-2 border-border-grey bg-surface-background">
+            <div className="w-full overflow-hidden rounded-radius-12 border-2 border-border-grey bg-surface-background transition-colors group-hover:border-action-primary-border group-focus-visible:border-action-primary-border">
               <Media
                 kind="image"
                 src={log.src}
@@ -68,14 +83,17 @@ export default function ProcessLogCards({ logs }) {
         return (
           <li key={log.title} className="m-0">
             {log.href ? (
-              <a
-                href={log.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`flex flex-col items-center gap-space-8 no-underline transition-transform hover:-translate-y-0.5 ${FOCUS_CLASS}`}
+              // A React Router Link, not an <a>: `log.href` is an in-app
+              // route (/work/artifakt/process/:log) that frames the document
+              // with the site nav, so it should navigate in-app and keep the
+              // reader's history. Router links also get the base path applied
+              // by the router itself, so no assetUrl here.
+              <Link
+                to={log.href}
+                className={`group flex flex-col items-center gap-space-8 no-underline ${FOCUS_CLASS}`}
               >
                 {card}
-              </a>
+              </Link>
             ) : (
               <div className="flex flex-col items-center gap-space-8">{card}</div>
             )}

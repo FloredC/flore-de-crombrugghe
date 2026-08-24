@@ -8,7 +8,9 @@ import SectionHeader from './SectionHeader'
 import Prose from './Prose'
 import Media from './Media'
 import MediaStage from './MediaStage'
+import AvatarNote from './AvatarNote'
 import ProcessLogCards from './ProcessLogCards'
+import LanguageRiverEmbed from '../LanguageRiverEmbed'
 import { ARTIFAKT } from '../../lib/caseStudyLayout'
 import { getProjectBySlug, contactSection } from '../../lib/content'
 
@@ -75,7 +77,11 @@ function ProcessLogLink({ label, href }) {
 
   if (href) {
     return (
-      <ButtonLink variant="tertiary" href={href} target="_blank" rel="noopener noreferrer">
+      // `to`, not `href`: these are in-app routes now, so React Router handles
+      // them and the reader keeps their history. Same tab -- the log page
+      // carries its own "Back to Artifakt", so a new tab would strand them
+      // with two ways back and neither being the browser's.
+      <ButtonLink variant="tertiary" to={href}>
         {content}
       </ButtonLink>
     )
@@ -91,12 +97,17 @@ function ProcessLogLink({ label, href }) {
   )
 }
 
-// One section's text column: title, prose, and the optional process-log link.
-// Capped at the page's 720 measure wherever it appears -- including inside the
-// side-by-side layout, where it is the left column.
-function SectionText({ title, prose, link }) {
+// One section's text column: prose, and the optional process-log link.
+//
+// THE TITLE IS NO LONGER IN HERE for `split` sections -- Flore's layout pass,
+// 2026-08-24. Figma now draws the section title across the FULL content column
+// (1283) with the two-column row beneath it (e.g. nodes 4897:4566, 4897:4585,
+// 4897:4596), rather than sitting inside the narrow text column. So the title
+// is hoisted into Section and this renders body copy only when it is a column
+// of a split. Stack sections still pass a title and get the old behaviour.
+function SectionText({ title, prose, link, measure = ARTIFAKT.prose }) {
   return (
-    <div className={`flex w-full flex-col gap-space-24 ${ARTIFAKT.prose}`}>
+    <div className={`flex w-full flex-col gap-space-24 ${measure}`}>
       {title && <SectionHeader title={title} />}
       {prose && <Prose blocks={prose} />}
       {link && <ProcessLogLink {...link} />}
@@ -104,39 +115,28 @@ function SectionText({ title, prose, link }) {
   )
 }
 
-// The media placements the frame uses. Each is a width and an alignment;
-// MediaStage supplies the tinted panel and the caption, so the treatment stays
-// identical and only the box changes.
-//
-// `aside-right` is the exception and is NOT in this map -- see SCREENCAST below.
+// The media placements that are NOT a split column. `split` is handled in
+// Section directly, since it is a row rather than a width.
 const MEDIA_LAYOUT = {
   // 1282 in Figma == the full content column. No cap: `wide` on this site
   // means "whatever Container gives you", so it can't drift from the
   // homepage's content width by carrying a duplicate number.
   full: 'w-full',
-  // 720, the same measure as the prose above it, so the stage lines up with
-  // the text on both edges rather than only the left.
-  'text-width': ARTIFAKT.prose,
   // Full width, and the only place on the page with a large radius.
   showcase: 'w-full',
 }
 
 // SCREENCAST: the one asset on this page that is NOT a tinted MediaStage.
 //
-// Caught on a re-read of the frame after the rest of the page was built, and
-// worth recording because it looked right and was wrong. Every other asset here
-// sits on a `surface-highlight` panel at radius 4 with the caption inside it.
-// The screencast's own Figma container (node 4897:4548) binds
-// Colors/Surface/canvas, Radius/24, and puts its caption BELOW the box (node
-// 4897:4555, at y=674 outside the 666-tall container) -- all three different.
-//
-// That is not an inconsistency in the design, it is a borrowed component:
-// those are exactly the values PitchPivot's FeatureBlock media uses, and the
-// caption is even the same format ("state 21.08.26" against that page's
+// Every other asset sits on a `surface-highlight` panel with the caption inside
+// it. The screencast's own Figma container (node 4897:4548) binds
+// Colors/Surface/canvas, Radius/24, and puts its caption BELOW the box -- all
+// three different. That is not an inconsistency in the design, it is a borrowed
+// component: those are exactly the values PitchPivot's FeatureBlock media uses,
+// and the caption is even the same format ("state 21.08.26" against that page's
 // "'Impact Framing' state 28.10.25"). It is the site's product-screencast
-// treatment, reused. So this renders through plain `Media` with FeatureBlock's
-// own class and Media's own caption slot, rather than being re-skinned to
-// match its neighbours on this page.
+// treatment, reused, so it renders through plain `Media` rather than being
+// re-skinned to match its neighbours here.
 const SCREENCAST_CLASS = 'border border-text-primary bg-surface-canvas'
 
 // SCREENCAST SIZE: capped by HEIGHT, not width -- Flore, 2026-08-21 ("make the
@@ -144,102 +144,169 @@ const SCREENCAST_CLASS = 'border border-text-primary bg-surface-canvas'
 //
 // The asset is 1206x2622, a ratio of 0.46, so a width cap sets the height four
 // times over: at Figma's 400 wide it drew 870 tall and filled a laptop viewport
-// on its own. Capping the width alone can't express "fits on screen", because
-// the height it produces depends entirely on the file's proportions -- the same
-// 400 would be a squat box for a landscape asset.
+// on its own. Capping the width alone cannot express "fits on screen", because
+// the height it produces depends entirely on the file's proportions.
 //
-// So the real constraint is the height, and the width is DERIVED from it:
+// So the real constraint is the height and the width is DERIVED from it:
 // `80svh * (1206/2622)` is the width at which the video is exactly 80svh tall.
 // `min()` keeps Figma's 400 as the ceiling, so this only ever makes the video
-// smaller than designed, never larger -- on a very tall window it simply
-// renders at 400 as drawn.
-//
-// 80, not 100: the caption sits below the frame and the section needs to read
-// as part of a page rather than as a slide. At a 900px-tall window this lands
-// the video at ~331x720 with the caption visible under it.
+// smaller than designed, never larger.
 //
 // `svh` not `vh`, the same call the map's crop viewport made (see
 // PanZoomContainer): `vh` tracks the LARGEST mobile viewport and changes as the
-// browser chrome collapses during scroll, which would resize the video mid-
-// scroll. `svh` is the small-viewport unit and holds still.
+// browser chrome collapses during scroll, which would resize the video
+// mid-scroll. `svh` is the small-viewport unit and holds still.
 const SCREENCAST_MAX_WIDTH = 'min(400px, calc(80svh * 1206 / 2622))'
 
-// The two `beside` sections' media column.
+// EQUAL COLUMNS -- Flore, 2026-08-24: "text and image are on an equal width
+// (fill)".
 //
-// 523 is Figma's own width for both (nodes 4897:4601 / 4897:4612) and it was
-// not being reached: the media took `flex-1` of whatever the 720 text column
-// left, which at the 1184 content width is 424. Flore asked for the user-
-// testing image to be bigger, 2026-08-21; setting the media to its designed
-// width rather than a leftover share is what does that, and it fixes the
-// against-the-defaults image in the same move -- they are one pattern and
-// Figma draws them the same size, so sizing only one would split them.
+// This replaces a `beside` layout where the media took a fixed 523 and the text
+// took whatever was left. Figma now splits the row down the middle: the text
+// container and the media container are both ~590-621 of a 1283 row with a
+// 40-60 gap (nodes 4928:2854, 4930:3000, 4929:2893, 4929:2907, 4930:2993).
 //
-// The TEXT is what flexes now instead. It keeps `max-w-[720px]` and simply
-// resolves narrower here (1184 - 523 - 40 = 621), which is the right way round:
-// the evidence has a designed size, the reading measure has a maximum.
-const BESIDE_MEDIA = 'lg:w-[523px] lg:shrink-0'
+// `grid-cols-2` rather than two flex bases, because "equal" is the rule and a
+// grid states it once. At the 1184 content width each column resolves to 572,
+// against Figma's ~600 -- the difference is entirely our 1184 content column
+// against their 1283, not a divergence in the split.
+//
+// `items-center`: Figma vertically centres the media in most of these rows
+// (the reveal container sits at y=138 of a 724-tall row, user testing at y=138
+// of 750). The media is the shorter element in every one, so centring reads as
+// deliberate where top-pinning would leave a hole under it.
+//
+// Stacks below `lg`. At tablet widths neither column has room, and the prose is
+// the one that has to stay readable.
+const SPLIT_ROW = 'grid grid-cols-1 items-center gap-space-40 lg:grid-cols-2'
 
 function Section({ section }) {
-  const { title, prose, link, media, embeds, logs } = section
-  const beside = media?.layout === 'beside'
+  const { title, note, prose, link, media, extraMedia, embed, logs } = section
+  const split = media?.layout === 'split'
+
+  // WHERE THE TITLE SITS, derived rather than declared per section.
+  //
+  // Figma's rule, read off the frame: a section with a Guide puts its title
+  // across the full content column, because the Guide sits beneath it spanning
+  // the same width (nodes 4897:4566 + 4928:2830, 4897:4585 + 4929:2894, and so
+  // on). A section WITHOUT a Guide keeps the title inside its text column --
+  // "What it is" is a split row and still draws its title at the column's 621.5
+  // (node 4897:4538 is a child of the 4897:4537 text container).
+  //
+  // Derived from `note` instead of a per-section flag so the two can't drift:
+  // adding a Guide to a section moves its title, which is what the frame would
+  // do too. If that correlation ever breaks in the design, this becomes an
+  // explicit field -- flagged rather than assumed permanent.
+  const fullWidthTitle = split && Boolean(note)
+
+  // The media in a split column is usually a tinted stage, but the screencast
+  // keeps the site's product-video treatment instead (see SCREENCAST_CLASS).
+  //
+  // GUARDED ON `split`, not just on `media?.plain`. Computing this
+  // unconditionally called stageProps(undefined) for the three sections that
+  // have no media at all (reflection, how-i-worked, and the split-less what),
+  // which threw on destructuring and blanked the whole page. Worth recording
+  // because `npm run build` passed clean -- an undefined identifier and a
+  // runtime destructure both survive the bundler and only appear in a browser.
+  const splitMedia = !split ? null : media.plain ? (
+    // `mx-auto`: Figma centres the video inside its half of the row (the
+    // 400-wide video+label sits at x=110.75 of the 621.5 wrapper, node
+    // 4928:2802). Left-aligned it drifted away from the column it shares.
+    <div className="mx-auto w-full" style={{ maxWidth: SCREENCAST_MAX_WIDTH }}>
+      <Media {...stageProps(media)} className={SCREENCAST_CLASS} />
+    </div>
+  ) : (
+    <MediaStage {...stageProps(media)} className="w-full" radius={media?.radius} tint={media?.tint} />
+  )
 
   return (
     <section data-section={section.id}>
-      <Container>
-        {beside ? (
-          // The page's side-by-side. Text left, media right, matching the two
-          // sections Figma draws this way (nodes 4897:4594 / 4897:4606) -- the
-          // media is the shorter element in both, so `items-center` keeps it
-          // optically level with the paragraph block rather than top-pinned.
-          //
-          // Stacks below `lg`: at tablet widths a 523 stage beside a 720
-          // measure leaves neither enough room, and the prose is the thing
-          // that must stay readable.
-          <div className="flex flex-col gap-space-40 lg:flex-row lg:items-center lg:gap-space-40">
-            <SectionText title={title} prose={prose} link={link} />
-            <MediaStage {...stageProps(media)} className={`w-full ${BESIDE_MEDIA}`} />
+      {/* The whole section is one column: full-width title, then the Guide,
+          then the content row. `gap-space-40` is the step Figma puts between
+          all three (title ends y=90, bubble starts y=130, row starts y=308
+          with the bubble 138 tall). */}
+      <Container className="flex flex-col gap-space-40">
+        {/* FULL-WIDTH TITLE on split sections. On stack sections the title
+            stays inside the text column, where Figma still draws it. */}
+        {title && fullWidthTitle && <SectionHeader title={title} />}
+
+        {/* The Guide. Right-aligned to the content edge by AvatarNote itself,
+            which is where Figma puts it (the 520-wide instance sits at x=763 of
+            the 1283 row, so its right edge and the page margin are one line).
+            Reuses the PitchPivot component unchanged -- Flore asked for "the
+            avatar idea that is present on pitchpivot as well", so this is
+            deliberately the same component and not a lookalike. */}
+        {note && <AvatarNote body={note} />}
+
+        {split ? (
+          <div className={SPLIT_ROW}>
+            {/* `measure=""` drops the 720 cap: inside a split the column IS the
+                measure, and a cap wider than the column would do nothing except
+                mislead the next reader. The title rides along here whenever it
+                is not hoisted above. */}
+            <SectionText title={fullWidthTitle ? null : title} prose={prose} link={link} measure="" />
+            {splitMedia}
           </div>
         ) : (
-          <div className="flex flex-col gap-space-40">
+          <>
             {(title || prose || link) && (
-              <SectionText title={title} prose={prose} link={link} />
-            )}
-
-            {media?.layout === 'aside-right' ? (
-              // 400 wide and pushed to the right margin (node 4897:4547).
-              // `ml-auto` rather than a float or a grid: it is one item in a
-              // column, and auto-margin is the one mechanism that doesn't need
-              // a second element to align against.
-              <div className="ml-auto w-full" style={{ maxWidth: SCREENCAST_MAX_WIDTH }}>
-                <Media {...stageProps(media)} className={SCREENCAST_CLASS} />
-              </div>
-            ) : (
-              media && (
-                <MediaStage
-                  {...stageProps(media)}
-                  className={MEDIA_LAYOUT[media.layout]}
-                  // The showcase panel is the page's one large radius, sampled
-                  // from the gallery frame (node 4897:4639). Every other stage
-                  // keeps MediaStage's default.
-                  radius={media.layout === 'showcase' ? 'rounded-radius-60' : undefined}
-                />
-              )
-            )}
-
-            {/* The reveal section's two pipeline embeds. Same stage treatment
-                as every other asset, each rendering the site's dashed
-                ImagePlaceholder inside because no `src` is set yet. */}
-            {embeds?.map((embed) => (
-              <MediaStage
-                key={embed.label}
-                {...stageProps(embed)}
-                className={MEDIA_LAYOUT[embed.layout]}
+              <SectionText
+                title={title}
+                prose={prose}
+                link={link}
+                // A section can ask for the narrower closing measure. See
+                // ARTIFAKT.proseNarrow.
+                measure={section.measure === 'narrow' ? ARTIFAKT.proseNarrow : undefined}
               />
-            ))}
-
-            {logs && <ProcessLogCards logs={logs} />}
-          </div>
+            )}
+            {media && (
+              <MediaStage
+                {...stageProps(media)}
+                className={MEDIA_LAYOUT[media.layout]}
+                // The showcase panel is the page's one large radius, sampled
+                // from the gallery frame (node 4897:4639).
+                radius={media.layout === 'showcase' ? 'rounded-radius-60' : media.radius}
+                tint={media.tint}
+              />
+            )}
+          </>
         )}
+
+        {/* A second, full-width asset BELOW the split row. Today this is the
+            artist roster under "What it is" (node 4931:4526), which Figma puts
+            inside that section rather than in one of its own.
+            Separate from `media` rather than making `media` an array: the two
+            are different jobs -- `media` is the split row's right column and
+            `extraMedia` spans the section under it -- and an array would make
+            the placement depend on index position. */}
+        {extraMedia && (
+          <MediaStage
+            {...stageProps(extraMedia)}
+            className={MEDIA_LAYOUT[extraMedia.layout]}
+            radius={extraMedia.radius}
+            tint={extraMedia.tint}
+          />
+        )}
+
+        {/* The reveal section's pipeline diagram. Full width, below the split
+            row -- Figma keeps it outside the row (node 4897:4571 sits at the
+            section's own x=171, not in a column).
+
+            RENDERED THROUGH LanguageRiverEmbed, which is badly named for this
+            but is exactly the right component: it is the site's
+            self-measuring same-origin iframe, and its whole job is to read the
+            embedded document's real scrollHeight and size the frame to it.
+            That is what this diagram needs -- its height changes as the step
+            row and the note grid rewrap, so neither a fixed height nor an
+            aspect-ratio box is correct.
+
+            Reused rather than copied so the focus-ring handling and the
+            ResizeObserver logic stay in one place. Worth renaming to something
+            like `MeasuredEmbed` now that it has a second call site -- flagged
+            rather than done here, since it would touch the homepage. */}
+        {embed && <LanguageRiverEmbed src={embed.src} title={embed.title} />}
+
+        {logs && <ProcessLogCards logs={logs} />}
       </Container>
     </section>
   )
@@ -248,7 +315,7 @@ function Section({ section }) {
 // `layout` is this file's concern, not Media's -- strip it before the rest of
 // the media object is spread onto MediaStage, so an unknown DOM attribute
 // never reaches an element.
-function stageProps({ layout, ...rest }) {
+function stageProps({ layout, plain, radius, tint, ...rest }) {
   return rest
 }
 
