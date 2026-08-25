@@ -63,6 +63,36 @@
  *
  * The 402 frame only draws the hero and the Work section, so the below-`xl`
  * values outside Work are ratio-derived rather than measured.
+ *
+ * ---------------------------------------------------------------------------
+ * THREE DENSITY REGIMES (added 2026-08-25)
+ *
+ * `xl:` used to mean "the desktop design" and `2xl` was unused, which had one
+ * consequence worth stating plainly: from 1280px upward the page was PIXEL-
+ * IDENTICAL. The Artifakt card measured 977x882 at a 1440 viewport and 977x887
+ * at 1728 -- a 5px difference, and all of that was the type clamp. The 1622
+ * frame's rhythm was simply being applied to laptops.
+ *
+ * So the prefixes were re-pointed rather than new ones invented:
+ *
+ *   (bare)   phone/tablet. Untouched by this pass.
+ *   xl:      1280+, LAPTOP. The design's proportions at laptop density.
+ *   2xl:     1600+, LARGE DESKTOP. The Figma frame, restored exactly.
+ *
+ * Every generous value that used to sit on `xl:` now sits on `2xl:`; where the
+ * bare (phone) value would have been too tight to inherit at laptop, an
+ * explicit `xl:` step was inserted instead. So `2xl:` reads as "restore the
+ * measured Figma value" and any `xl:` without a `2xl:` partner means the two
+ * regimes deliberately agree.
+ *
+ * WHY VIEWPORT HEIGHT IS THE REAL VARIABLE HERE, even though these are all
+ * width queries: card height was constant across the whole desktop range while
+ * laptop viewport height is not -- roughly 670 (1366x768) to 870 (1512x982),
+ * against 1000-1300 on an external monitor. The same 882px card is 0.74 of one
+ * screen and 1.12 of the other. The widths in these queries are a proxy for
+ * "this is a laptop", which is the only signal CSS gives us that correlates
+ * with the height without querying it directly. ProjectMedia carries the one
+ * genuine height query, because media is the term big enough to need it.
  */
 
 // --- Page rhythm ------------------------------------------------------------
@@ -70,7 +100,7 @@
 // 200 between every top-level section, and between the last section and the
 // footer -- a real auto-layout gap on Figma's `Vertical container`, uniform
 // across all four boundaries.
-export const PAGE_STACK = 'flex flex-col gap-space-140 xl:gap-space-200'
+export const PAGE_STACK = 'flex flex-col gap-space-140 2xl:gap-space-200'
 
 // Work opens with 80px of top padding inside its 1280 frame; Approach and
 // About have none; Contact is padded 120 top and bottom.
@@ -81,8 +111,8 @@ export const PAGE_STACK = 'flex flex-col gap-space-140 xl:gap-space-200'
 // Figma frame's own number, so the gap is one token rather than two magic
 // numbers. Deliberately below the ~0.7 mobile ratio the rest of the page
 // uses: this is a boundary against the map, not between two text sections.
-export const SECTION_PAD_WORK = 'pt-space-40 xl:pt-space-80'
-export const SECTION_PAD_CONTACT = 'py-space-64 xl:py-space-120'
+export const SECTION_PAD_WORK = 'pt-space-40 xl:pt-space-60 2xl:pt-space-80'
+export const SECTION_PAD_CONTACT = 'py-space-64 xl:py-space-80 2xl:py-space-120'
 
 // Section header -> first content block, and Wayfinding row -> the content
 // beneath it. Both uniform across every section.
@@ -91,15 +121,15 @@ export const SECTION_PAD_CONTACT = 'py-space-64 xl:py-space-120'
 // call: those were slips, not intent -- match everywhere else. Deliberately
 // one constant each rather than a per-zone pair, so the two can't drift apart
 // again without someone choosing to split them.
-export const SECTION_HEADER_GAP = 'gap-space-32 xl:gap-space-48'
+export const SECTION_HEADER_GAP = 'gap-space-32 xl:gap-space-40 2xl:gap-space-48'
 // Mobile 48 measured off the 402 frame (breadcrumb h=69.44 -> content y=117.44),
 // where it happens to be *wider* than the 32 guessed here before, not tighter.
-export const WAYFINDING_GAP = 'gap-space-48 xl:gap-space-64'
+export const WAYFINDING_GAP = 'gap-space-48 2xl:gap-space-64'
 
 // Gap between subsections within one section. Work is spaced as widely as the
 // top-level sections themselves (200); Approach and About use 120.
-export const SUBSECTION_GAP_WORK = 'flex flex-col gap-space-140 xl:gap-space-200'
-export const SUBSECTION_GAP_EDITORIAL = 'flex flex-col gap-space-80 xl:gap-space-120'
+export const SUBSECTION_GAP_WORK = 'flex flex-col gap-space-140 2xl:gap-space-200'
+export const SUBSECTION_GAP_EDITORIAL = 'flex flex-col gap-space-80 2xl:gap-space-120'
 
 // --- Work grids (6 col / 60px gutter) ---------------------------------------
 
@@ -107,20 +137,50 @@ export const SUBSECTION_GAP_EDITORIAL = 'flex flex-col gap-space-80 xl:gap-space
 // The 6-column grid engages at lg with a 40px gutter rather than 60: at the
 // tablet container (942 at a 1024 viewport) a 60 gutter leaves 97px columns,
 // and the gutter starts to rival the column. 40 keeps col at 123.67.
+//
+// SPAN 4, NOT 5, ACROSS THE LAPTOP BAND. Flore's call, 2026-08-25, and it is
+// the single biggest change in this pass. The featured card was 977x882 at a
+// 1440x790 viewport: put its top edge at the top of the screen and its bottom
+// edge lands at 868 with 790 of viewport. It could not be seen as one object,
+// which is exactly why it read as a page section rather than as a card.
+//
+// The card contains a 447px-tall artwork, and that number is the whole reason.
+// It could have been fixed by shrinking the artwork inside a full-width card
+// -- but the media's internal proportions (artwork 90.10% of the frame, tint
+// mat 55px each side) are designed, and shrinking the artwork to ~72% to buy
+// height would have spent the design to fix the layout. Dropping a column
+// spends the layout instead: 977 -> 649 wide, and because the frame height is
+// a RATIO of the card width (see ProjectMedia), the media follows to 399 with
+// every internal ratio untouched. Card height lands around 0.8 of a laptop
+// screen, so the card, its whitespace and the next row are co-visible.
+//
+// Hierarchy survives: 649 still clears the 2-up card (562) and the 3-up (355),
+// which is what makes it the featured one. It leaves two empty columns to the
+// right at laptop -- deliberate, not an oversight. A card with air beside it is
+// a card; a card that fills its row is a section.
+//
+// At 2xl it goes back to 5 and the Figma frame is reproduced exactly.
 export const WORK_FEATURED_ROW = 'lg:grid lg:grid-cols-6 lg:gap-x-space-40 xl:gap-x-space-60'
-export const WORK_FEATURED_CARD = 'lg:col-span-5'
+export const WORK_FEATURED_CARD = 'lg:col-span-5 xl:col-span-4 2xl:col-span-5'
 
 // The featured card sits 100 above the 2-up row beneath it (node 2928:73715).
 // Was 200, matching the top-level section gap; Flore tightened it to 100 on
 // 2026-08-04 so the Work rows read as one group rather than three sections.
-export const WORK_FEATURED_STACK = 'flex flex-col gap-space-72 xl:gap-space-100'
+// 72 at laptop: at a 790px viewport a 100px gap is an eighth of the screen
+// spent on nothing, and this gap is precisely what has to be crossed for the
+// next card to become visible alongside the one above it.
+export const WORK_FEATURED_STACK = 'flex flex-col gap-space-72 2xl:gap-space-100'
 
 // 2-up: span 6 each. Row gap 100 against a 60 gutter (node 2928:73730) --
 // still more vertical air than horizontal, but the same 100 as the featured
 // stack above it, so every Work row-to-row gap on the page is one number.
 // Was 140; Flore aligned it with the projects on 2026-08-04.
+// 72 at laptop, matching WORK_FEATURED_STACK -- the "one number for every Work
+// row-to-row gap" property holds in both regimes, which is the point of it.
+// The COLUMN gutter deliberately does not move: it is what the card widths are
+// derived from, so changing it would resize every card sideways as well.
 export const WORK_GRID_2UP =
-  'grid grid-cols-1 gap-y-space-72 sm:grid-cols-2 sm:gap-x-space-24 lg:gap-x-space-40 xl:gap-x-space-60 xl:gap-y-space-100'
+  'grid grid-cols-1 gap-y-space-72 sm:grid-cols-2 sm:gap-x-space-24 lg:gap-x-space-40 xl:gap-x-space-60 2xl:gap-y-space-100'
 
 // 3-up: span 4 each -- but only from xl. It used to go 3-up at lg, which
 // inverted the zone hierarchy this file exists to protect: at a 1024 viewport
@@ -211,7 +271,7 @@ export const ASIDE_COLLAGE_GRID = `${COLLAGE_BASE} gap-space-32 sm:gap-y-space-1
 // chart is a 1184-wide block butting up against 320-wide cards, and at 120 the
 // two read as one run of content. Deliberately not SUBSECTION_GAP_EDITORIAL --
 // that one also spaces Approach's two subsections, which weren't asked to move.
-export const ABOUT_CONTENT_GAP = 'flex flex-col gap-space-120 xl:gap-space-160'
+export const ABOUT_CONTENT_GAP = 'flex flex-col gap-space-120 2xl:gap-space-160'
 
 // --- Editorial card width ---------------------------------------------------
 //
@@ -311,7 +371,7 @@ export const MEDIA_COLLAGE = [
   // Swisscovid: right half, inset 100, and dropped below its row-mate -- 200 at
   // tablet against 300 at desktop, since the same drop against a shorter
   // container reads as a hole rather than a stagger.
-  `${NUDGE_OUT} lg:col-start-7 lg:col-span-6 lg:row-start-2 lg:justify-self-start lg:ml-space-100 lg:mt-space-200 xl:mt-space-300 ${EDITORIAL_CARD}`,
+  `${NUDGE_OUT} lg:col-start-7 lg:col-span-6 lg:row-start-2 lg:justify-self-start lg:ml-space-100 lg:mt-space-200 2xl:mt-space-300 ${EDITORIAL_CARD}`,
   // 10-year quiz: back to the left half, same 100 inset. Right-hand column at
   // 2-up; lg:mt-space-32 below already overrides the stagger, no reset needed.
   `${STAGGER_RIGHT} ${NUDGE_IN} lg:col-start-1 lg:col-span-6 lg:row-start-3 lg:justify-self-start lg:ml-space-100 lg:mt-space-32 ${EDITORIAL_CARD}`,

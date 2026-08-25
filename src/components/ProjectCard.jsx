@@ -25,7 +25,7 @@ export default function ProjectCard({ project, size = 'medium' }) {
       // `group` so the media frame can lift on hover of the card as a whole
       // (see ProjectMedia); `relative` so the CTA's stretched ::after below
       // has this article as its containing block.
-      className="group relative flex w-full min-w-0 scroll-mt-space-120 flex-col gap-space-16 xl:gap-space-24"
+      className="group relative flex w-full min-w-0 scroll-mt-space-120 flex-col gap-space-16 2xl:gap-space-24"
     >
       <ProjectMedia
         src={assetUrl(project.thumbnail)}
@@ -35,7 +35,15 @@ export default function ProjectCard({ project, size = 'medium' }) {
         tint={mediaTints[project.slug] || DEFAULT_MEDIA_TINT}
         badge={<Badge status={project.status} />}
       />
-      <div data-component="project-card-content" className="flex flex-1 flex-col gap-space-16">
+      <div
+        data-component="project-card-content"
+        // 12 at laptop, 16 at both ends. Card-internal gaps are small terms --
+        // this pass takes about 30px total out of the text block, against the
+        // 200 the media and the column drop take out. They are here so the card
+        // tightens as one object rather than having a compact photo stapled to
+        // a roomy caption.
+        className="flex flex-1 flex-col gap-space-16 xl:gap-space-12 2xl:gap-space-16"
+      >
         {/* Text block structure follows Figma's own wrappers (node 2928:78172):
             meta sits 8px above a title+description pair that are 4px apart.
             Flat siblings at a single gap read as three equally-spaced lines;
@@ -67,7 +75,7 @@ export default function ProjectCard({ project, size = 'medium' }) {
         {/* Figma puts a flex-1 spacer between the text and the button, so the
             two 16px container gaps compose to a 32px minimum before the
             spacer grows. mt-auto + pt reproduces that without an empty node. */}
-        <div className="mt-auto pt-space-16">
+        <div className="mt-auto pt-space-16 xl:pt-space-12 2xl:pt-space-16">
           {/* Sampled from Figma's real ProjectCard (Size=large): CTA is the
               filled primary button, not a plain text link -- corrects the
               "tertiary" variant used before, which CLAUDE.md's naming table

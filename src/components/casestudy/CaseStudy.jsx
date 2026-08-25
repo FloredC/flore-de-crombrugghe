@@ -172,7 +172,7 @@ export default function CaseStudy({ data }) {
 
       {/* 5 — The Two Core Features. The page's one side-by-side pattern. */}
       <div className={`flex flex-col ${SPACE.chapter}`}>
-        <Block width="wide" className="flex flex-col gap-space-64 xl:gap-space-80">
+        <Block width="wide" className="flex flex-col gap-space-64 2xl:gap-space-80">
           <SectionHeader title={data.features.title} />
           {data.features.items.map((feature) => (
             // BOTH MEDIA ON THE RIGHT, text on the left — Flore, 2026-08-14.

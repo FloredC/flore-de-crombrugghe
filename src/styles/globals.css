@@ -66,6 +66,58 @@
   font-display: swap;
 }
 
+/* ---------------------------------------------------------------------------
+   Reading density
+   ---------------------------------------------------------------------------
+   The line-height of the site's reading size (`text-body-lg` -- project card
+   descriptions and every case-study paragraph). A RATIO, not a length, so it
+   still scales with the reader's own font size; only the ratio steps.
+
+   Why this is a custom property rather than a value in tailwind.config.js:
+   Tailwind's `fontSize` tuples take one line-height per token and have no
+   breakpoint form, so the only alternatives were a `2xl:leading-*` utility at
+   all seventeen call sites -- which is exactly the per-call-site drift the type
+   tokens exist to prevent -- or this. Declared here rather than in
+   styles/tokens/*.css because those three files are a verbatim Figma export and
+   must not gain variables Figma has never heard of (see CLAUDE.md).
+
+   The steps, and why the laptop band is the odd one out:
+
+     < 1280   1.6   phone/tablet. Flore's call, 2026-08-04, for the long card
+                    descriptions -- a deliberate divergence from Figma's 1.5.
+     1280+    1.55  laptop. Reading size steps to 18px there, and a tighter
+                    ratio is what buys the density: at 20px/1.6 a 790px laptop
+                    viewport holds ~25 lines of prose and a case-study chapter
+                    never fits in one screen; 18/1.55 holds ~28.
+
+                    1.5 first -- Figma's own value -- and Flore found it too
+                    narrow (2026-08-25). 1.55 keeps most of the gain. Worth
+                    knowing why 1.5 read tight HERE when Figma sets it: the
+                    Artifakt page runs an unusually long measure (a 720px
+                    column, ~74 characters), and a long line needs more leading
+                    for the eye to find the next one. If this wants loosening
+                    again, the alternative is narrowing that measure instead --
+                    see ARTIFAKT.prose in lib/caseStudyLayout.js.
+     1600+    1.6   large desktop. The generous setting, restored intact.
+
+   Min-width only, so it cascades the same way the `xl:`/`2xl:` utilities do.
+--------------------------------------------------------------------------- */
+:root {
+  --leading-reading: 1.6;
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --leading-reading: 1.55;
+  }
+}
+
+@media (min-width: 1600px) {
+  :root {
+    --leading-reading: 1.6;
+  }
+}
+
 * {
   box-sizing: border-box;
 }

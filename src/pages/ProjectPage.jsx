@@ -69,7 +69,7 @@ export default function ProjectPage() {
         // so the grid now starts at the very top of the page and the nav floats
         // over it, which is what a full-bleed stage is for.
         // pb still matches the homepage's last-section-to-footer gap (200).
-        <main className="pb-space-140 xl:pb-space-200">
+        <main className="pb-space-140 2xl:pb-space-200">
           <CaseStudyLayout data={caseStudy} />
         </main>
       ) : (

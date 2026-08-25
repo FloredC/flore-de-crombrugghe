@@ -71,9 +71,9 @@ export default function Frame({
     <Block
       width="bleed"
       as="header"
-      className={`${stage} pb-space-64 pt-space-160 xl:pb-space-120 xl:pt-space-280`}
+      className={`${stage} pb-space-64 pt-space-160 xl:pb-space-80 xl:pt-space-200 2xl:pb-space-120 2xl:pt-space-280`}
     >
-      <Container className="flex flex-col gap-space-40 xl:gap-space-64">
+      <Container className="flex flex-col gap-space-40 2xl:gap-space-64">
         {/* The "You are here: Lab — Own products" breadcrumb was removed here on
             2026-08-14 — Flore: it reads out of context on a subpage. The map
             wayfinding belongs to the homepage, where the district illustration
