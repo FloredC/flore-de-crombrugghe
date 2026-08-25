@@ -24,7 +24,7 @@
 // the SPACER, and the frame still falls back to its content height. There is
 // no arrangement of viewport and card width that can clip a caption.
 //
-// --- The frame ratio and the artwork width, per size -------------------------
+// --- The four media variables, per size and per regime ----------------------
 //
 // ONE TABLE, and it has to be these literal class strings rather than values a
 // helper composes: Tailwind scans this file as raw TEXT, so a class name that
@@ -34,67 +34,128 @@
 // so the numbers are documented here and stated once.
 //
 //   --media-frame      the spacer's padding-top: frame height as % of card width
+//   --media-frame-cap  the same height, capped against the VIEWPORT height
 //   --media-image      the artwork's width as a % of the frame width
-//   --media-frame-cap  a ceiling on the frame height against the VIEWPORT height
-//   --media-image-cap  the matching ceiling on the artwork width
+//   --media-image-cap  the same width, capped against the viewport height
 //
 // The frame renders `min(--media-frame, --media-frame-cap)` and the artwork
-// `min(--media-image, --media-image-cap)`.
+// `min(--media-image, --media-image-cap)`, so whichever constraint is tighter
+// wins and the other is inert.
 //
-// THE RATIOS ARE THE FIGMA VALUES AT EVERY WIDTH AND HEIGHT. No regime changes
-// them:
+// --- Base: the Figma frame, and what `2xl` restores -------------------------
 //
 //   large   frame  61.4335%  (600 of 976.667)   image  90.10%  (880 of 976.667)
 //   medium  frame  68.5053%  (385 of 562)       image  94.47%  (530.904 of 562)
 //   small   frame 108.5527%  (385 of 354.667)   image  90.23%  (320 of 354.667)
 //
-// --- Why there is no laptop ratio (Flore, 2026-08-25) -----------------------
+// --- Laptop, 2026-08-25 -----------------------------------------------------
 //
-// There briefly was one. The 2026-08-25 density pass shortened `medium` and
-// `small` to 58.5%/92.0% across the laptop band, with the artwork width pulled
-// down in step (94.47% -> 80.77%, 90.23% -> 76.46%) so the tinted mat kept its
-// proportion. `large` kept its ratio but picked up a 48svh height cap, which
-// amounted to the same thing at laptop heights: at 1440x790 it rendered a 49.3%
-// frame with the artwork at 72.3% instead of 90.1%.
+// The three sizes get there by different routes, and the split is deliberate.
 //
-// Flore reverted all of it. The reasoning is worth keeping because the tradeoff
-// is real and someone will be tempted again:
+// LARGE takes it out of the VIEWPORT HEIGHT, not the ratio. It already narrows
+// from 5 grid columns to 4 at `xl` (see WORK_FEATURED_CARD in lib/layout.js),
+// which takes the card 977 -> 769 and the frame 600 -> 472 for free, with every
+// internal proportion intact. That alone lands it at 0.94 of a 1440x790
+// viewport -- it fits, but only just, and at 1366x670 it does not fit at all,
+// because the card's height does not know how tall the window is. So the cap
+// drops to 48svh across the laptop band and becomes the binding constraint
+// there: the featured card is height-driven at laptop sizes and width-driven
+// everywhere else. 0.82 at 1440x790, 0.88 at 1366x670, and it stays under 1.0
+// on any laptop shape rather than on the ones we happened to test.
 //
-// A card gets shorter either by being NARROWER or by holding LESS ARTWORK
-// relative to its own width. The first preserves the media's design and is what
-// the featured card now does -- it drops from 5 grid columns to 4 at `xl` (see
-// WORK_FEATURED_CARD in lib/layout.js), and because the frame height is a ratio
-// OF THE CARD WIDTH, a narrower card is a shorter frame for free. The second
-// buys height by spending the design: the artwork shrinks inside a widening
-// band of flat tint, and on `small` in particular that band is what its
-// deliberate right-bleeding crop reads against.
+// MEDIUM and SMALL keep their card widths (the 2-up and 3-up grids are not
+// changing), so the ratio itself is the only lever. Each pair is derived rather
+// than picked -- hold the artwork's share of the frame height constant and the
+// tinted mat scales with everything else:
 //
-// So the featured card takes the first route and the 2-up/3-up cards take
-// neither. Their widths are fixed by their grids and their ratios are now fixed
-// here, which leaves only the type scale and the card's own gaps -- about 45px
-// each. That is the honest cost of the constraint, and it is a choice rather
-// than an oversight: `medium` sits at 0.87 of a 1440x790 viewport where the
-// laptop ratio had it at 0.79.
+//   medium  frame 68.5053% -> 58.5%   (385 -> 329 on a 562 card)
+//           image 94.47%   -> 80.77%  (531 -> 454 wide, so 270 tall --
+//                                      270/329 = 316/385, the share preserved)
+//   small   frame 108.5527% -> 92.0%  (385 -> 327 on a 355 card)
+//           image 90.23%    -> 76.46% (320 -> 271 wide, 236 tall, same share)
 //
-// --- The caps are now a safety ceiling, not a density lever -----------------
+// So their artwork does shrink, by about 15% -- but the mat around it shrinks
+// with it rather than swelling, which is what would have turned the card into a
+// small photo floating on a big colour field.
 //
-// 100svh, flat, at every width: media may never be taller than the screen.
-// Nothing else. At the Figma card widths the tallest frame is 600, so this
-// cannot fire above a 600px-tall viewport and does not touch any laptop.
+// --- Why these are custom properties ----------------------------------------
 //
-// It is kept rather than deleted because it is the one statement here that
-// stays true whatever the ratios above become, and because a frame taller than
-// the window is the failure it exists to make impossible. Do NOT reach for it
-// as a way to compact the cards -- lowering it is exactly the artwork-shrinking
-// route Flore rejected above, just expressed in a different unit.
+// All four land in `style` (percentages of a box Tailwind has no utility for,
+// and a `min()` of two different units), and an inline style has no
+// breakpoints. Switching the VARIABLE through the normal `xl:`/`2xl:` variants
+// keeps the regime change in the same system as every other responsive value on
+// the site, instead of a media query buried in a component.
+const MEDIA_VARS = {
+  large:
+    '[--media-frame:61.4335%] [--media-image:90.10%] ' +
+    '[--media-frame-cap:100svh] [--media-image-cap:146.7svh] ' +
+    'xl:[--media-frame-cap:48svh] xl:[--media-image-cap:70.4svh] ' +
+    '2xl:[--media-frame-cap:62svh] 2xl:[--media-image-cap:90.93svh]',
+  medium:
+    '[--media-frame:68.5053%] [--media-image:94.47%] ' +
+    '[--media-frame-cap:100svh] [--media-image-cap:137.9svh] ' +
+    'xl:[--media-frame:58.5%] xl:[--media-image:80.77%] ' +
+    'xl:[--media-frame-cap:40svh] xl:[--media-image-cap:55.16svh] ' +
+    '2xl:[--media-frame:68.5053%] 2xl:[--media-image:94.47%]',
+  small:
+    '[--media-frame:108.5527%] [--media-image:90.23%] ' +
+    '[--media-frame-cap:100svh] [--media-image-cap:83.1svh] ' +
+    'xl:[--media-frame:92.0%] xl:[--media-image:76.46%] ' +
+    'xl:[--media-frame-cap:40svh] xl:[--media-image-cap:33.25svh] ' +
+    '2xl:[--media-frame:108.5527%] 2xl:[--media-image:90.23%]',
+}
+
+// --- The viewport-height caps, and why they are the numbers they are --------
 //
-// The image caps are DERIVED, never chosen: the frame cap times the artwork's
-// own width-to-frame-height ratio, so if the ceiling ever does fire the artwork
-// shrinks in step with the frame instead of overflowing it.
+// This is the one place on the homepage that asks how TALL the window is, and
+// media is the only term big enough to deserve it: 52-68% of a project card.
 //
-//   large   100 x (880 / 600)      = 146.7svh
-//   medium  100 x (530.904 / 385)  = 137.9svh
-//   small   100 x (320 / 385)      =  83.1svh
+// Everything else in this pass is a width query, because width is the only
+// signal CSS gives that says "this is a laptop". But the quantity that decides
+// whether a card reads as a contained object is its height against the
+// viewport's, and those two had come apart badly: card height was CONSTANT from
+// 1280px up, while laptop viewport height runs ~670 (1366x768) to ~870
+// (1512x982) against 1000-1300 on an external monitor. The identical card was
+// 0.74 of one screen and 1.12 of another. Same shape as the Artifakt
+// screencast's own cap (see SCREENCAST_MAX_WIDTH in CaseStudyArtifakt.jsx) --
+// this is that idea applied to the card grid.
+//
+//              < xl      xl (laptop)   2xl (large desktop)
+//   large      100svh      48svh          62svh
+//   medium     100svh      40svh          40svh
+//   small      100svh      40svh          40svh
+//
+// 100svh BELOW `xl` MEANS "NO CAP", written as a real limit rather than as a
+// disable. Below the desktop grid a card is full-bleed and its media is
+// naturally proportional to a narrow card -- the phone layout is drawn that way
+// in Figma and Flore asked for it to stay. Left ungated, 40svh cut the small
+// card's media from 402 to 316 at the 402 frame, which is a mobile change
+// nobody asked for. 100svh still says something true (media may never exceed
+// the whole screen) and can only ever fire in a viewport shorter than the card
+// is wide.
+//
+// THE 2xl CAPS ARE CHOSEN NOT TO BITE ON A TALL WINDOW, which is what keeps the
+// promise that 1600px+ is unchanged: large's frame is 600 at the desktop card
+// width, so 62svh only starts cutting below a 968px-tall viewport; medium/small
+// are 385, so 40svh cuts below 963. Above that the ratio wins and the Figma
+// frame renders exactly -- verified at 1728x1000, where every measurement is
+// identical to the pre-2026-08-25 page. On a genuinely SHORT window at 1600px+
+// the cap does engage, and that is intended: a card taller than the screen is
+// the problem being fixed, and it is not a problem only laptops have.
+//
+// The image caps are DERIVED, never chosen: frame cap x the artwork's own
+// width-to-frame-height ratio, so the artwork shrinks in step with the frame
+// instead of overflowing it.
+//
+//                base 100svh x r      xl              2xl
+//   large  r =  880/600   = 1.467    146.7   70.4    90.93
+//   medium r = 530.904/385 = 1.379    137.9   55.16    -
+//   small  r =  320/385    = 0.831     83.1   33.25    -
+//
+// One image cap covers BOTH ratio regimes for medium and small, because their
+// laptop pairs scale image width and frame height by the same factor --
+// medium's 80.77/58.5 = 1.3806 against the base 530.904/385 = 1.379. Re-derive
+// if a laptop ratio is ever retuned on its own.
 //
 // Safe by construction: a cap only ever shrinks the SPACER, and the frame is a
 // grid cell holding both the spacer and the content, so it still falls back to
@@ -104,22 +165,6 @@
 // PanZoomContainer): `vh` tracks the LARGEST mobile viewport and changes as the
 // browser chrome collapses during scroll, which would resize the artwork
 // mid-scroll.
-//
-// Custom properties rather than plain inline values because the frame and
-// artwork percentages resolve against a box Tailwind has no utility for, and
-// the `min()` mixes two units. Keeping them as variables also means a future
-// regime, if one is ever wanted, is added here rather than by threading a prop.
-const MEDIA_VARS = {
-  large:
-    '[--media-frame:61.4335%] [--media-image:90.10%] ' +
-    '[--media-frame-cap:100svh] [--media-image-cap:146.7svh]',
-  medium:
-    '[--media-frame:68.5053%] [--media-image:94.47%] ' +
-    '[--media-frame-cap:100svh] [--media-image-cap:137.9svh]',
-  small:
-    '[--media-frame:108.5527%] [--media-image:90.23%] ' +
-    '[--media-frame-cap:100svh] [--media-image-cap:83.1svh]',
-}
 
 const IMAGE_ASPECT = {
   large: '880 / 447',

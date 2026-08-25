@@ -409,32 +409,12 @@ one exception to "sizes live in the token": it reads `--leading-reading` from
 `globals.css`, because Tailwind's `fontSize` tuples take one line-height and
 have no breakpoint form.
 
-**Viewport HEIGHT is what the width queries stand in for.** Card height was
-constant across the desktop range while laptop viewport height runs ~670 to ~870
-against 1000-1300 on a monitor, so the same card was 0.74 of one screen and 1.12
-of another. Width is the only signal CSS gives that says "this is a laptop".
-
-**Project thumbnail ratios are fixed at the Figma values, everywhere** (Flore,
-2026-08-25 — decided twice, so don't re-propose it). A card gets shorter either
-by being NARROWER or by holding LESS ARTWORK relative to its width, and only the
-first is allowed: the featured card drops a grid column at `xl` and its frame
-follows for free, because frame height is a ratio OF card width. The second
-route buys height by spending the design — the artwork shrinks inside a widening
-band of flat tint — and was tried and reverted, in both its forms (a laptop
-ratio on the 2-up/3-up cards, and an `svh` height cap on the featured card,
-which overrode the ratio it was supposedly preserving).
-
-The consequence, and it is a real one: the 2-up and 3-up cards have their widths
-fixed by their grids and their ratios fixed here, so they gain only what the
-type scale and card gaps give them. At 1366x670 the featured card is 1.11 of the
-viewport and the 2-up card 1.03 — neither fits that laptop. Known and accepted;
-fixing it needs one of the two reverted levers.
-
-`ProjectMedia`'s `svh` cap therefore still exists but is flat 100svh — a safety
-ceiling ("media may never be taller than the screen") that cannot fire above a
-600px-tall viewport. It is NOT a density lever. The case-study `Media`'s 88svh
-cap is the one height query that actually fires; it caps display size only and
-never touches an asset's aspect.
+**Viewport HEIGHT is the variable the width queries stand in for.** Card height
+was constant across the desktop range while laptop viewport height runs ~670 to
+~870 against 1000-1300 on a monitor, so the same card was 0.74 of one screen and
+1.12 of another. `ProjectMedia` and the case-study `Media` each carry one `svh`
+cap for this — media is the only term big enough to deserve a height query, and
+those caps are set so they cannot bite on a tall window.
 
 **Known step at the 1600 boundary:** the featured card spans 4 of 6 Work columns
 at laptop and 5 at `2xl`, so it jumps 769 -> 977 wide when a window crosses 1600.
