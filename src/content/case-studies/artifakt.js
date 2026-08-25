@@ -173,7 +173,7 @@ export default {
       prose: [
         {
           type: 'p',
-          text: 'You type a word, trace a loose scaffold by hand, and your line comes back transformed through the style of a real artist. The AI does the finishing — it never touches the making.',
+          text: 'You type a word, **trace a loose scaffold by hand**, and your line comes back transformed through the style of a real artist. **The AI does the finishing — it never touches the making.**',
         },
         {
           // THE STAKES, added by Flore in the frame 2026-08-24 after the
@@ -186,7 +186,7 @@ export default {
           // deliberately does NOT live here: it motivates the reveal, so it
           // opens that section instead.
           type: 'p',
-          text: 'Digital gifting has an effort problem. When sending costs nothing, it reads as nothing — and the obvious fix is to make something by hand, except most adults stopped drawing at eleven and have no intention of starting again in front of someone they love.',
+          text: 'Digital gifting has an effort problem. When sending costs nothing, it reads as nothing — and the obvious fix is to make something by hand, except **most adults stopped drawing at eleven** and have no intention of starting again in front of someone they love.',
         },
       ],
       // FULL CONTENT WIDTH, matching Figma's 1282 stage (node 4897:4533).
@@ -311,7 +311,7 @@ export default {
           // "Six interviews", not Figma's "Six Interviews" — a mid-sentence
           // capital, treated as a typo rather than carried over.
           type: 'p',
-          text: 'Six interviews across ages 28 to 75 sharpened it — people aren’t reluctant, they’re blocked by *what* to make, not *how*.',
+          text: '**Six interviews across ages 28 to 75** sharpened it — people aren’t reluctant, they’re blocked by *what* to make, not *how*.',
         },
         {
           type: 'p',
@@ -323,7 +323,7 @@ export default {
         },
         {
           type: 'p',
-          text: 'That’s why the reveal became my first design focus, ahead of the drawing tool itself — and it turned the project’s question into a narrower one:',
+          text: 'That’s why **the reveal became my first design focus**, ahead of the drawing tool itself — and it turned the project’s question into a narrower one:',
         },
         {
           type: 'aside',
@@ -353,7 +353,7 @@ export default {
     {
       id: 'reveal',
       title: 'The reveal: separating structure from style',
-      note: 'With the reveal being the primary design focus, I knew the result had to strike the right balance between the trace and the artist’s style, but this proved to be more complicated than I had anticipated.',
+      note: 'With the reveal as the main design focus, finding the right balance between the trace and the artist’s style proved more challenging than expected.',
       // OPENS ON THE OTHER HALF OF THE STAKES — added 2026-08-24. "Made by
       // you" establishes that digital gifting has an effort problem; this is
       // the consequence that makes the reveal necessary, and it was the one
@@ -383,7 +383,7 @@ export default {
           text: '**Lesson:** when the same trade-off appears at every value you test, the problem is structural. Change the shape of the pipeline, not the dial.',
         },
       ],
-      link: { label: 'The 14 phases behind this pipeline', href: `${LOGS}/prompting-process` },
+
       // NEW ASSET, 2026-08-24: the art-class metaphor the prose describes —
       // look at art, study the technique, study the subject, then make your own
       // without the reference in front of you. It is the clearest statement of
@@ -419,6 +419,11 @@ export default {
       // document rather than re-shot.
       pipeline: {
         title: 'How the pipeline works',
+        // MOVED HERE FROM THE SECTION, 2026-08-25 (Flore, and matched in the
+        // frame). It used to sit in the reveal's text column, where it read as
+        // a footnote to the prose; it is really the diagram's own "there is
+        // more behind this", so it belongs under the diagram.
+        link: { label: 'The 14 phases behind this pipeline', href: `${LOGS}/prompting-process` },
         intro:
           'Artifakt uses a two-pass image-to-image pipeline. The user draws a sketch; that sketch is preprocessed per artist, then sent through two sequential API calls to fal.ai’s Flux Dev model. Pass 1 establishes gesture and material quality. Pass 2 applies the artist’s full visual identity on top.',
         // `accent` marks the two generative passes — the point of the diagram.
@@ -445,7 +450,7 @@ export default {
               aspect: '1704 / 1800',
               alt: 'The sketch after cleaning and per-artist line-weight adjustment',
               caption:
-                'Sketch cleaned and line-weight adjusted per artist before the model sees it. Think of it as defining brushes in Procreate — but to support the unique gesture of each artist.',
+                'Sketch cleaned and line weight adjusted per artist before the model sees it. Think of it as defining brushes in a drawing tool — but to support the unique gesture of each artist.',
             },
           },
           {
@@ -514,11 +519,10 @@ export default {
     {
       id: 'scaffold',
       title: 'The scaffold: leaving room to make it yours',
-      // DRAFT — my wording, not pulled from Figma, where this bubble still
-      // holds the section's moved opening line. Written to the same contract as
-      // the other Guides (react, don't set up) and needs Flore's sign-off plus
-      // a sync back into the frame.
-      note: 'I built the scaffold to help. Testers experienced it as being told what to draw.',
+      // Flore's wording, 2026-08-25, and synced into the frame. Replaced a
+      // draft of mine; it keeps the same contract as the other Guides — react
+      // to the prose rather than set it up.
+      note: 'I built the scaffold to guide users, but testers felt it was telling them what to draw.',
       prose: [
         { type: 'p', text: 'Testing gave me the sharpest question of the project:' },
         {
@@ -574,7 +578,7 @@ export default {
     {
       id: 'defaults',
       title: 'Designing against the model’s defaults',
-      note: 'Creating this tool with the goal of featuring “less generic” content by showcasing female and/or queer artists challenged me to think more deeply about how the source images were represented from the start and later reinterpreted.',
+      note: 'Showcasing female and queer artists made representation a key design consideration, from how source images were selected to how they were reinterpreted.',
       prose: [
         {
           // "strong", not "swimmer" — changed in the frame on 2026-08-24, and
@@ -587,16 +591,16 @@ export default {
           type: 'list',
           items: [
             '**Doesn’t work:** negation. "Not white" or "diverse" collapses straight back to the average.',
-            '**Works:** explicit attribute language — skin tone, hair, body type — plus foreground anchoring and a rotating subject pool so one default can’t dominate.',
+            '**Works:** **explicit attribute language** — skin tone, hair, body type — plus foreground anchoring and a rotating subject pool so one default can’t dominate.',
           ],
         },
         {
           type: 'p',
-          text: 'The harder part wasn’t technical. More than once the model suggested a better-known reference — Picasso came up repeatedly — because it would generate more reliably and save me hours. It was right about that. But if the roster collapses to whoever the model already knows best, the product argues the opposite of what it exists to do.',
+          text: 'The harder part wasn’t technical. The model often suggested well-known artists like Picasso because they were easier to generate and saved me hours of work. But **choosing artists simply because the model knew them better would undermine the purpose of the product**.',
         },
         {
           type: 'aside',
-          text: '**Honest note:** I built this as a remediation pass after noticing skewed output, not as a first-draft requirement. Given that representation is a stated value here, it should have been in the first prompt I wrote, not the twentieth.',
+          text: '**Note:** I built this as a remediation pass after noticing skewed output, not as a first-draft requirement. Given that representation is a stated value here, it should have been in the first prompt I wrote, not the twentieth.',
         },
       ],
       // POINTS AT THE SAME DOCUMENT as "The 14 phases behind this pipeline"
@@ -617,6 +621,20 @@ export default {
       // space and the page jumps when the real one arrives.
       media: {
         layout: 'split',
+        // CAPPED at Figma's own drawn width -- Flore, 2026-08-25: too big in
+        // code. Uncapped it filled the 572 split column and rendered 524x834,
+        // taller than the prose beside it; the frame insets it to 333.5 in a
+        // 635.5 stage (node 4929:2870), so the surrounding tint is part of the
+        // composition rather than a margin to be squeezed out.
+        //
+        // The ABSOLUTE Figma width, not the same percentage of our narrower
+        // column. That is the convention the rest of this page already follows
+        // -- the hero phone is 272 and the screencast 400, both drawn sizes --
+        // and it keeps the artwork legible at the size it was designed at.
+        //
+        // Note this number moved: it was 394.79 earlier the same day. Re-read
+        // rather than assumed, which is the only reason the cap is right.
+        maxWidth: 334,
         src: `${M}/against-the-defaults.png`,
         label: '[ against-the-defaults.png — 691x1100 before/after grid ]',
         placeholderAspect: '691 / 1100',
@@ -644,11 +662,11 @@ export default {
         },
         {
           type: 'p',
-          text: 'That gap is the finding. People don’t understand why they’re drawing until they see what it becomes, so the product front-loads uncertainty and back-loads the payoff. A consistently good ending doesn’t validate the path to it.',
+          text: '**That gap is the finding.** People don’t understand why they’re drawing until they see what it becomes, so the product front-loads uncertainty and back-loads the payoff. A consistently good ending doesn’t validate the path to it.',
         },
         {
           type: 'p',
-          text: 'It also answered the question I started with. Ownership turned out to be partial: testers said *it’s my idea* but not *my drawing*. For a scaffold model, that’s the honest ceiling — and it was enough to make them want to send it.',
+          text: 'It also answered the question I started with. **Ownership turned out to be partial**: testers said *it’s my idea* but not *my drawing*. For a scaffold model, that’s the honest ceiling — and it was enough to make them want to send it.',
         },
         {
           type: 'p',
@@ -656,7 +674,7 @@ export default {
         },
         {
           type: 'p',
-          text: 'Still unresolved: the artist bio — the most culturally meaningful moment in the product — was the least discovered thing in it. And erase clears everything, where testers expected stroke-by-stroke undo.',
+          text: 'Still unresolved: **the artist bio** — the most culturally meaningful moment in the product — was the least discovered thing in it. And erase clears everything, where testers expected stroke-by-stroke undo.',
         },
         {
           type: 'p',
@@ -691,11 +709,11 @@ export default {
       prose: [
         {
           type: 'p',
-          text: 'Everything that moved this project forward came from changing the question rather than the setting. Two passes instead of a better strength value. Subtraction instead of a better prompt. Each time I got there after two or three rounds of tuning that felt productive and weren’t.',
+          text: 'Everything that moved this project forward came from **changing the question rather than the setting**. **Two passes instead of a better strength value. Subtraction instead of a better prompt.** Each time I got there after two or three rounds of tuning that felt productive and weren’t.',
         },
         {
           type: 'p',
-          text: 'AI output arrives looking finished, which makes it easy to accept as a given and tune around the edges. The design work is in refusing that — knowing what the model is actually doing, and noticing where its convenience is quietly making a decision that should have been yours.',
+          text: '**AI output arrives looking finished**, which makes it easy to accept as a given and tune around the edges. The design work is in **refusing that** — knowing what the model is actually doing, and noticing where its convenience is quietly making a decision that should have been yours.',
         },
       ],
     },

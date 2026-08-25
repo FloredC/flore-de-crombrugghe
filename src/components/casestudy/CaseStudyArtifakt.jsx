@@ -11,7 +11,7 @@ import MediaStage from './MediaStage'
 import AvatarNote from './AvatarNote'
 import ProcessLogCards from './ProcessLogCards'
 import PipelineDiagram from './PipelineDiagram'
-import { ARTIFAKT } from '../../lib/caseStudyLayout'
+import { ARTIFAKT, SPACE } from '../../lib/caseStudyLayout'
 import { getProjectBySlug, contactSection } from '../../lib/content'
 
 /**
@@ -319,7 +319,14 @@ export default function CaseStudyArtifakt({ data }) {
   const nextProject = data.onward?.slug ? getProjectBySlug(data.onward.slug) : null
 
   return (
-    <article data-component="case-study" data-slug={data.slug} className="flex flex-col gap-space-80">
+    // `SPACE.break` rather than a flat 80 -- Flore, 2026-08-25: the chapters
+    // needed more air, matching PitchPivot. That step is 80 at small sizes and
+    // 140 from `xl`, so the two case studies now breathe identically and a
+    // future change to the rhythm reaches both from one place.
+    //
+    // The flat 80 came from the Figma frame, which draws 40 of padding on each
+    // side of a section. Deliberately overridden in code, not in the design.
+    <article data-component="case-study" data-slug={data.slug} className={`flex flex-col ${SPACE.break}`}>
       <Frame {...data.frame} />
 
       {data.body.map((section) => (

@@ -1,4 +1,4 @@
-import { useParams, Navigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation, Navigate } from 'react-router-dom'
 import Nav from '../components/Nav'
 import { getProjectBySlug, getProcessLogs } from '../lib/content'
 import assetUrl from '../lib/assetUrl'
@@ -52,10 +52,56 @@ import assetUrl from '../lib/assetUrl'
  * the line to change — hence the note.
  */
 const NAV_CLEARANCE = 108
+
+/**
+ * Back to the case study AT THE POSITION THE READER LEFT IT -- Flore,
+ * 2026-08-25: "the user should get back to where they were in the case study
+ * instead of the top of the page."
+ *
+ * `<Link to="/work/artifakt">` pushes a NEW history entry, which renders the
+ * case study fresh at scroll 0. There are three ways to fix that and only one
+ * is right:
+ *
+ *   an anchor per link   `/work/artifakt#reveal` etc. Wrong: the same log is
+ *                        reachable from several places (the six cards and three
+ *                        inline links), so one log would need to know which of
+ *                        them the reader used.
+ *   save scroll manually  storing a number and restoring it after render. This
+ *                        is reimplementing something the browser already does,
+ *                        and doing it worse -- it has to guess when the page has
+ *                        finished growing.
+ *   go BACK in history    the entry the reader came from still holds its scroll
+ *                        position, and the browser restores it. Nothing to store.
+ *
+ * So a plain left-click calls `navigate(-1)` instead of pushing. The <Link>
+ * keeps its real `to`, which matters for three cases the handler deliberately
+ * does not touch: modified clicks (cmd/ctrl/shift/alt or middle button) so
+ * "open in new tab" still works, and a reader who arrived at the log DIRECTLY
+ * -- from a shared URL or a refresh -- where there is no history entry to go
+ * back to and `navigate(-1)` would leave the site entirely.
+ *
+ * `location.key` is React Router's marker for that last case: it is the string
+ * "default" only on the first entry of a session.
+ */
+function useBackToCaseStudy() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const hasHistory = location.key !== 'default'
+
+  return (event) => {
+    // Let the browser handle anything that isn't a plain primary-button click.
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return
+    if (!hasHistory) return // no entry to return to; the Link's own `to` applies
+    event.preventDefault()
+    navigate(-1)
+  }
+}
 export default function ProcessLogPage() {
   const { slug, log } = useParams()
   const project = getProjectBySlug(slug)
   const entry = getProcessLogs(slug).find((candidate) => candidate.slug === log)
+  // Must run before the early return below -- hooks cannot be conditional.
+  const onBackClick = useBackToCaseStudy()
 
   // An unknown project or log falls back to the case study if there is one,
   // and to the homepage otherwise -- never a blank frame.
@@ -68,7 +114,11 @@ export default function ProcessLogPage() {
 
   return (
     <>
-      <Nav backTo={`/work/${slug}`} backLabel={`Back to ${projectName}`} />
+      <Nav
+        backTo={`/work/${slug}`}
+        backLabel={`Back to ${projectName}`}
+        onBackClick={onBackClick}
+      />
       <main>
         <iframe
           src={assetUrl(`/process/${slug}/${entry.file}`)}

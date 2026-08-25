@@ -13,9 +13,11 @@ import {
   safePolygon,
   FloatingPortal,
 } from '@floating-ui/react'
+import { Link } from 'react-router-dom'
 import Media from './Media'
 import { FOCUS_CLASS } from '../ButtonLink'
 import emphasise from '../../lib/emphasis'
+import { ArrowRightIcon } from '../icons'
 
 /**
  * The two-pass image pipeline: five steps with hover/click previews, plus a
@@ -92,7 +94,7 @@ import emphasise from '../../lib/emphasis'
 const STEP_BASE =
   'relative flex-1 basis-[190px] min-w-[190px] max-w-[280px] cursor-pointer rounded-radius-12 border bg-surface-background px-space-14 py-space-12 text-left'
 
-export default function PipelineDiagram({ title, intro, steps, notes }) {
+export default function PipelineDiagram({ title, intro, steps, notes, link }) {
   // Index of the open step, or null. Lifted here so only one can be open.
   const [openIndex, setOpenIndex] = useState(null)
 
@@ -127,6 +129,22 @@ export default function PipelineDiagram({ title, intro, steps, notes }) {
           />
         ))}
       </div>
+
+      {/* The "there is more behind this" link, under the diagram it belongs to
+          -- Flore, 2026-08-25, and matched in the frame. It used to live in the
+          reveal section's text column, where it read as a footnote to the prose
+          rather than as the diagram's own way in to the full record.
+          Same tertiary treatment as the other process-log links; a real Link
+          because it navigates in-app. */}
+      {link && (
+        <Link
+          to={link.href}
+          className="inline-flex items-center gap-1 self-start text-body font-bold tracking-[0.02em] text-action-link-foreground no-underline hover:text-action-link-foreground-hover"
+        >
+          {link.label}
+          <ArrowRightIcon width={20} height={20} />
+        </Link>
+      )}
 
       {notes?.length > 0 && (
         <ul className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(230px,1fr))] gap-space-12 p-0">
