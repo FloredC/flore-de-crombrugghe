@@ -10,7 +10,7 @@ import Media from './Media'
 import MediaStage from './MediaStage'
 import AvatarNote from './AvatarNote'
 import ProcessLogCards from './ProcessLogCards'
-import LanguageRiverEmbed from '../LanguageRiverEmbed'
+import PipelineDiagram from './PipelineDiagram'
 import { ARTIFAKT } from '../../lib/caseStudyLayout'
 import { getProjectBySlug, contactSection } from '../../lib/content'
 
@@ -181,7 +181,7 @@ const SCREENCAST_MAX_WIDTH = 'min(400px, calc(80svh * 1206 / 2622))'
 const SPLIT_ROW = 'grid grid-cols-1 items-center gap-space-40 lg:grid-cols-2'
 
 function Section({ section }) {
-  const { title, note, prose, link, media, extraMedia, embed, logs } = section
+  const { title, note, prose, link, media, extraMedia, pipeline, logs } = section
   const split = media?.layout === 'split'
 
   // WHERE THE TITLE SITS, derived rather than declared per section.
@@ -292,19 +292,12 @@ function Section({ section }) {
             row -- Figma keeps it outside the row (node 4897:4571 sits at the
             section's own x=171, not in a column).
 
-            RENDERED THROUGH LanguageRiverEmbed, which is badly named for this
-            but is exactly the right component: it is the site's
-            self-measuring same-origin iframe, and its whole job is to read the
-            embedded document's real scrollHeight and size the frame to it.
-            That is what this diagram needs -- its height changes as the step
-            row and the note grid rewrap, so neither a fixed height nor an
-            aspect-ratio box is correct.
-
-            Reused rather than copied so the focus-ring handling and the
-            ResizeObserver logic stay in one place. Worth renaming to something
-            like `MeasuredEmbed` now that it has a second call site -- flagged
-            rather than done here, since it would touch the homepage. */}
-        {embed && <LanguageRiverEmbed src={embed.src} title={embed.title} />}
+            A REAL COMPONENT, not an iframe, since 2026-08-25. It was
+            LanguageRiverEmbed pointing at a standalone HTML document, and the
+            step previews were clipped by the frame's bottom edge -- an iframe
+            is a clipping boundary and a popover cannot escape one. See
+            PipelineDiagram.jsx. */}
+        {pipeline && <PipelineDiagram {...pipeline} />}
 
         {logs && <ProcessLogCards logs={logs} />}
       </Container>

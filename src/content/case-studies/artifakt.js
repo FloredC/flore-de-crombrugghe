@@ -405,19 +405,108 @@ export default {
       // gap is visible and self-documenting on the page rather than an
       // unexplained blank — the same way PitchPivot handled its missing assets.
       // `src` is deliberately absent; that is what triggers the placeholder.
-      // ONE EMBED, not two. Figma drew a second stage labelled "Two-pass
+      // ONE DIAGRAM, not two. Figma drew a second stage labelled "Two-pass
       // progression strip"; Flore confirmed on 2026-08-24 that was a mistake
       // and only this one is real. Remove the second stage from the frame too,
       // or a re-pull reintroduces an empty panel.
       //
-      // A LIVE IFRAME, not an image: the diagram reflows (the five pipeline
-      // steps wrap, the note grid re-columns) so it stays legible in a half
-      // column and on a phone, which a flattened PNG of a 5-across diagram
-      // cannot do. Source is public/embeds/artifakt/how-the-pipeline-works.html
-      // — self-contained, no CDN, using the HK Grotesk copies in public/fonts.
-      embed: {
-        src: '/embeds/artifakt/how-the-pipeline-works.html',
-        title: 'How the Artifakt image pipeline works',
+      // IN-PAGE, not an iframe, since 2026-08-25 — see PipelineDiagram.jsx.
+      // The previews were being clipped by the frame's bottom edge, which is
+      // not something an embed can be fixed out of.
+      //
+      // Copy and preview captions came from Flore's own prompting-process log,
+      // where this diagram originates; the images were extracted from the same
+      // document rather than re-shot.
+      pipeline: {
+        title: 'How the pipeline works',
+        intro:
+          'Artifakt uses a two-pass image-to-image pipeline. The user draws a sketch; that sketch is preprocessed per artist, then sent through two sequential API calls to fal.ai’s Flux Dev model. Pass 1 establishes gesture and material quality. Pass 2 applies the artist’s full visual identity on top.',
+        // `accent` marks the two generative passes — the point of the diagram.
+        // A flag rather than an index so reordering can't recolour the wrong box.
+        steps: [
+          {
+            kicker: 'Input',
+            name: 'User sketch',
+            detail: 'Canvas drawing, 768px wide',
+            preview: {
+              src: `${M}/pipeline/input.png`,
+              aspect: '1704 / 1800',
+              alt: 'A loose pencil sketch on the Artifakt canvas',
+              caption: 'Raw user sketch on the canvas — loose pencil lines, no colour.',
+            },
+          },
+          {
+            kicker: 'Pre-process',
+            name: 'Sketch config',
+            detail: 'Line width, invert, flood fill — per artist',
+            accent: true,
+            preview: {
+              src: `${M}/pipeline/pre-process.png`,
+              aspect: '1704 / 1800',
+              alt: 'The sketch after cleaning and per-artist line-weight adjustment',
+              caption:
+                'Sketch cleaned and line-weight adjusted per artist before the model sees it. Think of it as defining brushes in Procreate — but to support the unique gesture of each artist.',
+            },
+          },
+          {
+            kicker: 'Pass 1',
+            name: 'Gesture + Material',
+            detail: 'Flux Dev img2img · no artist name · strength 0.75–0.82',
+            accent: true,
+            preview: {
+              src: `${M}/pipeline/pass-1.png`,
+              aspect: '1704 / 1800',
+              alt: 'Output of pass one: strong form and material, no artist colour yet',
+              caption: 'Gesture and material established — strong form, no artist colour yet.',
+            },
+          },
+          {
+            kicker: 'Pass 2',
+            name: 'Finish',
+            detail: 'Flux Dev img2img · artist name + colour + motifs · strength 0.70–0.90',
+            accent: true,
+            preview: {
+              src: `${M}/pipeline/pass-2.png`,
+              aspect: '1704 / 1800',
+              alt: 'Output of pass two: the artist’s colour, motifs and full style applied',
+              caption: 'Artist identity applied — colour, motifs and full style on top.',
+            },
+          },
+          {
+            kicker: 'Output',
+            name: 'Artwork',
+            detail: 'Displayed on Screen 2',
+            preview: {
+              src: `${M}/pipeline/output.png`,
+              aspect: '1704 / 1800',
+              alt: 'The finished artwork as shown on Screen 2',
+              caption: 'Final artwork shown on Screen 2.',
+            },
+          },
+        ],
+        // FOUR NOTES, NOT THE SOURCE DOCUMENT'S SIX. "Why two passes?" is said
+        // by the prose directly beside this diagram, so repeating it makes the
+        // figure argue with the page; "Scaffold (Screen 1)" belongs to "The
+        // scaffold" section further down, where the reader meets that problem.
+        // The four kept are the ones the prose does not cover.
+        notes: [
+          {
+            title: 'What strength controls',
+            body: 'Strength is how much the model departs from the input image. 0.0 returns the input untouched; 1.0 ignores it entirely. Higher strength means more artistic transformation but looser sketch fidelity.',
+          },
+          {
+            title: 'Why results vary',
+            body: 'Diffusion models start from random noise (the seed), so two identical prompts produce different results every time. That variance compounds across two passes. The regenerate button on the canvas lets users reroll.',
+          },
+          {
+            title: 'Model used',
+            body: 'fal-ai/flux/dev/image-to-image. 28 inference steps, guidance scale 3.5. No LoRA fine-tuning — style is driven entirely through prompting. LoRA is a future option once the artist roster is validated.',
+          },
+          {
+            title: 'Cost',
+            body: 'Two API calls per artist per generation. All five artists are generated in parallel when Screen 2 loads. Regenerating one artist is two fresh calls for that artist only.',
+          },
+        ],
       },
     },
 
