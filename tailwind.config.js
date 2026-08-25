@@ -87,7 +87,7 @@ export default {
           'clamp(1.75rem, max(min(1.63554rem + 0.4556vw, 2rem), -1.07377rem + 3.2787vw), 2.25rem)',
           { lineHeight: '1.4' },
         ],
-        // 24 -> 26 -> 28. At 402 this lands on Figma's Desktop/h3, which is what
+        // 24 -> 24 -> 28. At 402 this lands on Figma's Desktop/h3, which is what
         // the mobile card titles actually use -- same pixels, different style
         // name.
         //
@@ -95,16 +95,20 @@ export default {
         // the card titles read too heavy at the wide breakpoints. Deliberate
         // divergence from the file; don't restore 32 on the next sample.
         //
-        // The laptop plateau is only 26, not lower: the card title is 4% of a
-        // project card's height, so shrinking it buys almost nothing and costs
-        // the card its anchor. Card height comes from the media (see
-        // ProjectMedia) and the page rhythm (see lib/layout.js), not from here.
+        // FLAT 24 FROM 402 TO 1500, so this token has no ramp until the last
+        // stretch. That is a real decision, not a degenerate case: the card
+        // title only grows for the large-desktop frame, and everywhere else it
+        // is one size. It was 26 for a day (Flore, 2026-08-25: still too big on
+        // a laptop) and the step to 24 is what actually reads.
+        //
+        // The tradeoff, so it can be reversed knowingly: the title-to-body
+        // ratio drops to 24/18 = 1.33 at laptop against 28/20 = 1.40 at the
+        // desktop frame, so the title carries slightly less weight over its own
+        // description. 25 is the value that holds 1.4 exactly if that ever
+        // matters more than the absolute size.
         //
         // Shared by the ProjectCard titles and the Contact "Say Hi!" heading.
-        h2: [
-          'clamp(1.5rem, max(min(1.44277rem + 0.2278vw, 1.625rem), 0.08811rem + 1.6393vw), 1.75rem)',
-          { lineHeight: '1.4' },
-        ],
+        h2: ['clamp(1.5rem, max(1.5rem, -1.57377rem + 3.2787vw), 1.75rem)', { lineHeight: '1.4' }],
         // 16 -> 18 -> 20 (Mobile/body -> laptop -> Desktop/body-lg).
         //
         // The site's reading size: card descriptions and every case-study

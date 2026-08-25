@@ -42,7 +42,7 @@ const DESKTOP = 1622
 const TOKENS = {
   display: [36, 42, 48],
   h1: [28, 32, 36],
-  h2: [24, 26, 28],
+  h2: [24, 24, 28],
   'body-lg': [16, 18, 20],
   body: [16, 17, 18],
   'body-sm': [14, 15, 16],
@@ -55,6 +55,10 @@ const rem = (px) => `${+(px / ROOT).toFixed(5)}rem`
 function segment(x1, y1, x2, y2) {
   const slope = (y2 - y1) / (x2 - x1)
   const intercept = y1 - slope * x1
+  // A flat segment is legal and meaningful -- it says the token holds one size
+  // from the mobile frame all the way to the plateau -- but `x + 0vw` is noise
+  // in the output, so emit the constant.
+  if (slope === 0) return rem(y1)
   return `${+(intercept / ROOT).toFixed(5)}rem + ${+(slope * 100).toFixed(4)}vw`
 }
 
@@ -63,7 +67,8 @@ function segment(x1, y1, x2, y2) {
 function resolve(expr, vw) {
   const line = (s) => {
     const [a, b] = s.split(' + ')
-    return parseFloat(a) * ROOT + (parseFloat(b) / 100) * vw
+    // A flat segment has no vw term (see `segment` above).
+    return parseFloat(a) * ROOT + (b ? (parseFloat(b) / 100) * vw : 0)
   }
   const { mobile, a, plateau, c, desktop } = expr
   return Math.min(Math.max(Math.max(Math.min(line(a), plateau), line(c)), mobile), desktop)
@@ -74,9 +79,10 @@ const CHECK = [402, 768, 1024, 1280, 1366, 1440, 1512, 1560, 1600, 1622, 1920]
 for (const [name, [mobile, plateau, desktop]] of Object.entries(TOKENS)) {
   const a = segment(MOBILE, mobile, KNEE, plateau)
   const c = segment(PLATEAU_END, plateau, DESKTOP, desktop)
-  console.log(
-    `${name}:\n  'clamp(${rem(mobile)}, max(min(${a}, ${rem(plateau)}), ${c}), ${rem(desktop)})',`,
-  )
+  // `min(A, plateau)` collapses to the plateau when A is flat -- same result,
+  // and the shorter form is the one worth reading in the config.
+  const ramp = mobile === plateau ? rem(plateau) : `min(${a}, ${rem(plateau)})`
+  console.log(`${name}:\n  'clamp(${rem(mobile)}, max(${ramp}, ${c}), ${rem(desktop)})',`)
   const at = CHECK.map((vw) => `${vw}:${resolve({ mobile, a, plateau, c, desktop }, vw).toFixed(2)}`)
   console.log(`  // ${at.join('  ')}\n`)
 }
