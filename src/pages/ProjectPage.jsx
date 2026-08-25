@@ -4,6 +4,7 @@ import Footer from '../components/Footer'
 import Badge from '../components/Badge'
 import Container from '../components/Container'
 import CaseStudy from '../components/casestudy/CaseStudy'
+import CaseStudyArtifakt from '../components/casestudy/CaseStudyArtifakt'
 import { getProjectBySlug, getCaseStudyBySlug } from '../lib/content'
 
 export default function ProjectPage() {
@@ -14,12 +15,39 @@ export default function ProjectPage() {
     return <Navigate to="/" replace />
   }
 
-  // A project with a case-study module renders the block system; the rest keep
+  // A project with a case-study module renders a built page; the rest keep
   // the original stub until they're built. Deliberately a per-page opt-in
-  // rather than a flag day -- PitchPivot is the reference implementation and
-  // the system is being discovered by building it (CASE-STUDY-SYSTEM.md), so
-  // the other five shouldn't be migrated onto it sight unseen.
+  // rather than a flag day -- the system is being discovered by building it
+  // (CASE-STUDY-SYSTEM.md), so the remaining four shouldn't be migrated onto
+  // it sight unseen.
   const caseStudy = getCaseStudyBySlug(slug)
+
+  // WHY A REGISTRY AND NOT ONE COMPONENT, added 2026-08-21 with Artifakt.
+  //
+  // The two built case studies share the visual system -- Frame, SectionHeader,
+  // Media, Container, ButtonLink, the spacing tokens -- but not the
+  // composition, because the Figma frames genuinely differ in structure:
+  // PitchPivot is a fixed sequence of named, typed evidence slots (StatGrid,
+  // QuoteCards, FeatureBlocks, RankedBars); Artifakt is an ordered list of
+  // prose-plus-media sections with no evidence components at all.
+  //
+  // A single component covering both would need a branch per section type and
+  // would let a change made for one page reach the other by accident. A lookup
+  // keyed on slug keeps each page's layout decisions inside its own file, and
+  // adding the next case study is one entry here plus one component.
+  //
+  // Keyed on slug rather than on a `layout` field in the content file so that
+  // content stays content: which React component renders a page is a code
+  // decision, and putting a component name in a copy file invites someone to
+  // "fix" it during a content edit.
+  const LAYOUTS = {
+    pitchpivot: CaseStudy,
+    artifakt: CaseStudyArtifakt,
+  }
+  // Falls back to the PitchPivot composition, which is the reference
+  // implementation -- a new content module with no registry entry renders
+  // through the block system rather than crashing the route.
+  const CaseStudyLayout = LAYOUTS[slug] ?? CaseStudy
 
   return (
     <>
@@ -42,7 +70,7 @@ export default function ProjectPage() {
         // over it, which is what a full-bleed stage is for.
         // pb still matches the homepage's last-section-to-footer gap (200).
         <main className="pb-space-140 xl:pb-space-200">
-          <CaseStudy data={caseStudy} />
+          <CaseStudyLayout data={caseStudy} />
         </main>
       ) : (
         <article data-component="project-page" className="py-12">

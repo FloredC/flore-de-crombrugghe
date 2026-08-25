@@ -6,14 +6,21 @@
 // artwork is smaller than the frame, the tint is what reads as the inset --
 // without it the media frames look unfinished, which is why they did until now.
 //
-// Two of the ten resolve to real tokens; the other eight are one-off fills
-// authored directly on the instance. Kept as literals here rather than
+// THREE of the ten now resolve to real tokens; the other seven are one-off
+// fills authored directly on the instance. Kept as literals here rather than
 // invented token names, since inventing a token that doesn't exist in Figma
 // would be exactly the drift the no-duplication rule guards against. Worth
-// raising with Flore as a tokenisation candidate -- eight bespoke pastels is
+// raising with Flore as a tokenisation candidate -- seven bespoke pastels is
 // a palette whether or not it's currently named as one.
+//
+// Artifakt joined the tokenised three on 2026-08-21. It was the literal
+// #fdffe6, and this file's own note above is what flagged it: the colour DOES
+// have a Figma name, `Colors/surface/highlight`, it just wasn't in the token
+// CSS export yet. It is now (see semantic.css), so the duplicate hex is gone
+// and the homepage card tint and the Artifakt case-study stages are one value
+// in one place. Confirmed identical in the browser, not assumed.
 export const mediaTints = {
-  artifakt: '#fdffe6',
+  artifakt: 'var(--colors-surface-highlight)',
   'welcome-to-my-city': '#f6f9ff',
   pitchpivot: '#dfe8fd',
   rega: 'var(--colors-chart-chart-red-fill)',

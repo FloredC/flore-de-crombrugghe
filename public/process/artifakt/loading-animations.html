@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artifakt — Loading Animations &amp; Transitions</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: #f5f4f0;
+    color: #1a1a1a;
+    padding: 48px 32px 120px;
+    max-width: 1100px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+  a { color: #6d28d9; }
+
+  h1 { font-size: 30px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.6px; }
+  .subtitle { font-size: 14px; color: #666; margin-bottom: 18px; line-height: 1.6; max-width: 760px; }
+  .toc {
+    display: flex; flex-wrap: wrap; gap: 8px 18px;
+    font-size: 12.5px; color: #555; margin-bottom: 64px;
+    padding-top: 18px; border-top: 1px solid #e2e0da;
+  }
+  .toc a { text-decoration: none; color: #555; }
+  .toc a:hover { color: #6d28d9; }
+  .toc b { color: #aaa; font-weight: 700; margin-right: 5px; }
+
+  /* ── Section ── */
+  .section { margin-bottom: 84px; border-top: 2px solid #1a1a1a; padding-top: 24px; }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 14px; }
+  .section-number { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #aaa; }
+  .section-title { font-size: 21px; font-weight: 600; letter-spacing: -0.3px; }
+  .section-desc { font-size: 14.5px; line-height: 1.7; color: #444; margin-bottom: 26px; max-width: 760px; }
+  .section-desc + .section-desc { margin-top: -14px; }
+  h3.sub { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.4px; color: #999; margin: 36px 0 16px; }
+
+  /* ── Image figures ── */
+  figure { margin: 24px 0; }
+  figure img { width: 100%; display: block; border-radius: 10px; border: 1.5px solid #e3e1db; background: #fff; }
+  figcaption { font-size: 12.5px; color: #777; margin-top: 8px; line-height: 1.5; }
+  .img-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 18px; margin: 24px 0; }
+  .img-row figure { margin: 0; }
+  .frame-soft img { border-color: #d8d4cc; }
+
+  /* ── Decision log ── */
+  .decision { padding: 14px 18px; border-left: 3px solid #ddd; background: #fff; border-radius: 0 8px 8px 0; margin-bottom: 12px; }
+  .decision .what { font-weight: 600; font-size: 14.5px; margin-bottom: 3px; }
+  .decision .why { font-size: 13.5px; color: #555; line-height: 1.6; }
+  .decision.key { border-left-color: #7c3aed; background: #f9f7ff; }
+  .decision.key .what { color: #5b21b6; }
+
+  /* ── Flow diagram ── */
+  .flow { display: flex; align-items: stretch; flex-wrap: wrap; gap: 10px; margin: 22px 0; }
+  .flow-step { background: #fff; border: 1.5px solid #d9d5cd; border-radius: 12px; padding: 14px 16px; flex: 1; min-width: 150px; }
+  .flow-step.hl { border-color: #7c3aed; background: #fbf9ff; }
+  .flow-step .fs-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.3px; color: #aaa; margin-bottom: 6px; }
+  .flow-step.hl .fs-label { color: #7c3aed; }
+  .flow-step .fs-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+  .flow-step .fs-note { font-size: 12px; color: #666; line-height: 1.5; }
+  .flow-arrow { align-self: center; color: #c2bdb2; font-size: 22px; flex-shrink: 0; }
+
+  /* ── Callouts ── */
+  .callout { background: #fff; border: 1.5px solid #e3e1db; border-radius: 12px; padding: 18px 20px; margin: 22px 0; }
+  .callout.insight { border-color: #7c3aed; background: linear-gradient(180deg,#faf8ff,#fff); }
+  .callout h4 { font-size: 14px; margin-bottom: 8px; }
+  .callout p { font-size: 13.5px; color: #444; line-height: 1.65; margin-bottom: 8px; }
+  .callout p:last-child { margin-bottom: 0; }
+  .lead { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #7c3aed; }
+
+  ul.clean { list-style: none; padding: 0; margin: 14px 0; }
+  ul.clean li { font-size: 13.5px; color: #444; line-height: 1.6; padding: 7px 0 7px 22px; position: relative; border-bottom: 1px solid #ececec; }
+  ul.clean li:last-child { border-bottom: none; }
+  ul.clean li::before { content: '→'; position: absolute; left: 0; color: #7c3aed; }
+  ul.clean li b { color: #1a1a1a; }
+  code { font-family: ui-monospace, Menlo, monospace; font-size: 0.9em; background: #ece9e2; padding: 1px 5px; border-radius: 4px; }
+  .prio { font-size: 11px; color: #999; font-style: italic; }
+
+  /* ───────────────────────────────────────────────
+     Live animation demos (pure CSS/SVG — the real thing)
+  ─────────────────────────────────────────────── */
+  .anim-stage {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: #f7f4ed; border: 1.5px solid #e3e1db; border-radius: 14px;
+    padding: 44px; margin: 24px 0; min-height: 230px; gap: 16px;
+  }
+  .anim-stage.paper { background: #feffe9; }
+  .anim-cap { font-size: 12.5px; color: #777; text-align: center; max-width: 520px; line-height: 1.5; margin-top: 4px; }
+
+  @keyframes plArc { to { transform: rotate(360deg); } }
+  @keyframes labelPulse { 0%,100% { opacity: 0.55; } 50% { opacity: 1; } }
+
+  /* Pencil spinner */
+  .demo-pencil { width: 118px; height: 118px; }
+  .demo-pencil svg { width: 100%; height: 100%; display: block; }
+  .demo-pencil .pl-fill  { fill: #feffe9; }
+  .demo-pencil .pl-track { fill: none; stroke: rgba(49,19,102,0.12); stroke-width: 3; }
+  .demo-pencil .pl-arc   { fill: none; stroke: #612bbe; stroke-width: 3; stroke-linecap: round;
+                           stroke-dasharray: 72 217; transform-box: fill-box; transform-origin: center;
+                           animation: plArc 1.1s linear infinite; }
+  .demo-pencil .pl-line  { fill: none; stroke: #1a1a1a; stroke-width: 2.4; stroke-linecap: round;
+                           stroke-linejoin: round; stroke-dasharray: 1; animation: plDraw 2s linear infinite; }
+  .demo-pencil .pl-pencil { transform-origin: 0 0; animation: plPencil 2s linear infinite; }
+  .demo-pencil .pl-graphite { fill: #1a1a1a; }
+  .demo-pencil .pl-wood     { fill: #feffe9; stroke: #1a1a1a; stroke-width: 1.3; stroke-linejoin: round; }
+  .demo-pencil .pl-ferrule  { fill: #1a1a1a; }
+  .demo-pencil .pl-eraser   { fill: #612bbe; }
+  @keyframes plDraw { 0% { stroke-dashoffset: 1; } 60% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; } }
+  @keyframes plPencil {
+    0%   { transform: translate(30px,56px); }
+    6%   { transform: translate(32.7px,50.96px); }
+    12%  { transform: translate(37.83px,49.75px); }
+    18%  { transform: translate(41.31px,54.21px); }
+    24%  { transform: translate(43.56px,59.49px); }
+    30%  { transform: translate(48px,62.75px); }
+    36%  { transform: translate(52.44px,59.49px); }
+    42%  { transform: translate(54.69px,54.21px); }
+    48%  { transform: translate(58.17px,49.75px); }
+    54%  { transform: translate(63.3px,50.96px); }
+    60%  { transform: translate(66px,56px); }
+    100% { transform: translate(66px,56px); }
+  }
+
+  /* Artist-photo spinner */
+  .demo-artist { position: relative; width: 112px; height: 112px; }
+  .demo-artist .ps-photo { position: absolute; inset: 7px; border-radius: 50%; overflow: hidden;
+                           background: radial-gradient(120% 120% at 50% 30%, #d7d2c8, #8b857b); }
+  .demo-artist .ps-photo svg { width: 100%; height: 100%; display: block; }
+  .demo-artist > svg { position: absolute; inset: 0; width: 112px; height: 112px; }
+  .demo-artist .ps-track { fill: none; stroke: rgba(49,19,102,0.12); stroke-width: 3; }
+  .demo-artist .ps-arc   { fill: none; stroke: #612bbe; stroke-width: 3; stroke-linecap: round;
+                           stroke-dasharray: 72 217; transform-box: fill-box; transform-origin: center;
+                           animation: plArc 1.1s linear infinite; }
+  .demo-artist-label { font-size: 14px; color: #1a1a1a; animation: labelPulse 1.6s ease-in-out infinite; }
+
+  /* Spinning sketch-card */
+  .demo-card-scene { perspective: 900px; width: 152px; height: 200px; }
+  .demo-card { position: relative; width: 100%; height: 100%; transform-style: preserve-3d;
+               animation: cardSpin 2.4s linear infinite; }
+  @keyframes cardSpin { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
+  .demo-card-face { position: absolute; inset: 0; border-radius: 12px; overflow: hidden;
+                    backface-visibility: hidden; background: #f7f4ed; border: 1.5px solid #7c3aed; }
+  .demo-card-back { transform: rotateY(180deg); }
+  .demo-card-face svg { width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+
+<h1>Artifakt — Loading Animations &amp; Transitions</h1>
+<p class="subtitle">How the AI's waiting moments were designed. Artifakt calls an image model several times per session; rather than a generic spinner, each wait was turned into a small animation that shows <em>what the AI is doing</em>. This documents the three states, the design decisions behind them, and why they matter for trust. The demos below are the real CSS/SVG animations, running live. Last updated: June 2026.</p>
+
+<nav class="toc">
+  <a href="#s0"><b>00</b>The idea — narrate, don't spin</a>
+  <a href="#s1"><b>01</b>Pencil draws the line</a>
+  <a href="#s2"><b>02</b>Artist-photo spinner</a>
+  <a href="#s3"><b>03</b>The spinning sketch-card</a>
+  <a href="#s4"><b>04</b>One loading language</a>
+  <a href="#s5"><b>05</b>Open questions &amp; next</a>
+</nav>
+
+<!-- ─────────────────────────────────────────── -->
+<section class="section" id="s0">
+  <div class="section-header"><span class="section-number">00</span><span class="section-title">The idea — narrate, don't spin</span></div>
+  <p class="section-desc">Every time Artifakt calls the model there's a wait. The default answer is a spinner — but a spinner only says <em>"something is happening."</em> The brief, drawn from a Figma frame, was the opposite: <b>show what the AI is doing.</b> The flow has three distinct waits, and each became its own animation, mapped to the exact step it covers.</p>
+
+  <figure class="frame-soft"><img src="./img/f7d89cdd99cf.webp" alt="Figma board — transitions and animations"><figcaption><b>The brief.</b> One Figma board mapping every screen and its transition — the pencil loader, the card-flip into &ldquo;Choose your artist&rdquo;, and the artist spinners. The annotations were essentially the to-do list.</figcaption></figure>
+
+  <div class="flow">
+    <div class="flow-step"><div class="fs-label">Step</div><div class="fs-title">Keyword</div><div class="fs-note">"Think of someone."</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step hl"><div class="fs-label">Loader 01</div><div class="fs-title">Pencil draws</div><div class="fs-note">guide sketch generates</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="fs-label">Step</div><div class="fs-title">Trace</div><div class="fs-note">draw over the guide</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step hl"><div class="fs-label">Loader 02</div><div class="fs-title">Spinning card</div><div class="fs-note">sketch → first artwork</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step hl"><div class="fs-label">Loader 03</div><div class="fs-title">Photo spinner</div><div class="fs-note">artist styles the piece</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="fs-label">Step</div><div class="fs-title">Final card</div><div class="fs-note">share it</div></div>
+  </div>
+
+  <div class="callout insight">
+    <div class="lead">Principle</div>
+    <h4>Loading is part of the product.</h4>
+    <p>Replacing a generic spinner with a drawing-in-progress turns dead time into a small piece of the story — and quietly signals the AI is <em>making</em> something, by hand, the way an artist would. The wait stops being a void and starts being a preview of the craft.</p>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────── -->
+<section class="section" id="s1">
+  <div class="section-header"><span class="section-number">01</span><span class="section-title">Pencil draws the line</span></div>
+  <p class="section-desc">Shown while the <b>guide sketch generates</b> on Screen&nbsp;1. A pencil draws a line inside a ring with a sweeping purple arc — and crucially, the pencil's tip rides the <em>leading edge</em> of the stroke as it's drawn.</p>
+
+  <div class="anim-stage">
+    <div class="demo-pencil">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <circle class="pl-fill"  cx="50" cy="50" r="46"/>
+        <circle class="pl-track" cx="50" cy="50" r="46"/>
+        <circle class="pl-arc"   cx="50" cy="50" r="46"/>
+        <path class="pl-line" pathLength="1" d="M 30 56 C 33 47 39 47 42 56 C 45 65 51 65 54 56 C 57 47 63 47 66 56"/>
+        <g class="pl-pencil"><g transform="rotate(-22)">
+          <polygon class="pl-graphite" points="0,0 -1.7,-4 1.7,-4"/>
+          <polygon class="pl-wood" points="-1.7,-4 1.7,-4 3.4,-9 -3.4,-9"/>
+          <rect class="pl-wood"    x="-3.4" y="-33" width="6.8" height="24" rx="0.6"/>
+          <rect class="pl-ferrule" x="-3.4" y="-37" width="6.8" height="4"/>
+          <rect class="pl-eraser"  x="-3.4" y="-42.5" width="6.8" height="5.5" rx="2"/>
+        </g></g>
+      </svg>
+    </div>
+    <p class="anim-cap">Live demo — the pencil's tip stays locked to the end of the line as it draws, loops, and redraws.</p>
+  </div>
+
+  <div class="decision key">
+    <div class="what">The pencil tip rides the leading edge of the stroke</div>
+    <div class="why">The line and the pencil are driven by the <em>same</em> timing, with the pencil's path points sampled directly from the line. So the tip never floats off — it draws the line, rather than hovering near it.</div>
+  </div>
+  <div class="decision">
+    <div class="what">Rebuilt from SMIL to pure CSS</div>
+    <div class="why">First built with an SVG motion-path (<code>animateMotion</code>). The preview environment froze SMIL, so it was rebuilt as CSS keyframes with the path points baked in — tip alignment verified to sub-pixel across the whole draw.</div>
+  </div>
+  <div class="decision">
+    <div class="what">Ring + sweeping arc = the shared loader shell</div>
+    <div class="why">The grey track and the rotating purple arc are reused by the artist spinner (§02). One recognisable "generating" shell, a swappable centre.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────── -->
+<section class="section" id="s2">
+  <div class="section-header"><span class="section-number">02</span><span class="section-title">Artist-photo spinner</span></div>
+  <p class="section-desc">Shown while a chosen <b>artist's style generates</b> on Screen&nbsp;2. The same ring + arc, but the centre is now the artist's portrait — captioned <em>"Jujing it up…"</em>.</p>
+
+  <div class="anim-stage">
+    <div class="demo-artist">
+      <div class="ps-photo">
+        <svg viewBox="0 0 40 40" aria-hidden="true">
+          <circle cx="20" cy="15.5" r="7.5" fill="#5b554c"/>
+          <path d="M6 39 Q20 23 34 39 Z" fill="#5b554c"/>
+        </svg>
+      </div>
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <circle class="ps-track" cx="50" cy="50" r="46"/>
+        <circle class="ps-arc"   cx="50" cy="50" r="46"/>
+      </svg>
+    </div>
+    <div class="demo-artist-label">Jujing it up…</div>
+    <p class="anim-cap">Live demo — placeholder portrait shown; in the app it's the selected artist's photo.</p>
+  </div>
+
+  <h3 class="sub">Clean canvas — before &amp; after</h3>
+  <div class="img-row">
+    <figure class="frame-soft"><img src="./img/a37eeca788b0.png" alt="Guide sketch visible behind the spinner"><figcaption><b>Before.</b> The AI guide sketch sat behind the spinner — busy, and it pulled focus from the artist.</figcaption></figure>
+    <figure class="frame-soft"><img src="./img/f0b8606e08a5.jpg" alt="Clean canvas with the portrait spinner"><figcaption><b>After.</b> Guide hidden during the wait — just the portrait spinner on a clean canvas, matching the Figma intent.</figcaption></figure>
+  </div>
+
+  <h3 class="sub">One shell, five faces</h3>
+  <div class="img-row">
+    <figure class="frame-soft"><img src="./img/3994537c9e66.png" alt="Louise Bourgeois"><figcaption>Louise Bourgeois</figcaption></figure>
+    <figure class="frame-soft"><img src="./img/d7306ac96cd9.png" alt="Kara Walker"><figcaption>Kara Walker</figcaption></figure>
+    <figure class="frame-soft"><img src="./img/ea7fa68c942a.webp" alt="Niki de Saint Phalle"><figcaption>Niki de Saint Phalle</figcaption></figure>
+    <figure class="frame-soft"><img src="./img/c797f874d88c.webp" alt="Naoko Takeuchi"><figcaption>Naoko Takeuchi</figcaption></figure>
+    <figure class="frame-soft"><img src="./img/5cf44fec141c.png" alt="Keith Haring"><figcaption>Keith Haring</figcaption></figure>
+  </div>
+
+  <div class="decision">
+    <div class="what">Same shell, different centre</div>
+    <div class="why">A pencil for the sketch (§01), the artist's face for their style. One consistent signal across the whole app: when this shell appears, the AI is generating.</div>
+  </div>
+  <div class="decision key">
+    <div class="what">The copy: "Jujing it up…"</div>
+    <div class="why">To <em>juj</em> (also spelled <em>zhuzh</em>) is to add flair, to fluff something up — drag- and queer-community phrasing that fits the project's values. An earlier draft named the artist ("Louise is jujing it up…"); dropped for simplicity.</div>
+  </div>
+  <div class="decision">
+    <div class="what">Clean canvas during the wait</div>
+    <div class="why">While the style generates, the AI guide sketch behind it is hidden — just the portrait spinner on an empty canvas. The focus is on <em>who</em> is about to make the piece, not a half-formed image.</div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────── -->
+<section class="section" id="s3">
+  <div class="section-header"><span class="section-number">03</span><span class="section-title">The spinning sketch-card</span></div>
+  <p class="section-desc">The heaviest wait is the jump from your traced sketch to the first styled artwork. Instead of a spinner, the canvas <em>itself</em> becomes a card that rotates continuously on its own axis until the artwork is ready — then settles. This is where most of the iteration went.</p>
+
+  <div class="anim-stage paper">
+    <div class="demo-card-scene">
+      <div class="demo-card">
+        <div class="demo-card-face demo-card-front">
+          <svg viewBox="0 0 100 130" aria-hidden="true">
+            <g fill="none" stroke-linecap="round">
+              <g stroke="#c4bfb6" stroke-width="1.6">
+                <path d="M22 92 C 30 44 54 38 60 84"/>
+                <path d="M40 102 C 46 56 72 52 78 96"/>
+                <path d="M26 60 Q 50 44 76 62"/>
+              </g>
+              <g stroke="#2a2a2a" stroke-width="1.9">
+                <path d="M35 86 C 42 56 58 53 62 84"/>
+                <path d="M31 71 Q 50 61 70 73"/>
+              </g>
+            </g>
+          </svg>
+        </div>
+        <div class="demo-card-face demo-card-back">
+          <svg viewBox="0 0 100 130" aria-hidden="true">
+            <g fill="none" stroke-linecap="round">
+              <g stroke="#c4bfb6" stroke-width="1.6">
+                <path d="M22 92 C 30 44 54 38 60 84"/>
+                <path d="M40 102 C 46 56 72 52 78 96"/>
+                <path d="M26 60 Q 50 44 76 62"/>
+              </g>
+              <g stroke="#2a2a2a" stroke-width="1.9">
+                <path d="M35 86 C 42 56 58 53 62 84"/>
+                <path d="M31 71 Q 50 61 70 73"/>
+              </g>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <p class="anim-cap">Live demo — light lines are the AI guide; the darker strokes are <em>your</em> trace; the purple outline is the canvas frame, all rotating together.</p>
+  </div>
+
+  <h3 class="sub">The iteration — sketch, not photo</h3>
+  <div class="img-row">
+    <figure class="frame-soft"><img src="./img/d1234489b72a.jpg" alt="Card spinning the artist's photo"><figcaption><b>First pass — wrong.</b> The card spun the artist's <em>photo</em>. It should be your drawing, not their face.</figcaption></figure>
+    <figure class="frame-soft"><img src="./img/c128a29c33ee.jpg" alt="Card spinning the sketch and traced strokes"><figcaption><b>Fixed.</b> The card shows your sketch and traced strokes with the purple canvas outline — rotating as one, on the page yellow, never clipping.</figcaption></figure>
+  </div>
+
+  <div class="decision">
+    <div class="what">It's the canvas, not a separate overlay</div>
+    <div class="why">Sized to the Screen-2 canvas so nothing jumps; the rest of the screen stays visible behind it, inactive. The canvas appears to turn, rather than a popup arriving.</div>
+  </div>
+  <div class="decision">
+    <div class="what">Double-faced, so it never blanks mid-spin</div>
+    <div class="why">A single face would vanish edge-on at 90°. The sketch sits on both faces, so the image is always visible as it turns.</div>
+  </div>
+  <div class="decision key">
+    <div class="what">It carries your own work</div>
+    <div class="why">The card shows the sketch <em>and</em> your traced strokes composited together, with the canvas's purple outline rotating with it — not a sketch spinning inside a static frame. You watch <em>your</em> drawing become art.</div>
+  </div>
+  <div class="decision">
+    <div class="what">Stays inside the canvas, on a matching ground</div>
+    <div class="why">Shrunk slightly so the 3D rotation never clips at the edges, and the background set to the page yellow (not the grey canvas colour) so there's no visible gap behind it.</div>
+  </div>
+  <div class="decision">
+    <div class="what">One-time only, and it settles on arrival</div>
+    <div class="why">It plays once — on "Choose your artist" — and stops the moment the first artwork loads, settling into the result. Later artist switches use the lighter photo spinner (§02), not another full spin.</div>
+  </div>
+
+  <div class="callout insight">
+    <div class="lead">Why it matters</div>
+    <p>Showing the user's <em>own</em> drawing turning in 3D ties the wait to authorship. You're not watching a machine think — you're watching your sketch be transformed. The loading state reinforces the core promise: <b>by you, with the artist.</b></p>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────── -->
+<section class="section" id="s4">
+  <div class="section-header"><span class="section-number">04</span><span class="section-title">One loading language</span></div>
+  <p class="section-desc">Across the three states, a few rules keep them feeling like one system rather than three separate effects.</p>
+  <ul class="clean">
+    <li><b>Narrate the real step.</b> Each animation depicts the actual thing being generated — a sketch, an artist's hand, your drawing transformed — never an abstract spinner.</li>
+    <li><b>One shell, swappable centre.</b> The ring + sweeping purple arc unifies the two spinners; only the middle changes (pencil ⇄ portrait).</li>
+    <li><b>Motion locked to meaning.</b> The pencil tracks the line as it draws; the card settles exactly when the artwork lands. The animation ends because the work is done, not on a timer.</li>
+    <li><b>Fail gracefully.</b> If a generation errors, the loader resolves instead of spinning forever — a small but real trust detail.</li>
+    <li><b>On-brand throughout.</b> Paper yellow, purple accent, ink — the loaders use the same tokens as the rest of the product.</li>
+  </ul>
+</section>
+
+<!-- ─────────────────────────────────────────── -->
+<section class="section" id="s5">
+  <div class="section-header"><span class="section-number">05</span><span class="section-title">Open questions &amp; next</span></div>
+  <ul class="clean">
+    <li><b>A label for the spinning card.</b> It currently has no text. On a long generation it can read as <em>"is this stuck?"</em> — a short, reassuring line (e.g. <em>"Bringing in your artist…"</em>) trades visual calm for perceived responsiveness. <span class="prio">worth testing both ways.</span></li>
+    <li><b>Speeds are hand-set.</b> Pencil 2s, card 2.4s, arc 1.1s — tuned by eye on desktop; verify the feel against real generation times on-device.</li>
+    <li><b>Reduced motion.</b> Offer a calmer fallback (a static or gently fading state) for users who prefer less animation. <span class="prio">accessibility.</span></li>
+  </ul>
+</section>
+
+</body>
+</html>

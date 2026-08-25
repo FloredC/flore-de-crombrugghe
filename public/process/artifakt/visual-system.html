@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artifakt — Session 3 · Visual System, Diversity Prompting & Onboarding</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: #f5f4f0;
+    color: #1a1a1a;
+    padding: 48px 32px 120px;
+    max-width: 1100px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+  a { color: #6d28d9; }
+
+  h1 { font-size: 30px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.6px; }
+  .subtitle { font-size: 14px; color: #666; margin-bottom: 18px; line-height: 1.6; max-width: 720px; }
+  .toc {
+    display: flex; flex-wrap: wrap; gap: 8px 18px;
+    font-size: 12.5px; color: #555; margin-bottom: 64px;
+    padding-top: 18px; border-top: 1px solid #e2e0da;
+  }
+  .toc a { text-decoration: none; color: #555; }
+  .toc a:hover { color: #6d28d9; }
+  .toc b { color: #aaa; font-weight: 700; margin-right: 5px; }
+
+  /* ── Section ── */
+  .section { margin-bottom: 84px; border-top: 2px solid #1a1a1a; padding-top: 24px; }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 14px; }
+  .section-number { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #aaa; }
+  .section-title { font-size: 21px; font-weight: 600; letter-spacing: -0.3px; }
+  .section-desc { font-size: 14.5px; line-height: 1.7; color: #444; margin-bottom: 26px; max-width: 760px; }
+  .section-desc + .section-desc { margin-top: -14px; }
+  h3.sub { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.4px; color: #999; margin: 36px 0 16px; }
+
+  /* ── Image figures ── */
+  figure { margin: 24px 0; }
+  figure img { width: 100%; display: block; border-radius: 10px; border: 1.5px solid #e3e1db; background: #fff; }
+  figcaption { font-size: 12.5px; color: #777; margin-top: 8px; line-height: 1.5; }
+  .img-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px; margin: 24px 0; }
+  .img-row.three { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+  .img-row figure { margin: 0; }
+  .frame-soft img { border-color: #d8d4cc; }
+
+  /* ── Decision log ── */
+  .decision { padding: 14px 18px; border-left: 3px solid #ddd; background: #fff; border-radius: 0 8px 8px 0; margin-bottom: 12px; }
+  .decision .what { font-weight: 600; font-size: 14.5px; margin-bottom: 3px; }
+  .decision .why { font-size: 13.5px; color: #555; line-height: 1.6; }
+  .decision.key { border-left-color: #7c3aed; background: #f9f7ff; }
+  .decision.key .what { color: #5b21b6; }
+
+  /* ── Tokens / swatches ── */
+  .tokens { display: flex; flex-wrap: wrap; gap: 14px; margin: 20px 0; }
+  .swatch { display: flex; align-items: center; gap: 10px; font-size: 12.5px; background: #fff; border: 1.5px solid #e3e1db; border-radius: 10px; padding: 8px 14px 8px 8px; }
+  .chip { width: 34px; height: 34px; border-radius: 7px; border: 1px solid rgba(0,0,0,0.08); flex-shrink: 0; }
+  .swatch .name { font-weight: 600; }
+  .swatch .hex { color: #888; font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; }
+
+  /* ── Type scale ── */
+  .scale { background: #fff; border: 1.5px solid #e3e1db; border-radius: 12px; padding: 8px 22px; margin: 20px 0; }
+  .scale-row { display: flex; align-items: baseline; gap: 18px; padding: 12px 0; border-bottom: 1px solid #f0eee8; }
+  .scale-row:last-child { border-bottom: none; }
+  .scale-px { width: 54px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #7c3aed; font-weight: 700; flex-shrink: 0; }
+  .scale-sample { line-height: 1.1; }
+  .scale-use { font-size: 12px; color: #999; margin-left: auto; text-align: right; }
+
+  /* ── Option cards (onboarding) ── */
+  .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 18px 0 8px; }
+  .opt { background: #fff; border: 1.5px solid #e3e1db; border-radius: 12px; padding: 16px 16px 18px; position: relative; }
+  .opt.chosen { border-color: #7c3aed; background: #f9f7ff; }
+  .opt .tag { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; display: inline-block; margin-bottom: 10px; }
+  .opt .tag.no { background: #f3e3e3; color: #b03a3a; }
+  .opt .tag.yes { background: #e7e0fb; color: #5b21b6; }
+  .opt .tag.maybe { background: #eee9e0; color: #8a7a55; }
+  .opt .opt-name { font-weight: 600; font-size: 14.5px; margin-bottom: 5px; }
+  .opt .opt-note { font-size: 13px; color: #555; line-height: 1.55; }
+  .group-label { font-size: 13px; font-weight: 700; color: #1a1a1a; margin: 26px 0 4px; }
+
+  /* ── Flow diagram ── */
+  .flow { display: flex; align-items: stretch; flex-wrap: wrap; gap: 10px; margin: 22px 0; }
+  .flow-step { background: #fff; border: 1.5px solid #d9d5cd; border-radius: 12px; padding: 14px 16px; flex: 1; min-width: 180px; }
+  .flow-step.hl { border-color: #7c3aed; background: #fbf9ff; }
+  .flow-step .fs-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.3px; color: #aaa; margin-bottom: 6px; }
+  .flow-step .fs-title { font-weight: 600; font-size: 14.5px; margin-bottom: 6px; }
+  .flow-step ul { margin: 0; padding-left: 16px; }
+  .flow-step li { font-size: 12.5px; color: #555; line-height: 1.55; margin-bottom: 2px; }
+  .flow-arrow { align-self: center; color: #c2bdb2; font-size: 22px; flex-shrink: 0; }
+  .branch { font-size: 12px; color: #7c3aed; font-weight: 600; background: #f1ecfd; border-radius: 16px; padding: 2px 10px; display: inline-block; margin: 2px 6px 2px 0; }
+
+  /* ── Prompt blocks ── */
+  .prompt { background: #1c1b22; color: #d8d4e8; border-radius: 10px; padding: 14px 16px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; line-height: 1.65; margin: 12px 0; overflow-x: auto; }
+  .prompt .pos { color: #9be29b; }
+  .prompt .neg { color: #e8a0a0; }
+  .prompt .cm { color: #8a86a0; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; padding: 3px 9px; border-radius: 16px; background: #eee9e0; color: #7a6c4d; margin-right: 6px; }
+  .pill.p1 { background: #e8eaf0; color: #5c6bc0; }
+  .pill.p2 { background: #fce4ec; color: #c0392b; }
+  .pill.str { background: #ede7fb; color: #6d28d9; }
+
+  /* ── Callouts ── */
+  .callout { background: #fff; border: 1.5px solid #e3e1db; border-radius: 12px; padding: 18px 20px; margin: 22px 0; }
+  .callout.insight { border-color: #7c3aed; background: linear-gradient(180deg,#faf8ff,#fff); }
+  .callout h4 { font-size: 14px; margin-bottom: 8px; }
+  .callout p { font-size: 13.5px; color: #444; line-height: 1.65; margin-bottom: 8px; }
+  .callout p:last-child { margin-bottom: 0; }
+  .lead { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #7c3aed; }
+
+  ul.clean { list-style: none; padding: 0; margin: 14px 0; }
+  ul.clean li { font-size: 13.5px; color: #444; line-height: 1.6; padding: 7px 0 7px 22px; position: relative; border-bottom: 1px solid #ececec; }
+  ul.clean li:last-child { border-bottom: none; }
+  ul.clean li::before { content: '→'; position: absolute; left: 0; color: #7c3aed; }
+  ul.clean li b { color: #1a1a1a; }
+  code { font-family: ui-monospace, Menlo, monospace; font-size: 0.9em; background: #ece9e2; padding: 1px 5px; border-radius: 4px; }
+  .next-tag { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #fff; background: #7c3aed; border-radius: 14px; padding: 2px 9px; }
+  .prio { font-size: 11px; color: #999; font-style: italic; }
+</style>
+</head>
+<body>
+
+<h1>Artifakt — Session&nbsp;3</h1>
+<p class="subtitle">Design process log for the sketch-to-artwork app: the visual system and key decisions, the diversity &amp; gender prompting logic, and the onboarding flow designed to avoid drop-off. Built on the sketches drawn right after the previous session. Last updated: June 2026.</p>
+<nav class="toc">
+  <a href="#s0"><b>00</b>From sketch to build</a>
+  <a href="#s1"><b>01</b>Visual system &amp; decisions</a>
+  <a href="#s2"><b>02</b>Diversity &amp; positive prompting</a>
+  <a href="#s3"><b>03</b>Onboarding against drop-off</a>
+  <a href="#s4"><b>04</b>Card-label grammar</a>
+  <a href="#s5"><b>05</b>Open questions &amp; next steps</a>
+  <a href="#s6"><b>06</b>Visual appendix</a>
+</nav>
+
+<!-- ════════ 00 ════════ -->
+<section class="section" id="s0">
+  <div class="section-header"><span class="section-number">00</span><span class="section-title">From sketch to build</span></div>
+  <p class="section-desc">This session started from three hand sketches drawn right after documenting the previous one — a place to think out loud about enhancements, icons, animations and copy. They became the brief for everything below: the annotations are essentially the to-do list.</p>
+  <div class="img-row three frame-soft">
+    <figure><img src="./img/95cf4210caef.png" alt="Screen 1 sketch"><figcaption><b>Screen&nbsp;1 — Intent + Trace.</b> Notes: icon? / font? · “Turn your intention into an Artifakt” · eraser icon · chalk-rules / expressiveness on the canvas · “Trace this …” entry · Style&nbsp;it.</figcaption></figure>
+    <figure><img src="./img/12aaf54f459e.png" alt="Screen 2 sketch"><figcaption><b>Screen&nbsp;2 — Choose artist.</b> Notes: artist list (Niki, Kara, LB, Naoko, Keith) · loading anim / transitions · “what model is doing” · Louise shuffle pill · colours? / different order? / purple? · Done.</figcaption></figure>
+    <figure><img src="./img/aa5800e605fc.png" alt="Screen 3 sketch"><figcaption><b>Screen&nbsp;3 — Final card.</b> “For name by artist” · THE&nbsp;CAT · share / save / start over — plus an <b>“About K. Walker”</b> artist-bio panel idea (not yet built).</figcaption></figure>
+  </div>
+</section>
+
+<!-- ════════ 01 ════════ -->
+<section class="section" id="s1">
+  <div class="section-header"><span class="section-number">01</span><span class="section-title">Visual system &amp; decisions</span></div>
+  <p class="section-desc">Implemented the three screens from Figma and settled the visual language: one typeface, a purple-on-cream palette, and a single tidy type scale. The guiding principle that resolved most debates — <b>the artwork is the hero, so the UI around it stays a quiet frame.</b></p>
+
+  <h3 class="sub">Typeface</h3>
+  <p class="section-desc"><b>Syne</b> throughout (weights 400–800). Geometric but quirky — distinctive without shouting. One rule: never all-caps, except the one sanctioned place — the <code>THE WORD</code> card label.</p>
+
+  <h3 class="sub">Colour — the exploration</h3>
+  <p class="section-desc">Two directions were compared before committing. Purple was chosen for its meaning (the colour of feminism), but the question was <em>how much</em>.</p>
+  <div class="img-row">
+    <figure><img src="./img/2f6c9fd5f12e.webp" alt="Version A — per-screen pastels"><figcaption><b>Version A.</b> A different pastel ground per screen + black buttons. Lively but arbitrary — the colours had no logic, and they competed with the artwork.</figcaption></figure>
+    <figure><img src="./img/5ee475e898da.png" alt="Version B — consistent cream + aubergine"><figcaption><b>Version B → chosen direction.</b> One consistent cream ground + deep-aubergine buttons. Calmer, coherent, and it gives the artwork a neutral frame.</figcaption></figure>
+  </div>
+  <div class="decision key"><div class="what">Purple as accent, never as the artwork’s background.</div><div class="why">The “too much” feeling came from colouring the canvas itself. The canvas frames someone else’s creativity — it should stay neutral. Purple lives in actions, accents and selected states on a warm cream paper.</div></div>
+
+  <h3 class="sub">Design tokens</h3>
+  <div class="tokens">
+    <div class="swatch"><span class="chip" style="background:#feffe9"></span><span><span class="name">paper</span> <span class="hex">#feffe9</span></span></div>
+    <div class="swatch"><span class="chip" style="background:#1a1a1a"></span><span><span class="name">ink</span> <span class="hex">#1a1a1a</span></span></div>
+    <div class="swatch"><span class="chip" style="background:#612bbe"></span><span><span class="name">accent</span> <span class="hex">#612bbe</span></span></div>
+    <div class="swatch"><span class="chip" style="background:#7c3aed"></span><span><span class="name">accent-line</span> <span class="hex">#7c3aed</span></span></div>
+    <div class="swatch"><span class="chip" style="background:#321366"></span><span><span class="name">button</span> <span class="hex">#321366</span></span></div>
+    <div class="swatch"><span class="chip" style="background:#f6f2fc"></span><span><span class="name">card / pill</span> <span class="hex">#f6f2fc</span></span></div>
+    <div class="swatch"><span class="chip" style="background:#9e9a93"></span><span><span class="name">muted</span> <span class="hex">#9e9a93</span></span></div>
+  </div>
+
+  <h3 class="sub">Type scale — “the sizes were all over the place”</h3>
+  <p class="section-desc">~9 ad-hoc sizes were collapsed into one six-step scale, driven by CSS variables so it’s changeable in one place.</p>
+  <div class="scale">
+    <div class="scale-row"><span class="scale-px">32px</span><span class="scale-sample" style="font-size:26px;font-weight:600">Headline</span><span class="scale-use">page headline (H1)</span></div>
+    <div class="scale-row"><span class="scale-px">24px</span><span class="scale-sample" style="font-size:21px">Input · For / by</span><span class="scale-use">keyword input, card byline</span></div>
+    <div class="scale-row"><span class="scale-px">20px</span><span class="scale-sample" style="font-size:19px;font-weight:700">THE WORD</span><span class="scale-use">card label (only caps)</span></div>
+    <div class="scale-row"><span class="scale-px">16px</span><span class="scale-sample" style="font-size:16px">Subtitle · buttons · nav</span><span class="scale-use">body / actions</span></div>
+    <div class="scale-row"><span class="scale-px">14px</span><span class="scale-sample" style="font-size:14px">Hints · card names · pill</span><span class="scale-use">secondary</span></div>
+    <div class="scale-row"><span class="scale-px">12px</span><span class="scale-sample" style="font-size:12px">Card sub-labels</span><span class="scale-use">tertiary</span></div>
+  </div>
+
+  <h3 class="sub">Icons &amp; card polish</h3>
+  <ul class="clean">
+    <li><b>Icon set</b> — eraser (canvas), smart-shuffle pill (artist), arrow-right (input + forward buttons), restart (start over). Custom SVGs using <code>currentColor</code> so they inherit each button’s colour.</li>
+    <li><b>Full-bleed final card</b> — the artwork was letterboxed; now a cropped <em>cover</em> backdrop fills the canvas (gaps become the image’s own edges, e.g. black around the Kara cat) and the whole image draws on top, so the drawing is never cut.</li>
+    <li><b>For / by byline</b> — fixed a flexbox overflow so “For [name] by [you]” stretches evenly across the full width.</li>
+  </ul>
+</section>
+
+<!-- ════════ 02 ════════ -->
+<section class="section" id="s2">
+  <div class="section-header"><span class="section-number">02</span><span class="section-title">Diversity &amp; gender via positive prompting</span></div>
+  <p class="section-desc">The default outputs skewed white, thin and European-featured — including Naoko’s manga always rendering blonde, blue-eyed figures. Fixing this surfaced a technique worth keeping: <b>positive prompting</b>.</p>
+
+  <div class="callout insight">
+    <span class="lead">The thing I learned</span>
+    <h4 style="margin-top:6px;">Describe what you want — don’t negate what you don’t.</h4>
+    <p>Flux is a <b>positive-prompt</b> model: a negation like “not white” barely registers. You have to <em>positively</em> state the attributes you want (“deep brown skin”, “black hair”) and only add a short negation as a backstop.</p>
+    <p>And vague words betray you: “diverse” collapses straight back to the model’s default. The three moves that actually work — <b>specificity</b> (name skin tone, hair, features, body), <b>foreground anchoring</b> (state who the central subject is, or they land in the background), and <b>rotation</b> (vary across a pool so it doesn’t tokenise one type).</p>
+  </div>
+
+  <div class="callout">
+    <h4>Who works on this</h4>
+    <p style="margin-bottom:4px;"><b>Joy Buolamwini / Algorithmic Justice League</b> — <i>Gender Shades</i>, exposing how vision models fail on darker skin &amp; women.</p>
+    <p style="margin-bottom:4px;"><b>Timnit Gebru / DAIR</b> — bias in large models.</p>
+    <p><b>Sasha Luccioni et&nbsp;al. (Hugging Face)</b> — <i>Stable Bias</i>, measuring how text-to-image models default to white / male / thin, and how prompts shift it.</p>
+  </div>
+
+  <h3 class="sub">What changed in the prompts</h3>
+
+  <p class="section-desc" style="margin-bottom:10px;"><b>First sketch (scaffold)</b> — a rotating pool of nine specific, POC-centred subjects; one is picked at random and placed as the <em>foreground</em> subject each generation.</p>
+  <div class="prompt"><span class="cm">// rotated per generation — specificity + foreground + rotation</span>
+SUBJECT_POOL = [ Black woman, natural coiled/afro hair · dark-skinned Black
+  person, full-figured, locs · East Asian woman, straight black hair ·
+  Southeast Asian woman, soft rounded body · South Asian woman · brown-skinned
+  plus-size woman · Black trans or non-binary person · Indigenous / Latina
+  woman · older woman of colour … ]
+<span class="pos">“…drawn as the central foreground subject”</span>
+<span class="pos">“centers women, trans and non-binary people of colour”</span>
+<span class="neg">“never default to a thin white or masculine-presenting figure”</span></div>
+
+  <p class="section-desc" style="margin:18px 0 10px;"><b>Naoko Takeuchi</b> — the blonde/blue-eyed default lived in the colour pass.</p>
+  <div class="prompt"><span class="pill p2">pass 2 · colour</span>
+<span class="pos">irises deep brown or black</span> · <span class="pos">warm-brown / golden-tan / deep-brown skin</span>
+<span class="pos">black or dark brown hair (straight, wavy or coiled)</span>
+subject is a person of colour — most often East/Southeast Asian
+<span class="neg">never blond · never blue eyes · never pale-white / European default</span></div>
+
+  <p class="section-desc" style="margin:18px 0 10px;"><b>Kara Walker</b> — figures must be Black, varied in body type, and a <em>solid</em> cut-out (it was rendering as a hollow outline).</p>
+  <div class="prompt"><span class="pill p1">pass 1</span><span class="pill p2">pass 2</span><span class="pill str">strength 0.70 → 0.82</span>
+<span class="pos">Black people as pure solid ink-black cut-out silhouettes</span>
+<span class="pos">varied body types: full-figured, curvy, broad, round, heavyset AND tall</span>
+<span class="neg">never an empty outline · no hollow interior</span>
+<span class="cm">// strength raised so the black actually floods the body</span></div>
+  <div class="decision"><div class="what">The outline bug was a <i>strength</i> problem, not just wording.</div><div class="why">At 0.70 the img-to-img preserved too much of the line sketch, so the body stayed a hollow outline. Raising Kara’s colour-pass strength to 0.82 lets the black flood the silhouette while still following the pose.</div></div>
+</section>
+
+<!-- ════════ 03 ════════ -->
+<section class="section" id="s3">
+  <div class="section-header"><span class="section-number">03</span><span class="section-title">Onboarding — designing against drop-off</span></div>
+  <p class="section-desc">On mobile the headline + input ate roughly a third of the screen, leaving the canvas cramped — bad for the one thing the app is about: tracing. The deeper principle that shaped the fix: <b>show the gesture, don’t tell it.</b> An animated trace demonstrates the <em>verb</em> (“drag over this”), where a static sketch only shows the noun.</p>
+
+  <h3 class="sub">The options we weighed</h3>
+
+  <div class="group-label">① Reclaiming canvas space</div>
+  <div class="opts">
+    <div class="opt"><span class="tag no">rejected</span><div class="opt-name">Collapse on scroll</div><div class="opt-note">Scroll fights the drawing gesture — a finger-drag would scroll instead of draw.</div></div>
+    <div class="opt"><span class="tag no">rejected</span><div class="opt-name">Auto-fullscreen on touch</div><div class="opt-note">The first touch <em>is</em> the first stroke — going fullscreen on it eats the stroke or feels jarring.</div></div>
+    <div class="opt chosen"><span class="tag yes">chosen</span><div class="opt-name">State-based collapse on confirm</div><div class="opt-note">Confirming a word collapses the headline into a chip and expands the canvas. Tied to a meaningful moment, no gesture conflict.</div></div>
+  </div>
+
+  <div class="group-label">② First load — what greets you</div>
+  <div class="opts">
+    <div class="opt"><span class="tag maybe">considered</span><div class="opt-name">Clean intent boot</div><div class="opt-note">Just headline + input. Most on-concept, but a blank canvas is less self-explanatory.</div></div>
+    <div class="opt"><span class="tag maybe">considered</span><div class="opt-name">Example chip</div><div class="opt-note">A small “try: cat” offer. Keeps the demo, but hides it behind a tap.</div></div>
+    <div class="opt chosen"><span class="tag yes">chosen</span><div class="opt-name">Visible animated demo</div><div class="opt-note">A look-only cat that draws itself on a ghost-trace loop. Shows the gesture before a word is typed — “something visible tells more than words.”</div></div>
+  </div>
+
+  <div class="group-label">③ Reading detail — zoom</div>
+  <div class="opts">
+    <div class="opt chosen"><span class="tag yes">chosen</span><div class="opt-name">A · Pinch-zoom + pan</div><div class="opt-note">One finger draws, two fingers zoom/pan inside the canvas. Best for precise tracing.</div></div>
+    <div class="opt"><span class="tag no">rejected</span><div class="opt-name">B · Expand reference view</div><div class="opt-note">Cheap, but you’d trace small while looking big — split attention.</div></div>
+    <div class="opt"><span class="tag no">rejected</span><div class="opt-name">C · Zoom ± buttons</div><div class="opt-note">Reliable, but adds chrome to a clean screen.</div></div>
+    <div class="opt chosen"><span class="tag yes">first</span><div class="opt-name">D · Bigger canvas</div><div class="opt-note">Shipped first via the collapse — solved most of the problem before zoom was even needed.</div></div>
+  </div>
+
+  <h3 class="sub">The chosen flow</h3>
+  <div class="flow">
+    <div class="flow-step hl">
+      <div class="fs-label">State 1 · Intent</div>
+      <div class="fs-title">Cat draws itself</div>
+      <ul><li>Headline + input (full hierarchy)</li><li>Look-only ghost-trace cat</li><li>Two ways forward ↓</li></ul>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step hl">
+      <div class="fs-label">State 2 · Trace</div>
+      <div class="fs-title">Big canvas</div>
+      <ul><li>Headline collapses → word chip + back</li><li>Canvas expands to fill</li><li>Pinch to zoom into detail</li></ul>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="fs-label">Next</div>
+      <div class="fs-title">Choose your artist</div>
+      <ul><li>Carries the traced sketch forward</li></ul>
+    </div>
+  </div>
+  <p class="section-desc" style="margin-top:4px;">Two entry paths into State&nbsp;2:
+    <span class="branch">“Sketch a cat” → real AI cat scaffold</span>
+    <span class="branch">type a word → scaffold for that word</span>
+    The demo silhouette is never traced — it only teaches the gesture.</p>
+
+  <h3 class="sub">Sub-decisions</h3>
+  <ul class="clean">
+    <li><b>Look-only demo</b> — the cat is <code>pointer-events: none</code>; nothing is interactive until you commit, which sidesteps the “touch eats the first stroke” problem.</li>
+    <li><b>“Sketch a cat” generates a real scaffold</b> — not the silhouette. The label was changed from “Trace this cat” once it was clear you trace the generated sketch, not the demo.</li>
+    <li><b>The cat SVG</b> — a single continuous outline path, so the ghost line draws the whole cat in one satisfying stroke. Sized down with even padding so it breathes.</li>
+    <li><b>Reduced-motion</b> — users with that setting see the trace already half-drawn and still, so the concept still reads without animation.</li>
+    <li><b>Pinch-zoom is view-only</b> — a CSS transform on a layer holding the scaffold + canvas, so strokes stay in canvas coordinates and the final-card export is untouched. A “Pinch to zoom in and out” hint sits under the canvas.</li>
+  </ul>
+</section>
+
+<!-- ════════ 04 ════════ -->
+<section class="section" id="s4">
+  <div class="section-header"><span class="section-number">04</span><span class="section-title">Supporting logic — card-label grammar</span></div>
+  <p class="section-desc">The card prints <code>THE&nbsp;[WORD]</code>, turning verbs into agent nouns. A bug printed <b>“THE SWIMER”</b>; fixing it meant defining a small grammar rule for <code>-ing</code> words.</p>
+  <ul class="clean">
+    <li><b>swimming → swimmer</b>, <b>running → runner</b> — the <code>-ing</code> form already shows the doubled consonant; keep it.</li>
+    <li><b>writing → writer</b>, <b>biting → biter</b> — silent-e words never double.</li>
+    <li><b>drawing → drawer</b>, <b>reading → reader</b> — single trailing consonant, just add <code>-er</code>.</li>
+  </ul>
+  <div class="decision key">
+    <div class="what"><span class="next-tag">next step</span>&nbsp; Generalise the rule — <span class="prio">low priority</span></div>
+    <div class="why">The current logic covers the common cases, but English agent-noun formation is irregular. A more robust approach (a broader rule set, a small dictionary, or an LLM call) should be considered later so it holds up across a much wider range of words.</div>
+  </div>
+</section>
+
+<!-- ════════ 05 ════════ -->
+<section class="section" id="s5">
+  <div class="section-header"><span class="section-number">05</span><span class="section-title">Open questions &amp; next steps</span></div>
+
+  <div class="decision key">
+    <div class="what"><span class="next-tag">up next</span>&nbsp; Loading animations &amp; transitions</div>
+    <div class="why">The immediate focus: motion for the in-between moments — scaffold generation, artist styling, and screen-to-screen transitions — to make the waits feel intentional and the flow feel continuous. (Already sketched as “loading anim / what the model is doing” on Screen&nbsp;2.)</div>
+  </div>
+
+  <ul class="clean">
+    <li><b>Pinch-zoom feel</b> — tune sensitivity, max zoom and double-tap reset on a real device.</li>
+    <li><b>Full-bleed card</b> — verify the cover-crop on a real generated card (esp. the Kara black fill).</li>
+    <li><b>“About the artist” panel</b> — the bio screen from the Screen&nbsp;3 sketch isn’t built yet.</li>
+    <li><b>Card-label grammar</b> — generalise the agent-noun rule (see §04, low priority).</li>
+    <li><b>Purple intensity</b> — decide how saturated the accent should feel once motion is in.</li>
+  </ul>
+</section>
+
+<!-- ════════ 06 ════════ -->
+<section class="section" id="s6">
+  <div class="section-header"><span class="section-number">06</span><span class="section-title">Visual appendix</span></div>
+  <p class="section-desc">Test outputs and states from the session.</p>
+  <div class="img-row">
+    <figure><img src="./img/d44e679fe7a3.png" alt="Kara Walker swimmer card"><figcaption><b>Kara Walker — solid black cut-out.</b> Also the source of the “THE SWIMER” label bug (§04).</figcaption></figure>
+    <figure><img src="./img/ffb36800b272.png" alt="Keith Haring swimmer card"><figcaption><b>Keith Haring final card.</b> Flat neon fills, graphic immediacy.</figcaption></figure>
+    <figure><img src="./img/e097931067ee.png" alt="Light line swimmer scaffold"><figcaption><b>Line scaffold.</b> A light gestural sketch — the kind of guide you trace over.</figcaption></figure>
+  </div>
+</section>
+
+</body>
+</html>

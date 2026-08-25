@@ -57,4 +57,22 @@
   --colors-border-divider: var(--grey-10);
   --colors-surface-subtle: var(--grey-10);
   --colors-surface-inverted: var(--grey-90);
+  /* ADDED BY HAND, 2026-08-21 — Flore's explicit call, not an export.
+     Figma binds this as `Colors/surface/highlight` (the pale yellow behind the
+     Artifakt hero, its image stages and the final-product panel), but the three
+     token files in this repo are an older export that predates the variable, so
+     nothing here defined it. Re-exporting was the safer fix and was rejected on
+     purpose: Flore's variable NAMES are still being cleaned up in Figma, so a
+     re-export today would churn every token in the file to fix one missing line.
+     Revisit when that cleanup lands — this comment is the marker to delete.
+
+     A LITERAL, not a `var(--primitive)` like every other line in this file, and
+     that is deliberate rather than lazy: #fdffe6 matches no primitive in
+     primitives.css (the nearest, --yellow-20, is #ffedcc — a different colour).
+     Inventing a primitive name Figma has never heard of would be worse than an
+     honest literal, since the invented name is the thing that silently survives
+     the next real export. See also mediaTints.js, which carries the same hex as
+     the Artifakt project-card tint and should be pointed at this token once the
+     export is trustworthy. */
+  --colors-surface-highlight: #fdffe6;
 }

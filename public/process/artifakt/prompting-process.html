@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artifakt — Image Generation & Prompting Process</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: #f5f4f0;
+    color: #1a1a1a;
+    padding: 48px 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .subtitle { font-size: 14px; color: #666; margin-bottom: 64px; line-height: 1.6; }
+
+  /* ── Section ── */
+  .section {
+    margin-bottom: 80px;
+    border-top: 2px solid #1a1a1a;
+    padding-top: 24px;
+  }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .section-number {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #999;
+  }
+  .section-title { font-size: 20px; font-weight: 600; }
+  .section-desc {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #444;
+    margin-bottom: 24px;
+    max-width: 720px;
+  }
+
+  /* ── Pipeline diagram ── */
+  .pipeline {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 32px 0;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .pipe-step {
+    background: #fff;
+    border: 1.5px solid #ddd;
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 13px;
+    min-width: 140px;
+  }
+  .pipe-step .pipe-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #999;
+    margin-bottom: 4px;
+  }
+  .pipe-step .pipe-name { font-weight: 600; font-size: 14px; }
+  .pipe-step .pipe-detail { font-size: 12px; color: #666; margin-top: 2px; }
+  .pipe-arrow {
+    font-size: 20px;
+    color: #bbb;
+    padding: 0 4px;
+    flex-shrink: 0;
+  }
+  .pipe-step.highlight { border-color: #7c3aed; background: #fff; }
+  .pipe-step { position: relative; cursor: pointer; }
+  .pipe-step::after {
+    content: '⊡ preview'; position: absolute; top: 8px; right: 10px;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.02em;
+    color: #7c3aed; line-height: 1;
+  }
+  .pipe-preview {
+    display: none; position: absolute; bottom: calc(100% + 10px); left: 50%;
+    transform: translateX(-50%); width: 320px; background: #fff;
+    border: 1.5px solid #7c3aed; border-radius: 10px; padding: 8px;
+    box-shadow: 0 8px 28px rgba(80,40,140,0.18); z-index: 60;
+  }
+  .pipe-preview::after {
+    content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    border: 7px solid transparent; border-top-color: #7c3aed;
+  }
+  .pipe-preview.below {
+    bottom: auto; top: calc(100% + 10px);
+  }
+  .pipe-preview.below::after {
+    top: auto; bottom: 100%;
+    border-top-color: transparent; border-bottom-color: #7c3aed;
+  }
+  .pipe-preview img { width: 100%; border-radius: 5px; display: block; background: #faf9f6; }
+  .pipe-preview-cap { display: block; font-size: 11px; line-height: 1.45; color: #555; margin-top: 6px; }
+  .pipe-step:hover .pipe-preview, .pipe-step.open .pipe-preview { display: block; }
+
+  .key-decision {
+    box-shadow: -3px 0 0 0 #7c3aed;
+    background: #f9f7ff;
+  }
+  .decision.key-decision {
+    padding-left: 12px;
+  }
+  .key-decision .decision-what {
+    color: #5b21b6;
+    font-weight: 600;
+  }
+
+  /* ── Artist grid ── */
+  .artist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+  }
+  .artist-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1.5px solid #e0ddd8;
+  }
+  .artist-card-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .artist-name { font-size: 17px; font-weight: 600; }
+  .artist-style-tag {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #999;
+  }
+
+  .pass-block { margin-bottom: 16px; }
+  .pass-block:last-child { margin-bottom: 0; }
+  .pass-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .pass-tag {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+  .pass-tag.p1 { background: #e8eaf0; color: #5c6bc0; }
+  .pass-tag.p2 { background: #fce4ec; color: #c0392b; }
+  .strength-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: #1a1a1a;
+    background: #f0ede8;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+  .pass-prompt {
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: #444;
+    background: #fafaf8;
+    border-left: 3px solid #ddd;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+  }
+  .pass-focus {
+    font-size: 11px;
+    color: #888;
+    margin-top: 6px;
+    font-style: italic;
+  }
+
+  /* ── Palette swatches ── */
+  .palette {
+    display: flex;
+    gap: 6px;
+    margin: 10px 0;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .swatch {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.1);
+    flex-shrink: 0;
+  }
+  .palette-label {
+    font-size: 11px;
+    color: #888;
+    font-style: italic;
+  }
+
+  /* ── Sketch config ── */
+  .sketch-config {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+  }
+  .config-pill {
+    font-size: 11px;
+    background: #f0ede8;
+    padding: 3px 10px;
+    border-radius: 20px;
+    color: #555;
+  }
+
+  /* ── Decision log ── */
+  .decision-log { margin-top: 24px; }
+  .decision {
+    display: grid;
+    grid-template-columns: 120px 1fr 1fr;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid #e8e5e0;
+    font-size: 13px;
+  }
+  .decision:last-child { border-bottom: none; }
+  .decision-date { color: #999; font-size: 12px; padding-top: 2px; }
+  .decision-what { line-height: 1.5; }
+  .decision-why { color: #666; line-height: 1.5; }
+  .decision-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #bbb;
+    margin-bottom: 4px;
+  }
+
+  /* ── Concept blocks ── */
+  .concept-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .concept-block {
+    background: #fff;
+    border-radius: 10px;
+    padding: 16px;
+    border: 1.5px solid #e0ddd8;
+  }
+  .concept-block h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .concept-block p { font-size: 12px; color: #666; line-height: 1.5; }
+
+  /* ── Status badge ── */
+  .status {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-left: 12px;
+  }
+  .status.working { background: #e8f5e9; color: #27ae60; }
+  .status.needs-work { background: #fff8e1; color: #f39c12; }
+  .status.in-progress { background: #e8eaf0; color: #5c6bc0; }
+
+  .note {
+    font-size: 13px;
+    background: #fff8e1;
+    border-left: 3px solid #f39c12;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    color: #555;
+    line-height: 1.6;
+    margin-top: 12px;
+  }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+  th { text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #999; padding: 8px 12px; border-bottom: 2px solid #e0ddd8; }
+  td { padding: 10px 12px; border-bottom: 1px solid #f0ede8; vertical-align: top; line-height: 1.5; }
+  tr:last-child td { border-bottom: none; }
+</style>
+</head>
+<body>
+
+<h1>Artifakt — Image Generation & Prompting Process</h1>
+<p class="subtitle">Documents the technical pipeline, per-artist prompting strategy, and design decisions for the AI-powered sketch-to-artwork transformation. Last updated: June 2026.</p>
+
+<!-- ══════════════════════════════════════════════
+     SECTION 1 — HOW THE PIPELINE WORKS
+═══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">01</span>
+    <span class="section-title">How the pipeline works</span>
+  </div>
+  <p class="section-desc">Artifakt uses a two-pass image-to-image pipeline. The user draws a sketch; that sketch is preprocessed per artist, then sent through two sequential API calls to fal.ai's Flux Dev model. Pass 1 establishes gesture and material quality. Pass 2 applies the artist's full visual identity on top.</p>
+
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="pipe-preview"><img src="./img/364746346289.png" alt="Input example"><span class="pipe-preview-cap">Raw user sketch on the canvas — loose pencil lines, no color.</span></div><div class="pipe-label">Input</div>
+      <div class="pipe-name">User sketch</div>
+      <div class="pipe-detail">Canvas drawing, 768px wide</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step highlight">
+      <div class="pipe-preview"><img src="./img/b905d96d0020.png" alt="Pre-process example"><span class="pipe-preview-cap">Sketch cleaned & line-weight adjusted per artist before the model sees it. Think of it as defining brushes in Procreate — but this time to support the unique gesture of each artist.</span></div><div class="pipe-label">Pre-process</div>
+      <div class="pipe-name">Sketch config</div>
+      <div class="pipe-detail">Line width, invert, flood fill — per artist</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step highlight">
+      <div class="pipe-preview"><img src="./img/603e78962f86.png" alt="Pass 1 example"><span class="pipe-preview-cap">Gesture + material established — strong form, no artist color yet.</span></div><div class="pipe-label">Pass 1</div>
+      <div class="pipe-name">Gesture + Material</div>
+      <div class="pipe-detail">Flux Dev img2img · no artist name · strength 0.75–0.82</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step highlight">
+      <div class="pipe-preview"><img src="./img/2646e5ca1ebf.png" alt="Pass 2 example"><span class="pipe-preview-cap">Artist identity applied — color, motifs and full style on top.</span></div><div class="pipe-label">Pass 2</div>
+      <div class="pipe-name">Finish</div>
+      <div class="pipe-detail">Flux Dev img2img · artist name + color + motifs · strength 0.70–0.90</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step">
+      <div class="pipe-preview"><img src="./img/7e7656451c8b.png" alt="Output example"><span class="pipe-preview-cap">Final artwork shown on Screen 2.</span></div><div class="pipe-label">Output</div>
+      <div class="pipe-name">Artwork</div>
+      <div class="pipe-detail">Displayed on Screen 2</div>
+    </div>
+  </div>
+
+  <div class="concept-grid">
+    <div class="concept-block">
+      <h4>Why two passes?</h4>
+      <p>Pass 1 establishes material quality (how the drawing is physically made) without contaminating it with the artist's name. Pass 2 then adds color, motifs and full style identity on top of a structurally sound base.</p>
+    </div>
+    <div class="concept-block">
+      <h4>What strength controls</h4>
+      <p>Strength = how much the model departs from the input image. 0.0 = output identical to input. 1.0 = input ignored entirely. Higher strength = more artistic transformation but looser sketch fidelity.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Why results vary</h4>
+      <p>Diffusion models start from random noise (the seed). Two identical prompts produce different results every time. Variance compounds across two passes. The ↻ regenerate button on the canvas lets users reroll.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Model used</h4>
+      <p>fal-ai/flux/dev/image-to-image. 28 inference steps, guidance scale 3.5. No LoRA fine-tuning — style is driven entirely through prompting. LoRA is a future option once the artist roster is validated.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Scaffold (Screen 1)</h4>
+      <p>The guide drawing is generated via fal-ai/flux/schnell (text-to-image, 4 steps). Prompt steers toward feminine/androgynous figures when keyword involves a person, to avoid default male representations.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Cost</h4>
+      <p>Two API calls per artist per generation. All 5 artists are pre-generated in parallel when Screen 2 loads. Regenerating one artist = 2 fresh calls for that artist only.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SECTION 2 — ARTIST ROSTER
+═══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">02</span>
+    <span class="section-title">Artist roster & rationale</span>
+  </div>
+  <p class="section-desc">Artists were chosen to be female, queer or trans — reflecting the feminist values of the project. Each artist needed to be recognizable to the Flux model (sufficient training data) and visually distinct from the others through both linework and color palette. Abstract artists (Kusama, Mehretu) were removed because their visual language doesn't transfer well through img2img prompting without LoRA training.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Artist</th>
+        <th>Style tag</th>
+        <th>Why chosen</th>
+        <th>Key visual differentiator</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Louise Bourgeois</strong></td>
+        <td>Textile</td>
+        <td>Feminist icon, psychologically charged work, unique mark-making language built from strand-like parallel strokes</td>
+        <td>Dense parallel lines building volume, blood red + cobalt blue, white paper dominant</td>
+        <td><span class="status needs-work">Needs work</span></td>
+      </tr>
+      <tr>
+        <td><strong>Kara Walker</strong></td>
+        <td>Cut-out</td>
+        <td>Strong model recognition, instantly recognizable Black silhouette aesthetic, political/historical weight</td>
+        <td>Pure black silhouette on ivory, narrative figures on ground line, no color</td>
+        <td><span class="status working">Working</span></td>
+      </tr>
+      <tr>
+        <td><strong>Niki de Saint Phalle</strong></td>
+        <td>Folk</td>
+        <td>Radical feminist sculptor, explosive saturated palette, pattern-filled forms, strong model recognition</td>
+        <td>Flat primary color fills, polka dots + stripes + zigzag patterns, carnival energy</td>
+        <td><span class="status working">Working</span></td>
+      </tr>
+      <tr>
+        <td><strong>Naoko Takeuchi</strong></td>
+        <td>Manga</td>
+        <td>Creator of Sailor Moon, strong model recognition, introduces manga as a distinct visual language in the roster</td>
+        <td>Large luminous eyes, pastel + lavender + gold, soft watercolor washes, floating motifs</td>
+        <td><span class="status working">Working</span></td>
+      </tr>
+      <tr>
+        <td><strong>Keith Haring</strong></td>
+        <td>Graphic</td>
+        <td>Queer activist, strongest model recognition of the 5, maximally distinct color language from all others</td>
+        <td>Neon primary fills inside every shape, bold black outlines, dancing figures, yellow background</td>
+        <td><span class="status working">Working</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SECTION 3 — CURRENT PROMPTS
+═══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">03</span>
+    <span class="section-title">Current prompts per artist</span>
+  </div>
+  <p class="section-desc">Each artist has two prompts (Pass 1 and Pass 2) and a sketch preprocessing config. Pass 1 describes how the drawing is physically made — the gesture and material. Pass 2 adds the artist's name, color palette, and decorative elements. The artist name only appears in Pass 2 to avoid contaminating the material layer.</p>
+
+  <div class="artist-grid">
+
+    <!-- BOURGEOIS -->
+    <div class="artist-card">
+      <div class="artist-card-header">
+        <span class="artist-name">Louise Bourgeois</span>
+        <span class="artist-style-tag">Textile</span>
+      </div>
+
+      <div class="sketch-config">
+        <span class="config-pill">Line width: 5px</span>
+        <span class="config-pill">Invert: no</span>
+        <span class="config-pill">Flood fill: no</span>
+      </div>
+
+      <div class="palette">
+        <div class="swatch" style="background:#8b0000"></div>
+        <div class="swatch" style="background:#c0392b"></div>
+        <div class="swatch" style="background:#1a4a8a"></div>
+        <div class="swatch" style="background:#ffffff; border:1px solid #ccc"></div>
+        <span class="palette-label">Blood red · cobalt blue · paper white</span>
+      </div>
+
+      <div class="pass-block">
+        <div class="pass-header">
+          <span class="pass-tag p1">Pass 1</span>
+          <span class="strength-badge">strength 0.82</span>
+        </div>
+        <div class="pass-prompt">Dense repeated parallel ink strokes building organic forms — not outlines, but accumulated strand-like lines, like hair, fibers, roots or thread pulled along the same curved path again and again. Forms have volume through repetition and directionality, not shading or gradients. Uneven pressure, slight irregularities, visible hand movement. Strong white negative space between forms. Intimate, obsessive, bodily mark-making on white paper.</div>
+        <div class="pass-focus">Focus: construction method — strand-like parallel strokes, not contour lines</div>
+      </div>
+
+      <div class="pass-block">
+        <div class="pass-header">
+          <span class="pass-tag p2">Pass 2</span>
+          <span class="strength-badge">strength 0.85</span>
+        </div>
+        <div class="pass-prompt">Louise Bourgeois artwork. Blood red ink — dominant, unmistakable, saturated. Dense parallel red strokes retracing and building the forms, spiral and curl accents in red. Cobalt blue as secondary marks. White paper showing strongly between forms. The same obsessive strand-like line quality as the drawing, but in red ink. Raw, intimate, meditative, slightly tense. Red + blue + white only.</div>
+        <div class="pass-focus">Focus: blood red as unmistakable dominant color, spiral forms, paper white preserved</div>
+      </div>
+    </div>
+
+    <!-- WALKER -->
+    <div class="artist-card">
+      <div class="artist-card-header">
+        <span class="artist-name">Kara Walker</span>
+        <span class="artist-style-tag">Cut-out</span>
+      </div>
+
+      <div class="sketch-config">
+        <span class="config-pill">Line width: 14px</span>
+        <span class="config-pill">Invert: yes</span>
+        <span class="config-pill">Flood fill: yes</span>
+      </div>
+
+      <div class="palette">
+        <div class="swatch" style="background:#0a0a0a"></div>
+        <div class="swatch" style="background:#f5f0e8"></div>
+        <span class="palette-label">Ink black · ivory paper — no color</span>
+      </div>
+
+      <div class="pass-block">
+        <div class="pass-header">
+          <span class="pass-tag p1">Pass 1</span>
+          <span class="strength-badge">strength 0.78</span>
+        </div>
+        <div class="pass-prompt">Indian ink on paper, dense absolute black. Exaggerated distorted anatomy: stretched limbs, elongated necks, oversized hands, dramatic tilted poses. Bodies defined entirely by silhouette edge. Theatrical, improvisational, each gesture pushed to its extreme.</div>
+        <div class="pass-focus">Focus: exaggerated anatomy, silhouette edge — preprocessing already handles the black fill</div>
+      </div>
+
+      <div class="pass-block">
+        <div class="pass-header">
+          <span class="pass-tag p2">Pass 2</span>
+          <span class="strength-badge">strength 0.70</span>
+        </div>
+        <div class="pass-prompt">Kara Walker artwork. Pure ink-black silhouette on warm ivory paper. Anatomy exaggerated: elongated limbs, dramatic tilted head, expressive hands. Small black silhouette figures — a person, an animal, a child — placed on a horizontal ground line at the bottom of the image, arranged as a narrative frieze. No color, no grey fill, no interior detail. Purely black and ivory.</div>
+        <div class="pass-focus">Focus: lower strength to protect silhouette; narrative figures on ground line</div>
+      </div>
+
+      <div class="note">Preprocessing note: Walker's sketch is inverted (white lines on black background), then flood-filled from center to create a solid black silhouette, then re-inverted. This is what produces the cut-out look — not the prompt alone. Known bug: flood fill can fill entire canvas if sketch is open/mechanical (e.g. bicycle).</div>
+    </div>
+
+    <!-- SAINT PHALLE -->
+    <div class="artist-card">
+      <div class="artist-card-header">
+        <span class="artist-name">Niki de Saint Phalle</span>
+        <span class="artist-style-tag">Folk</span>
+      </div>
+
+      <div class="sketch-config">
+        <span class="config-pill">Line width: 4px</span>
+        <span class="config-pill">Invert: no</span>
+        <span class="config-pill">Flood fill: no</span>
+      </div>
+
+      <div class="palette">
+        <div class="swatch" style="background:#f7d000"></div>
+        <div class="swatch" style="background:#1a56c4"></div>
+        <div class="swatch" style="background:#e02020"></div>
+        <div class="swatch" style="background:#1a9e1a"></div>
+        <div class="swatch" style="background:#0a0a0a"></div>
+        <span class="palette-label">Primary-color playground — all at full saturation</span>
+      </div>
+
+      <div class="pass-block">
+        <div class="pass-header">
+          <span class="pass-tag p1">Pass 1</span>
+          <span class="strength-badge">strength 0.80</span>
+        </div>
+        <div class="pass-prompt">Medium felt-tip pen and fineliner on sketchbook paper. Confident direct contours, clean enclosing outlines, childlike simplicity, simplified symbolic forms. Interior marks as stripes, dots and wave patterns — flat color fills enclosed within the outlines. Spontaneous drawing energy.</div>
+        <div class="pass-focus">Focus: medium weight outlines (not thick), childlike simplicity, enclosed forms ready for color fills</div>
+      </div>
+
+      <div class="pass-block">
+        <div class="pass-header">
+          <span class="pass-tag p2">Pass 2</span>
+          <span class="strength-badge">strength 0.88</span>
+        </div>
+        <div class="pass-prompt">Niki de Saint Phalle artwork. Fill every enclosed area of the figure with flat opaque pattern: polka dots in cobalt blue, stripes in bright yellow, zigzag in red, checkerboard in green and white — no white areas left unpainted inside the figure. Extremely saturated primary colors at full intensity competing equally. Surround the figure with floating suns, snakes, hearts, flowers in the same saturated palette. Black outlines contain all colors. Explosive, carnival, zero restraint.</div>
+        <div class="pass-focus">Focus: every surface pattern-filled, no white inside the figure, carnival energy</div>
+      </div>
+    </div>
+
+    <!-- TAKEUCHI -->
+    <div class="artist-card">
+      <div class="artist-card-header">
+        <span class="artist-name">Naoko Takeuchi</span>
+        <span class="artist-style-tag">Manga</span>
+      </div>
+
+      <div class="sketch-config">
+        <span class="config-pill">Line width: 4px</span>
+        <span class="config-pill">Invert: no</span>
+        <span class="config-pill">Flood fill: no</span>
+      </div>
+
+      <div class="palette">
+        <div class="swatch" style="background:#ffb7c5"></div>
+        <div class="swatch" style="background:#c9a0e8"></div>
+        <div class="swatch" style="background:#a0c8f0"></div>
+        <div class="swatch" style="background:#f5d76e"></div>
+        <div class="swatch" style="background:#fffaf5; border:1px solid #ddd"></div>
+        <span class="palette-label">Pastel pink · lavender · sky blue · gold · cream</span>
+      </div>
+
+      <div class="pass-block">
+        <div class="pass-header">
+          <span class="pass-tag p1">Pass 1</span>
+          <span class="strength-badge">strength 0.75</span>
+        </div>
+        <div class="pass-prompt">Light pencil and fine ink on smooth manga paper. Delicate varying-weight lines — thin and slightly sketchy, not uniform or bold. Soft flowing contours with occasional line breaks. Elongated elegant proportions, ribbon-like hair strokes. Abundant white paper showing through. Light-handed, airy, never heavy.</div>
+        <div class="pass-focus">Focus: delicate light lines, lower strength to protect sketch, airy manga paper quality</div>
+      </div>
+
+      <div class="pass-block">
+        <div class="pass-header">
+          <span class="pass-tag p2">Pass 2</span>
+          <span class="strength-badge">strength 0.80</span>
+        </div>
+        <div class="pass-prompt">Naoko Takeuchi artwork, Sailor Moon manga style. Exaggerated oversized luminous eyes with multiple iris ring details, sparkle catchlight highlights, and white reflection dots. Selective transparent color washes — soft peach on skin, pastel tones on hair, light watercolor fills that never fully cover the paper. White highlights on hair volume, eyelids and lips. Crescent moons, stars and roses floating lightly around the subject. Delicate, luminous, dreamy.</div>
+        <div class="pass-focus">Focus: large manga eyes, selective transparent washes (never full fills), floating motifs</div>
+      </div>
+    </div>
+
+    <!-- HARING -->
+    <div class="artist-card">
+      <div class="artist-card-header">
+        <span class="artist-name">Keith Haring</span>
+        <span class="artist-style-tag">Graphic</span>
+      </div>
+
+      <div class="sketch-config">
+        <span class="config-pill">Line width: 9px</span>
+        <span class="config-pill">Invert: no</span>
+        <span class="config-pill">Flood fill: no</span>
+      </div>
+
+      <div class="palette">
+        <div class="swatch" style="background:#e02020"></div>
+        <div class="swatch" style="background:#f7d000"></div>
+        <div class="swatch" style="background:#1a56c4"></div>
+        <div class="swatch" style="background:#1a9e1a"></div>
+        <div class="swatch" style="background:#ff7700"></div>
+        <div class="swatch" style="background:#0a0a0a"></div>
+        <span class="palette-label">Neon primary colors + black — poster-like contrast</span>
+      </div>
+
+      <div class="pass-block">
+        <div class="pass-header">
+          <span class="pass-tag p1">Pass 1</span>
+          <span class="strength-badge">strength 0.80</span>
+        </div>
+        <div class="pass-prompt">Bold black marker and ink on clean paper, chalk-drawing immediacy, high contrast. Continuous unbroken contour lines, pictographic simplification, rhythmic repetition of forms, energetic motion marks, highly legible silhouettes, spontaneous execution, movement communicated through line alone.</div>
+        <div class="pass-focus">Focus: thick bold outlines, pictographic simplification, chalk-like immediacy</div>
+      </div>
+
+      <div class="pass-block">
+        <div class="pass-header">
+          <span class="pass-tag p2">Pass 2</span>
+          <span class="strength-badge">strength 0.90</span>
+        </div>
+        <div class="pass-prompt">Keith Haring artwork. Fill every enclosed shape with flat opaque neon color: bright red on the body, yellow on the background, blue on limbs, green and orange as accents — no white or grey remaining anywhere. Poster-like graphic flatness, zero shading, zero texture. Bold black outlines contain all color fills. Small dancing stick figures and barking dogs scattered in background. High-energy, public art graphic immediacy.</div>
+        <div class="pass-focus">Focus: every shape flooded with flat neon color, yellow background, dancing figures</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SECTION 4 — STRENGTH REFERENCE TABLE
+═══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">04</span>
+    <span class="section-title">Strength values at a glance</span>
+  </div>
+  <p class="section-desc">Strength controls how much the model transforms the input. Higher = more artistic freedom, looser sketch fidelity. Each artist has a different sweet spot depending on how radical their visual language is.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Artist</th>
+        <th>Pass 1 strength</th>
+        <th>Pass 2 strength</th>
+        <th>Rationale</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Louise Bourgeois</strong></td>
+        <td>0.82</td>
+        <td>0.85</td>
+        <td>Needs high freedom in both passes to build strand texture and dominant red color</td>
+      </tr>
+      <tr>
+        <td><strong>Kara Walker</strong></td>
+        <td>0.78</td>
+        <td>0.70</td>
+        <td>Lower P2 to protect the silhouette built by preprocessing; just adds narrative figures</td>
+      </tr>
+      <tr>
+        <td><strong>Niki de Saint Phalle</strong></td>
+        <td>0.80</td>
+        <td>0.88</td>
+        <td>High P2 needed to flood every shape with saturated flat color</td>
+      </tr>
+      <tr>
+        <td><strong>Naoko Takeuchi</strong></td>
+        <td>0.75</td>
+        <td>0.80</td>
+        <td>Lower P1 to keep delicate lines; P2 adds manga eyes and pastel washes</td>
+      </tr>
+      <tr>
+        <td><strong>Keith Haring</strong></td>
+        <td>0.80</td>
+        <td>0.90</td>
+        <td>Highest P2 of all — neon color fills need maximum transformation freedom</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SECTION 5 — KEY DECISIONS LOG
+═══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">05</span>
+    <span class="section-title">Key decisions log</span>
+  </div>
+  <p class="section-desc">A record of the major technical and creative decisions made during development, and the reasoning behind each.</p>
+
+  <div class="decision-log">
+
+    <div class="decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 4–5</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">Replaced Kusama and Mehretu with Walker, Saint Phalle, Takeuchi, Haring</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">Abstract painters don't transfer well through img2img prompting — Flux doesn't have enough training data on them, and abstract styles require LoRA fine-tuning to work. Replaced with artists whose visual language is figurative enough to be recognizable.</div>
+      </div>
+    </div>
+
+    <div class="decision key-decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 5</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">Added per-artist sketch preprocessing (ARTIST_SKETCH_CONFIG)</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">Different artists need different input qualities. Walker needs thick lines (14px) + flood fill to create a solid silhouette. Haring needs bold lines (9px). Takeuchi needs thin delicate lines (4px). The preprocessing does structural work the prompt alone can't do.</div>
+      </div>
+    </div>
+
+    <div class="decision key-decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 5</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">Moved to two-pass pipeline instead of single pass</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">Single pass at moderate strength produced 5 nearly identical clean outline drawings. Separating gesture+material (Pass 1, no artist name) from finish (Pass 2, artist name + color) allows each layer to do its job cleanly without interference.</div>
+      </div>
+    </div>
+
+    <div class="decision key-decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 5</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">Artist name only appears in Pass 2, not Pass 1</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">Including the artist name in Pass 1 contaminates the material layer — the model starts applying style before the structural quality is established. Pass 1 prompt describes the physical drawing tool and mark-making, Pass 2 prompt adds the artist's name and visual identity.</div>
+      </div>
+    </div>
+
+    <div class="decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 5</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">Reverted from flux/schnell back to flux/dev for img2img</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">flux/schnell (4-step distilled model) produced wildly hallucinated results for stylized artwork — e.g. entire canvas covered in random red polka dots. flux/dev with 28 steps + guidance_scale 3.5 gives the model enough structure to follow the prompt accurately.</div>
+      </div>
+    </div>
+
+    <div class="decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 6</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">Rewrote Bourgeois prompts around strand-like parallel strokes, not contour lines</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">Reference images showed that Bourgeois builds forms through accumulated parallel strands (like hair, fiber, roots) — not through repeated contour lines. The original prompt was describing the wrong construction method. The new prompt describes volume through repetition and directionality.</div>
+      </div>
+    </div>
+
+    <div class="decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 6</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">Added scaffold prompt instruction to avoid default male figures</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">When keywords like "yogi" or "dancer" were used, the scaffold generated typically male figures. Added instruction: "if depicting a person or body: feminine or androgynous or non-binary figure, queer aesthetic" to align the guide image with the feminist values of the project.</div>
+      </div>
+    </div>
+
+    <div class="decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 6</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">Added ↻ regenerate button directly on the canvas (not in action bar)</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">Diffusion model variance is permanent — different seeds always produce different results. Instead of fighting this, the UX embraces it. The button lives on the image (top-right corner), appears only after generation completes, regenerates only the current artist, clears just that artist's cache.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SECTION 6 — WHAT'S NEXT
+═══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">06</span>
+    <span class="section-title">Open questions & next steps</span>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Topic</th>
+        <th>Status</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Louise Bourgeois results</strong></td>
+        <td><span class="status needs-work">Needs work</span></td>
+        <td>The strand-parallel-stroke quality is still hard to achieve through prompting alone. LoRA training on Bourgeois reference images may be needed to capture this specific mark-making language.</td>
+      </tr>
+      <tr>
+        <td><strong>Walker flood fill bug</strong></td>
+        <td><span class="status needs-work">Known bug</span></td>
+        <td>Flood fill from canvas center fails for mechanical/open shapes (bicycle, etc.) — fills entire black background instead of subject. Needs a smarter flood fill approach or a fallback for non-figurative subjects.</td>
+      </tr>
+      <tr>
+        <td><strong>Loading time</strong></td>
+        <td><span class="status in-progress">In progress</span></td>
+        <td>Two passes of flux/dev = ~30–40s per artist. flux/schnell was tested but too unpredictable for stylized artwork. Consider improved loading animations or showing Pass 1 result as a preview while Pass 2 loads.</td>
+      </tr>
+      <tr>
+        <td><strong>LoRA fine-tuning</strong></td>
+        <td><span class="status in-progress">Future option</span></td>
+        <td>$2/artist/run on fal.ai. Needs 4+ reference images per artist. Would close the remaining quality gap, especially for Bourgeois. Recommended after artist roster is validated through user testing.</td>
+      </tr>
+      <tr>
+        <td><strong>Fidelity slider</strong></td>
+        <td><span class="status in-progress">Future feature</span></td>
+        <td>"Stay close to my sketch" ↔ "Be more artistic" — maps to strength parameter. Would give users direct control over the sketch fidelity vs transformation tradeoff.</td>
+      </tr>
+      <tr>
+        <td><strong>Upload Takeuchi + Haring references to Cloudinary</strong></td>
+        <td><span class="status needs-work">Pending</span></td>
+        <td>ARTIST_REFERENCES has empty strings for Takeuchi and Haring. Currently unused (model doesn't support style_image param), but needed if LoRA path is taken.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SECTION 7 — VISUAL APPENDIX
+═══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">07</span>
+    <span class="section-title">Visual appendix — references & test progression</span>
+  </div>
+  <p class="section-desc">Part 1 shows the reference images used to shape each artist's prompts. Part 2 traces the test progression — click any grey slot to load a screenshot from your files (images stay in the page until you reload).</p>
+</div>
+
+<div class="appendix-part-title">Part 1 — Artist visual references</div>
+
+<!-- BOURGEOIS REFS -->
+<div class="appendix-phase">
+  <div class="appendix-phase-header">
+    <span class="appendix-phase-number" style="background:#fce4ec;color:#c0392b">LB</span>
+    <div>
+      <div class="appendix-phase-title">Louise Bourgeois — reference images</div>
+      <div class="appendix-phase-meta">The Fragile series · June 2026 scans · key insight: volume through parallel strand accumulation, not outlines</div>
+    </div>
+  </div>
+  <div class="img-row" id="ref-bourgeois">
+    <div class="img-slot img-slot-static">
+      <img src="./img/d3162a05a6d0.jpg" alt="Bourgeois The Fragile">
+      <div class="img-caption">The Fragile — dense parallel black strokes</div>
+    </div>
+    <div class="img-slot img-slot-static">
+      <img src="./img/ae71da697b79.jpg" alt="Bourgeois scan 1">
+      <div class="img-caption">Red spiral forms — strand accumulation in red ink</div>
+    </div>
+    <div class="img-slot img-slot-static">
+      <img src="./img/424bdb299b81.jpg" alt="Bourgeois scan 2">
+      <div class="img-caption">Scan page 2 — mark-making detail</div>
+    </div>
+    <div class="img-slot img-slot-static">
+      <img src="./img/9d332448ebca.png" style="width:100%;height:100%;object-fit:contain;">
+      <div class="img-slot-caption">Red web — The Fragile</div>
+    </div>
+    <div class="img-slot img-slot-static">
+      <img src="./img/041146723d62.webp" style="width:100%;height:100%;object-fit:contain;">
+      <div class="img-slot-caption">Cobalt web</div>
+    </div>
+  </div>
+</div>
+
+<!-- WALKER REFS -->
+<div class="appendix-phase">
+  <div class="appendix-phase-header">
+    <span class="appendix-phase-number" style="background:#1a1a1a;color:#fff">KW</span>
+    <div>
+      <div class="appendix-phase-title">Kara Walker — reference images</div>
+      <div class="appendix-phase-meta">Pure black silhouette on ivory · exaggerated anatomy · narrative figures on ground line</div>
+    </div>
+  </div>
+  <div class="img-row" id="ref-walker">
+    <div class="img-slot img-slot-static">
+      <img src="./img/5e88cbe36508.webp" alt="Kara Walker">
+      <div class="img-caption">Walker silhouette work — black on ivory, narrative figures</div>
+    </div>
+    <div class="img-slot img-slot-static">
+      <img src="./img/76b96096ea89.png" style="width:100%;height:100%;object-fit:contain;">
+      <div class="img-slot-caption">Silhouette panorama</div>
+    </div>
+    <div class="img-slot img-slot-static">
+      <img src="./img/6d4d33ddd9ff.webp" style="width:100%;height:100%;object-fit:contain;">
+      <div class="img-slot-caption">Ink work</div>
+    </div>
+  </div>
+</div>
+
+<!-- SAINT PHALLE REFS -->
+<div class="appendix-phase">
+  <div class="appendix-phase-header">
+    <span class="appendix-phase-number" style="background:#f7d000;color:#1a1a1a">NS</span>
+    <div>
+      <div class="appendix-phase-title">Niki de Saint Phalle — reference images</div>
+      <div class="appendix-phase-meta">Family Sketches 1967 · medium line weight, flat color fills, saturated primaries</div>
+    </div>
+  </div>
+  <div class="img-row" id="ref-saintphalle">
+    <div class="img-slot img-slot-static">
+      <img src="./img/dffebc8e4954.jpg" alt="Saint Phalle Family Sketches">
+      <div class="img-caption">Family Sketches 1967 — medium line, flat fills</div>
+    </div>
+    <div class="img-slot img-slot-static">
+      <img src="./img/9a2e49836092.webp" style="width:100%;height:100%;object-fit:contain;">
+      <div class="img-slot-caption">You are my love, 1968</div>
+    </div>
+    <div class="img-slot img-slot-static">
+      <img src="./img/8b78ec341808.webp" style="width:100%;height:100%;object-fit:contain;">
+      <div class="img-slot-caption">Inspired ref</div>
+    </div>
+  </div>
+</div>
+
+<!-- TAKEUCHI REFS -->
+<div class="appendix-phase">
+  <div class="appendix-phase-header">
+    <span class="appendix-phase-number" style="background:#ffb7c5;color:#7a2040">NT</span>
+    <div>
+      <div class="appendix-phase-title">Naoko Takeuchi — reference images</div>
+      <div class="appendix-phase-meta">Signed shikishi board · light lines, selective watercolor washes, large luminous eyes</div>
+    </div>
+  </div>
+  <div class="img-row" id="ref-takeuchi">
+    <div class="img-slot img-slot-static">
+      <img src="./img/4153bc686099.jpg" alt="Takeuchi signed drawing">
+      <div class="img-caption">Signed shikishi — light lines, pastel washes, manga eyes</div>
+    </div>
+    <div class="img-slot" onclick="triggerUpload('ref-takeuchi', 1)">
+      <div class="img-slot-inner"><span class="img-slot-icon">＋</span><span class="img-slot-label">Add reference</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- HARING REFS -->
+<div class="appendix-phase">
+  <div class="appendix-phase-header">
+    <span class="appendix-phase-number" style="background:#e02020;color:#fff">KH</span>
+    <div>
+      <div class="appendix-phase-title">Keith Haring — reference images</div>
+      <div class="appendix-phase-meta">Original works · flat neon fills, bold black outlines, dancing figures, yellow background</div>
+    </div>
+  </div>
+  <div class="img-row" id="ref-haring">
+    <div class="img-slot img-slot-static">
+      <img src="./img/bb04f77b3d35.jpg" alt="Keith Haring artwork">
+      <div class="img-caption">Haring original — flat primary fills, pictographic figures</div>
+    </div>
+    <div class="img-slot img-slot-static">
+      <img src="./img/dd91c2c6859b.webp" style="width:100%;height:100%;object-fit:contain;">
+      <div class="img-slot-caption">Neon primary — original work</div>
+    </div>
+  </div>
+</div>
+
+<!-- PART 2 -->
+<div class="appendix-part-title" style="margin-top:48px">Part 2 — Test progression (app outputs)</div>
+<p class="section-desc" style="margin-bottom:32px">The test screenshots from our sessions were not saved locally. Click the grey slots to load them from your Downloads or Screenshots folder.</p>
+
+<div class="appendix-phase">
+  <div class="appendix-phase-header">
+    <span class="appendix-phase-number">A</span>
+    <div>
+      <div class="appendix-phase-title">Single pass — early tests</div>
+      <div class="appendix-phase-meta">All 5 artists, cat · Single prompt ~0.78 · No preprocessing</div>
+    </div>
+    <span class="status needs-work">Rejected</span>
+  </div>
+  <p class="appendix-phase-desc">All outputs nearly identical — same clean outline regardless of artist. Led to preprocessing + two-pass pipeline.</p>
+  <div class="img-row" id="phase-a">
+    <div class="img-slot img-slot-static">
+      <img src="./img/85e4c875e36b.png" style="width:100%;height:100%;object-fit:contain;">
+      <div class="img-slot-caption">Screen 1 — cat sketch</div>
+    </div>
+  </div>
+</div>
+
+<div class="appendix-phase">
+  <div class="appendix-phase-header">
+    <span class="appendix-phase-number">B</span>
+    <div>
+      <div class="appendix-phase-title">Preprocessing added — Walker silhouette working</div>
+      <div class="appendix-phase-meta">Walker: 14px + invert + flood fill · Haring: 9px · Others: 4–5px</div>
+    </div>
+    <span class="status in-progress">Milestone</span>
+  </div>
+  <p class="appendix-phase-desc">First visible differentiation. Walker's black silhouette achieved via preprocessing alone, not prompting.</p>
+  <div class="img-row" id="phase-b">
+    <div class="img-slot" onclick="triggerUpload('phase-b', 0)">
+      <div class="img-slot-inner"><span class="img-slot-icon">＋</span><span class="img-slot-label">Preprocessing test — cat</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="appendix-phase">
+  <div class="appendix-phase-header">
+    <span class="appendix-phase-number">C</span>
+    <div>
+      <div class="appendix-phase-title">Two-pass — P1 strength too low (0.62–0.70)</div>
+      <div class="appendix-phase-meta">Pass 1 no artist name · Pass 2 finish + artist name</div>
+    </div>
+    <span class="status needs-work">Too weak</span>
+  </div>
+  <p class="appendix-phase-desc">Model just cleaned the sketch — no material texture. 4 identical clean outlines. Only Walker differed (preprocessing).</p>
+  <div class="img-row" id="phase-c">
+    <div class="img-slot" onclick="triggerUpload('phase-c', 0)">
+      <div class="img-slot-inner"><span class="img-slot-icon">＋</span><span class="img-slot-label">Test 1 — cat</span></div>
+    </div>
+    <div class="img-slot" onclick="triggerUpload('phase-c', 1)">
+      <div class="img-slot-inner"><span class="img-slot-icon">＋</span><span class="img-slot-label">Test 2 — cat</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="appendix-phase">
+  <div class="appendix-phase-header">
+    <span class="appendix-phase-number">D</span>
+    <div>
+      <div class="appendix-phase-title">P1 strength raised 0.78–0.80 + color palettes added</div>
+      <div class="appendix-phase-meta">Specific named palettes in P2 · Saint Phalle P2: 0.82 · Haring P2: 0.88</div>
+    </div>
+    <span class="status in-progress">Improving</span>
+  </div>
+  <p class="appendix-phase-desc">Saint Phalle motifs appearing. Takeuchi manga eyes visible. Haring figures present but fills weak. Bourgeois still subtle.</p>
+  <div class="img-row" id="phase-d">
+    <div class="img-slot img-slot-static">
+      <img src="./img/851b8a29b4a9.png" style="width:100%;height:100%;object-fit:contain;">
+      <div class="img-slot-caption">Old roster — Frida Kahlo label (pre-Takeuchi)</div>
+    </div>
+    <div class="img-slot" onclick="triggerUpload('phase-d', 1)">
+      <div class="img-slot-inner"><span class="img-slot-icon">＋</span><span class="img-slot-label">Test 2 — cat</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="appendix-phase">
+  <div class="appendix-phase-header">
+    <span class="appendix-phase-number">E</span>
+    <div>
+      <div class="appendix-phase-title">Multi-subject test — cat · dragon · bike · yogi</div>
+      <div class="appendix-phase-meta">Haring P2: 0.90 · Bourgeois P2: 0.80 · Scaffold updated for non-male figures</div>
+    </div>
+    <span class="status working">Good progress</span>
+  </div>
+  <p class="appendix-phase-desc">Saint Phalle + Takeuchi consistent across subjects. Walker fails for bike (flood fill bug). Bourgeois still too subtle.</p>
+  <div class="img-row" id="phase-e">
+    <div class="img-slot" onclick="triggerUpload('phase-e', 0)">
+      <div class="img-slot-inner"><span class="img-slot-icon">＋</span><span class="img-slot-label">Cat</span></div>
+    </div>
+    <div class="img-slot" onclick="triggerUpload('phase-e', 1)">
+      <div class="img-slot-inner"><span class="img-slot-icon">＋</span><span class="img-slot-label">Dragon</span></div>
+    </div>
+    <div class="img-slot" onclick="triggerUpload('phase-e', 2)">
+      <div class="img-slot-inner"><span class="img-slot-icon">＋</span><span class="img-slot-label">Bike</span></div>
+    </div>
+    <div class="img-slot" onclick="triggerUpload('phase-e', 3)">
+      <div class="img-slot-inner"><span class="img-slot-icon">＋</span><span class="img-slot-label">Yogi</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="appendix-phase">
+  <div class="appendix-phase-header">
+    <span class="appendix-phase-number">F</span>
+    <div>
+      <div class="appendix-phase-title">Bourgeois rewrite — strand-parallel strokes</div>
+      <div class="appendix-phase-meta">P1: 0.82 · P2: 0.85 · Blood red dominant · volume through strand accumulation</div>
+    </div>
+    <span class="status in-progress">In progress</span>
+  </div>
+  <p class="appendix-phase-desc">Prompt rebuilt around construction method (accumulated parallel strands, not outlines). Blood red as unmistakable dominant color.</p>
+  <div class="img-row" id="phase-f">
+    <div class="img-slot img-slot-static">
+      <img src="./img/85d4586efbaa.png" style="width:100%;height:100%;object-fit:contain;">
+      <div class="img-slot-caption">Bourgeois — cat output</div>
+    </div>
+  </div>
+</div>
+
+<div class="appendix-phase" style="margin-bottom:0">
+  <div class="appendix-phase-header">
+    <span class="appendix-phase-number">G</span>
+    <div>
+      <div class="appendix-phase-title">Current state — all 5 artists</div>
+      <div class="appendix-phase-meta">Prompts as in Section 03 · Add latest results here as you test</div>
+    </div>
+    <span class="status working">Current</span>
+  </div>
+  <p class="appendix-phase-desc">Keith Haring: neon fills + dancing figures working well. Saint Phalle + Takeuchi consistent. Walker reliable for organic shapes. Bourgeois being refined.</p>
+  <div class="img-row" id="phase-g">
+    <div class="img-slot img-slot-static">
+      <img src="./img/85d4586efbaa.png" style="width:100%;height:100%;object-fit:contain;">
+      <div class="img-slot-caption">Bourgeois — cat</div>
+    </div>
+    <div class="img-slot img-slot-static">
+      <img src="./img/2ea74a45905d.png" style="width:100%;height:100%;object-fit:contain;">
+      <div class="img-slot-caption">Walker — cat</div>
+    </div>
+    <div class="img-slot img-slot-static">
+      <img src="./img/a9c321335d53.png" style="width:100%;height:100%;object-fit:contain;">
+      <div class="img-slot-caption">Saint Phalle — cat</div>
+    </div>
+    <div class="img-slot img-slot-static">
+      <img src="./img/73ac630a9cc1.png" style="width:100%;height:100%;object-fit:contain;">
+      <div class="img-slot-caption">Haring — cat</div>
+    </div>
+    
+    
+    
+  </div>
+</div>
+
+
+
+<div class="appendix-part-title" style="margin-top:56px">Part 3 — Process screenshots from session</div>
+<p class="section-desc" style="margin-bottom:32px">All 40 images exported from the chat, in chronological order — the full iterative progression from early single-pass tests through two-pass calibration to final per-artist results.</p>
+<style>
+  .proc-gallery { display:flex; flex-direction:column; gap:20px; }
+  .proc-img-wrap { background:#fafaf8; border:1px solid #e0ddd8; border-radius:8px; overflow:hidden; }
+  .proc-img-num { font-size:11px; font-family:monospace; color:#999; padding:8px 12px 4px; }
+  .proc-img-intensity { font-size:11px; font-family:monospace; color:#8a7a55; background:#faf6ec; border:1px solid #ece2c8; border-radius:4px; display:inline-block; margin:0 12px 6px; padding:3px 8px; line-height:1.5; }
+  .proc-img-desc { font-size:13.5px; line-height:1.5; color:#444; padding:2px 14px 10px; max-width:760px; }
+  .proc-img-name { font-size:10px; font-family:monospace; color:#bbb; padding:4px 12px 8px; word-break:break-all; }
+  .proc-img-artist { padding:10px 12px 6px 9px; margin:8px 12px 0; background:#fff; border-radius:4px; }
+  .proc-img-artist-name { display:block; font-size:15px; font-weight:600; color:#1a1a1a; letter-spacing:-0.01em; }
+  .proc-img-artist-tag { display:block; font-size:11px; color:#999; margin-top:2px; text-transform:uppercase; letter-spacing:0.06em; }
+</style>
+<div class="proc-gallery">
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">01</div>
+      <div class="proc-img-intensity">Single pass · strength ~0.78</div>
+      <div class="proc-img-desc">First full run — cat sketch through the early roster (Kusama, Bourgeois, Walker, Mehretu). Outputs barely differ from the input outline.</div>
+      <img src="./img/d1dc944afaeb.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113360699.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">02</div>
+      <div class="proc-img-intensity">Single pass · strength ~0.78</div>
+      <div class="proc-img-desc">Roster narrowed toward the working five. Walker's silhouette and Haring's radiating lines start to read as distinct.</div>
+      <img src="./img/0a0c7ae1e8ae.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113399912.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">03</div>
+      <div class="proc-img-intensity">Single pass · strength ~0.78</div>
+      <div class="proc-img-desc">Single-pass test (Frida Kahlo still in the lineup). Bourgeois embroidered-red, Walker cut-out, Niki patterned — differentiation emerging.</div>
+      <img src="./img/1e19b699925c.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113410344.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">04</div>
+      <div class="proc-img-intensity">Single pass · strength ~0.78</div>
+      <div class="proc-img-desc">Cat across artists — Niki sparkle motifs and Takeuchi roses/stars appear; Bourgeois still a plain outline.</div>
+      <img src="./img/51280250a9b0.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113449481.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">05</div>
+      <div class="proc-img-intensity">Two-pass · P1 0.62–0.70 → P2 ~0.72 (approx)</div>
+      <div class="proc-img-desc">Two-pass progression strip — early dotted and silhouette results.</div>
+      <img src="./img/7a50127cb8e0.png" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113454364.png</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">06</div>
+      <div class="proc-img-intensity">Two-pass · P1 ~0.70 → P2 ~0.75 (approx)</div>
+      <div class="proc-img-desc">Cat run — Walker narrative figures on a ground line, Haring floating hearts, Takeuchi bow.</div>
+      <img src="./img/325493356117.png" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113462232.png</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">07</div>
+      <div class="proc-img-intensity">Single pass · strength ~0.78</div>
+      <div class="proc-img-desc">'Happy B-Day' sketch test — checking how extra text and a looser drawing carry through.</div>
+      <img src="./img/0402e0645d74.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113467635.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">08</div>
+      <div class="proc-img-intensity">Two-pass · P1 ~0.70 → P2 0.72–0.85 (approx)</div>
+      <div class="proc-img-desc">Cleaner-line cat tests — Niki celestial motifs, Takeuchi moon and rose.</div>
+      <img src="./img/ce59d0d364f8.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113479015.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">09</div>
+      <div class="proc-img-intensity">Two-pass · P1 ~0.70 → P2 0.72–0.85 (approx)</div>
+      <div class="proc-img-desc">Profile cat — Walker landscape-in-silhouette; testing pose variation.</div>
+      <img src="./img/7821865a6fc9.png" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113488042.png</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">10</div>
+      <div class="proc-img-intensity">Two-pass · P1 0.62–0.70 → P2 ~0.72 (approx)</div>
+      <div class="proc-img-desc">Two-pass progression strip.</div>
+      <img src="./img/b7717ff66222.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113494185.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">11</div>
+      <div class="proc-img-desc">Silhouette and ink-figure references — exaggerated anatomy, narrative figures on a ground line.</div>
+      <img src="./img/a4555f3317bb.jpg" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-artist" style="border-left:3px solid #1a1a1a"><span class="proc-img-artist-name">Kara Walker</span><span class="proc-img-artist-tag">Reference moodboard for prompting</span></div><div class="proc-img-name">image-1781113507900.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">12</div>
+      <div class="proc-img-desc">Notebook drawings and radiating-figure references — bold outlines, motion marks.</div>
+      <img src="./img/5d01d782623d.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-artist" style="border-left:3px solid #e02020"><span class="proc-img-artist-name">Keith Haring</span><span class="proc-img-artist-tag">Reference moodboard for prompting</span></div><div class="proc-img-name">image-1781113512004.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">13</div>
+      <div class="proc-img-desc">Dotted cat, red spider and elongated-anatomy references — volume built from parallel strands.</div>
+      <img src="./img/ce0c1ab8508f.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-artist" style="border-left:3px solid #c0392b"><span class="proc-img-artist-name">Louise Bourgeois</span><span class="proc-img-artist-tag">Reference moodboard for prompting</span></div><div class="proc-img-name">image-1781113515583.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">14</div>
+      <div class="proc-img-desc">Sailor Moon character-sheet references — light lines, large luminous eyes.</div>
+      <img src="./img/9e864a2f36e6.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-artist" style="border-left:3px solid #7a2040"><span class="proc-img-artist-name">Naoko Takeuchi</span><span class="proc-img-artist-tag">Reference moodboard for prompting</span></div><div class="proc-img-name">image-1781113519433.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">15</div>
+      <div class="proc-img-desc">Letter drawing and patterned-animal references — flat saturated fills, black contours.</div>
+      <img src="./img/e506b7d74b87.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-artist" style="border-left:3px solid #c79a00"><span class="proc-img-artist-name">Niki de Saint Phalle</span><span class="proc-img-artist-tag">Reference moodboard for prompting</span></div><div class="proc-img-name">image-1781113524143.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">16</div>
+      <div class="proc-img-intensity">Two-pass · P1 ~0.70 → P2 ~0.80 (approx)</div>
+      <div class="proc-img-desc">Test 1 — side-by-side cat comparison across the five artists.</div>
+      <img src="./img/906b7fee89f3.png" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113531379.png</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">17</div>
+      <div class="proc-img-intensity">Two-pass · P1 0.78–0.82 → P2 0.80–0.88 (approx)</div>
+      <div class="proc-img-desc">Test 2 — Bourgeois spider, Walker black, Niki gold pattern, Takeuchi, Haring dots.</div>
+      <img src="./img/0154bf9e773a.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113536217.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">18</div>
+      <div class="proc-img-desc">Additional pattern and color references — primaries, motifs, suns and snakes.</div>
+      <img src="./img/0a7eda0042ed.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-artist" style="border-left:3px solid #c79a00"><span class="proc-img-artist-name">Niki de Saint Phalle</span><span class="proc-img-artist-tag">Reference moodboard for prompting</span></div><div class="proc-img-name">image-1781113543067.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">19</div>
+      <div class="proc-img-desc">Dotted cat, blue body and red spider references.</div>
+      <img src="./img/5078ba3dd9de.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-artist" style="border-left:3px solid #c0392b"><span class="proc-img-artist-name">Louise Bourgeois</span><span class="proc-img-artist-tag">Reference moodboard for prompting</span></div><div class="proc-img-name">image-1781113551643.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">20</div>
+      <div class="proc-img-desc">Coloring and large-eye reference — peach skin, sparkle catchlights.</div>
+      <img src="./img/2f3c5465afa8.png" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-artist" style="border-left:3px solid #7a2040"><span class="proc-img-artist-name">Naoko Takeuchi</span><span class="proc-img-artist-tag">Reference moodboard for prompting</span></div><div class="proc-img-name">image-1781113555870.png</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">21</div>
+      <div class="proc-img-intensity">Two-pass · P1 0.78–0.82 → P2 0.80–0.88 (approx)</div>
+      <div class="proc-img-desc">Cat run — Walker furry black, Niki sparkle, Takeuchi moon-eyes, Haring dots.</div>
+      <img src="./img/4286bf9716ad.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113564122.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">22</div>
+      <div class="proc-img-intensity">Two-pass · P1 0.78–0.82 → P2 0.80–0.88 (approx)</div>
+      <div class="proc-img-desc">Cat run — Bourgeois 'sparkle' note, Walker silhouette with figures, Takeuchi stars.</div>
+      <img src="./img/5289e5e35927.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113568623.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">23</div>
+      <div class="proc-img-intensity">Two-pass · P1 0.78–0.82 → P2 0.80–0.88 (approx)</div>
+      <div class="proc-img-desc">Progression strip — cat tests.</div>
+      <img src="./img/afcc962f34f9.png" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113577425.png</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">24</div>
+      <div class="proc-img-intensity">Two-pass · P1 0.78–0.82 → P2 0.80–0.88 (approx)</div>
+      <div class="proc-img-desc">Progression strip — Bourgeois sparkle line, Walker black silhouette.</div>
+      <img src="./img/642380b3c2ab.png" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113582976.png</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">25</div>
+      <div class="proc-img-intensity">Two-pass · P1 0.78–0.82 → P2 0.80–0.88 (approx)</div>
+      <div class="proc-img-desc">Standing cat — full five-artist set.</div>
+      <img src="./img/be8b890e92f5.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113601828.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">26</div>
+      <div class="proc-img-intensity">Two-pass · P1 0.78–0.82 → P2 0.80–0.88 (approx)</div>
+      <div class="proc-img-desc">Cat — Bourgeois red whiskers, Walker black, Niki collar, Takeuchi.</div>
+      <img src="./img/0a5089946da2.png" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113616763.png</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">27</div>
+      <div class="proc-img-intensity">Two-pass · P1 0.78–0.82 → P2 0.80–0.88 (approx)</div>
+      <div class="proc-img-desc">Cat comparison strip.</div>
+      <img src="./img/b5671a965ed1.png" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113620994.png</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">28</div>
+      <div class="proc-img-intensity">Two-pass · P1 0.78–0.82 → P2 0.80–0.88 (approx)</div>
+      <div class="proc-img-desc">Profile cat — Walker tiny figure for scale, Niki florals, Takeuchi moon.</div>
+      <img src="./img/e92027416d2f.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113627368.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">29</div>
+      <div class="proc-img-intensity">Two-pass · P1 0.78–0.82 → P2 0.80–0.88 (approx)</div>
+      <div class="proc-img-desc">Progression strip (small).</div>
+      <img src="./img/2da0ec0e542f.png" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113635526.png</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">30</div>
+      <div class="proc-img-intensity">Two-pass · P1 0.78–0.82 → P2 0.80–0.88 (approx)</div>
+      <div class="proc-img-desc">Strip — Walker black, Niki, Takeuchi.</div>
+      <img src="./img/3d03abdd33e0.png" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113640878.png</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">31</div>
+      <div class="proc-img-desc">Signed shikishi board reference — the key Takeuchi look.</div>
+      <img src="./img/13e564a0faeb.png" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-artist" style="border-left:3px solid #7a2040"><span class="proc-img-artist-name">Naoko Takeuchi</span><span class="proc-img-artist-tag">Reference moodboard for prompting</span></div><div class="proc-img-name">image-1781113657067.png</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">32</div>
+      <div class="proc-img-intensity">Two-pass · P1 0.78–0.82 → P2 0.80–0.90 (approx)</div>
+      <div class="proc-img-desc">Cat comparison strip.</div>
+      <img src="./img/6d81d4699b7e.png" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113663071.png</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">33</div>
+      <div class="proc-img-intensity">Two-pass · P1 0.78–0.82 → P2 0.80–0.90 (approx)</div>
+      <div class="proc-img-desc">Cat — Bourgeois red outline, Walker black, Niki animal-pattern, Takeuchi blue eyes.</div>
+      <img src="./img/f88b7192de20.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113667324.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">34</div>
+      <div class="proc-img-intensity">Two-pass · P1 0.78–0.82 → P2 0.80–0.90 (approx)</div>
+      <div class="proc-img-desc">Strip — Niki polka-dot standing cat, Takeuchi, Haring.</div>
+      <img src="./img/a59182259624.png" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113682107.png</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">35</div>
+      <div class="proc-img-intensity">Two-pass · P1 0.78–0.82 → P2 0.70–0.90 (per artist)</div>
+      <div class="proc-img-desc">Dragon subject test — checking the pipeline holds beyond cats.</div>
+      <img src="./img/153b8265d0fb.png" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113685550.png</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">36</div>
+      <div class="proc-img-intensity">Two-pass · P1 0.78–0.82 → P2 0.70–0.90 (per artist)</div>
+      <div class="proc-img-desc">Bike subject test — mechanical shape; Walker flood-fill struggles on open forms.</div>
+      <img src="./img/01bdd8808b2b.png" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113690864.png</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">37</div>
+      <div class="proc-img-intensity">Two-pass · P1 0.78–0.82 → P2 0.70–0.90 (per artist)</div>
+      <div class="proc-img-desc">Yogi subject test — human figure; Niki dotted dress, Takeuchi celestial.</div>
+      <img src="./img/52b61b11e2e1.png" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113695346.png</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">38</div>
+      <div class="proc-img-intensity">Final per-artist — Bourgeois P1 0.82 / P2 0.80 · Walker P1 0.78 / P2 0.70 · Saint&nbsp;Phalle P1 0.80 / P2 0.88 · Takeuchi P1 0.75 / P2 0.80 · Haring P1 0.80 / P2 0.90</div>
+      <div class="proc-img-desc">Final calibrated set — Bourgeois clean line, Walker furry black, Niki bold primaries, Takeuchi blue eyes, Haring with dancing figures.</div>
+      <img src="./img/460a6704caf6.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113712639.webp</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">39</div>
+      <div class="proc-img-desc">Black-ink parallel-strand reference — the construction insight behind the rewritten prompt.</div>
+      <img src="./img/db2d8fe0df22.png" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113731249.png</div>
+    </div>
+    <div class="proc-img-wrap">
+      <div class="proc-img-num">40</div>
+      <div class="proc-img-desc">Red spiral-strand reference — basis for the red + blue + white palette.</div>
+      <img src="./img/4206610e7a29.webp" loading="lazy" style="width:100%;height:auto;display:block;border-radius:4px;">
+      <div class="proc-img-name">image-1781113734973.webp</div>
+    </div>
+</div>
+
+<!-- Hidden file input for uploads -->
+<input type="file" id="img-upload-input" accept="image/*" style="display:none">
+
+<style>
+  .appendix-part-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #999;
+    margin-bottom: 24px;
+    margin-top: 8px;
+    border-top: 1px solid #e0ddd8;
+    padding-top: 24px;
+  }
+  .appendix-phase {
+    margin-bottom: 48px;
+  }
+  .appendix-phase-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 10px;
+  }
+  .appendix-phase-number {
+    font-size: 12px;
+    font-weight: 700;
+    color: #bbb;
+    background: #f0ede8;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .appendix-phase-title { font-size: 16px; font-weight: 600; margin-bottom: 3px; }
+  .appendix-phase-meta { font-size: 12px; color: #888; }
+  .appendix-phase-desc {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.65;
+    margin: 8px 0 14px 50px;
+    max-width: 680px;
+  }
+  .img-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-left: 50px;
+  }
+  .img-slot {
+    width: 200px;
+    height: 280px;
+    border: 2px dashed #d0cdc8;
+    border-radius: 10px;
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+    transition: border-color 0.15s, background 0.15s;
+    background: #fafaf8;
+    flex-shrink: 0;
+  }
+  .img-slot:hover { border-color: #999; background: #f5f2ed; }
+  .img-slot-static { cursor: default; border-style: solid; border-color: #e0ddd8; }
+  .img-slot-static:hover { border-color: #e0ddd8; background: #fafaf8; }
+  .img-slot-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .img-slot-icon { font-size: 28px; color: #bbb; line-height: 1; }
+  .img-slot-label { font-size: 11px; color: #aaa; line-height: 1.5; }
+  .img-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    position: absolute;
+    top: 0; left: 0;
+    border-radius: 8px;
+  }
+  .img-caption {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    font-size: 10px;
+    padding: 5px 8px;
+    line-height: 1.4;
+  }
+  .img-slot .img-remove {
+    position: absolute;
+    top: 6px; right: 6px;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    font-size: 14px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    z-index: 2;
+  }
+  .img-slot:hover .img-remove { display: flex; }
+</style>
+
+<script>
+  let _uploadTarget = null;
+
+  function triggerUpload(phaseId, slotIndex) {
+    _uploadTarget = { phaseId, slotIndex };
+    document.getElementById('img-upload-input').click();
+  }
+
+  document.getElementById('img-upload-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file || !_uploadTarget) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const { phaseId, slotIndex } = _uploadTarget;
+      const row = document.getElementById(phaseId);
+      const slots = row.querySelectorAll('.img-slot');
+      const slot = slots[slotIndex];
+      if (!slot) return;
+      const inner = slot.querySelector('.img-slot-inner');
+      if (inner) inner.style.display = 'none';
+      const img = document.createElement('img');
+      img.src = ev.target.result;
+      slot.appendChild(img);
+      const btn = document.createElement('button');
+      btn.className = 'img-remove';
+      btn.textContent = '×';
+      btn.onclick = function(ev2) {
+        ev2.stopPropagation();
+        img.remove();
+        btn.remove();
+        if (inner) inner.style.display = '';
+        slot.onclick = function() { triggerUpload(phaseId, slotIndex); };
+      };
+      slot.appendChild(btn);
+      slot.onclick = null;
+    };
+    reader.readAsDataURL(file);
+    this.value = '';
+  });
+</script>
+
+
+<script>
+  function positionPreview(step) {
+    var preview = step.querySelector('.pipe-preview');
+    if (!preview) return;
+    preview.classList.remove('below');
+    var rect = step.getBoundingClientRect();
+    var previewH = preview.offsetHeight || 400;
+    if (rect.top < previewH + 20) {
+      preview.classList.add('below');
+    }
+  }
+  document.querySelectorAll('.pipe-step').forEach(function(step){
+    step.addEventListener('click', function(e){
+      var wasOpen = step.classList.contains('open');
+      document.querySelectorAll('.pipe-step.open').forEach(function(s){ s.classList.remove('open'); });
+      if(!wasOpen) { step.classList.add('open'); positionPreview(step); }
+      e.stopPropagation();
+    });
+    step.addEventListener('mouseenter', function(){ positionPreview(step); });
+  });
+  document.addEventListener('click', function(){
+    document.querySelectorAll('.pipe-step.open').forEach(function(s){ s.classList.remove('open'); });
+  });
+</script>
+</body>
+</html>

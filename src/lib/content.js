@@ -39,6 +39,17 @@ export function getCaseStudyBySlug(slug) {
   return Object.values(caseStudyModules).find((mod) => mod.default?.slug === slug)?.default
 }
 
+// The process-log list for a case study, if it publishes one.
+//
+// A SECOND named export off the same module as the page content, rather than a
+// separate data file: the logs are content, and keeping them beside the page
+// that links to them means the cards and the /process/:log route cannot end up
+// describing different documents. Returns [] rather than undefined so callers
+// can map without guarding -- only Artifakt has logs today.
+export function getProcessLogs(slug) {
+  return Object.values(caseStudyModules).find((mod) => mod.default?.slug === slug)?.processLogs ?? []
+}
+
 function sectionFrontmatter(path) {
   return sectionModules[`../content/sections/${path}.mdx`]?.frontmatter
 }

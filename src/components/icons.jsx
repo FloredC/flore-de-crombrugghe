@@ -12,6 +12,12 @@
 // set, 24px for menu/close); pass width/height to override.
 export { default as ArrowDownIcon } from '../assets/icons/ic-arrow-down.svg?react'
 export { default as ArrowBackIcon } from '../assets/icons/ic-arrow-back.svg?react'
+// The forward arrow on the Artifakt case study's process-log links. The asset
+// has been in src/assets/icons since the original export but was never
+// re-exported here, so it was unreachable from JSX -- added 2026-08-21 with
+// its first call site. Same fill-to-currentColor rewrite as the rest of the
+// set, so it follows the link's hover and pressed colours.
+export { default as ArrowRightIcon } from '../assets/icons/ic-arrow-right.svg?react'
 // The one exception to the currentColor rule above: the home button's arrow is
 // a *stroked* vector bound to the `Black` variable (#000000, not the #0E0E0E
 // the rest of the set fills with), and Figma holds it at that same black

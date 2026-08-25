@@ -111,16 +111,24 @@ function HomeAvatar({ href, label }) {
 // px-12/py-8, mobile pl-24/pr-4) -- carried over faithfully rather than
 // unified, since the bare text link needs more breathing room from the pill
 // edge than the Contact button does.
-function SubpageNav({ backTo }) {
+// `onBackClick` lets a page intercept the back link. It stays a real <Link>
+// with a real `to`, so middle-click, cmd-click and "open in new tab" all still
+// work and the destination is visible in the status bar -- the handler only
+// changes what a plain left-click does. See ProcessLogPage on why.
+function SubpageNav({ backTo, backLabel = 'Back to Portfolio', onBackClick }) {
   return (
     <nav
       data-component="nav"
       data-variant="subpage"
       className={`${PILL_CLASS} flex py-space-8 pl-space-24 pr-space-4 md:px-space-12`}
     >
-      <Link to={backTo} className={`flex items-center gap-space-4 py-space-8 text-body font-bold ${LINK_CLASS}`}>
+      <Link
+        to={backTo}
+        onClick={onBackClick}
+        className={`flex items-center gap-space-4 py-space-8 text-body font-bold ${LINK_CLASS}`}
+      >
         <ArrowBackIcon aria-hidden="true" />
-        Back to Portfolio
+        {backLabel}
       </Link>
       <ButtonLink variant="secondary" href="/#contact">
         Contact
@@ -248,7 +256,10 @@ function MobileHomeNav({ currentSection }) {
 // element rather than a guessed scroll threshold -- so it adapts to however
 // tall Hero renders at a given viewport. On subpages there's no #hero, so the
 // nav is simply always visible.
-export default function Nav() {
+// `backTo`/`backLabel` let a page override where the subpage nav points. Only
+// the process-log pages do -- they sit one level below a case study, so "Back
+// to Portfolio" would skip the page the reader came from.
+export default function Nav({ backTo: backToOverride, backLabel, onBackClick }) {
   const { pathname } = useLocation()
   const isHome = pathname === '/'
   // Going back from a case study returns the reader to the card they left
@@ -256,7 +267,9 @@ export default function Nav() {
   // `#project-<slug>` card in the Work grid (only non-NDA projects get a
   // route, and all of those have a card), so the anchor always resolves.
   const projectSlug = pathname.startsWith('/work/') ? pathname.slice('/work/'.length) : ''
-  const backTo = projectSlug ? `/#project-${projectSlug}` : '/'
+  // A slug like "artifakt/process/prompting-process" would make a nonsense
+  // anchor, so only the bare slug is used -- and an override wins outright.
+  const backTo = backToOverride ?? (projectSlug ? `/#project-${projectSlug.split('/')[0]}` : '/')
   const [visible, setVisible] = useState(!isHome)
   const currentSection = useCurrentSection()
 
@@ -291,7 +304,7 @@ export default function Nav() {
           <MobileHomeNav currentSection={currentSection} />
         </>
       ) : (
-        <SubpageNav backTo={backTo} />
+        <SubpageNav backTo={backTo} backLabel={backLabel} onBackClick={onBackClick} />
       )}
     </div>
   )

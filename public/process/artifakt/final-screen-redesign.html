@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artifakt — Session 7 Design Changes</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: #f5f4f0;
+    color: #1a1a1a;
+    padding: 48px 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .subtitle { font-size: 14px; color: #666; margin-bottom: 64px; line-height: 1.6; }
+
+  /* ── Section ── */
+  .section {
+    margin-bottom: 80px;
+    border-top: 2px solid #1a1a1a;
+    padding-top: 24px;
+  }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .section-number {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #999;
+  }
+  .section-title { font-size: 20px; font-weight: 600; }
+  .section-desc {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #444;
+    margin-bottom: 24px;
+    max-width: 720px;
+  }
+
+  /* ── Decision log ── */
+  .decision-log { margin-top: 24px; }
+  .decision {
+    display: grid;
+    grid-template-columns: 120px 1fr 1fr;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid #e8e5e0;
+    font-size: 13px;
+  }
+  .decision:last-child { border-bottom: none; }
+  .decision-date { color: #999; font-size: 12px; padding-top: 2px; }
+  .decision-what { line-height: 1.5; }
+  .decision-why { color: #666; line-height: 1.5; }
+  .decision-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #bbb;
+    margin-bottom: 4px;
+  }
+
+  .key-decision {
+    box-shadow: -3px 0 0 0 #7c3aed;
+    background: #f9f7ff;
+  }
+  .decision.key-decision { padding-left: 12px; }
+  .key-decision .decision-what { color: #5b21b6; font-weight: 600; }
+
+  /* ── Note ── */
+  .note {
+    font-size: 13px;
+    background: #fff8e1;
+    border-left: 3px solid #f39c12;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    color: #555;
+    line-height: 1.6;
+    margin-top: 12px;
+  }
+
+  /* ── Status badge ── */
+  .status {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-left: 12px;
+  }
+  .status.working { background: #e8f5e9; color: #27ae60; }
+  .status.needs-work { background: #fff8e1; color: #f39c12; }
+  .status.in-progress { background: #e8eaf0; color: #5c6bc0; }
+
+  /* ── Screen flow diagram ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 28px 0;
+    flex-wrap: wrap;
+  }
+  .flow-screen {
+    background: #fff;
+    border: 1.5px solid #ddd;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    min-width: 130px;
+  }
+  .flow-screen.active { border-color: #7c3aed; }
+  .flow-screen .flow-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #999;
+    margin-bottom: 3px;
+  }
+  .flow-screen .flow-name { font-weight: 600; font-size: 13px; }
+  .flow-screen.loading { border-color: #321366; background: #f9f7ff; }
+  .flow-screen.loading .flow-name { color: #321366; }
+  .flow-arrow { font-size: 18px; color: #bbb; flex-shrink: 0; }
+
+  /* ── Concept blocks ── */
+  .concept-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .concept-block {
+    background: #fff;
+    border-radius: 10px;
+    padding: 16px;
+    border: 1.5px solid #e0ddd8;
+  }
+  .concept-block h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .concept-block p { font-size: 12px; color: #666; line-height: 1.5; }
+
+  /* ── Image gallery ── */
+  .gallery-header {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #999;
+    margin: 36px 0 12px;
+  }
+  .gallery-phase {
+    margin-bottom: 36px;
+  }
+  .gallery-phase-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .gallery-phase-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .gallery-phase-title { font-size: 14px; font-weight: 600; }
+  .gallery-phase-meta { font-size: 12px; color: #888; margin-top: 1px; }
+  .gallery-phase-desc { font-size: 13px; color: #555; line-height: 1.5; margin-bottom: 12px; }
+
+  .img-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    align-items: start;
+  }
+  .img-slot {
+    background: #fff;
+    border: 1.5px dashed #ccc;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  /* empty slots hold a portrait placeholder; filled slots take the image's own shape */
+  /* Every phone slot — empty or filled — is the same box, so a row of them
+     lines up. Dense spec sheets take two columns and sit side by side. */
+  .img-slot:not(.is-doc) { aspect-ratio: 1/2; }
+  .img-slot.is-doc { grid-column: span 2; aspect-ratio: auto; }
+  .img-slot.is-filled {
+    padding: 8px 8px 0;
+    border-style: solid;
+    border-color: #e0ddd8;
+    cursor: zoom-in;
+  }
+  .img-slot:hover { border-color: #7c3aed; }
+  .img-slot img { width: 100%; height: auto; object-fit: contain; border-radius: 6px; display: block; }
+  /* zero basis + grow: the image takes exactly the space the caption leaves,
+     so a one-line and a two-line caption still give the same slot height */
+  .img-slot:not(.is-doc) img { flex: 1 1 0; min-height: 0; height: 0; }
+  .img-slot-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .img-slot-icon { font-size: 22px; color: #bbb; }
+  .img-slot-label { font-size: 11px; color: #aaa; text-align: center; padding: 0 12px; }
+  .img-slot-caption {
+    font-size: 11px;
+    color: #888;
+    text-align: center;
+    padding: 8px 4px 8px;
+    line-height: 1.4;
+  }
+  .img-remove {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    font-size: 14px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    z-index: 2;
+  }
+  .img-slot:hover .img-remove { display: flex; }
+  .img-slot-static { cursor: zoom-in; }
+  .img-slot-static:hover { border-color: #7c3aed; }
+  .img-slot-static img { width: 100%; height: auto; object-fit: contain; border-radius: 6px; display: block; }
+
+  /* ── Back link ── */
+  .back-link {
+    display: inline-block;
+    font-size: 12px;
+    color: #888;
+    text-decoration: none;
+    margin-bottom: 32px;
+    letter-spacing: 0.02em;
+  }
+  .back-link:hover { color: #321366; }
+
+  /* ── Lightbox: click any image to see it at full size ── */
+  #pd-lightbox {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(20,16,30,0.88);
+    display: none; align-items: center; justify-content: center;
+    padding: 32px; cursor: zoom-out;
+  }
+  #pd-lightbox.open { display: flex; }
+  #pd-lightbox img {
+    max-width: 100%; max-height: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+  }
+  #pd-lightbox .pd-lb-cap {
+    position: absolute; bottom: 18px; left: 0; right: 0;
+    text-align: center; color: #e8e5f0; font-size: 12px;
+  }
+
+  /* ── Save bar ── */
+  #pd-toolbar {
+    position: fixed; right: 20px; bottom: 20px; z-index: 9998;
+    display: flex; align-items: center; gap: 10px;
+    background: #fff; border: 1.5px solid #e0ddd8; border-radius: 999px;
+    padding: 8px 10px 8px 16px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+    font-size: 12px; color: #888;
+  }
+  #pd-toolbar.dirty { border-color: #7c3aed; color: #321366; }
+  #pd-save {
+    border: none; border-radius: 999px; padding: 7px 14px;
+    font-size: 12px; font-weight: 600; font-family: inherit;
+    background: #ece8f6; color: #7c3aed; cursor: pointer;
+  }
+  #pd-toolbar.dirty #pd-save { background: #7c3aed; color: #fff; }
+  #pd-save:disabled { opacity: 0.5; cursor: default; }
+</style>
+</head>
+<body>
+
+<a class="back-link" href="artifakt-prompting-process.html">← Back to full process doc</a>
+
+<h1>Artifakt — Session 7 design changes</h1>
+<p class="subtitle">Documents the UX and design decisions made during Session 7. Covers two new loading states and the Screen 3 redesign. Last updated: June 2026.</p>
+
+
+<!-- ══════════════════════════════════════════════
+     SECTION 01 — CONTEXT
+═══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">01</span>
+    <span class="section-title">What changed this session</span>
+  </div>
+  <p class="section-desc">Three design areas were addressed: two new loading state screens inserted between existing screens, and a full redesign of Screen 3 (the final card reveal). The flow now has 7 distinct states instead of 5.</p>
+
+  <div class="flow">
+    <div class="flow-screen">
+      <div class="flow-label">Screen 1</div>
+      <div class="flow-name">Welcome</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-screen loading active">
+      <div class="flow-label">New · LS1</div>
+      <div class="flow-name">Scaffold loading</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-screen">
+      <div class="flow-label">Screen 2</div>
+      <div class="flow-name">Sketch</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-screen loading active">
+      <div class="flow-label">New · LS2</div>
+      <div class="flow-name">Artifakts loading</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-screen">
+      <div class="flow-label">Screen 3</div>
+      <div class="flow-name">Choose style</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-screen active">
+      <div class="flow-label">Screen 4 · Redesigned</div>
+      <div class="flow-name">Final Artifakt</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SECTION 02 — LOADING STATE 1
+═══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">02</span>
+    <span class="section-title">Loading State 1 — Scaffold generation</span>
+  </div>
+  <p class="section-desc">Appears while the scaffold (guide drawing) is being generated from the user's keyword. Sits inside the canvas area — not full-screen — so the user stays spatially oriented.</p>
+
+  <div class="decision-log">
+
+    <div class="decision key-decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 7</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">Replaced a spinner with an inline flow animation: keyword → animated arrow → person outline icon</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">A spinner communicates nothing about what's happening. The animation shows the actual transformation: the user's word becomes a figure. Arrow travels left→right on a 1.8s loop. The person icon is always visible (not animated). All elements are deep purple (#321366). Size matches body text (16px) — subtle, not a hero moment.</div>
+      </div>
+    </div>
+
+    <div class="decision key-decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 7</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">Overlay is canvas-scoped with frosted glass, not full-screen</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">The user's sketch already exists under the canvas at this point. Covering only the canvas preserves spatial continuity — they know where their drawing is. The blurred sketch visible beneath reinforces the idea that it's being processed, not replaced. <code>background: rgba(253,251,247,0.92); backdrop-filter: blur(6px)</code>.</div>
+      </div>
+    </div>
+
+    <div class="decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 7</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">Animation is secondary — the blurred canvas is the emotional anchor</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">Deliberately not centred or large. It reads as a small process indicator. The ghost of the user's sketch underneath does the emotional heavy lifting. Rule: if the animation feels "designed", it's too much.</div>
+      </div>
+    </div>
+
+    <div class="decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 7</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">Copy: "Creating your scaffold" + "Turning your word into a starting shape…"</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">Two tiers of copy: the first names what's happening (16px Medium), the second explains it in plain language (14px Regular). Anchored below the animation, not competing with it. "Starting shape" makes the scaffold feel preliminary, not final — it sets up the sketch step correctly.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="note">The overlay uses <code>backdrop-filter: blur(6px)</code> rather than an opaque cover. A blurred ghost of the previous state anchors the user spatially and gives the wait a material quality — the sketch is transforming, not disappearing.</p>
+
+  <div class="gallery-header">Screenshots — LS1</div>
+  <div class="gallery-phase">
+    <div class="gallery-phase-header">
+      <div class="gallery-phase-badge" style="background:#321366;color:#fff">LS1</div>
+      <div>
+        <div class="gallery-phase-title">Scaffold loading — before &amp; after</div>
+        <div class="gallery-phase-meta">Canvas-scoped overlay · keyword → arrow → person icon · 16px purple</div>
+      </div>
+      <span class="status working">Done</span>
+    </div>
+    <p class="gallery-phase-desc">Click any slot to load a screenshot from your files.</p>
+    <div class="img-row" id="ls1-shots">
+      <div class="img-slot img-slot-static is-filled">
+        <img src="./img/0d51ea3b0175.webp" alt="LS1 design spec">
+        <div class="img-slot-caption">Design spec — screen treatment &amp; copy</div>
+      </div>
+      <div class="img-slot img-slot-static is-filled">
+        <img src="./img/1a0eea50ab21.webp" alt="LS1 animation detail">
+        <div class="img-slot-caption">Animation sequence — 5-step loop</div>
+      </div>
+      <div class="img-slot img-slot-static is-filled">
+        <img src="./img/df615f5d31de.png" alt="Sketch screen">
+        <div class="img-slot-caption">The sketch screen visible beneath the overlay</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SECTION 03 — LOADING STATE 2
+═══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">03</span>
+    <span class="section-title">Loading State 2 — Artifakt generation</span>
+  </div>
+  <p class="section-desc">Appears while all 4 AI-generated Artifakts are being created in parallel. This is the longest wait in the flow (~10–20s). The overlay is full-screen — not canvas-scoped — because there's no single element to stay oriented around.</p>
+
+  <div class="decision-log">
+
+    <div class="decision key-decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 7</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">Sequential build animation: "traced sketch" → → ✦ → → "Artifakt", each element fading in one by one</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">The animation communicates the narrative arc of the transformation: your sketch becomes something. A 3s loop with staggered CSS animation-delay on each span. The ✦ acts as a moment of magic in the middle. "Traced sketch" and "Artifakt" are literal labels for the before and after — the user can read the transformation as it plays.</div>
+      </div>
+    </div>
+
+    <div class="decision key-decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 7</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">Moved overlay to full-screen: direct child of #screen2, not inside .s2-canvas-wrap</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">The first implementation had <code>.pulse-overlay</code> inside the canvas card — it only blurred the artwork area, leaving the nav, title, and artist deck visible and tappable. Moving it to be a direct child of <code>#screen2</code> with <code>position: absolute; inset: 0</code> gives full-bleed coverage. The whole screen pauses. Nothing is tappable. The blur (<code>backdrop-filter: blur(8px)</code>, <code>background: rgba(255,255,255,0.80)</code>) works because <code>#screen2</code> has <code>position: relative</code>.</div>
+      </div>
+    </div>
+
+    <div class="decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 7</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">Copy: "Creating your Artifakts" + "Your sketch is being interpreted in multiple styles."</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">Plural — "Artifakts" (not "Artifakt") signals that multiple things are being made at once. The subtitle explains the plurality: "multiple styles". This sets up the reveal on the next screen where four different interpretations appear side by side.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="note">Key structural rule: the overlay must be a child of the element with <code>position: relative</code> that you want it to cover. Placing it inside a child of that element breaks the inset coverage — the overlay will only cover the child, not the full screen.</p>
+
+  <div class="gallery-header">Screenshots — LS2</div>
+  <div class="gallery-phase">
+    <div class="gallery-phase-header">
+      <div class="gallery-phase-badge" style="background:#321366;color:#fff">LS2</div>
+      <div>
+        <div class="gallery-phase-title">Artifakts loading — before &amp; after</div>
+        <div class="gallery-phase-meta">Full-screen frosted overlay · "traced sketch → ✦ → Artifakt" fade-in sequence</div>
+      </div>
+      <span class="status working">Done</span>
+    </div>
+    <p class="gallery-phase-desc">Click any slot to load a screenshot from your files.</p>
+    <div class="img-row" id="ls2-shots">
+      <div class="img-slot img-slot-static is-filled">
+        <img src="./img/1722a44d65a0.webp" alt="LS2 design spec">
+        <div class="img-slot-caption">Design spec — full-screen treatment &amp; animation brief</div>
+      </div>
+      <div class="img-slot img-slot-static is-filled">
+        <img src="./img/e69cb4b84cb1.png" alt="LS2 in action">
+        <div class="img-slot-caption">LS2 in action — full-screen blur overlay</div>
+      </div>
+      <div class="img-slot" onclick="triggerUpload('ls2-shots', 2)">
+        <div class="img-slot-inner"><span class="img-slot-icon">＋</span><span class="img-slot-label">Canvas-only version (before fix)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SECTION 04 — SCREEN 3 REDESIGN
+═══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">04</span>
+    <span class="section-title">Screen 3 — Card is the artifact</span>
+  </div>
+  <p class="section-desc">The final screen was redesigned around a conceptual shift: the card itself is the Artifakt, not just a container for displaying one. The For/By dedication fields moved from the navigation bar into the card, making them part of the object rather than metadata about it.</p>
+
+  <div class="concept-grid">
+    <div class="concept-block">
+      <h4>Before</h4>
+      <p>For/By inputs sit in the nav bar — above the artwork, outside the card. They feel like a form. The card is a frame for the image.</p>
+    </div>
+    <div class="concept-block">
+      <h4>After</h4>
+      <p>For/By inputs are embedded in the card header — inside the card, over the artwork. They feel like an inscription. The card is the gift.</p>
+    </div>
+    <div class="concept-block">
+      <h4>The shift</h4>
+      <p>The user isn't filling out a form that produces an artifact. They're inscribing a card that already is the artifact. Same inputs, different meaning.</p>
+    </div>
+  </div>
+
+  <div class="decision-log">
+
+    <div class="decision key-decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 7</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">For/By inputs moved from nav bar into a semi-transparent card header overlay</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">In the previous design, "For [name]" and "By [name]" sat in the nav area — spatially above and outside the artwork. Moving them into a header layered on top of the card changes the interaction from "filling in metadata" to "inscribing the card". The spatial position makes the meaning. Card header: <code>background: rgba(255,255,255,0.92); border-bottom: 0.5px solid rgba(0,0,0,0.10)</code>; padding 12px 14px.</div>
+      </div>
+    </div>
+
+    <div class="decision key-decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 7</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">Card header structure: row 1 "For [pill] by [pill]", row 2 "with [Artist name] ⓘ"</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">Two rows mirror a physical card inscription: row 1 is the gift (who it's for, who it's from), row 2 is the creative credit. Pill-shaped inputs (height 44px, radius 999px, border 1px #E3E3E3) feel like soft blanks rather than form fields. Placeholder color #6B6B6B → typed color #000 — subtle when empty, present when filled.</div>
+      </div>
+    </div>
+
+    <div class="decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 7</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">ⓘ button: 24px filled purple circle (#321366), italic "i", reveals artist bio on tap</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">The artist attribution deserves context — there's a story behind why this style was chosen. The filled purple circle sits next to the artist name in row 2, small enough to be secondary but always present. It opens a bio/info panel. Font: Georgia italic "i" (Lora Italic in Figma, since Georgia isn't available there).</div>
+      </div>
+    </div>
+
+    <div class="decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 7</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">Removed the floating "About the artist" button that was below the card</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">The ⓘ button embedded in the card header now serves this function — a separate button outside the card was redundant and scattered the screen. Removing it simplifies the layout. All card-related actions (including artist info) live inside the card boundary.</div>
+      </div>
+    </div>
+
+    <div class="decision">
+      <div>
+        <div class="decision-label">Decision</div>
+        <div class="decision-date">Session 7</div>
+      </div>
+      <div>
+        <div class="decision-label">What</div>
+        <div class="decision-what">Share and Start over: equal width, side by side, outside and below the card</div>
+      </div>
+      <div>
+        <div class="decision-label">Why</div>
+        <div class="decision-why">These two actions operate on the completed card, not on its content — keeping them outside reinforces that the card is a finished object. Equal width gives them equal visual weight: neither action is dominant. The user chooses: share this or begin again.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="note">Heuristic for this screen: every element that relates to <em>what's on the card</em> lives inside the card boundary. Every element that operates <em>on the card as a whole</em> lives outside it. The boundary is the design decision.</p>
+
+  <div class="gallery-header">Screenshots — Screen 3</div>
+  <div class="gallery-phase">
+    <div class="gallery-phase-header">
+      <div class="gallery-phase-badge" style="background:#321366;color:#fff">S3</div>
+      <div>
+        <div class="gallery-phase-title">Final Artifakt screen — before &amp; after redesign</div>
+        <div class="gallery-phase-meta">Card-as-artifact concept · For/By in card header · ⓘ inline attribution</div>
+      </div>
+      <span class="status working">Done</span>
+    </div>
+    <p class="gallery-phase-desc">Click any slot to load a screenshot from your files.</p>
+    <div class="img-row" id="s3-shots">
+      <div class="img-slot" onclick="triggerUpload('s3-shots', 0)">
+        <div class="img-slot-inner"><span class="img-slot-icon">＋</span><span class="img-slot-label">Before — nav bar inputs</span></div>
+      </div>
+      <div class="img-slot" onclick="triggerUpload('s3-shots', 1)">
+        <div class="img-slot-inner"><span class="img-slot-icon">＋</span><span class="img-slot-label">After — blank inputs</span></div>
+      </div>
+      <div class="img-slot" onclick="triggerUpload('s3-shots', 2)">
+        <div class="img-slot-inner"><span class="img-slot-icon">＋</span><span class="img-slot-label">After — filled in</span></div>
+      </div>
+      <div class="img-slot" onclick="triggerUpload('s3-shots', 3)">
+        <div class="img-slot-inner"><span class="img-slot-icon">＋</span><span class="img-slot-label">ⓘ artist bio reveal</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SECTION 05 — FINAL PRODUCT
+═══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">05</span>
+    <span class="section-title">Final product</span>
+  </div>
+  <p class="section-desc">The shipped flow end to end — one keyword, a hand-traced sketch, five artists generated in parallel, and a card that carries its own dedication. Captured 21 June 2026.</p>
+
+  <div class="gallery-header">Screenshots — shipped flow</div>
+  <div class="gallery-phase">
+    <div class="gallery-phase-header">
+      <div class="gallery-phase-badge" style="background:#321366;color:#fff">FP</div>
+      <div>
+        <div class="gallery-phase-title">One run through, keyword to card</div>
+        <div class="gallery-phase-meta">Keyword &ldquo;Joy&rdquo; · scaffold traced by hand · Louise Bourgeois selected</div>
+      </div>
+      <span class="status working">Shipped</span>
+    </div>
+    <div class="img-row" id="fp-shots">
+      <div class="img-slot img-slot-static is-filled">
+        <img src="./img/0c5ddf4e3cd3.webp" alt="1 · Keyword — one word for someone">
+        <div class="img-slot-caption">1 · Keyword — one word for someone</div>
+      </div>
+      <div class="img-slot img-slot-static is-filled">
+        <img src="./img/74ed57f04d21.webp" alt="2 · Sketch — tracing over the scaffold">
+        <div class="img-slot-caption">2 · Sketch — tracing over the scaffold</div>
+      </div>
+      <div class="img-slot img-slot-static is-filled">
+        <img src="./img/c090370041ee.webp" alt="3 · Choose your style — Louise Bourgeois">
+        <div class="img-slot-caption">3 · Choose your style — Louise Bourgeois</div>
+      </div>
+      <div class="img-slot img-slot-static is-filled">
+        <img src="./img/11a851f20604.webp" alt="4 · Choose your style — Naoko Takeuchi">
+        <div class="img-slot-caption">4 · Choose your style — Naoko Takeuchi</div>
+      </div>
+      <div class="img-slot img-slot-static is-filled">
+        <img src="./img/72057de570e2.webp" alt="5 · Your Artifakt — For/By inside the card">
+        <div class="img-slot-caption">5 · Your Artifakt — For/By inside the card</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gallery-phase">
+    <div class="gallery-phase-header">
+      <div class="gallery-phase-badge" style="background:#e8e5e0;color:#321366">B</div>
+      <div>
+        <div class="gallery-phase-title">Before the Screen 3 redesign</div>
+        <div class="gallery-phase-meta">For/By still in the nav bar · the dedication repeated as a caption inside the card</div>
+      </div>
+      <span class="status in-progress">Superseded</span>
+    </div>
+    <p class="gallery-phase-desc">The state these changes replaced — the fields read as a form sitting above the artwork rather than as part of the object.</p>
+    <div class="img-row" id="before-shots">
+      <div class="img-slot img-slot-static is-filled">
+        <img src="./img/c5c3fbdd508a.webp" alt="Before — nav bar inputs, blank · Kara Walker">
+        <div class="img-slot-caption">Before — nav bar inputs, blank · Kara Walker</div>
+      </div>
+      <div class="img-slot img-slot-static is-filled">
+        <img src="./img/af4c04584521.webp" alt="Before — nav bar inputs, blank · Keith Haring">
+        <div class="img-slot-caption">Before — nav bar inputs, blank · Keith Haring</div>
+      </div>
+      <div class="img-slot img-slot-static is-filled">
+        <img src="./img/b4c2f2bc52d7.webp" alt="Before — nav bar inputs filled in · Kara Walker">
+        <div class="img-slot-caption">Before — nav bar inputs filled in · Kara Walker</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden file input for image uploads -->
+<input type="file" id="img-upload-input" accept="image/*" style="display:none">
+
+<script>
+  let _uploadTarget = null;
+  let _dirty = false;
+
+  /* ---------- save bar ---------- */
+  const bar = document.createElement('div');
+  bar.id = 'pd-toolbar';
+  bar.innerHTML = '<span id="pd-status">All images saved</span>' +
+                  '<button id="pd-save" disabled>Save document</button>';
+  document.body.appendChild(bar);
+  const statusEl = bar.querySelector('#pd-status');
+  const saveBtn  = bar.querySelector('#pd-save');
+
+  function markDirty(count) {
+    _dirty = true;
+    bar.classList.add('dirty');
+    saveBtn.disabled = false;
+    statusEl.textContent = count + (count === 1 ? ' image' : ' images') + ' not yet saved';
+  }
+  function markClean() {
+    _dirty = false;
+    bar.classList.remove('dirty');
+    saveBtn.disabled = true;
+    statusEl.textContent = 'All images saved';
+  }
+  let _pending = 0;
+
+  /* ---------- lightbox ---------- */
+  const lb = document.createElement('div');
+  lb.id = 'pd-lightbox';
+  lb.innerHTML = '<img alt=""><div class="pd-lb-cap"></div>';
+  document.body.appendChild(lb);
+  lb.addEventListener('click', () => lb.classList.remove('open'));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') lb.classList.remove('open');
+  });
+  function openLightbox(img, caption) {
+    lb.querySelector('img').src = img.src;
+    lb.querySelector('.pd-lb-cap').textContent = caption || '';
+    lb.classList.add('open');
+  }
+  /* Phones come in around 0.49-0.51; documentation sheets around 0.71-0.75.
+     0.6 splits them cleanly, and anything landscape lands on the doc side too.
+     An explicit is-doc / is-phone class in the markup always wins. */
+  const DOC_RATIO = 0.6;
+  function classifyImage(slot, img) {
+    if (slot.classList.contains('is-phone')) return;
+    const apply = () => {
+      if (!img.naturalWidth || !img.naturalHeight) return;
+      slot.classList.toggle('is-doc', img.naturalWidth / img.naturalHeight >= DOC_RATIO);
+    };
+    if (img.complete && img.naturalWidth) apply();
+    else img.addEventListener('load', apply, { once: true });
+  }
+
+  function wireZoom(slot) {
+    const img = slot.querySelector('img');
+    if (!img) return;
+    const capEl = slot.querySelector('.img-slot-caption');
+    const cap = capEl ? capEl.textContent.trim() : '';
+    img.style.cursor = 'zoom-in';
+    img.addEventListener('click', e => { e.stopPropagation(); openLightbox(img, cap); });
+  }
+
+  /* ---------- upload ---------- */
+  function triggerUpload(rowId, slotIndex) {
+    _uploadTarget = { rowId, slotIndex };
+    document.getElementById('img-upload-input').click();
+  }
+
+  function fillSlot(slot, dataUrl, rowId, slotIndex) {
+    const inner = slot.querySelector('.img-slot-inner');
+    if (inner) inner.style.display = 'none';
+
+    // promote the slot's placeholder label into a real caption, so the
+    // description you wrote for the slot survives being filled
+    let cap = slot.querySelector('.img-slot-caption');
+    if (!cap) {
+      const label = slot.querySelector('.img-slot-label');
+      const text = label ? label.textContent.trim() : '';
+      if (text) {
+        cap = document.createElement('div');
+        cap.className = 'img-slot-caption';
+        cap.dataset.fromLabel = '1';
+        cap.textContent = text;
+        slot.appendChild(cap);
+      }
+    }
+
+    const img = document.createElement('img');
+    img.src = dataUrl;
+    slot.insertBefore(img, cap || null);
+
+    slot.classList.add('is-filled');
+    slot.removeAttribute('onclick');   // attribute, not just the property — it survives export
+    slot.onclick = null;
+
+    const btn = document.createElement('button');
+    btn.className = 'img-remove';
+    btn.textContent = '\u00d7';
+    btn.onclick = function (ev) {
+      ev.stopPropagation();
+      img.remove();
+      btn.remove();
+      if (cap && cap.dataset.fromLabel) cap.remove();
+      slot.classList.remove('is-filled', 'is-doc');
+      if (inner) inner.style.display = '';
+      slot.setAttribute('onclick', "triggerUpload('" + rowId + "', " + slotIndex + ")");
+      _pending = Math.max(0, _pending - 1);
+      _pending ? markDirty(_pending) : markClean();
+    };
+    slot.appendChild(btn);
+    classifyImage(slot, img);
+    wireZoom(slot);
+  }
+
+  document.getElementById('img-upload-input').addEventListener('change', function (e) {
+    const file = e.target.files[0];
+    if (!file || !_uploadTarget) return;
+    const { rowId, slotIndex } = _uploadTarget;
+    const row = document.getElementById(rowId);
+    const slot = row && row.querySelectorAll('.img-slot')[slotIndex];
+    if (!slot) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      fillSlot(slot, ev.target.result, rowId, slotIndex);
+      _pending++;
+      markDirty(_pending);
+    };
+    reader.readAsDataURL(file);
+    this.value = '';
+  });
+
+  /* ---------- save: write the images into a copy of this file ---------- */
+  saveBtn.addEventListener('click', function () {
+    const clone = document.documentElement.cloneNode(true);
+    clone.querySelectorAll('#pd-toolbar, #pd-lightbox, .img-remove').forEach(el => el.remove());
+    const blob = new Blob(['<!DOCTYPE html>\n' + clone.outerHTML], { type: 'text/html' });
+    const name = (location.pathname.split('/').pop() || 'process-doc.html');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = decodeURIComponent(name);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    _pending = 0;
+    markClean();
+  });
+
+  window.addEventListener('beforeunload', e => {
+    if (_dirty) { e.preventDefault(); e.returnValue = ''; }
+  });
+
+  /* ---------- images already baked into the file ---------- */
+  document.querySelectorAll('.img-slot.is-filled').forEach(slot => {
+    const img = slot.querySelector('img');
+    if (img) classifyImage(slot, img);
+    wireZoom(slot);
+  });
+</script>
+
+</body>
+</html>

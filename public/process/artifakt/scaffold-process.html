@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artifakt — Scaffold Generation &amp; Contour Reduction</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: #f5f4f0;
+    color: #1a1a1a;
+    padding: 48px 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .subtitle { font-size: 14px; color: #666; margin-bottom: 64px; line-height: 1.6; }
+
+  /* ── Section ── */
+  .section {
+    margin-bottom: 80px;
+    border-top: 2px solid #1a1a1a;
+    padding-top: 24px;
+  }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .section-number {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #999;
+  }
+  .section-title { font-size: 20px; font-weight: 600; }
+  .section-desc {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #444;
+    margin-bottom: 24px;
+    max-width: 720px;
+  }
+
+  /* ── Pipeline diagram ── */
+  .pipeline {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 32px 0;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .pipe-step {
+    background: #fff;
+    border: 1.5px solid #ddd;
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 13px;
+    min-width: 140px;
+  }
+  .pipe-step .pipe-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #999;
+    margin-bottom: 4px;
+  }
+  .pipe-step .pipe-name { font-weight: 600; font-size: 14px; }
+  .pipe-step .pipe-detail { font-size: 12px; color: #666; margin-top: 2px; }
+  .pipe-arrow {
+    font-size: 20px;
+    color: #bbb;
+    padding: 0 4px;
+    flex-shrink: 0;
+  }
+  .pipe-step.highlight { border-color: #7c3aed; background: #fff; }
+  .pipe-step { position: relative; cursor: pointer; }
+  .pipe-step::after {
+    content: '⊡ preview'; position: absolute; top: 8px; right: 10px;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.02em;
+    color: #7c3aed; line-height: 1;
+  }
+  .pipe-preview {
+    display: none; position: absolute; bottom: calc(100% + 10px); left: 50%;
+    transform: translateX(-50%); width: 320px; background: #fff;
+    border: 1.5px solid #7c3aed; border-radius: 10px; padding: 8px;
+    box-shadow: 0 8px 28px rgba(80,40,140,0.18); z-index: 60;
+  }
+  .pipe-preview::after {
+    content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    border: 7px solid transparent; border-top-color: #7c3aed;
+  }
+  .pipe-preview.below {
+    bottom: auto; top: calc(100% + 10px);
+  }
+  .pipe-preview.below::after {
+    top: auto; bottom: 100%;
+    border-top-color: transparent; border-bottom-color: #7c3aed;
+  }
+  .pipe-preview img { width: 100%; border-radius: 5px; display: block; background: #faf9f6; }
+  .pipe-preview-cap { display: block; font-size: 11px; line-height: 1.45; color: #555; margin-top: 6px; }
+  .pipe-step:hover .pipe-preview, .pipe-step.open .pipe-preview { display: block; }
+
+  .key-decision {
+    box-shadow: -3px 0 0 0 #7c3aed;
+    background: #f9f7ff;
+  }
+  .decision.key-decision {
+    padding-left: 12px;
+  }
+  .key-decision .decision-what {
+    color: #5b21b6;
+    font-weight: 600;
+  }
+
+  /* ── Artist grid ── */
+  .artist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+  }
+  .artist-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1.5px solid #e0ddd8;
+  }
+  .artist-card-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .artist-name { font-size: 17px; font-weight: 600; }
+  .artist-style-tag {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #999;
+  }
+
+  .pass-block { margin-bottom: 16px; }
+  .pass-block:last-child { margin-bottom: 0; }
+  .pass-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .pass-tag {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+  .pass-tag.p1 { background: #e8eaf0; color: #5c6bc0; }
+  .pass-tag.p2 { background: #fce4ec; color: #c0392b; }
+  .strength-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: #1a1a1a;
+    background: #f0ede8;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+  .pass-prompt {
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: #444;
+    background: #fafaf8;
+    border-left: 3px solid #ddd;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+  }
+  .pass-focus {
+    font-size: 11px;
+    color: #888;
+    margin-top: 6px;
+    font-style: italic;
+  }
+
+  /* ── Palette swatches ── */
+  .palette {
+    display: flex;
+    gap: 6px;
+    margin: 10px 0;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .swatch {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.1);
+    flex-shrink: 0;
+  }
+  .palette-label {
+    font-size: 11px;
+    color: #888;
+    font-style: italic;
+  }
+
+  /* ── Sketch config ── */
+  .sketch-config {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+  }
+  .config-pill {
+    font-size: 11px;
+    background: #f0ede8;
+    padding: 3px 10px;
+    border-radius: 20px;
+    color: #555;
+  }
+
+  /* ── Decision log ── */
+  .decision-log { margin-top: 24px; }
+  .decision {
+    display: grid;
+    grid-template-columns: 120px 1fr 1fr;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid #e8e5e0;
+    font-size: 13px;
+  }
+  .decision:last-child { border-bottom: none; }
+  .decision-date { color: #999; font-size: 12px; padding-top: 2px; }
+  .decision-what { line-height: 1.5; }
+  .decision-why { color: #666; line-height: 1.5; }
+  .decision-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #bbb;
+    margin-bottom: 4px;
+  }
+
+  /* ── Concept blocks ── */
+  .concept-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .concept-block {
+    background: #fff;
+    border-radius: 10px;
+    padding: 16px;
+    border: 1.5px solid #e0ddd8;
+  }
+  .concept-block h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .concept-block p { font-size: 12px; color: #666; line-height: 1.5; }
+
+  /* ── Status badge ── */
+  .status {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-left: 12px;
+  }
+  .status.working { background: #e8f5e9; color: #27ae60; }
+  .status.needs-work { background: #fff8e1; color: #f39c12; }
+  .status.in-progress { background: #e8eaf0; color: #5c6bc0; }
+
+  .note {
+    font-size: 13px;
+    background: #fff8e1;
+    border-left: 3px solid #f39c12;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    color: #555;
+    line-height: 1.6;
+    margin-top: 12px;
+  }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+  th { text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #999; padding: 8px 12px; border-bottom: 2px solid #e0ddd8; }
+  td { padding: 10px 12px; border-bottom: 1px solid #f0ede8; vertical-align: top; line-height: 1.5; }
+  tr:last-child td { border-bottom: none; }
+</style>
+
+<style>
+  .fig-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:20px; margin-top:24px; }
+  .fig { background:#fff; border:1.5px solid #e0ddd8; border-radius:12px; padding:14px; }
+  .fig img { width:100%; border-radius:6px; display:block; background:#faf9f6; border:1px solid #eee; }
+  .fig-cap { font-size:12px; line-height:1.5; color:#555; margin-top:10px; }
+  .fig-cap b { color:#1a1a1a; }
+  .fig.pick { border-color:#7c3aed; box-shadow:0 0 0 3px #f3edff; }
+  /* reference sheets carry fine detail — give them two tracks so they're legible */
+  .fig.fig-wide { grid-column: span 2; }
+  .fig-tag { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#999; }
+  .fig-tag.pick { color:#7c3aed; }
+  .pair { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  code.inline { background:#f0ede8; padding:1px 6px; border-radius:5px; font-size:12px; font-family:'SF Mono',Menlo,monospace; }
+  pre.code { background:#1a1a1a; color:#e6e6e6; padding:16px 18px; border-radius:10px; font-size:12px; line-height:1.6; overflow-x:auto; font-family:'SF Mono',Menlo,monospace; margin-top:16px; }
+  pre.code .c { color:#7c8896; }
+  pre.code .k { color:#c792ea; }
+  pre.code .s { color:#c3e88d; }
+</style>
+
+</head>
+<body>
+
+<h1>Artifakt — Scaffold Generation &amp; Contour Reduction</h1>
+<p class="subtitle">
+  Companion to the prompting-process doc. This one covers the <b>scaffold</b> — the loose, open
+  line drawing the user traces and completes. It records how we got from a too-detailed generated
+  sketch to a clean <b>outer silhouette</b>, the experiments that decided the parameters, and the
+  rebuild that lets the whole pipeline run in the browser on GitHub Pages with no server.
+</p>
+
+<!-- ── 01 ── -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">01</span>
+    <span class="section-title">What the scaffold is &amp; why we reduce it</span>
+  </div>
+  <p class="section-desc">
+    The scaffold is the starting drawing Artifakt hands the user — it should <b>suggest</b> a subject
+    without finishing it, leaving room to trace, deviate, and complete. A raw generated sketch carries
+    far too much information: facial features, interior anatomy, hatching, costume detail. That over-determines
+    the drawing and removes the openness the tool is built around. The goal of contour reduction is to keep
+    the <b>gesture and silhouette</b> and discard everything internal.
+  </p>
+  <div class="concept-grid">
+    <div class="concept-block"><h4>Silhouette / long contours</h4><p>The outer boundary and main pose. These carry the gesture — we keep them.</p></div>
+    <div class="concept-block"><h4>Interior detail / short contours</h4><p>Face, muscles, hatching, costume. These finish the drawing for the user — we drop them.</p></div>
+    <div class="concept-block"><h4>The dial</h4><p>How much to keep is a single fraction. Too high = a finished illustration. Too low = an unreadable blob.</p></div>
+  </div>
+</div>
+
+<!-- ── 02 ── -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">02</span>
+    <span class="section-title">The pipeline</span>
+  </div>
+  <p class="section-desc">Two stages: generate a fast gesture sketch, then reduce it to its outer silhouette.</p>
+  <div class="pipeline">
+    <div class="pipe-step"><div class="pipe-label">Prompt</div><div class="pipe-name">Gesture sketch</div><div class="pipe-detail">"single gesture drawing of {keyword}…"</div></div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-step"><div class="pipe-label">Model</div><div class="pipe-name">flux/schnell</div><div class="pipe-detail">2 steps · portrait_4_3</div></div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-step highlight"><div class="pipe-label">Edge detect</div><div class="pipe-name">Canny</div><div class="pipe-detail">thresholds 20 / 60</div></div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-step highlight"><div class="pipe-label">Reduce</div><div class="pipe-name">Outer silhouette</div><div class="pipe-detail">RETR_EXTERNAL · keep ~50%</div></div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-step"><div class="pipe-label">Output</div><div class="pipe-name">Black on white</div><div class="pipe-detail">traceable scaffold</div></div>
+  </div>
+  <div class="note">The reduction stage is the whole game. The same generated sketch can become a finished
+  illustration or an open scaffold depending only on how aggressively contours are removed.</div>
+</div>
+
+<!-- ── 03 ── -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">03</span>
+    <span class="section-title">Art-vocabulary prompting <span class="status needs-work">abandoned</span></span>
+  </div>
+  <p class="section-desc">
+    Before touching the pipeline shape, the first attempt at openness was purely lexical: prompting
+    <code class="inline">flux/schnell</code> with art-school vocabulary pulled from a life-drawing moodboard —
+    "thumbnail sketch," "gesture drawing," "construction lines," "30-second life drawing," "unfinished forms."
+    The assumption was that this language would push the model to generate images at an <b>earlier stage</b>
+    of the drawing process — the loose, under-built look of an actual construction sketch.
+  </p>
+  <p class="section-desc">
+    It didn't work that way. The model reads this vocabulary as a <b>visual style</b>, not a structural state.
+    Outputs were still complete, anatomically resolved subjects — just rendered with sketch-like linework on top.
+    A "gesture drawing of a horse" came back as a fully-formed horse with loose-looking lines, not an actual
+    early-stage gesture with open, ambiguous form.
+  </p>
+  <div class="concept-grid">
+    <div class="concept-block"><h4>What we wanted</h4><p>A structural state: an incomplete drawing, genuinely under-determined, the way a human's hand lands a few seconds into a sketch.</p></div>
+    <div class="concept-block"><h4>What we got</h4><p>A style: a finished, fully-resolved subject wearing sketch-like rendering — confident lines, but nothing actually left open.</p></div>
+    <div class="concept-block"><h4>The lesson</h4><p>Diffusion models don't have a notion of "stage of completion" to prompt toward. "Unfinished" is description, not a lever.</p></div>
+  </div>
+  <div class="fig-grid">
+    <div class="fig fig-wide"><img src="./img/c71b50edb13a.jpg" alt=""><div class="fig-cap"><b>Moodboard source</b> — life-drawing construction sheet (loose sketch → refine → refine → define; staged figure/gesture studies) used as the basis for the abandoned art-vocabulary prompts.</div></div>
+  </div>
+  <div class="note">Takeaway: stop trying to <i>prompt incompleteness</i>. The model can't be talked into leaving
+  things out — it always resolves the subject. Reframe from <b>"generate an unfinished drawing"</b> to
+  <b>"generate a finished drawing, then selectively discard information."</b> This is the shift that leads
+  directly to the contour-reduction approach in Section 05 — detail has to be removed structurally
+  (geometry/segmentation), not stylistically (prompt wording).</div>
+</div>
+
+<!-- ── 04 ── -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">04</span>
+    <span class="section-title">Experiment 005 — img2img from an SVG motif <span class="status needs-work">abandoned</span></span>
+  </div>
+  <p class="section-desc">
+    First attempt at openness: seed an abstract SVG motif and run <code class="inline">flux/dev/image-to-image</code>
+    at varying strengths, hoping the model would "loosen" it into a sketch. It didn't. Even at low strength the
+    output read as a <b>finished, shaded illustration</b> with a background — the opposite of an open scaffold.
+    This is also the experiment that burned most of the fal.ai credit (1,628 megapixels), so it's a cost lesson too.
+  </p>
+  <div class="fig-grid">
+    <div class="fig"><img src="./img/7ddf96028e2e.png" alt=""><div class="fig-cap"><b>Seed motif</b> — abstract SVG starting point.</div></div>
+    <div class="fig"><img src="./img/31b77e381db3.jpg" alt=""><div class="fig-cap"><b>horse</b>, strength 0.60 — too finished, has background.</div></div>
+    <div class="fig"><img src="./img/081387616a4d.jpg" alt=""><div class="fig-cap"><b>curiosity</b>, strength 0.60 — illustration, not scaffold.</div></div>
+  </div>
+  <div class="note">Takeaway: don't <i>transform</i> an image toward a sketch. Instead, <b>generate</b> a sketch and
+  <b>subtract</b> detail. That insight is what Experiment 006 acts on.</div>
+</div>
+
+<!-- ── 05 ── -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">05</span>
+    <span class="section-title">Experiment 006 — contour reduction variants</span>
+  </div>
+  <p class="section-desc">
+    Generate a horse gesture sketch, run Canny edge detection, then <code class="inline">findContours</code> with
+    <code class="inline">RETR_EXTERNAL</code> (outer boundaries only), sort by area, and keep the largest fraction.
+    Four variants sweep the dial. <b>Variant C (keep 50%)</b> won: a clean readable silhouette with the pose intact
+    and the interior gone.
+  </p>
+  <div class="fig-grid">
+    <div class="fig"><img src="./img/95ac56a8029d.jpg" alt=""><div class="fig-cap"><b>00</b> — raw flux/schnell gesture sketch.</div></div>
+    <div class="fig"><img src="./img/4cfba5c7a8fc.png" alt=""><div class="fig-cap"><b>01</b> — full Canny contours (everything, inverted).</div></div>
+    <div class="fig"><div class="fig-tag">A</div><img src="./img/20f3cf1b59bf.png" alt=""><div class="fig-cap"><b>A · keep 100%</b> — baseline, still too busy.</div></div>
+    <div class="fig"><div class="fig-tag">B</div><img src="./img/9f16ac69ca43.png" alt=""><div class="fig-cap"><b>B · keep 70%</b> — lighter, some interior remains.</div></div>
+    <div class="fig pick"><div class="fig-tag pick">C — chosen</div><img src="./img/4ed828ad40c5.png" alt=""><div class="fig-cap"><b>C · keep 50%</b> — clean outer silhouette. The pick.</div></div>
+    <div class="fig"><div class="fig-tag">D</div><img src="./img/09eea5886a55.png" alt=""><div class="fig-cap"><b>D · keep 30%</b> — too sparse, pose breaks up.</div></div>
+  </div>
+  <table>
+    <tr><th>Variant</th><th>Keep fraction</th><th>Read</th></tr>
+    <tr><td>A — full</td><td>100%</td><td>Finished-looking, over-determined</td></tr>
+    <tr><td>B — light</td><td>70%</td><td>Better, but interior detail lingers</td></tr>
+    <tr><td><b>C — medium</b></td><td><b>50%</b></td><td><b>Silhouette + gesture, interior gone — chosen</b></td></tr>
+    <tr><td>D — heavy</td><td>30%</td><td>Too little to read as the subject</td></tr>
+  </table>
+</div>
+
+<!-- ── 06 ── -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">06</span>
+    <span class="section-title">Experiment 006b — keyword validation</span>
+  </div>
+  <p class="section-desc">
+    Does Variant C hold across different subjects, not just the horse it was tuned on? Tested two contrasting
+    keywords: an abstract one (<b>strong</b>) and a complex figurative one (<b>drag queen</b>). Same pipeline,
+    same parameters. The drag queen is the most convincing case: the <b>hair silhouette and body curve survive</b>
+    while the face and costume detail dissolve — exactly the openness we want.
+  </p>
+  <div class="fig-grid">
+    <div class="fig"><img src="./img/63eed171ee71.jpg" alt=""><div class="fig-cap"><b>strong</b> — original gesture sketch.</div></div>
+    <div class="fig"><div class="fig-tag">C</div><img src="./img/e38436d831aa.png" alt=""><div class="fig-cap"><b>strong</b> — Variant C silhouette.</div></div>
+    <div class="fig"><img src="./img/1717b29b0249.jpg" alt=""><div class="fig-cap"><b>drag queen</b> — original gesture sketch.</div></div>
+    <div class="fig pick"><div class="fig-tag pick">C — best case</div><img src="./img/6665817ea056.png" alt=""><div class="fig-cap"><b>drag queen</b> — Variant C. Hair + body curve kept, face gone.</div></div>
+  </div>
+  <div class="note">Conclusion: Variant C generalises. The 50% keep-fraction with outer-silhouette reduction is the
+  production setting.</div>
+</div>
+
+<!-- ── 07 ── -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">07</span>
+    <span class="section-title">From OpenCV to the browser <span class="status working">shipped</span></span>
+  </div>
+  <p class="section-desc">
+    The experiments ran in Python with OpenCV behind a local proxy. But Artifakt has to run <b>publicly on GitHub
+    Pages</b> — a static host with no backend: no localhost, no proxy, no Python, no OpenCV. So the entire reduction
+    pipeline was rebuilt in <b>browser-side JavaScript on a Canvas</b>, reproducing the exact OpenCV behaviour,
+    including the <code class="inline">RETR_EXTERNAL</code> "outer boundary only" result.
+  </p>
+  <div class="concept-grid">
+    <div class="concept-block"><h4>1 · Grayscale</h4><p>Read Canvas pixels, weighted luma.</p></div>
+    <div class="concept-block"><h4>2 · Gaussian blur</h4><p>Separable 3×3 kernel, matches cv2.GaussianBlur(3,3).</p></div>
+    <div class="concept-block"><h4>3 · Canny</h4><p>Sobel gradients → non-max suppression → double-threshold hysteresis (20/60).</p></div>
+    <div class="concept-block"><h4>4 · Close gaps</h4><p>Binary dilation (radius 5) so the outline is continuous.</p></div>
+    <div class="concept-block"><h4>5 · Flood-fill BG</h4><p>Fill from the borders; whatever it can't reach is the figure.</p></div>
+    <div class="concept-block"><h4>6 · Erode + trace</h4><p>Undo the dilation, then draw only figure pixels touching the background = outer silhouette.</p></div>
+  </div>
+  <div class="note"><b>Why flood-fill instead of "keep top N contours"?</b> Earlier JS attempts kept every Canny edge
+  pixel, so interior lines (mane, muscles, costume) survived — the bug the user kept seeing. <code class="inline">RETR_EXTERNAL</code>
+  in OpenCV only traces the <i>outer</i> boundary of a filled region. The flood-fill reproduces that: background is
+  reachable from the edges, the figure is the unreachable interior, and we trace just its rim.</div>
+  <pre class="code"><span class="c">// Production reduction toggle in index.html</span>
+<span class="k">const</span> SCAFFOLD_CONTOUR_REDUCTION = <span class="k">true</span>;
+<span class="c">// pipeline: grayscale → _gauss3 → _canny(20,60) → _outerSilhouette → black-on-white PNG</span>
+gray  = luma(pixels);
+edges = _canny(gray, w, h, <span class="s">20</span>, <span class="s">60</span>);
+kept  = _outerSilhouette(edges, w, h);  <span class="c">// dilate → flood-fill bg → erode → trace rim</span></pre>
+</div>
+
+<!-- ── 08 ── -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">08</span>
+    <span class="section-title">Key decisions log</span>
+  </div>
+  <div class="decision-log">
+    <div class="decision key-decision"><div class="decision-date">Pre-Exp</div><div class="decision-what decision-what">Reject art-vocabulary prompting</div><div class="decision-why">"Gesture drawing," "construction lines" etc. read as style, not structural state — model always finishes the subject. Root cause of the pivot to subtractive reduction.</div></div>
+    <div class="decision"><div class="decision-date">Exp 005</div><div class="decision-what">Reject img2img-from-motif</div><div class="decision-why">Output was a finished, shaded illustration with a background — no openness. Also the biggest credit cost.</div></div>
+    <div class="decision"><div class="decision-date">Exp 006</div><div class="decision-what">Generate a sketch, then <b>subtract</b> detail</div><div class="decision-why">Reframes the problem from "loosen an image" to "remove interior contours" — controllable with one dial.</div></div>
+    <div class="decision key-decision"><div class="decision-date">Exp 006</div><div class="decision-what decision-what">Use <b>RETR_EXTERNAL</b>, keep 50% (Variant C)</div><div class="decision-why">Outer silhouette only. Keeps gesture + pose, drops face/anatomy/costume. Best balance of guidance vs openness.</div></div>
+    <div class="decision"><div class="decision-date">Exp 006</div><div class="decision-what">Canny thresholds 20 / 60</div><div class="decision-why">Tuned for the light, faint lines of a 2-step flux/schnell sketch.</div></div>
+    <div class="decision"><div class="decision-date">Exp 006b</div><div class="decision-what">Validate across keywords</div><div class="decision-why">Confirmed Variant C generalises; drag queen is the clearest win.</div></div>
+    <div class="decision key-decision"><div class="decision-date">Ship</div><div class="decision-what decision-what">Port OpenCV pipeline to <b>browser JS</b></div><div class="decision-why">App must run on GitHub Pages — static, no backend. Flood-fill in Canvas reproduces RETR_EXTERNAL with no server.</div></div>
+  </div>
+</div>
+
+<!-- ── 09 ── -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-number">09</span>
+    <span class="section-title">Open questions &amp; next steps</span>
+  </div>
+  <div class="concept-grid">
+    <div class="concept-block"><h4>API key exposure <span class="status needs-work">open</span></h4><p>The fal.ai key is visible in the static HTML. Mitigation: $20 spending cap is set. Optional hardening: a Cloudflare Worker that holds the key server-side.</p></div>
+    <div class="concept-block"><h4>Closing radius R=5</h4><p>Tunable. Increase if the outline has gaps; decrease if it gets too thick/blobby.</p></div>
+    <div class="concept-block"><h4>Keep-fraction per subject</h4><p>50% is global. Some subjects might benefit from an adaptive fraction based on contour count.</p></div>
+  </div>
+</div>
+
+</body>
+</html>

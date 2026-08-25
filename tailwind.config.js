@@ -96,6 +96,10 @@ export default {
         surface: {
           background: 'var(--colors-surface-background)',
           canvas: 'var(--colors-surface-canvas)',
+          // The Artifakt case study's stage colour -- hero background, every
+          // image stage, the final-product panel. Hand-added to semantic.css
+          // (see the comment there) rather than re-exported.
+          highlight: 'var(--colors-surface-highlight)',
           subtle: 'var(--colors-surface-subtle)',
           inverted: 'var(--colors-surface-inverted)',
         },

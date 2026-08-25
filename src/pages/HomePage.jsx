@@ -1,4 +1,3 @@
-import assetUrl from '../lib/assetUrl'
 import Nav from '../components/Nav'
 import Hero from '../components/Hero'
 import Wayfinding from '../components/Wayfinding'
@@ -180,7 +179,7 @@ export default function HomePage() {
               />
               <div className={ABOUT_CONTENT_GAP}>
                 <LanguageRiverEmbed
-                  src={assetUrl(aboutSection.languageRiver.embedSrc)}
+                  src={aboutSection.languageRiver.embedSrc}
                   title={aboutSection.languageRiver.title}
                 />
                 <div data-component="aside-collage" className={ASIDE_COLLAGE_GRID}>

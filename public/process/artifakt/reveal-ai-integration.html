@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reveal — AI Integration Visual Process · Sessions 1 & 2</title>
+<style>
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: #f5f4f0;
+    color: #1a1a1a;
+    padding: 48px 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 64px;
+  }
+  .phase {
+    margin-bottom: 80px;
+    border-top: 2px solid #1a1a1a;
+    padding-top: 24px;
+  }
+  .phase-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+  .phase-number {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #999;
+  }
+  .phase-title {
+    font-size: 20px;
+    font-weight: 600;
+  }
+  .change-badge {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-left: auto;
+  }
+  .change-badge.worse { background: #fde8e8; color: #c0392b; }
+  .change-badge.better { background: #e8f5e9; color: #27ae60; }
+  .change-badge.neutral { background: #e8eaf0; color: #5c6bc0; }
+  .phase-meta {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .meta-item {
+    font-size: 12px;
+  }
+  .meta-label {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #999;
+    margin-right: 6px;
+  }
+  .phase-description {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #444;
+    margin-bottom: 24px;
+    max-width: 720px;
+  }
+  .cause {
+    font-size: 13px;
+    background: #fff;
+    border-left: 3px solid #1a1a1a;
+    padding: 10px 16px;
+    margin-bottom: 24px;
+    color: #444;
+    max-width: 720px;
+  }
+  .cause strong { color: #1a1a1a; }
+  .images {
+    display: grid;
+    gap: 16px;
+  }
+  .images.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .images.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .images.cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .images.cols-1 { grid-template-columns: 1fr; max-width: 320px; }
+  .img-card {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .img-card img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+  }
+  .img-card .img-caption {
+    font-size: 11px;
+    color: #666;
+    padding: 8px 12px;
+    border-top: 1px solid #f0f0f0;
+  }
+  .verdict {
+    margin-top: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px 16px;
+    border-radius: 6px;
+    max-width: 720px;
+  }
+  .verdict.good { background: #e8f5e9; color: #2e7d32; }
+  .verdict.bad { background: #fde8e8; color: #c62828; }
+  .verdict.mixed { background: #fff8e1; color: #f57f17; }
+  .sketch-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #999;
+    margin-bottom: 8px;
+  }
+  .divider { height: 1px; background: #e0e0e0; margin: 12px 0; }
+
+  /* Session 2 additions */
+  .meta { display: flex; gap: 24px; margin-bottom: 16px; flex-wrap: wrap; }
+  .meta-item { font-size: 12px; }
+  .meta-label { font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #999; margin-right: 6px; }
+  .desc { font-size: 14px; line-height: 1.7; color: #444; margin-bottom: 16px; max-width: 760px; }
+  .cause { font-size: 13px; background: #fff; border-left: 3px solid #1a1a1a; padding: 10px 16px; margin-bottom: 24px; color: #444; max-width: 760px; }
+  .cause strong { color: #1a1a1a; }
+  .row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; }
+  .phone-card { background: #fff; border-radius: 10px; overflow: hidden; flex: 1; min-width: 140px; max-width: 220px; }
+  .phone-card img { width: 100%; display: block; }
+  .phone-card .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #fff; background: #1a1a1a; padding: 4px 10px; }
+  .phone-card .caption { font-size: 11px; color: #666; padding: 7px 10px; border-top: 1px solid #f0f0f0; line-height: 1.4; }
+  .phone-card.sketch-card { background: #f0ede8; border: 1.5px dashed #ccc; }
+  .phone-card.sketch-card .label { background: transparent; color: #999; }
+  .phone-card.star .label { background: #2e7d32; }
+  .panoramic { background: #fff; border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+  .panoramic img { width: 100%; display: block; }
+  .panoramic .caption { font-size: 12px; color: #666; padding: 10px 14px; border-top: 1px solid #f0f0f0; }
+  .refs { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  .ref-card { background: #fff; border-radius: 8px; overflow: hidden; width: 180px; }
+  .ref-card img { width: 100%; display: block; height: 140px; object-fit: cover; }
+  .ref-card .caption { font-size: 11px; color: #666; padding: 6px 10px; border-top: 1px solid #f0f0f0; }
+  .verdict { font-size: 13px; font-weight: 600; padding: 12px 16px; border-radius: 6px; max-width: 760px; margin-top: 8px; }
+  .verdict.good { background: #e8f5e9; color: #2e7d32; }
+  .verdict.bad { background: #fde8e8; color: #c62828; }
+  .verdict.mixed { background: #fff8e1; color: #f57f17; }
+  .insight { background: #1a1a1a; color: #fff; border-radius: 8px; padding: 20px 24px; margin: 20px 0; max-width: 760px; }
+  .insight h3 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #888; margin-bottom: 10px; }
+  .insight p { font-size: 14px; line-height: 1.7; }
+  .badge { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; margin-left: auto; }
+  .badge.worse { background: #fde8e8; color: #c0392b; }
+  .badge.better { background: #e8f5e9; color: #27ae60; }
+  .badge.neutral { background: #e8eaf0; color: #5c6bc0; }
+  .session-divider { border-top: 4px solid #1a1a1a; padding-top: 32px; margin: 80px 0 48px; }
+  .session-divider h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .session-divider p { font-size: 14px; color: #666; }
+</style>
+</head>
+<body>
+
+<h1>Reveal — AI Integration Visual Process</h1>
+<p class="subtitle">Sessions 1 &amp; 2 · June 2026 · From first experiments to best result at strength 0.81.</p>
+
+<div class="session-divider">
+  <h2>Session 1</h2>
+  <p>May–June 2026 · From ControlNet experiments to img2img Flux, finding the sketch–style tension.</p>
+</div>
+
+<h1>Reveal — AI Integration Visual Process</h1>
+<p class="subtitle">Chronological overview of every approach tried, with visual results and what caused each change.</p>
+
+<!-- PHASE 0 -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-number">Phase 0</span>
+    <span class="phase-title">Baseline — Canvas Simulation (no AI)</span>
+    <span class="change-badge neutral">Starting Point</span>
+  </div>
+  <div class="phase-meta">
+    <div class="meta-item"><span class="meta-label">Tool</span>HTML Canvas API (code-drawn)</div>
+    <div class="meta-item"><span class="meta-label">Cost</span>$0</div>
+    <div class="meta-item"><span class="meta-label">Speed</span>Instant</div>
+  </div>
+  <p class="phase-description">Before any AI was added, the app used algorithmically drawn canvas simulations for each artist — botanical lines for Merian, spirals for Bourgeois, etc. Beautiful but not transformative. The user's sketch was overlaid on a pre-drawn motif, not reinterpreted.</p>
+  <div class="cause"><strong>Why it wasn't enough:</strong> The output looked generated, not personal. The sketch didn't influence the style — it was just a trace on top of a generic motif.</div>
+  <div class="images cols-1">
+    <div class="img-card">
+      <img src="./img/55d8048aed14.png" alt="Canvas simulation — Merian style">
+      <div class="img-caption">Canvas simulation — Merian botanical style. Instantly generated, always the same regardless of sketch.</div>
+    </div>
+  </div>
+  <div class="verdict bad">Result: Beautiful but generic. Sketch had no influence on output. Not a "reveal."</div>
+</div>
+
+<!-- PHASE 1 -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-number">Phase 1</span>
+    <span class="phase-title">Replicate + ControlNet Hough — Wrong Model</span>
+    <span class="change-badge worse">No Change</span>
+  </div>
+  <div class="phase-meta">
+    <div class="meta-item"><span class="meta-label">Tool</span>Replicate API · jagilley/controlnet-hough</div>
+    <div class="meta-item"><span class="meta-label">Cost</span>$10 credits (wasted)</div>
+    <div class="meta-item"><span class="meta-label">Speed</span>~30 seconds</div>
+  </div>
+  <p class="phase-description">First AI integration attempt. Used model version 854e8727... which turned out to be <strong>controlnet-hough</strong> — a model designed for detecting geometric lines in architectural photos. Completely wrong for hand-drawn sketches.</p>
+  <div class="cause"><strong>Why it looked the same:</strong> The Hough Lines model traces straight geometric lines and outputs them nearly unchanged. It doesn't apply artistic style. Also blocked by CORS — required building a Python proxy server to forward API calls.</div>
+  <div class="images cols-2">
+    <div class="img-card">
+      <img src="./img/ad41a97c0de4.png" alt="ControlNet Hough output">
+      <div class="img-caption">Output: cleaned-up sketch. No style applied. Looks identical to input.</div>
+    </div>
+    <div class="img-card">
+      <img src="./assets/image-1780650789550.png" alt="ControlNet debug view">
+      <div class="img-caption">Debug view showing the Replicate output — sketch-like, no transformation.</div>
+    </div>
+  </div>
+  <div class="verdict bad">Result: Identical to sketch input. $10 spent with zero visual improvement.</div>
+</div>
+
+<!-- PHASE 2 -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-number">Phase 2</span>
+    <span class="phase-title">Replicate + ControlNet Scribble — Right Model, Wrong Results</span>
+    <span class="change-badge worse">Marginally Different</span>
+  </div>
+  <div class="phase-meta">
+    <div class="meta-item"><span class="meta-label">Tool</span>Replicate API · jagilley/controlnet-scribble</div>
+    <div class="meta-item"><span class="meta-label">Cost</span>Replicate credits</div>
+    <div class="meta-item"><span class="meta-label">Speed</span>~30 seconds</div>
+    <div class="meta-item"><span class="meta-label">Strength</span>conditioning_scale: 0.45</div>
+  </div>
+  <p class="phase-description">Switched to the correct scribble model (version 435061a1...). ControlNet Scribble is designed for hand-drawn input. But its core design is to <em>preserve</em> your sketch structure — it adds minimal style on top rather than transforming the image.</p>
+  <div class="cause"><strong>Why it still looked like a sketch:</strong> ControlNet Scribble is the wrong tool for a "reveal" effect. It's built for keeping your lines and adding texture — not for dramatically reimagining the image in an artist's style.</div>
+  <div class="images cols-3">
+    <div class="img-card">
+      <img src="./img/a6032970e838.png" alt="ControlNet Scribble — strength 0.65">
+      <div class="img-caption">Merian — clean sketch. Style barely visible.</div>
+    </div>
+    <div class="img-card">
+      <img src="./img/7ff5e93ae69c.png" alt="ControlNet Scribble — af Klint">
+      <div class="img-caption">af Klint — same sketch with slight texture.</div>
+    </div>
+    <div class="img-card">
+      <img src="./img/dc89fe1811a3.png" alt="ControlNet Scribble — Bourgeois">
+      <div class="img-caption">Bourgeois — rough texture added, but no transformation.</div>
+    </div>
+  </div>
+  <div class="verdict bad">Result: Marginally different from sketch. The "style" was a texture overlay, not an artistic transformation. Dead end.</div>
+</div>
+
+<!-- PHASE 3 -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-number">Phase 3</span>
+    <span class="phase-title">fal.ai + Flux Dev img2img — First Wow (strength 0.85)</span>
+    <span class="change-badge better">Major Breakthrough</span>
+  </div>
+  <div class="phase-meta">
+    <div class="meta-item"><span class="meta-label">Tool</span>fal.ai · fal-ai/flux/dev/image-to-image</div>
+    <div class="meta-item"><span class="meta-label">Cost</span>~$0.025/image</div>
+    <div class="meta-item"><span class="meta-label">Speed</span>5–8 seconds</div>
+    <div class="meta-item"><span class="meta-label">Strength</span>0.85 (model ignores 85% of sketch)</div>
+  </div>
+  <p class="phase-description">Complete switch to fal.ai and Flux — a next-generation model. No proxy needed (CORS-friendly). At strength 0.85, the model discards most of the sketch and generates a new image guided primarily by the artist prompt. The results were dramatically different from anything before.</p>
+  <div class="cause"><strong>Why it suddenly worked:</strong> Flux is a fundamentally more powerful model than SD 1.5-based ControlNet. It understands artist names deeply and generates in their actual visual language. The sketch at 0.85 strength serves as a thematic prompt, not a compositional guide.</div>
+  <div class="images cols-3">
+    <div class="img-card">
+      <img src="./img/8fad79b93379.png" alt="Flux 0.85 — Bourgeois spider">
+      <div class="img-caption">⭐ Bourgeois — Flux generated her iconic spider. Unmistakable.</div>
+    </div>
+    <div class="img-card">
+      <img src="./img/69c84df958ec.png" alt="Flux 0.85 — Kusama dots">
+      <div class="img-caption">⭐ Kusama — colourful scattered dots following sketch curve. Very her.</div>
+    </div>
+    <div class="img-card">
+      <img src="./img/f32724e088ed.png" alt="Flux 0.85 — Merian moon">
+      <div class="img-caption">⭐ Merian — crescent shape with botanical decoration. Striking.</div>
+    </div>
+  </div>
+  <div class="verdict good">Result: First genuine "wow." Artist styles clearly recognisable. Problem: sketch composition completely ignored — model treats the word/theme as input, not the drawing.</div>
+</div>
+
+<!-- PHASE 4 -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-number">Phase 4</span>
+    <span class="phase-title">Flux img2img — Too Low Strength (0.65)</span>
+    <span class="change-badge worse">Regression</span>
+  </div>
+  <div class="phase-meta">
+    <div class="meta-item"><span class="meta-label">Tool</span>fal.ai · fal-ai/flux/dev/image-to-image</div>
+    <div class="meta-item"><span class="meta-label">Strength</span>0.65 (model follows 35% more of sketch)</div>
+  </div>
+  <p class="phase-description">Attempted to bring the sketch composition back by lowering strength to 0.65. The model now followed the sketch more closely — but lost the artistic style entirely.</p>
+  <div class="cause"><strong>Why it regressed:</strong> At 0.65, the model doesn't have enough freedom to apply a dramatic style transformation. The output is essentially a cleaned-up, slightly textured version of the sketch.</div>
+  <div class="images cols-3">
+    <div class="img-card">
+      <img src="./img/a6032970e838.png" alt="Flux 0.65 — Merian">
+      <div class="img-caption">Merian at 0.65 — sketch preserved, zero style.</div>
+    </div>
+    <div class="img-card">
+      <img src="./img/7ff5e93ae69c.png" alt="Flux 0.65 — af Klint">
+      <div class="img-caption">af Klint at 0.65 — same sketch, slightly different line quality.</div>
+    </div>
+    <div class="img-card">
+      <img src="./img/dc89fe1811a3.png" alt="Flux 0.65 — Bourgeois">
+      <div class="img-caption">Bourgeois at 0.65 — rougher texture but no transformation.</div>
+    </div>
+  </div>
+  <div class="verdict bad">Result: Back to square one. Confirmed the fundamental tension: sketch fidelity vs. style transformation are in direct conflict.</div>
+</div>
+
+<!-- PHASE 5 -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-number">Phase 5</span>
+    <span class="phase-title">Flux img2img — New 5 Artists + Keyword in Prompt (strength 0.78)</span>
+    <span class="change-badge better">Improved</span>
+  </div>
+  <div class="phase-meta">
+    <div class="meta-item"><span class="meta-label">Tool</span>fal.ai · fal-ai/flux/dev/image-to-image</div>
+    <div class="meta-item"><span class="meta-label">Strength</span>0.78</div>
+    <div class="meta-item"><span class="meta-label">Artists</span>Kusama · Bourgeois · Kara Walker · Niki de Saint Phalle · Julie Mehretu</div>
+    <div class="meta-item"><span class="meta-label">Change</span>Keyword added to prompt + artist list updated</div>
+  </div>
+  <p class="phase-description">Updated artist lineup to the final 5 chosen artists. Added the user's keyword (e.g. "water") directly into the AI prompt. Strength set to 0.78 as a compromise between sketch and style. Also added image caching per artist so switching cards doesn't re-generate.</p>
+  <div class="cause"><strong>What improved:</strong> Kara Walker produced silhouette figures standing on the wave lines of the sketch. Saint Phalle produced mosaic dotted curves. Both followed the sketch composition while applying some style. Bourgeois still gravitates toward her spider regardless of sketch.</div>
+
+  <div class="sketch-label">Input sketch (keyword: water)</div>
+  <div class="images cols-1" style="max-width:280px; margin-bottom:16px;">
+    <div class="img-card">
+      <img src="./img/b0672fe39566.png" alt="Input sketch — water">
+      <div class="img-caption">User sketch — keyword: water</div>
+    </div>
+  </div>
+
+  <div class="images cols-4">
+    <div class="img-card">
+      <img src="./img/8d82a937836c.png" alt="Kusama — water waves with dots">
+      <div class="img-caption">Kusama — dots along wave lines</div>
+    </div>
+    <div class="img-card">
+      <img src="./img/e7b193228e64.png" alt="af Klint — dotted leaf shape">
+      <div class="img-caption">af Klint — dotted seed/leaf form</div>
+    </div>
+    <div class="img-card">
+      <img src="./img/f5cb9d975a0a.png" alt="Bourgeois — thorny lines">
+      <div class="img-caption">Bourgeois — thorny dark lines</div>
+    </div>
+    <div class="img-card">
+      <img src="./img/8546d3f9a884.png" alt="Merian — branch with figure">
+      <div class="img-caption">Merian — botanical branch</div>
+    </div>
+  </div>
+
+  <div class="divider" style="margin: 20px 0;"></div>
+  <div class="sketch-label">Second sketch test (keyword: water + hearts)</div>
+  <div class="images cols-1" style="max-width:280px; margin-bottom:16px;">
+    <div class="img-card">
+      <img src="./img/9924501c3c57.png" alt="Input sketch — water with hearts">
+      <div class="img-caption">User sketch — keyword: water</div>
+    </div>
+  </div>
+  <div class="images cols-4">
+    <div class="img-card">
+      <img src="./img/8163c57db978.png" alt="Kusama — new 5 artists">
+      <div class="img-caption">⭐ Kusama — colourful dot constellation</div>
+    </div>
+    <div class="img-card">
+      <img src="./img/23c45a7285fa.png" alt="Bourgeois — spider">
+      <div class="img-caption">⭐ Bourgeois — spider, full legs spread</div>
+    </div>
+    <div class="img-card">
+      <img src="./img/3390b3aa672e.png" alt="Kara Walker — silhouettes on waves">
+      <div class="img-caption">⭐ Walker — silhouettes on wave lines</div>
+    </div>
+    <div class="img-card">
+      <img src="./img/43ee14d641fd.png" alt="Saint Phalle — mosaic dots">
+      <div class="img-caption">⭐ Saint Phalle — mosaic dotted curves</div>
+    </div>
+  </div>
+  <div class="verdict mixed">Result: Best balance so far. Kara Walker and Saint Phalle most promising — they follow sketch AND show style. Bourgeois always produces her spider regardless of input. Styles not yet distinctive enough (no colour for Saint Phalle, no true silhouette for Walker).</div>
+</div>
+
+<!-- PHASE 6 -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-number">Phase 6</span>
+    <span class="phase-title">Flux img2img — Strength 0.72 + Thicker Lines</span>
+    <span class="change-badge worse">Regression</span>
+  </div>
+  <div class="phase-meta">
+    <div class="meta-item"><span class="meta-label">Tool</span>fal.ai · fal-ai/flux/dev/image-to-image</div>
+    <div class="meta-item"><span class="meta-label">Strength</span>0.72</div>
+    <div class="meta-item"><span class="meta-label">Change</span>Sketch export lineWidth increased 3px → 6px</div>
+  </div>
+  <p class="phase-description">Lowered strength further to 0.72 to bring sketch back more. Also made sketch lines thicker in the export (6px) to give the model more to grip onto.</p>
+  <div class="cause"><strong>Why it regressed:</strong> 0.72 is too close to 0.65. The style collapses again. The thick lines made the exported sketch more prominent but the model still couldn't balance composition fidelity and style transformation at this strength.</div>
+
+  <div class="images cols-1" style="max-width:280px; margin-bottom:16px;">
+    <div class="img-card">
+      <img src="./img/9d8561e302b9.png" alt="Input sketch — hearts and water">
+      <div class="img-caption">Input sketch — water + hearts. Note thicker exported lines.</div>
+    </div>
+  </div>
+  <div class="images cols-4">
+    <div class="img-card">
+      <img src="./img/38eb80eef49c.png" alt="Kusama 0.72">
+      <div class="img-caption">Kusama — sketch visible, style lost</div>
+    </div>
+    <div class="img-card">
+      <img src="./img/6a80f7512ff5.png" alt="Bourgeois 0.72">
+      <div class="img-caption">Bourgeois — sketch with rough texture</div>
+    </div>
+    <div class="img-card">
+      <img src="./img/1439be60d8ae.png" alt="Walker 0.72">
+      <div class="img-caption">Walker — sketch, no silhouettes</div>
+    </div>
+    <div class="img-card">
+      <img src="./img/9619816e6947.png" alt="Saint Phalle 0.72">
+      <div class="img-caption">Saint Phalle — sketch, no colour</div>
+    </div>
+  </div>
+  <div class="verdict bad">Result: Regression. Style disappeared. Confirmed that anything below 0.78 kills the artistic transformation with Flux img2img.</div>
+</div>
+
+<!-- PHASE 7 -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-number">Phase 7</span>
+    <span class="phase-title">fal.ai + Flux Pro Redux — IP-Adapter with Reference Images</span>
+    <span class="change-badge neutral">Not Yet Tested</span>
+  </div>
+  <div class="phase-meta">
+    <div class="meta-item"><span class="meta-label">Tool</span>fal.ai · fal-ai/flux-pro/v1/redux</div>
+    <div class="meta-item"><span class="meta-label">Cost</span>~$0.04/image (Flux Pro)</div>
+    <div class="meta-item"><span class="meta-label">Speed</span>Est. 8–15 seconds</div>
+    <div class="meta-item"><span class="meta-label">Change</span>Reference image of actual artist's work passed as style guide</div>
+  </div>
+  <p class="phase-description">New approach: instead of passing the user's sketch as input, pass an actual image of the artist's work (hosted on Cloudinary). The model uses the reference artwork as its primary visual style guide. The sketch is no longer the input image — the keyword + prompt drive the subject, and the reference image drives the style.</p>
+  <div class="cause"><strong>Why this should work better:</strong> Text prompts alone can't perfectly reproduce an artist's specific visual language. Showing the model a real Kara Walker silhouette or a real Kusama dot painting gives it the exact visual register to match. The output should be unmistakably each artist.</div>
+
+  <div class="images cols-1" style="max-width:500px;">
+    <div class="img-card" style="padding:24px; text-align:center; color:#999; font-size:13px;">
+      <div style="height:200px; display:flex; align-items:center; justify-content:center; background:#f5f4f0; border-radius:4px; font-size:14px; color:#aaa;">
+        No screenshots yet — test this next session
+      </div>
+      <div class="img-caption">Results pending. Test with keyword "water" and compare all 5 artists.</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 20px;">
+    <p style="font-size: 13px; color: #444; margin-bottom: 12px;"><strong>Reference images selected (hosted on Cloudinary de5zaer16):</strong></p>
+    <table style="font-size:12px; border-collapse:collapse; width:100%;">
+      <tr style="background:#fff;">
+        <td style="padding:8px 12px; font-weight:600;">Kusama</td>
+        <td style="padding:8px 12px; color:#666;">Radiating pink/red flower painting — kusama-1_fbppsx.jpg</td>
+      </tr>
+      <tr style="background:#f9f9f9;">
+        <td style="padding:8px 12px; font-weight:600;">Bourgeois</td>
+        <td style="padding:8px 12px; color:#666;">Red/black spiral prints — bourgeois_3_hovuxr.jpg</td>
+      </tr>
+      <tr style="background:#fff;">
+        <td style="padding:8px 12px; font-weight:600;">Kara Walker</td>
+        <td style="padding:8px 12px; color:#666;">Full silhouette mural — waker-1_dji7js.jpg</td>
+      </tr>
+      <tr style="background:#f9f9f9;">
+        <td style="padding:8px 12px; font-weight:600;">Saint Phalle</td>
+        <td style="padding:8px 12px; color:#666;">Tarot garden painting — saintphalle-1_gy6rbb.jpg</td>
+      </tr>
+      <tr style="background:#fff;">
+        <td style="padding:8px 12px; font-weight:600;">Mehretu</td>
+        <td style="padding:8px 12px; color:#666;">Explosive layered abstraction — mehretu-1_gfib73.jpg</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+
+<!-- PHASE 9 -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-number">Phase 9</span>
+    <span class="phase-title">Canny ControlNet — Neon Tube Artifact</span>
+    <span class="change-badge worse">Wrong Tool</span>
+  </div>
+  <div class="phase-meta">
+    <div class="meta-item"><span class="meta-label">Tool</span>fal.ai · flux-pro/v1/canny</div>
+    <div class="meta-item"><span class="meta-label">Input</span>Sketch uploaded to fal storage as control image</div>
+  </div>
+  <p class="phase-description">Switched to Canny ControlNet: sketch edges used as structural guide, artist style from prompt only. Sketch composition was respected — but canny edge detection caused the model to render every line as a glowing neon tube. All artists looked like neon-light installations regardless of prompt.</p>
+  <div class="cause"><strong>Why it failed:</strong> Canny treats sketch edges as bright hard edges to render literally. The model's default interpretation of "bright edge on dark background" = glowing neon tube. Artist prompts weren't strong enough to override this visual artifact.</div>
+  <div class="images cols-2">
+    <div class="img-card">
+      <img src="./img/c5bb78d5aa0f.webp" alt="Canny — Bourgeois red neon tubes">
+      <div class="img-caption">Bourgeois — red neon tubes exactly following sketch. Composition correct, material completely wrong.</div>
+    </div>
+    <div class="img-card">
+      <img src="./img/63c5986705d0.webp" alt="Canny — Walker multicolour neon">
+      <div class="img-caption">Walker (labeled "L. Krasner" — UI bug) — multicoloured neon. Artists indistinguishable from each other.</div>
+    </div>
+  </div>
+  <div class="verdict bad">Result: Sketch preserved but all artists looked identical — neon light tubes. Wrong endpoint for this use case.</div>
+</div>
+
+<!-- PHASE 10 -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-number">Phase 10</span>
+    <span class="phase-title">Back to img2img — Better Prompts, "Line Treatment" Approach</span>
+    <span class="change-badge better">Breakthrough</span>
+  </div>
+  <div class="phase-meta">
+    <div class="meta-item"><span class="meta-label">Tool</span>fal.ai · flux/dev/image-to-image</div>
+    <div class="meta-item"><span class="meta-label">Strength</span>0.81</div>
+    <div class="meta-item"><span class="meta-label">Key change</span>Every prompt opens with "KEEP THE EXACT LINE COMPOSITION OF THE SKETCH" + describes what the lines become as a material</div>
+  </div>
+  <p class="phase-description">Returned to img2img with sketch as input. Rewrote all prompts using a new approach: instead of describing the artist's style generically, describe what the sketch's lines ARE MADE OF. "Lines rendered as thick crimson yarn on cream linen" works better than "Louise Bourgeois artwork." Added explicit composition-preservation rule at start of every prompt.</p>
+  <div class="cause"><strong>Key prompt insight:</strong> Describe the output in three layers: (1) what the lines become as a physical material, (2) what the background is, (3) what small artist motifs appear as additions along the lines — not replacement subjects. This prevented the model from generating "artist icon" (spider, Nana) and instead made it treat the sketch's lines.</div>
+  <div class="images cols-1" style="max-width:240px; margin-bottom:16px;">
+    <div class="img-card">
+      <img src="./img/325881a9307d.png" alt="Input sketch">
+      <div class="img-caption">Input sketch — same water drawing sent to all 5 artists.</div>
+    </div>
+  </div>
+  <div class="images cols-1" style="max-width:360px;">
+    <div class="img-card">
+      <img src="./img/bffd58a0a0ae.webp" alt="Kusama — red background, bubbles following sketch">
+      <div class="img-caption">⭐ Kusama — vivid red background, pink/cream bubbles clustered along sketch lines. First result that is both clearly Kusama AND follows the sketch composition.</div>
+    </div>
+  </div>
+  <div class="verdict good">Result: Breakthrough. Kusama result shows both sketch composition AND artist style simultaneously. "Line treatment" prompt approach became the template for all artists. Walker and Bourgeois also improved significantly (no screenshots saved for those).</div>
+</div>
+
+<!-- PHASE 11 -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-number">Phase 11</span>
+    <span class="phase-title">Session 2 End State — All 5 Artists Pre-generating in Parallel</span>
+    <span class="change-badge better">Best Result So Far</span>
+  </div>
+  <div class="phase-meta">
+    <div class="meta-item"><span class="meta-label">Tool</span>fal.ai · flux/dev/image-to-image</div>
+    <div class="meta-item"><span class="meta-label">Strength</span>0.81 per artist</div>
+    <div class="meta-item"><span class="meta-label">Architecture</span>All 5 artists generate in parallel on screen load, cached per artist</div>
+  </div>
+  <p class="phase-description">Final state of session: all 5 artists generate simultaneously when the user enters Screen 2, cached so card switching is instant with no extra API calls. Prompts settled using line-treatment language for each artist: Kusama = dots · Bourgeois = red thread + spider detail · Walker = black silhouette ribbons + tiny figures · Saint Phalle = thick outlines + flat colour fills + scattered symbols · Mehretu = overlapping trajectories + colour washes.</p>
+  <div class="cause"><strong>Outstanding issues going into Session 3:</strong> Kusama colour inconsistent (sometimes dots, sometimes constellation look). Mehretu needs more energy and colour. B&W sketch input biases output toward monochrome. Canvas fallback renders for Walker, Saint Phalle, Mehretu still placeholder code.</div>
+  <div class="images cols-1" style="max-width:500px;">
+    <div class="img-card" style="padding:24px; text-align:center;">
+      <div style="height:120px; display:flex; align-items:center; justify-content:center; background:#f5f4f0; border-radius:4px; font-size:13px; color:#aaa;">
+        No end-of-session screenshots saved — add from Session 3 testing
+      </div>
+      <div class="img-caption">Add screenshots here when retesting the Session 2 prompts in Session 3.</div>
+    </div>
+  </div>
+  <div class="verdict mixed">Result: Best architecture and prompts so far. Bourgeois and Walker strongest. Kusama needs colour work. Good enough to present as a prototype — not yet perfect.</div>
+</div>
+
+<!-- SUMMARY -->
+<div style="border-top: 2px solid #1a1a1a; padding-top: 24px; margin-top: 40px;">
+  <h2 style="font-size:18px; margin-bottom:16px;">Key Insight — The Core Tension</h2>
+  <p style="font-size:14px; line-height:1.7; color:#444; max-width:720px; margin-bottom:24px;">
+    Every attempt so far has hit the same wall: <strong>sketch fidelity and style transformation are in direct conflict</strong> with img2img. High strength → beautiful style, no sketch. Low strength → sketch preserved, no style. The IP-Adapter approach (Phase 7) sidesteps this by separating the two concerns — style comes from a reference image, composition comes from the prompt.
+  </p>
+  <table style="font-size:12px; border-collapse:collapse; width:100%; background:#fff; border-radius:8px; overflow:hidden;">
+    <thead>
+      <tr style="background:#1a1a1a; color:#fff;">
+        <th style="padding:10px 12px; text-align:left;">Phase</th>
+        <th style="padding:10px 12px; text-align:left;">Model</th>
+        <th style="padding:10px 12px; text-align:left;">Sketch followed?</th>
+        <th style="padding:10px 12px; text-align:left;">Style visible?</th>
+        <th style="padding:10px 12px; text-align:left;">Verdict</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td style="padding:8px 12px;">0</td><td>Canvas simulation</td><td>No</td><td>Somewhat</td><td>Generic</td></tr>
+      <tr style="background:#fafafa;"><td style="padding:8px 12px;">1</td><td>ControlNet Hough</td><td>Yes (lines only)</td><td>No</td><td>Identical to sketch</td></tr>
+      <tr><td style="padding:8px 12px;">2</td><td>ControlNet Scribble</td><td>Yes</td><td>Barely</td><td>Sketch + texture</td></tr>
+      <tr style="background:#fafafa;"><td style="padding:8px 12px;">3</td><td>Flux 0.85</td><td>No</td><td>⭐ Yes</td><td>Wow — no composition</td></tr>
+      <tr><td style="padding:8px 12px;">4</td><td>Flux 0.65</td><td>Yes</td><td>No</td><td>Sketch again</td></tr>
+      <tr style="background:#fafafa;"><td style="padding:8px 12px;">5</td><td>Flux 0.78 + 5 artists</td><td>Partially</td><td>Partially</td><td>Best balance so far</td></tr>
+      <tr><td style="padding:8px 12px;">6</td><td>Flux 0.72 + thick lines</td><td>Yes</td><td>No</td><td>Regression</td></tr>
+      <tr style="background:#fafafa;"><td style="padding:8px 12px;">7</td><td>Flux Pro Redux + refs</td><td>TBD</td><td>TBD</td><td>Not yet tested</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<p style="font-size:11px; color:#aaa; margin-top:48px; text-align:center;">Generated from session notes — Reveal / Artefakt · June 2026</p>
+
+<div class="session-divider">
+  <h2>Session 2</h2>
+  <p>June 5 2026 · Testing redux, discovering the "artist icon" problem, finding the best balance yet at strength 0.81.</p>
+</div>
+
+<h1>Reveal — Visual Process · Session 2</h1>
+<p class="subtitle">June 5 2026 · Testing redux, discovering the "artist icon" problem, finding the best balance yet at strength 0.81.</p>
+
+<!-- ─── PHASE 8 ─── -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-number">Phase 8</span>
+    <span class="phase-title">Redux with Artist Reference — Sketch Never Sent</span>
+    <span class="badge worse">Dead End — Bug</span>
+  </div>
+  <div class="meta">
+    <div class="meta-item"><span class="meta-label">Endpoint</span>flux-pro/v1/redux</div>
+    <div class="meta-item"><span class="meta-label">Input</span>Artist Cloudinary reference photo only — sketch never passed (bug)</div>
+    <div class="meta-item"><span class="meta-label">image_prompt_strength</span>0.8</div>
+  </div>
+  <p class="desc">Tested the redux endpoint built at the end of Session 1. Results looked like each artist but had zero connection to the sketch. The bug: <code>base64Image</code> was generated but never sent in the API body. The model only received the Cloudinary artist reference photo and simply remixed it.</p>
+  <div class="cause"><strong>Bug:</strong> Sketch generated but never included in the API call. Output = remix of artist reference photo. Sketch had 0% influence on any result.</div>
+
+  <div class="row">
+    <div class="phone-card sketch-card">
+      <div class="label">Input sketch</div>
+      <img src="./assets/image-1780664075214.png" alt="Input sketch">
+      <div class="caption">Keyword: water. This sketch had no influence on output.</div>
+    </div>
+    <div class="phone-card">
+      <div class="label">Kusama</div>
+      <img src="./assets/image-1780664084107.png" alt="Kusama redux">
+      <div class="caption">Remix of Kusama reference photo. Her dot flower — but not the sketch.</div>
+    </div>
+    <div class="phone-card">
+      <div class="label">Bourgeois</div>
+      <img src="./assets/image-1780664088428.png" alt="Bourgeois redux">
+      <div class="caption">Spirals from reference image. No sketch connection.</div>
+    </div>
+    <div class="phone-card">
+      <div class="label">Walker</div>
+      <img src="./assets/image-1780664092691.png" alt="Walker redux">
+      <div class="caption">Antebellum silhouette scene. Recognizable but sketch absent.</div>
+    </div>
+  </div>
+  <div class="verdict bad">Result: Artistically recognizable but broken as a product. The sketch had zero influence. Redux with artist reference abandoned entirely.</div>
+</div>
+
+<!-- ─── PHASE 9 ─── -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-number">Phase 9</span>
+    <span class="phase-title">Back to img2img — Sketch as Input, First Attempt</span>
+    <span class="badge neutral">Partial Progress</span>
+  </div>
+  <div class="meta">
+    <div class="meta-item"><span class="meta-label">Endpoint</span>flux/dev/image-to-image</div>
+    <div class="meta-item"><span class="meta-label">Strength</span>0.78 → 0.82</div>
+    <div class="meta-item"><span class="meta-label">Input</span>Sketch as base64 data URL — no upload needed</div>
+  </div>
+  <p class="desc">Returned to the proven img2img endpoint, now passing the sketch (not artist reference) as a base64 data URL directly. Sketch composition is visible in every result — but the style is weak: all outputs look like cleaned-up or thickened versions of the sketch lines without clear artistic material.</p>
+  <div class="cause"><strong>Problem:</strong> Prompts were still too generic ("Louise Bourgeois artwork") — the model had no specific material to apply. Lines became thick and calligraphic but not transformed.</div>
+
+  <div class="row">
+    <div class="phone-card sketch-card">
+      <div class="label">Input sketch</div>
+      <img src="./assets/image-1780664136622.png" alt="Input sketch">
+      <div class="caption">Water drop + wave lines. Keyword: water.</div>
+    </div>
+    <div class="phone-card">
+      <div class="label">Kusama</div>
+      <img src="./assets/image-1780664140313.png" alt="Kusama first">
+      <div class="caption">Sketch + small red dot area. Composition visible, style weak.</div>
+    </div>
+    <div class="phone-card">
+      <div class="label">Bourgeois</div>
+      <img src="./assets/image-1780664144538.png" alt="Bourgeois first">
+      <div class="caption">Thick calligraphic black lines. Sketch visible, no material.</div>
+    </div>
+    <div class="phone-card">
+      <div class="label">Walker</div>
+      <img src="./assets/image-1780664150211.png" alt="Walker first">
+      <div class="caption">Thick brush lines. Sketch traceable, no silhouette.</div>
+    </div>
+    <div class="phone-card">
+      <div class="label">Saint Phalle</div>
+      <img src="./assets/image-1780664154921.png" alt="Saint Phalle first">
+      <div class="caption">Thick outline form. Sketch present, no color or naïve style.</div>
+    </div>
+  </div>
+  <div class="verdict mixed">Result: Sketch visible in all — progress. But no artistic transformation. Prompts need to describe what the lines are MADE OF, not who the artist is.</div>
+</div>
+
+<!-- ─── PHASE 10 — REFERENCE IMAGES ─── -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-number">Phase 10</span>
+    <span class="phase-title">Artist Research — Reference Images for Prompt Writing</span>
+    <span class="badge neutral">Research</span>
+  </div>
+  <p class="desc">Shared visual references of Bourgeois and Saint Phalle's actual work to write more precise prompts. The key insight: describe the <em>material</em> and <em>surface</em> of each artist's work, not their biography.</p>
+
+  <p style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#999; margin-bottom:10px;">Bourgeois references shared</p>
+  <div class="refs">
+    <div class="ref-card">
+      <img src="./assets/image-1780664100298.webp" alt="Bourgeois ref 1">
+      <div class="caption">Grid of small ink drawings — spider forms, body shapes, blue & red ink on cream paper.</div>
+    </div>
+    <div class="ref-card">
+      <img src="./assets/image-1780664105705.webp" alt="Bourgeois ref 2">
+      <div class="caption">Spider web textile on aged linen — radial stitching in fine thread.</div>
+    </div>
+    <div class="ref-card">
+      <img src="./assets/image-1780664110177.webp" alt="Bourgeois ref 3">
+      <div class="caption">Clock embroidered in red yarn on cream fabric — oval in red thread.</div>
+    </div>
+    <div class="ref-card">
+      <img src="./assets/image-1780664113840.webp" alt="Bourgeois ref 4">
+      <div class="caption">Fabric book — looping colored ribbon shapes on pink fabric.</div>
+    </div>
+    <div class="ref-card">
+      <img src="./assets/image-1780664118382.webp" alt="Bourgeois ref 5">
+      <div class="caption">Pink ribbon loops on patchwork linen — flowing, knotting, tangling.</div>
+    </div>
+    <div class="ref-card">
+      <img src="./assets/image-1780664125430.webp" alt="Bourgeois ref 6">
+      <div class="caption">Textile work — pink fabric strips looping on patched background.</div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <h3>Prompt insight from Bourgeois references</h3>
+    <p>The LINE itself is made of thread. Not the spider — the spider inhabits the line. Background is aged cream linen patchwork. Colors: crimson red thread, cream fabric, sparse earth tones. No paint, no ink, no black.</p>
+  </div>
+  <div class="verdict neutral" style="background:#e8eaf0; color:#3949ab;">Key prompt shift: from "Bourgeois artwork" to "red hand-stitched yarn on aged cream linen, spider along the line as detail, not the main subject."</div>
+</div>
+
+<!-- ─── PHASE 11 — BREAKTHROUGH ─── -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-number">Phase 11</span>
+    <span class="phase-title">Material Prompts — Bourgeois Thread Breakthrough</span>
+    <span class="badge better">⭐ Breakthrough</span>
+  </div>
+  <div class="meta">
+    <div class="meta-item"><span class="meta-label">Endpoint</span>flux/dev/image-to-image</div>
+    <div class="meta-item"><span class="meta-label">Strength</span>0.82</div>
+    <div class="meta-item"><span class="meta-label">Key change</span>Prompts describe material + surface, not artist name</div>
+  </div>
+  <p class="desc">Rewrote all prompts to describe the output in three layers: (1) what the lines become, (2) what the background is, (3) what small motifs are added. Bourgeois became the first real "material transformation" — red yarn thread on cream linen, with spider webs stitched around it. This became the template for all other artists.</p>
+
+  <div class="row">
+    <div class="phone-card sketch-card">
+      <div class="label">Input sketch</div>
+      <img src="./assets/image-1780664197550.png" alt="Input sketch">
+      <div class="caption">Water drop + wave lines. Keyword: water.</div>
+    </div>
+    <div class="phone-card">
+      <div class="label">Kusama</div>
+      <img src="./assets/image-1780664170104.png" alt="Kusama dots">
+      <div class="caption">Dots scattered along sketch curves. Composition follows the sketch.</div>
+    </div>
+    <div class="phone-card star">
+      <div class="label">⭐ Bourgeois</div>
+      <img src="./assets/image-1780664178450.png" alt="Bourgeois thread">
+      <div class="caption">⭐ Red yarn thread on cream linen. Spider web stitching as background. First real material transformation.</div>
+    </div>
+    <div class="phone-card">
+      <div class="label">Walker</div>
+      <img src="./assets/image-1780664182751.png" alt="Walker">
+      <div class="caption">Silhouette figure on water. Strong style but narrative too independent of sketch.</div>
+    </div>
+    <div class="phone-card">
+      <div class="label">Saint Phalle</div>
+      <img src="./assets/image-1780664187472.png" alt="Saint Phalle">
+      <div class="caption">Thick outlines with small colored accents, flowers, hearts. Sketch visible.</div>
+    </div>
+    <div class="phone-card">
+      <div class="label">Mehretu</div>
+      <img src="./assets/image-1780664191103.png" alt="Mehretu">
+      <div class="caption">Explosive starburst / dandelion — gestural energy but reads as radial, not Mehretu.</div>
+    </div>
+  </div>
+  <div class="verdict good">Result: Bourgeois breakthrough. The thread material is immediately recognizable. Sketch composition preserved. This became the template: describe what the lines ARE MADE OF.</div>
+</div>
+
+<!-- ─── PHASE 12 — ARTIST ICON PROBLEM ─── -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-number">Phase 12</span>
+    <span class="phase-title">"Artist Icon" Problem — Higher Strength Loses the Sketch</span>
+    <span class="badge neutral">Diagnosis</span>
+  </div>
+  <div class="meta">
+    <div class="meta-item"><span class="meta-label">Strength</span>0.84 → 0.85</div>
+    <div class="meta-item"><span class="meta-label">Problem</span>Model generates artist's most iconic imagery, abandons the sketch</div>
+  </div>
+  <p class="desc">As prompts improved and strength increased, a new problem emerged: the model stopped transforming the sketch and started generating each artist's most famous imagery instead. Bourgeois = spider (no sketch). Walker = narrative scene (no sketch). Saint Phalle = Nana figure (no sketch). Artistically strong, but the product promise was broken.</p>
+
+  <div class="insight">
+    <h3>The core distinction</h3>
+    <p>The model was doing <strong>sketch → artist icon</strong> instead of <strong>sketch → artist treatment.</strong><br><br>
+    The transformation rule should be: the artist applies their visual language to the sketch's lines — not: the artist generates their most famous imagery inspired by the keyword.<br><br>
+    The sketch must remain the structural backbone. Artist motifs (spider, Nana, figures) should be additions along the lines, not replacement subjects.</p>
+  </div>
+
+  <div class="panoramic">
+    <img src="./assets/image-1780664223900.png" alt="Artist icon problem panoramic">
+    <div class="caption">Strength 0.85 — Mehretu grid, Bourgeois spider, Walker landscape, Saint Phalle outline, Mehretu again. All recognizable as artists. None connected to the sketch.</div>
+  </div>
+
+  <div class="verdict mixed">Result: Artistically strong but the user's sketch had disappeared. Pivoted: every prompt now opens with "KEEP THE EXACT LINE COMPOSITION OF THE SKETCH" + describes the transformation of lines specifically.</div>
+</div>
+
+<!-- ─── PHASE 13 — INTERMEDIATE ─── -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-number">Phase 13</span>
+    <span class="phase-title">Line-First Prompts — Iteration at 0.84</span>
+    <span class="badge neutral">Iteration</span>
+  </div>
+  <div class="meta">
+    <div class="meta-item"><span class="meta-label">Strength</span>0.84</div>
+    <div class="meta-item"><span class="meta-label">Key change</span>"KEEP THE EXACT LINE COMPOSITION" added to every prompt</div>
+  </div>
+  <p class="desc">All prompts rewritten with composition-preservation rule first. Results improved — sketch more visible — but 0.84 still gives the model too much freedom. Kusama goes to colored constellation dots, Bourgeois goes to spider, Walker and Saint Phalle work better.</p>
+
+  <div class="panoramic">
+    <img src="./assets/image-1780664235211.png" alt="0.84 results panoramic">
+    <div class="caption">Strength 0.84 — Kusama colored dots (constellation), Bourgeois spider (strong), Walker animal silhouettes, Saint Phalle snake/doodle, Mehretu grid. Mixed — Walker and Saint Phalle following sketch better.</div>
+  </div>
+  <div class="verdict mixed">Result: Progress. Sketch more visible. But 0.84 still too free for Kusama and Bourgeois — they revert to iconic imagery. Need to go lower.</div>
+</div>
+
+<!-- ─── PHASE 14 — BEST RESULT ─── -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-number">Phase 14</span>
+    <span class="phase-title">Best Result — Strength 0.81, All 5 Parallel, Sketch Preserved</span>
+    <span class="badge better">Best Result of Session</span>
+  </div>
+  <div class="meta">
+    <div class="meta-item"><span class="meta-label">Endpoint</span>flux/dev/image-to-image</div>
+    <div class="meta-item"><span class="meta-label">Strength</span>0.81</div>
+    <div class="meta-item"><span class="meta-label">Prompts</span>Line-first: "KEEP THE EXACT LINE COMPOSITION" + describe transformation of lines into artist material</div>
+    <div class="meta-item"><span class="meta-label">Caching</span>All 5 artists pre-generated in parallel on screen load, per-artist call IDs</div>
+  </div>
+  <p class="desc">Strength settled at 0.81 — enough style to transform, enough structure to recognize the sketch. All 5 artists generated in parallel on screen load and cached, so switching between cards costs zero extra API calls. Transformation rules: Kusama = lines as dot chains · Bourgeois = lines as red thread, spider along it · Walker = lines thickened into black silhouette ribbons with tiny figures at edges · Saint Phalle = lines as thick outlines with flat color fills and naïve symbols · Mehretu = lines multiplied into overlapping trajectories with color washes.</p>
+
+  <div class="panoramic">
+    <img src="./assets/image-1780664245437.png" alt="Best result panoramic 0.81">
+    <div class="caption">⭐ Strength 0.81 — best result of session. All 5 artists: Kusama colored dots, Bourgeois red thread + spider, Walker figure on line, Saint Phalle colorful naïve forms, Mehretu colored layered lines. Sketch gesture visible in all.</div>
+  </div>
+
+  <div class="verdict good">Result: Best of session. All 5 artists show the sketch composition. Bourgeois and Walker strongest. Kusama color inconsistent across runs. Good enough to present — not yet perfect.</div>
+</div>
+
+<!-- ─── SUMMARY ─── -->
+<div style="border-top: 2px solid #1a1a1a; padding-top: 28px; margin-top: 40px;">
+  <h2 style="font-size:18px; margin-bottom:16px;">Session 2 Summary</h2>
+  <table>
+    <thead>
+      <tr><th>Phase</th><th>Approach</th><th>Sketch visible?</th><th>Style recognizable?</th><th>Verdict</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>8</td><td>Redux + Cloudinary artist reference</td><td>No — bug, sketch never sent</td><td>Yes</td><td>Dead end</td></tr>
+      <tr><td>9</td><td>img2img 0.78–0.82, generic prompts</td><td>Yes</td><td>Barely</td><td>Sketch visible, no style</td></tr>
+      <tr><td>10</td><td>Artist reference research (Bourgeois, Saint Phalle)</td><td>—</td><td>—</td><td>Prompt insight: describe the material</td></tr>
+      <tr><td>11</td><td>Material prompts — "lines as red thread on linen"</td><td>Yes</td><td>Bourgeois ⭐ yes, others partial</td><td>Breakthrough on Bourgeois</td></tr>
+      <tr><td>12</td><td>Higher strength 0.84–0.85</td><td>No — sketch abandoned</td><td>Yes, strongly</td><td>"Artist icon" problem diagnosed</td></tr>
+      <tr><td>13</td><td>Line-first prompts + strength 0.84</td><td>Partially</td><td>Partially</td><td>Improving, still some icon drift</td></tr>
+      <tr><td>14</td><td>Strength 0.81 + parallel pre-generation</td><td>✅ Yes, all 5</td><td>✅ Mostly</td><td>Best result of session</td></tr>
+    </tbody>
+  </table>
+
+  <p style="font-size:11px; color:#aaa; margin-top:48px; text-align:center;">Session 2 · June 5 2026 · Reveal / Artefakt</p>
+
+</body>
+</html>
