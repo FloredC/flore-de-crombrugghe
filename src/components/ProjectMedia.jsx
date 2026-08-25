@@ -97,13 +97,55 @@ const MEDIA_VARS = {
     'xl:[--media-frame:58.5%] xl:[--media-image:80.77%] ' +
     'xl:[--media-frame-cap:40svh] xl:[--media-image-cap:55.16svh] ' +
     '2xl:[--media-frame:68.5053%] 2xl:[--media-image:94.47%]',
+  // `small` takes NEITHER regime treatment from `xl` up -- no artwork shrink and
+  // no height cap. Its artwork is 90.23% of the frame at every width, and the
+  // frame is just tall enough to hold it plus a band of tint. See the note
+  // below.
   small:
     '[--media-frame:108.5527%] [--media-image:90.23%] ' +
     '[--media-frame-cap:100svh] [--media-image-cap:83.1svh] ' +
-    'xl:[--media-frame:92.0%] xl:[--media-image:76.46%] ' +
-    'xl:[--media-frame-cap:40svh] xl:[--media-image-cap:33.25svh] ' +
-    '2xl:[--media-frame:108.5527%] 2xl:[--media-image:90.23%]',
+    'xl:[--media-frame:96%]',
 }
+
+// --- `small`: the panel hugs the artwork (Flore, 2026-08-25) ----------------
+//
+// Flore: "there's no need for them to be rectangles" -- the Sinomocene,
+// Teamchatviz and Roche cards -- followed by "I don't want you to shrink the
+// artwork (otherwise it will be very small and hard to see), I want you to
+// reduce the height slightly."
+//
+// Those two are not both satisfiable at every width, so the priority is hers:
+// artwork legibility first.
+//
+// THE GEOMETRY, because it is what makes this variant awkward. All three assets
+// are near-square (640x556). In a 355px column an artwork at 90.23% is 320 wide
+// and therefore 278 TALL, which is most of the panel on its own. Add the 16
+// caption gap and the caption itself and the content is ~312 -- so the frame
+// can never be shorter than that, whatever the ratio says (the spacer only sets
+// a MINIMUM; see the note at the top of this file). Figma's 108.5527% draws it
+// at 385, leaving ~36px of empty tint above and below.
+//
+// So `96%` is not a chosen number: it is 312 of content plus a ~14px band of
+// tint, expressed against the 355 card. It happens to serve both regimes with
+// one value because the only thing that differs between them is the caption's
+// own line height, which moves the content by 1.4px.
+//
+// WHAT WAS REMOVED, and why it was working against her:
+//
+//   xl:[--media-image:76.46%]     shrank the artwork to 263 wide at laptop
+//   xl:[--media-image-cap:33.25svh]  shrank it further on a short window --
+//                                    223 wide at 1366x670
+//   xl:[--media-frame-cap:40svh]     the frame cap those two existed to serve
+//
+// Together those were the "very small and hard to see" she is objecting to.
+// Restoring the artwork costs height at laptop rather than saving it -- the
+// card goes 558 -> 583 at 1440x790 -- which is the opposite of "reduce the
+// height", and is the trade she chose knowingly. At 1600+ both goals align and
+// the card drops 672 -> 628.
+//
+// `medium` and `large` keep their caps: their artwork is not the one that was
+// getting too small, and `large`'s cap is what keeps the featured card on a
+// laptop screen at all.
 
 // --- The viewport-height caps, and why they are the numbers they are --------
 //
@@ -123,7 +165,7 @@ const MEDIA_VARS = {
 //              < xl      xl (laptop)   2xl (large desktop)
 //   large      100svh      48svh          62svh
 //   medium     100svh      40svh          40svh
-//   small      100svh      40svh          40svh
+//   small      100svh     100svh         100svh   (see the `small` note above)
 //
 // 100svh BELOW `xl` MEANS "NO CAP", written as a real limit rather than as a
 // disable. Below the desktop grid a card is full-bleed and its media is
