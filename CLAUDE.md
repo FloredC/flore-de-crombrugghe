@@ -416,6 +416,16 @@ was constant across the desktop range while laptop viewport height runs ~670 to
 cap for this — media is the only term big enough to deserve a height query, and
 those caps are set so they cannot bite on a tall window.
 
+**The laptop media ratios were reverted and then restored** (2026-08-25, within
+one session). `ProjectMedia` shortens the 2-up/3-up frame ratios at laptop and
+caps the featured card's frame against viewport height, which means the artwork
+sits smaller inside a wider band of tint than the Figma frame draws. Flore asked
+for the Figma ratios back, looked at the result — every card fits its ratio but
+the featured card is 1.11 of a 1366x670 viewport and the 2-up card 1.03, i.e.
+neither fits that laptop — and asked for the compact version back. So both
+states have been seen on a real screen and the current one is the chosen one.
+Don't "restore the Figma ratios" as a tidy-up; it has already been tried.
+
 **Known step at the 1600 boundary:** the featured card spans 4 of 6 Work columns
 at laptop and 5 at `2xl`, so it jumps 769 -> 977 wide when a window crosses 1600.
 Spans are integers, so this cannot be interpolated. Deliberate, and the reason
