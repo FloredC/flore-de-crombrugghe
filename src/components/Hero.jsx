@@ -27,21 +27,66 @@ const MAP_NATIVE_HEIGHT = 982
 // calculation subtracts from the viewport height before working out how wide
 // the map can be.
 //
-// This is deliberately larger than the hero's own padding (pt-space-24, no
-// bottom padding). The hero used to carry pb-12 as well, but that 48px sat
-// between the map and the Work heading as dead space; the gap below the map
-// is now owned by SECTION_PAD_WORK instead, where it's tunable per breakpoint.
-// The reserve stays at 72 so the map's rendered size is completely unchanged
-// by that move -- it still declines the same slice of viewport height, the
-// slice is just filled by the next section's padding rather than the hero's.
-// Lower it only if the map is meant to get bigger, which is a separate call.
-//
 // The 24 at the top is deliberate at every size, not just mobile. On desktop
 // the map's own artwork carries whitespace above the island so it reads fine
 // flush; at small sizes that whitespace scales down with everything else, and
 // in the crop branch the Guide is a real stacked block that sat hard against
 // the top edge.
-const HERO_VERTICAL_RESERVE = 72
+//
+// --- 72 -> 155, so the page shows it has content (Flore, 2026-08-25) -------
+//
+// At 72 the map claimed the entire first screen and NOTHING below it was
+// visible, so a cold visitor had no evidence the page continued. Flore, from a
+// 1512x856 laptop: "you only see the map, not the rest of the page, making it
+// unclear whether there is any content."
+//
+// This was never working, on any screen -- worth stating plainly, because the
+// natural assumption is that something regressed. While the map is height-
+// bound, its height IS `viewport - reserve`, so the whole chain is:
+//
+//   Work heading bottom = 24 (top pad) + (vh - RESERVE)
+//                       + 60 (SECTION_PAD_WORK at xl)
+//                       + 45 (the h1 at its laptop size)
+//                       = vh + 129 - RESERVE
+//
+// The viewport height cancels. At RESERVE 72 the heading therefore sat 57px
+// below the fold at EVERY height where the map is height-bound -- measured at
+// 1512x856, and 31px below at 1728x1080 where the map is capped at native
+// instead. Not a laptop bug, a constant.
+//
+// 155 puts the heading fully on screen with ~26px to spare at `xl`, and that is
+// the number Flore chose against a measured 1512x856.
+//
+// TWO VALUES, because one is not enough: the same 155 clears by exactly 1px at
+// 1728x1080. That band is `2xl`, where the heading is 50px rather than 45 and
+// SECTION_PAD_WORK is 80 rather than 60 -- 25px more chain for the same
+// reserve to absorb. 1px survives nothing: a scrollbar, a rounding difference,
+// a browser with slightly taller chrome, and the heading is under the fold
+// again. 180 restores the same ~26px there.
+//
+// Raising the single number to 180 everywhere would have worked too, and was
+// rejected: it costs another 3% of map at the laptop sizes Flore actually
+// judged this on, to fix a band where the map is already near native size and
+// can afford the space. So the reserve is a custom property with a `2xl:`
+// variant, the same mechanism ProjectMedia uses -- see MEDIA_VARS there.
+//
+// KEEP THESE IN STEP WITH THE CHAIN. If SECTION_PAD_WORK or the `h1` size
+// changes, this changes with it; the formula above is how to re-derive it,
+// and `clearance below heading` is what to measure in the browser afterwards.
+//
+// THE COST, chosen knowingly: the map is ~10% smaller wherever height binds --
+// 1295 -> 1158 wide at 1512x856, scale 0.798 -> 0.714. Above ~1130px of
+// viewport height nothing changes at all, because the map hits its 1622 native
+// cap before the reserve matters.
+//
+// If the map wants that size back, the lever is NOT this number -- it is the
+// asset. Measured from the SVG's own `getBBox()` against its 1622x982 viewBox,
+// the artwork wastes 33px at the top and 32 at the bottom (6.7% of the height)
+// and 127/94 left and right. A tighter re-export renders the island larger
+// inside the same box, which buys back most of this without putting the Work
+// heading back under the fold. That needs Flore to re-export, so it is a note
+// rather than a change.
+const HERO_RESERVE_VARS = '[--hero-reserve:155px] 2xl:[--hero-reserve:180px]'
 
 // Below this width the map stops scaling and goes back to cropping with
 // two-finger pan -- phones, where Figma stacks the Guide above the map
@@ -66,7 +111,7 @@ const CROP_BREAKPOINT = 768
 // chrome collapses during scroll, which would resize the map mid-scroll.
 const MAP_FIT_WIDTH =
   `min(${MAP_NATIVE_WIDTH}px, 100%, ` +
-  `calc((100svh - ${HERO_VERTICAL_RESERVE}px) * ${MAP_NATIVE_WIDTH} / ${MAP_NATIVE_HEIGHT}))`
+  `calc((100svh - var(--hero-reserve)) * ${MAP_NATIVE_WIDTH} / ${MAP_NATIVE_HEIGHT}))`
 
 function useMapFits() {
   const [fits, setFits] = useState(true)
@@ -255,7 +300,7 @@ export default function Hero() {
           <div
             ref={mapRef}
             data-component="hero-map"
-            className="relative mx-auto"
+            className={`relative mx-auto ${HERO_RESERVE_VARS}`}
             style={{ width: MAP_FIT_WIDTH }}
           >
             {/* Deliberately NOT scaled as a group. A transform here briefly

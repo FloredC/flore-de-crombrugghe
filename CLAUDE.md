@@ -426,6 +426,19 @@ neither fits that laptop — and asked for the compact version back. So both
 states have been seen on a real screen and the current one is the chosen one.
 Don't "restore the Figma ratios" as a tidy-up; it has already been tried.
 
+**The hero must never claim the whole first screen** (Flore, 2026-08-25). The
+map is sized to fit the viewport height, so at `HERO_VERTICAL_RESERVE = 72` it
+filled the screen and the "Work" heading sat 57px below the fold on every
+viewport shorter than ~1130px — a cold visitor had no evidence the page
+continued. The reserve is now 155 (180 at `2xl`, whose heading and section
+padding are both larger), which clears the heading by ~26px in both bands. The
+chain is `heading bottom = viewport + topPad + SECTION_PAD_WORK + h1 height −
+reserve`, so it re-derives if any of those move — see the note in `Hero.jsx`.
+Cost: the map is ~10% smaller wherever height binds, and unchanged above
+~1130px. The way to buy that size back is a tighter SVG re-export, not this
+number: the artwork wastes 6.7% of its height and 13.6% of its width as empty
+margin (measured via `getBBox()` against the 1622x982 viewBox).
+
 **Known step at the 1600 boundary:** the featured card spans 4 of 6 Work columns
 at laptop and 5 at `2xl`, so it jumps 769 -> 977 wide when a window crosses 1600.
 Spans are integers, so this cannot be interpolated. Deliberate, and the reason
