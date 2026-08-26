@@ -71,13 +71,19 @@ export default {
     stage: 'bg-surface-grey',
     zone: 'Harbour',
     subsection: 'Feature cases',
-    // ONE FLATTENED ASSET: the browser chrome, the rounded corners and the drop
-    // shadow are baked into the export, not applied here.
+    // ONE FLATTENED ASSET: the browser chrome is part of the export rather than
+    // drawn here.
     //
-    // Which is why it renders with NO frame chrome at all — `rounded-none` and
-    // no border. Re-adding a radius here would clip the shadow the asset
-    // already carries, and a border would draw a second edge around a window
-    // that has one.
+    // CORRECTED 2026-08-26. This used to claim the export also carried a baked
+    // drop shadow, and that a radius here would clip it. Measured, that is
+    // false: the file is 99.7% fully opaque with 0% fully-transparent pixels,
+    // so there is no soft surround at all — the 0.2% partial alpha is corner
+    // anti-aliasing. The claim came from the FIRST hero export (the one with
+    // the Slack badge, which did have a shadow blob) and was never rechecked
+    // when Flore replaced it.
+    //
+    // So the frame is drawn here after all: radius 12 and the grey hairline,
+    // matching node 4940:5428.
     //
     // THE SLACK BADGE IS GONE, 2026-08-26. The first export composited a white
     // circle holding the Slack mark over the screenshot's top-right corner;
@@ -98,8 +104,8 @@ export default {
       placeholderAspect: 1289 / 805,
       maxWidth: 600,
     },
-    mediaClassName: '',
-    mediaRadius: 'rounded-none',
+    mediaClassName: 'border border-border-grey',
+    mediaRadius: 'rounded-radius-12',
   },
 
   what: {
@@ -107,10 +113,10 @@ export default {
     // 64 of padding either side of a 525-wide frame (node 4957:6776).
     mediaInset: '12.19%',
     body: [
-      'Six ways of reading a year of team chat.',
-      "Slack is where a company's culture actually happens, and it's almost entirely unreadable — a year of it is just scroll. Connect the tool to a workspace and it builds six views of every public channel automatically. New joiners get an overview that would otherwise take months to absorb. People who've been there for years find out what's been going on two channels over.",
-      'The hard part was formal. Six visualization types with genuinely different grammars — network clusters, time series, rankings — that still had to read as one product, for someone who had never looked at a cluster analysis before.',
-      "The tool doesn't tell you what your team is like. It shows you the shape and leaves the reading to you.",
+      '**Six ways of reading a year of team chat.**',
+      "**Slack is where a company's culture actually happens**, and it's almost entirely unreadable — a year of it is just scroll. Connect the tool to a workspace and it builds **six views of every public channel automatically**. New joiners get an overview that would otherwise take months to absorb. People who've been there for years find out what's been going on two channels over.",
+      'The hard part was formal. Six visualization types with **genuinely different grammars** — network clusters, time series, rankings — that **still had to read as one product**, for someone who had never looked at a cluster analysis before.',
+      "The tool doesn't tell you what your team is like. **It shows you the shape and leaves the reading to you.**",
     ],
     media: {
       kind: 'image',
@@ -118,6 +124,11 @@ export default {
       alt: 'The six teamchatviz view icons, each a small circular line drawing of its visualization type.',
       label: '[ icons.webp — 2000x1501 ]',
       placeholderAspect: 2000 / 1501,
+      // No frame at all — node 4940:6513 carries neither a corner radius nor an
+      // effect, unlike the other two snapshots' What images. Set explicitly
+      // because Media's own default is radius 24, which would clip this
+      // transparent PNG's corners for no reason.
+      radius: 'rounded-none',
     },
   },
 

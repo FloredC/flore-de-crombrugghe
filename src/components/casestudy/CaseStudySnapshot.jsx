@@ -78,11 +78,46 @@ const PAIR_GRID = 'grid grid-cols-1 gap-space-24 md:grid-cols-2 md:gap-space-40'
 // arithmetic backwards.
 const WHAT_GRID = 'grid grid-cols-1 gap-space-24 md:grid-cols-[720fr_525fr] md:gap-space-40'
 
-// radius 12 + `Shadow universal`, both read off the frames. The shadow is what
-// lifts a white-backgrounded screenshot off a white page — without it these
-// read as holes rather than objects. Shared by stills and video embeds so the
-// two can't drift apart.
-const FRAME_CHROME = 'overflow-hidden rounded-radius-12 shadow-universal'
+// A GREY HAIRLINE, NOT A DROP SHADOW — Flore, 2026-08-26.
+//
+// Every still and embed in the snapshot tier used to carry `Shadow universal`.
+// She replaced it across all three frames because the shadow read as an
+// INTERACTION STATE: the project cards and buttons elsewhere on the site use
+// elevation for hover and selected, so a permanently-raised screenshot looked
+// like something you could click or like something already chosen. A hairline
+// bounds the image without claiming it is interactive.
+//
+// `border-grey` is `Colors/border/grey`, the token the case-study heroes
+// already used, so this is a reuse rather than a new value.
+const FRAME_CHROME = 'overflow-hidden rounded-radius-12 border border-border-grey'
+
+/**
+ * Renders a content string with `**bold**` runs as real <strong> elements.
+ *
+ * WHY A MARKER AND NOT STRUCTURED DATA, added 2026-08-26 when Flore bolded key
+ * phrases across all three snapshots' prose. The bold is INLINE — mid-sentence
+ * runs like "Chinese influence isn't measurable in one currency" — not whole
+ * paragraphs, so a per-paragraph `bold: true` flag could not express it.
+ *
+ * The alternative was an array of `{ text, bold }` segments per paragraph. That
+ * is more "correct" and much worse to live with: it turns a readable sentence
+ * into a dozen fragments, so proofreading the copy against Figma means
+ * mentally reassembling it, and a typo can hide in a segment boundary. The
+ * marker keeps each paragraph one legible string.
+ *
+ * <strong> rather than a styled <span>: these are emphasised because they carry
+ * the point of the sentence, which is exactly what the element means, and it
+ * reaches screen readers as emphasis instead of as an invisible font change.
+ *
+ * A literal `**` in copy would break this. Nothing in the tier uses one, and it
+ * would show up immediately as a missing word rather than failing silently.
+ */
+function RichText({ children }) {
+  // Odd indices are the bold runs: "a **b** c" -> ['a ', 'b', ' c'].
+  return children.split('**').map((part, i) =>
+    i % 2 ? <strong key={i} className="font-bold">{part}</strong> : part
+  )
+}
 
 /**
  * A Vimeo embed, sized by the video's own aspect rather than the design's box.
@@ -125,7 +160,12 @@ function VideoEmbed({ videoId, title }) {
  * `text-primary`, reading as a sentence about the image rather than a label on
  * it, so this owns the figcaption.
  */
-function View({ kind = 'image', src, alt, caption, aspect, videoId, title, label }) {
+function View({ kind = 'image', src, alt, caption, aspect, videoId, title, label, chrome }) {
+  // Page default, overridable per item. The three snapshots all frame their
+  // stills, but not identically: Teamchatviz and Sinomocene at radius 12,
+  // Roche at 16. `border` rather than `shadow` since 2026-08-26 — see
+  // FRAME_CHROME above for why the shadow went.
+  const { radius = 'rounded-radius-12', border = true } = chrome ?? {}
   return (
     <figure className="m-0 flex flex-col gap-space-16">
       {kind === 'video' ? (
@@ -137,8 +177,8 @@ function View({ kind = 'image', src, alt, caption, aspect, videoId, title, label
           alt={alt}
           label={label}
           placeholderAspect={aspect}
-          radius="rounded-radius-12"
-          className="shadow-universal"
+          radius={radius}
+          className={border ? 'border border-border-grey' : ''}
         />
       )}
       {caption && (
@@ -177,7 +217,7 @@ export default function CaseStudySnapshot({ data }) {
             {data.what.title && <SectionHeader title={data.what.title} />}
             {data.what.body.map((paragraph) => (
               <p key={paragraph} className="m-0 text-body-lg font-normal">
-                {paragraph}
+                <RichText>{paragraph}</RichText>
               </p>
             ))}
           </div>
@@ -192,8 +232,12 @@ export default function CaseStudySnapshot({ data }) {
               wide. An inline style rather than a class because the value is
               content, and Tailwind cannot generate a class from a runtime
               string -- `px-[${'{'}inset{'}'}]` would silently produce nothing. */}
+          {/* Chrome comes from the content file, like the hero's does — the
+              three pages disagree: Teamchatviz's icons are bare, Sinomocene's
+              legend takes a shadow with no radius, Roche's sketches take radius
+              16 and a shadow. */}
           <div style={{ paddingInline: data.what.mediaInset }}>
-            <Media {...data.what.media} radius="rounded-none" />
+            <Media {...data.what.media} />
           </div>
         </Block>
 
@@ -225,7 +269,13 @@ export default function CaseStudySnapshot({ data }) {
                 flag in the content file that could disagree with it. */}
             <div className={row.items.length === 1 ? '' : PAIR_GRID}>
               {row.items.map((item, i) => (
-                <View key={item.src ?? item.videoId ?? i} {...item} aspect={item.aspect ?? data.viewAspect} />
+                <View
+                  key={item.src ?? item.videoId ?? i}
+                  {...item}
+                  // Page-level chrome, with per-item override merged over it.
+                  chrome={{ ...(data.viewChrome ?? {}), ...(item.chrome ?? {}) }}
+                  aspect={item.aspect ?? data.viewAspect}
+                />
               ))}
             </div>
           </Block>

@@ -52,6 +52,9 @@ export default {
     liveLabel: 'Sinomocene',
     stage: 'bg-surface-inverted',
     tone: 'dark',
+    // Explicit since 2026-08-26: `tone` used to imply this, until Roche turned
+    // up with a light stage and a secondary button.
+    buttonVariant: 'secondary',
     zone: 'Harbour',
     subsection: 'Feature cases',
 
@@ -92,11 +95,11 @@ export default {
     // different work in each.
     mediaInset: '13.71%',
     body: [
-      'Nine incompatible datasets, one photographic argument.',
-      "Davide Monteleone spent seven years documenting China's Belt and Road Initiative. The data behind it came from nine sources that don't share a unit: infrastructure finance, diplomatic missions, Confucius Institutes, trade flows, tourism, corruption indices. Chinese influence isn't measurable in one currency, which is precisely the point — and precisely what makes it hard to draw.",
-      'So each country is drawn as a shape cut from the initiative’s own name. 一带一路 — "One Belt, One Road" — dissected tangram-style, one piece per indicator, sized to the scale of Chinese presence. Measures that can’t be added together sit side by side in a single form.',
+      '**Nine incompatible datasets, one photographic argument.**',
+      "Davide Monteleone spent seven years documenting China's Belt and Road Initiative. The data behind it came from nine sources that don't share a unit: infrastructure finance, diplomatic missions, Confucius Institutes, trade flows, tourism, corruption indices. **Chinese influence isn't measurable in one currency**, which is precisely the point — and precisely what makes it hard to draw.",
+      'So each country is drawn as **a shape cut from the initiative’s own name**. 一带一路 — "One Belt, One Road" — dissected tangram-style, one piece per indicator, sized to the scale of Chinese presence. **Measures that can’t be added together sit side by side in a single form**.',
       'It runs alongside large-format documentary photography and satellite analysis, in books and exhibitions where people are standing up.',
-      "The photography makes the argument. The data had to be the part you couldn't dismiss.",
+      "**The photography makes the argument. The data had to be the part you couldn't dismiss.**",
     ],
     media: {
       kind: 'image',
@@ -104,6 +107,11 @@ export default {
       alt: 'The Sinomocene legend: a key showing the nine indicator categories, each with its own tangram piece, and how piece size maps to the scale of Chinese presence in a country.',
       label: '[ legend-white.webp — 1336x1890 ]',
       placeholderAspect: 1336 / 1890,
+      // BORDER, NO RADIUS — node 4957:6772 carries the grey hairline and no
+      // corner rounding. It is the one framed image in the tier with square
+      // corners, which is Flore's, not an oversight.
+      radius: 'rounded-none',
+      className: 'border border-border-grey',
     },
   },
 

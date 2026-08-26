@@ -80,31 +80,41 @@ export default function Frame({
   mediaRadius = 'rounded-radius-24',
   // LIGHT OR DARK STAGE, added 2026-08-26 for the Sinomocene snapshot, whose
   // hero sits on `Colors/surface/inverted` (node 4940:6613) rather than a pale
-  // surface.
+  // surface. Controls the TEXT COLOUR only.
   //
-  // ONE PROP RATHER THAN TWO, deliberately. Dark tone changes both the text
-  // colour and the button variant, and they are not independently safe: the
-  // secondary button is `bg-transparent` with black text, so white text plus a
-  // primary (near-black) button on a near-black stage is an invisible page.
-  // Splitting this into `textClass` and `buttonVariant` would let a caller pick
-  // exactly that combination and see nothing wrong in the diff.
+  // This was briefly coupled to the button variant on the theory that the two
+  // always co-vary and splitting them would let a caller build an invisible
+  // page (white text plus a near-black primary button on a near-black stage).
+  // Roche disproved it the next day: its hero is a LIGHT stage
+  // (`Colors/surface/canvas`, node 4962:6963) with a SECONDARY button
+  // (node 4962:6974) — a combination the coupled version could not express.
   //
-  // `stage` stays separate because it is the surface itself, and a caller may
-  // want a dark stage that is not this exact token.
+  // So they are two props, and the invisible-page case is prevented where it
+  // actually lives instead: see `buttonProps` below.
   tone = 'light',
+  // Which ButtonLink variant the live-site CTA uses. Three snapshot heroes,
+  // three different answers, all read off the file: Teamchatviz primary,
+  // Sinomocene and Roche secondary.
+  buttonVariant = 'primary',
 }) {
   const dark = tone === 'dark'
   const textClass = dark ? 'text-text-inverted' : 'text-text-primary'
-  // Figma's instance overrides the secondary button's fill to
-  // `Colors/surface/background` so it reads as a white pill on the dark stage
-  // (node 4957:6835). `!` because the variant class already sets
-  // `bg-transparent`: two background utilities of equal specificity are
-  // resolved by their order in Tailwind's generated CSS, not by the order they
-  // appear in the class string, so without it this flips depending on how the
-  // config happens to emit. Same trap the `radius` prop on Media avoids.
-  const buttonProps = dark
-    ? { variant: 'secondary', className: '!bg-surface-background' }
-    : { variant: 'primary' }
+  // BOTH secondary hero instances in Figma override the button's fill to
+  // `Colors/surface/background` (nodes 4957:6835 and 4962:6974), where the
+  // site's own secondary variant is `bg-transparent`. That override is not
+  // cosmetic on a dark stage — transparent would leave black text on a
+  // near-black surface — so it is applied here for every secondary hero button
+  // rather than left to each content file to remember.
+  //
+  // `!` because the variant class already sets `bg-transparent`: two background
+  // utilities of equal specificity are resolved by their order in Tailwind's
+  // generated CSS, not by the order they appear in the class string, so without
+  // it this flips depending on how the config happens to emit. Same trap the
+  // `radius` prop on Media avoids.
+  const buttonProps =
+    buttonVariant === 'secondary'
+      ? { variant: 'secondary', className: '!bg-surface-background' }
+      : { variant: 'primary' }
   return (
     // `bg-notebook` over the canvas token: the graph-paper surface from Flore's
     // talk deck (see globals.css). This closes a gap flagged when the hero was
