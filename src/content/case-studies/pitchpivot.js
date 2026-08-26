@@ -18,7 +18,7 @@
  *     This matches the `images/home/` namespace the rest of the site now uses,
  *     so it's the more consistent of the two.
  *   - posters    `.png`, not `.jpg`.
- *   - hero       a single `hero.png`, not an mp4 plus a poster.
+ *   - hero       a single `hero.webp`, not an mp4 plus a poster.
  *
  * They are written root-absolute and resolved at render time through
  * `assetUrl()` inside Media.jsx, which prefixes Vite's configured base — see
@@ -116,9 +116,9 @@ export default {
     // space the media takes, so there is no layout shift at all.
     media: {
       kind: 'image',
-      src: `${M}/hero.png`,
-      label: '[ hero.png — 1798x2234 portrait product screenshot ]',
-      placeholderAspect: '1798 / 2234',
+      src: `${M}/hero.webp`,
+      label: '[ hero.webp — 1610x2000 portrait product screenshot ]',
+      placeholderAspect: '1610 / 2000',
       maxWidth: MEDIA_WIDTH.hero,
       alt: 'The PitchPivot Pushback Pivot panel: a presentation context, four audience types, and a generated challenge question',
     },
@@ -149,9 +149,9 @@ export default {
     // anyone plans a token change expecting the artwork to follow.
     media: {
       kind: 'image',
-      src: `${M}/what-is-pitchpivot.png`,
-      label: '[ what-is-pitchpivot.png — 5128x1628 explanatory banner ]',
-      placeholderAspect: '5128 / 1628',
+      src: `${M}/what-is-pitchpivot.webp`,
+      label: '[ what-is-pitchpivot.webp — 2000x635 explanatory banner ]',
+      placeholderAspect: '2000 / 635',
       maxWidth: MEDIA_WIDTH.banner,
       alt: 'A design idea, “Added micro-interactions for a smoother, more responsive feel”, reframed into business-focused outcomes — higher user satisfaction and lower perceived wait time — with a coaching note to quantify outcomes and link design effects to measurable impact',
     },
@@ -264,7 +264,7 @@ export default {
         media: {
           kind: 'video',
           src: `${M}/impact-framing.mp4`,
-          poster: `${M}/impact-framing-poster.png`,
+          poster: `${M}/impact-framing-poster.webp`,
           label: '[ impact-framing.mp4 — 1432x1660 portrait screencast ]',
           placeholderAspect: '1432 / 1660',
           maxWidth: MEDIA_WIDTH.feature,
@@ -279,7 +279,7 @@ export default {
         media: {
           kind: 'video',
           src: `${M}/pushback-pivot.mp4`,
-          poster: `${M}/pushback-pivot-poster.png`,
+          poster: `${M}/pushback-pivot-poster.webp`,
           label: '[ pushback-pivot.mp4 — 1432x1660 portrait screencast ]',
           placeholderAspect: '1432 / 1660',
           maxWidth: MEDIA_WIDTH.feature,
@@ -296,9 +296,9 @@ export default {
     // Flore on 2026-08-14 and verified against the pixels, not the timestamp.
     visual: {
       kind: 'image',
-      src: `${M}/pushback-pivot-visual.png`,
-      label: '[ pushback-pivot-visual.png — 5128x1624 stakeholder question banner ]',
-      placeholderAspect: '5128 / 1624',
+      src: `${M}/pushback-pivot-visual.webp`,
+      label: '[ pushback-pivot-visual.webp — 2000x633 stakeholder question banner ]',
+      placeholderAspect: '2000 / 633',
       alt: 'Four stakeholder types linked by a winding line, each asking a different question: a skeptical executive asking “What’s the ROI?”, a pragmatic technical lead asking “Any performance impact?”, a data-driven product manager asking “Can we measure this?”, and a budget-focused stakeholder asking “Is it worth the effort?”',
     },
   },
@@ -693,7 +693,7 @@ export default {
     // had. What is left here is the only thing that has to be first person.
     note: 'The real experiment was treating AI as a partner, not a tool: something that challenged assumptions instead of just executing them.',
     // Week names, dates and the curve's actual shape are read off the graphic
-    // itself (momentum-curve.png), not from the old alt text -- which claimed
+    // itself (momentum-curve.webp), not from the old alt text -- which claimed
     // it dipped "during testing". It does not: the dip is at the end of week 1,
     // and the line climbs steeply from prototyping to the end.
     body: [
@@ -714,17 +714,17 @@ export default {
     // the ~65/35 split Figma draws (node 4787:7879, 1282 wide overall).
     media: {
       kind: 'image',
-      src: `${M}/momentum-curve.png`,
-      label: '[ momentum-curve.png — 2896x2086 weekly momentum curve ]',
-      placeholderAspect: '2896 / 2086',
+      src: `${M}/momentum-curve.webp`,
+      label: '[ momentum-curve.webp — 2000x1441 weekly momentum curve ]',
+      placeholderAspect: '2000 / 1441',
       // Corrected 2026-08-14 against the image: the curve dips at the end of
       // week 1 and rises from prototyping on. The old text had it backwards.
       alt: 'Weekly project momentum across the five-week course, dipping at the end of week one and climbing steeply from prototyping to the end',
     },
     legend: {
       kind: 'image',
-      src: `${M}/momentum-curve-legend.png`,
-      label: '[ momentum-curve-legend.png — 1660x787 most-used-tools legend ]',
+      src: `${M}/momentum-curve-legend.webp`,
+      label: '[ momentum-curve-legend.webp — 1660x787 most-used-tools legend ]',
       placeholderAspect: '1660 / 787',
       alt: 'Most used tools: Notebook LM for research and synthesis, ChatGPT for ideation and writing, Perplexity for secondary research, Notion for documentation and reflection, and Lovable for prototyping and UI building',
     },

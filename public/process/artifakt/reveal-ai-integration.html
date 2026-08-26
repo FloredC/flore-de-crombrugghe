@@ -205,7 +205,7 @@
   <div class="cause"><strong>Why it wasn't enough:</strong> The output looked generated, not personal. The sketch didn't influence the style — it was just a trace on top of a generic motif.</div>
   <div class="images cols-1">
     <div class="img-card">
-      <img src="./img/55d8048aed14.png" alt="Canvas simulation — Merian style">
+      <img src="./img/55d8048aed14.webp" alt="Canvas simulation — Merian style">
       <div class="img-caption">Canvas simulation — Merian botanical style. Instantly generated, always the same regardless of sketch.</div>
     </div>
   </div>
@@ -228,7 +228,7 @@
   <div class="cause"><strong>Why it looked the same:</strong> The Hough Lines model traces straight geometric lines and outputs them nearly unchanged. It doesn't apply artistic style. Also blocked by CORS — required building a Python proxy server to forward API calls.</div>
   <div class="images cols-2">
     <div class="img-card">
-      <img src="./img/ad41a97c0de4.png" alt="ControlNet Hough output">
+      <img src="./img/ad41a97c0de4.webp" alt="ControlNet Hough output">
       <div class="img-caption">Output: cleaned-up sketch. No style applied. Looks identical to input.</div>
     </div>
     <div class="img-card">
@@ -256,15 +256,15 @@
   <div class="cause"><strong>Why it still looked like a sketch:</strong> ControlNet Scribble is the wrong tool for a "reveal" effect. It's built for keeping your lines and adding texture — not for dramatically reimagining the image in an artist's style.</div>
   <div class="images cols-3">
     <div class="img-card">
-      <img src="./img/a6032970e838.png" alt="ControlNet Scribble — strength 0.65">
+      <img src="./img/a6032970e838.webp" alt="ControlNet Scribble — strength 0.65">
       <div class="img-caption">Merian — clean sketch. Style barely visible.</div>
     </div>
     <div class="img-card">
-      <img src="./img/7ff5e93ae69c.png" alt="ControlNet Scribble — af Klint">
+      <img src="./img/7ff5e93ae69c.webp" alt="ControlNet Scribble — af Klint">
       <div class="img-caption">af Klint — same sketch with slight texture.</div>
     </div>
     <div class="img-card">
-      <img src="./img/dc89fe1811a3.png" alt="ControlNet Scribble — Bourgeois">
+      <img src="./img/dc89fe1811a3.webp" alt="ControlNet Scribble — Bourgeois">
       <div class="img-caption">Bourgeois — rough texture added, but no transformation.</div>
     </div>
   </div>
@@ -288,15 +288,15 @@
   <div class="cause"><strong>Why it suddenly worked:</strong> Flux is a fundamentally more powerful model than SD 1.5-based ControlNet. It understands artist names deeply and generates in their actual visual language. The sketch at 0.85 strength serves as a thematic prompt, not a compositional guide.</div>
   <div class="images cols-3">
     <div class="img-card">
-      <img src="./img/8fad79b93379.png" alt="Flux 0.85 — Bourgeois spider">
+      <img src="./img/8fad79b93379.webp" alt="Flux 0.85 — Bourgeois spider">
       <div class="img-caption">⭐ Bourgeois — Flux generated her iconic spider. Unmistakable.</div>
     </div>
     <div class="img-card">
-      <img src="./img/69c84df958ec.png" alt="Flux 0.85 — Kusama dots">
+      <img src="./img/69c84df958ec.webp" alt="Flux 0.85 — Kusama dots">
       <div class="img-caption">⭐ Kusama — colourful scattered dots following sketch curve. Very her.</div>
     </div>
     <div class="img-card">
-      <img src="./img/f32724e088ed.png" alt="Flux 0.85 — Merian moon">
+      <img src="./img/f32724e088ed.webp" alt="Flux 0.85 — Merian moon">
       <div class="img-caption">⭐ Merian — crescent shape with botanical decoration. Striking.</div>
     </div>
   </div>
@@ -318,15 +318,15 @@
   <div class="cause"><strong>Why it regressed:</strong> At 0.65, the model doesn't have enough freedom to apply a dramatic style transformation. The output is essentially a cleaned-up, slightly textured version of the sketch.</div>
   <div class="images cols-3">
     <div class="img-card">
-      <img src="./img/a6032970e838.png" alt="Flux 0.65 — Merian">
+      <img src="./img/a6032970e838.webp" alt="Flux 0.65 — Merian">
       <div class="img-caption">Merian at 0.65 — sketch preserved, zero style.</div>
     </div>
     <div class="img-card">
-      <img src="./img/7ff5e93ae69c.png" alt="Flux 0.65 — af Klint">
+      <img src="./img/7ff5e93ae69c.webp" alt="Flux 0.65 — af Klint">
       <div class="img-caption">af Klint at 0.65 — same sketch, slightly different line quality.</div>
     </div>
     <div class="img-card">
-      <img src="./img/dc89fe1811a3.png" alt="Flux 0.65 — Bourgeois">
+      <img src="./img/dc89fe1811a3.webp" alt="Flux 0.65 — Bourgeois">
       <div class="img-caption">Bourgeois at 0.65 — rougher texture but no transformation.</div>
     </div>
   </div>
@@ -352,26 +352,26 @@
   <div class="sketch-label">Input sketch (keyword: water)</div>
   <div class="images cols-1" style="max-width:280px; margin-bottom:16px;">
     <div class="img-card">
-      <img src="./img/b0672fe39566.png" alt="Input sketch — water">
+      <img src="./img/b0672fe39566.webp" alt="Input sketch — water">
       <div class="img-caption">User sketch — keyword: water</div>
     </div>
   </div>
 
   <div class="images cols-4">
     <div class="img-card">
-      <img src="./img/8d82a937836c.png" alt="Kusama — water waves with dots">
+      <img src="./img/8d82a937836c.webp" alt="Kusama — water waves with dots">
       <div class="img-caption">Kusama — dots along wave lines</div>
     </div>
     <div class="img-card">
-      <img src="./img/e7b193228e64.png" alt="af Klint — dotted leaf shape">
+      <img src="./img/e7b193228e64.webp" alt="af Klint — dotted leaf shape">
       <div class="img-caption">af Klint — dotted seed/leaf form</div>
     </div>
     <div class="img-card">
-      <img src="./img/f5cb9d975a0a.png" alt="Bourgeois — thorny lines">
+      <img src="./img/f5cb9d975a0a.webp" alt="Bourgeois — thorny lines">
       <div class="img-caption">Bourgeois — thorny dark lines</div>
     </div>
     <div class="img-card">
-      <img src="./img/8546d3f9a884.png" alt="Merian — branch with figure">
+      <img src="./img/8546d3f9a884.webp" alt="Merian — branch with figure">
       <div class="img-caption">Merian — botanical branch</div>
     </div>
   </div>
@@ -380,25 +380,25 @@
   <div class="sketch-label">Second sketch test (keyword: water + hearts)</div>
   <div class="images cols-1" style="max-width:280px; margin-bottom:16px;">
     <div class="img-card">
-      <img src="./img/9924501c3c57.png" alt="Input sketch — water with hearts">
+      <img src="./img/9924501c3c57.webp" alt="Input sketch — water with hearts">
       <div class="img-caption">User sketch — keyword: water</div>
     </div>
   </div>
   <div class="images cols-4">
     <div class="img-card">
-      <img src="./img/8163c57db978.png" alt="Kusama — new 5 artists">
+      <img src="./img/8163c57db978.webp" alt="Kusama — new 5 artists">
       <div class="img-caption">⭐ Kusama — colourful dot constellation</div>
     </div>
     <div class="img-card">
-      <img src="./img/23c45a7285fa.png" alt="Bourgeois — spider">
+      <img src="./img/23c45a7285fa.webp" alt="Bourgeois — spider">
       <div class="img-caption">⭐ Bourgeois — spider, full legs spread</div>
     </div>
     <div class="img-card">
-      <img src="./img/3390b3aa672e.png" alt="Kara Walker — silhouettes on waves">
+      <img src="./img/3390b3aa672e.webp" alt="Kara Walker — silhouettes on waves">
       <div class="img-caption">⭐ Walker — silhouettes on wave lines</div>
     </div>
     <div class="img-card">
-      <img src="./img/43ee14d641fd.png" alt="Saint Phalle — mosaic dots">
+      <img src="./img/43ee14d641fd.webp" alt="Saint Phalle — mosaic dots">
       <div class="img-caption">⭐ Saint Phalle — mosaic dotted curves</div>
     </div>
   </div>
@@ -422,25 +422,25 @@
 
   <div class="images cols-1" style="max-width:280px; margin-bottom:16px;">
     <div class="img-card">
-      <img src="./img/9d8561e302b9.png" alt="Input sketch — hearts and water">
+      <img src="./img/9d8561e302b9.webp" alt="Input sketch — hearts and water">
       <div class="img-caption">Input sketch — water + hearts. Note thicker exported lines.</div>
     </div>
   </div>
   <div class="images cols-4">
     <div class="img-card">
-      <img src="./img/38eb80eef49c.png" alt="Kusama 0.72">
+      <img src="./img/38eb80eef49c.webp" alt="Kusama 0.72">
       <div class="img-caption">Kusama — sketch visible, style lost</div>
     </div>
     <div class="img-card">
-      <img src="./img/6a80f7512ff5.png" alt="Bourgeois 0.72">
+      <img src="./img/6a80f7512ff5.webp" alt="Bourgeois 0.72">
       <div class="img-caption">Bourgeois — sketch with rough texture</div>
     </div>
     <div class="img-card">
-      <img src="./img/1439be60d8ae.png" alt="Walker 0.72">
+      <img src="./img/1439be60d8ae.webp" alt="Walker 0.72">
       <div class="img-caption">Walker — sketch, no silhouettes</div>
     </div>
     <div class="img-card">
-      <img src="./img/9619816e6947.png" alt="Saint Phalle 0.72">
+      <img src="./img/9619816e6947.webp" alt="Saint Phalle 0.72">
       <div class="img-caption">Saint Phalle — sketch, no colour</div>
     </div>
   </div>
@@ -542,7 +542,7 @@
   <div class="cause"><strong>Key prompt insight:</strong> Describe the output in three layers: (1) what the lines become as a physical material, (2) what the background is, (3) what small artist motifs appear as additions along the lines — not replacement subjects. This prevented the model from generating "artist icon" (spider, Nana) and instead made it treat the sketch's lines.</div>
   <div class="images cols-1" style="max-width:240px; margin-bottom:16px;">
     <div class="img-card">
-      <img src="./img/325881a9307d.png" alt="Input sketch">
+      <img src="./img/325881a9307d.webp" alt="Input sketch">
       <div class="img-caption">Input sketch — same water drawing sent to all 5 artists.</div>
     </div>
   </div>

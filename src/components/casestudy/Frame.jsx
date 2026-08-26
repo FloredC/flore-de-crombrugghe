@@ -34,6 +34,23 @@ export default function Frame({
   oneLiner,
   role,
   date,
+  // THE SNAPSHOT TIER'S CREDIT BLOCK, added 2026-08-26.
+  //
+  // An array of lines rendered stacked, replacing the `role, date` line when
+  // present. The snapshot pages carry a fuller credit than a case study does --
+  // studio and year, then collaborators, then where the work was published --
+  // because the work is older and was made in a team, so "who made this, with
+  // whom, and who noticed" is most of what a reader needs. Teamchatviz draws
+  // three lines (node 4940:5407).
+  //
+  // NOT a reuse of `role` with newlines in the string: these are separate facts
+  // that happen to be presented together, and a content file that has to encode
+  // layout as `\n` is a content file that will eventually encode something else
+  // that way too.
+  //
+  // `oneLiner` is simply omitted by those pages rather than being made
+  // conditional here -- it already renders nothing when absent.
+  facts,
   liveUrl,
   liveLabel,
   zone,
@@ -47,7 +64,7 @@ export default function Frame({
   //
   //   stage           PitchPivot's hero is the graph-paper `bg-notebook`
   //                   surface (see the note above). Artifakt's is a flat
-  //                   `surface-highlight` fill, sampled at node 4897:4515.
+  //                   `surface-yellow` fill, sampled at node 4897:4515.
   //   mediaClassName  PitchPivot's hero screenshot takes a hard black border
   //                   on a white ground. Artifakt's takes a grey border, a
   //                   16 radius and a soft drop shadow (node 4897:4524).
@@ -57,7 +74,47 @@ export default function Frame({
   // slug branch would need editing every time a page is added.
   stage = 'bg-notebook',
   mediaClassName = 'mx-auto border border-text-primary bg-surface-background',
+  // Snapshot heroes ship a single flattened PNG with its own chrome, corners
+  // and shadow already baked in, so they pass `rounded-none` and let the asset
+  // speak. The default matches what the two case studies already render.
+  mediaRadius = 'rounded-radius-24',
+  // LIGHT OR DARK STAGE, added 2026-08-26 for the Sinomocene snapshot, whose
+  // hero sits on `Colors/surface/inverted` (node 4940:6613) rather than a pale
+  // surface. Controls the TEXT COLOUR only.
+  //
+  // This was briefly coupled to the button variant on the theory that the two
+  // always co-vary and splitting them would let a caller build an invisible
+  // page (white text plus a near-black primary button on a near-black stage).
+  // Roche disproved it the next day: its hero is a LIGHT stage
+  // (`Colors/surface/canvas`, node 4962:6963) with a SECONDARY button
+  // (node 4962:6974) — a combination the coupled version could not express.
+  //
+  // So they are two props, and the invisible-page case is prevented where it
+  // actually lives instead: see `buttonProps` below.
+  tone = 'light',
+  // Which ButtonLink variant the live-site CTA uses. Three snapshot heroes,
+  // three different answers, all read off the file: Teamchatviz primary,
+  // Sinomocene and Roche secondary.
+  buttonVariant = 'primary',
 }) {
+  const dark = tone === 'dark'
+  const textClass = dark ? 'text-text-inverted' : 'text-text-primary'
+  // BOTH secondary hero instances in Figma override the button's fill to
+  // `Colors/surface/background` (nodes 4957:6835 and 4962:6974), where the
+  // site's own secondary variant is `bg-transparent`. That override is not
+  // cosmetic on a dark stage — transparent would leave black text on a
+  // near-black surface — so it is applied here for every secondary hero button
+  // rather than left to each content file to remember.
+  //
+  // `!` because the variant class already sets `bg-transparent`: two background
+  // utilities of equal specificity are resolved by their order in Tailwind's
+  // generated CSS, not by the order they appear in the class string, so without
+  // it this flips depending on how the config happens to emit. Same trap the
+  // `radius` prop on Media avoids.
+  const buttonProps =
+    buttonVariant === 'secondary'
+      ? { variant: 'secondary', className: '!bg-surface-background' }
+      : { variant: 'primary' }
   return (
     // `bg-notebook` over the canvas token: the graph-paper surface from Flore's
     // talk deck (see globals.css). This closes a gap flagged when the hero was
@@ -104,11 +161,11 @@ export default function Frame({
                 hero text block now binds exactly one colour variable,
                 Colors/Text/text-primary, with no per-node override, so all four
                 lines here are primary. */}
-            <p className="m-0 text-body-sm font-normal text-text-primary">{category}</p>
+            <p className={`m-0 text-body-sm font-normal ${textClass}`}>{category}</p>
 
             <div className="flex flex-col gap-space-10">
-              <h1 className="m-0 text-display font-bold text-text-primary">{title}</h1>
-              <p className="m-0 text-body-lg font-normal text-text-primary">{oneLiner}</p>
+              <h1 className={`m-0 text-display font-bold ${textClass}`}>{title}</h1>
+              <p className={`m-0 text-body-lg font-normal ${textClass}`}>{oneLiner}</p>
 
               {/* ROLE AND DATE ON ONE LINE — Flore's restructure, 2026-08-19
                   (node 4863:2346). This was a <dl> of two labelled rows, "Role"
@@ -129,10 +186,20 @@ export default function Frame({
                   uninterrupted phrase to a screen reader. That follows the
                   design; flagged to Flore rather than compensated for with a
                   visually-hidden label she didn't ask for. */}
-              {(role || date) && (
-                <p className="m-0 text-body-sm font-normal text-text-primary">
-                  {[role, date].filter(Boolean).join(', ')}
-                </p>
+              {facts?.length ? (
+                <div className="flex flex-col">
+                  {facts.map((fact) => (
+                    <p key={fact} className={`m-0 text-body-sm font-normal ${textClass}`}>
+                      {fact}
+                    </p>
+                  ))}
+                </div>
+              ) : (
+                (role || date) && (
+                  <p className={`m-0 text-body-sm font-normal ${textClass}`}>
+                    {[role, date].filter(Boolean).join(', ')}
+                  </p>
+                )
               )}
             </div>
           </div>
@@ -158,10 +225,10 @@ export default function Frame({
                 column, so left-aligned it sat 55px left of the column's middle
                 — and the button centres on the wrapper, not on the artwork.
                 Centring the media makes the two centres the same line. */}
-            <Media {...media} className={mediaClassName} />
+            <Media {...media} className={mediaClassName} radius={mediaRadius} />
             {liveUrl && (
               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2">
-                <ButtonLink variant="primary" href={liveUrl} target="_blank" rel="noopener noreferrer">
+                <ButtonLink {...buttonProps} href={liveUrl} target="_blank" rel="noopener noreferrer">
                   {liveLabel}
                   <ExternalLinkIcon width={16} height={16} />
                 </ButtonLink>

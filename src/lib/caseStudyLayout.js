@@ -245,7 +245,7 @@ export const MEDIA_WIDTH = {
 //
 // This is a CORRECTNESS FLOOR, not a density lever, and it is worth being clear
 // about the difference. Measured on the Artifakt page at 1440x790, one asset
-// (`the-scaffold.png`, a portrait screenshot in a half-width column) rendered
+// (`the-scaffold.webp`, a portrait screenshot in a half-width column) rendered
 // 524x857 -- 1.08 of the viewport height. An image that cannot be seen at once
 // stops being evidence and becomes an interruption. But it is one asset out of
 // eleven, so fixing it takes about 1% off the page: the case studies get their
@@ -319,7 +319,7 @@ export const ARTIFAKT = {
   // reusing MEDIA_WIDTH.hero, and the reason is worth recording because the
   // symptom was severe and looked like a layout bug rather than a sizing one:
   // MEDIA_WIDTH.hero is 450, measured from PitchPivot's hero, whose asset is
-  // 1798x2234 -- ratio 0.80. Artifakt's hero.png is 545x1185 -- ratio 0.46,
+  // 1610x2000 -- ratio 0.80. Artifakt's hero.webp is 545x1185 -- ratio 0.46,
   // because it is a phone inside browser chrome rather than a cropped screen.
   // At 450 wide that renders 976px TALL, taller than most laptop viewports, so
   // the hero alone filled the screen and the page appeared to start empty.

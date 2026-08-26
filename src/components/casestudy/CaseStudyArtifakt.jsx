@@ -128,7 +128,7 @@ const MEDIA_LAYOUT = {
 
 // SCREENCAST: the one asset on this page that is NOT a tinted MediaStage.
 //
-// Every other asset sits on a `surface-highlight` panel with the caption inside
+// Every other asset sits on a `surface-yellow` panel with the caption inside
 // it. The screencast's own Figma container (node 4897:4548) binds
 // Colors/Surface/canvas, Radius/24, and puts its caption BELOW the box -- all
 // three different. That is not an inconsistency in the design, it is a borrowed
