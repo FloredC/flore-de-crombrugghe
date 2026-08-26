@@ -51,6 +51,7 @@ export default function ProjectPage() {
     pitchpivot: CaseStudy,
     artifakt: CaseStudyArtifakt,
     teamchatviz: CaseStudySnapshot,
+    sinomocene: CaseStudySnapshot,
   }
   // Falls back to the PitchPivot composition, which is the reference
   // implementation -- a new content module with no registry entry renders

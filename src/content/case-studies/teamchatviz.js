@@ -104,6 +104,8 @@ export default {
 
   what: {
     title: 'Slack Stats Visualised',
+    // 64 of padding either side of a 525-wide frame (node 4957:6776).
+    mediaInset: '12.19%',
     body: [
       'Six ways of reading a year of team chat.',
       "Slack is where a company's culture actually happens, and it's almost entirely unreadable — a year of it is just scroll. Connect the tool to a workspace and it builds six views of every public channel automatically. New joiners get an overview that would otherwise take months to absorb. People who've been there for years find out what's been going on two channels over.",

@@ -78,7 +78,33 @@ export default function Frame({
   // and shadow already baked in, so they pass `rounded-none` and let the asset
   // speak. The default matches what the two case studies already render.
   mediaRadius = 'rounded-radius-24',
+  // LIGHT OR DARK STAGE, added 2026-08-26 for the Sinomocene snapshot, whose
+  // hero sits on `Colors/surface/inverted` (node 4940:6613) rather than a pale
+  // surface.
+  //
+  // ONE PROP RATHER THAN TWO, deliberately. Dark tone changes both the text
+  // colour and the button variant, and they are not independently safe: the
+  // secondary button is `bg-transparent` with black text, so white text plus a
+  // primary (near-black) button on a near-black stage is an invisible page.
+  // Splitting this into `textClass` and `buttonVariant` would let a caller pick
+  // exactly that combination and see nothing wrong in the diff.
+  //
+  // `stage` stays separate because it is the surface itself, and a caller may
+  // want a dark stage that is not this exact token.
+  tone = 'light',
 }) {
+  const dark = tone === 'dark'
+  const textClass = dark ? 'text-text-inverted' : 'text-text-primary'
+  // Figma's instance overrides the secondary button's fill to
+  // `Colors/surface/background` so it reads as a white pill on the dark stage
+  // (node 4957:6835). `!` because the variant class already sets
+  // `bg-transparent`: two background utilities of equal specificity are
+  // resolved by their order in Tailwind's generated CSS, not by the order they
+  // appear in the class string, so without it this flips depending on how the
+  // config happens to emit. Same trap the `radius` prop on Media avoids.
+  const buttonProps = dark
+    ? { variant: 'secondary', className: '!bg-surface-background' }
+    : { variant: 'primary' }
   return (
     // `bg-notebook` over the canvas token: the graph-paper surface from Flore's
     // talk deck (see globals.css). This closes a gap flagged when the hero was
@@ -125,11 +151,11 @@ export default function Frame({
                 hero text block now binds exactly one colour variable,
                 Colors/Text/text-primary, with no per-node override, so all four
                 lines here are primary. */}
-            <p className="m-0 text-body-sm font-normal text-text-primary">{category}</p>
+            <p className={`m-0 text-body-sm font-normal ${textClass}`}>{category}</p>
 
             <div className="flex flex-col gap-space-10">
-              <h1 className="m-0 text-display font-bold text-text-primary">{title}</h1>
-              <p className="m-0 text-body-lg font-normal text-text-primary">{oneLiner}</p>
+              <h1 className={`m-0 text-display font-bold ${textClass}`}>{title}</h1>
+              <p className={`m-0 text-body-lg font-normal ${textClass}`}>{oneLiner}</p>
 
               {/* ROLE AND DATE ON ONE LINE — Flore's restructure, 2026-08-19
                   (node 4863:2346). This was a <dl> of two labelled rows, "Role"
@@ -153,14 +179,14 @@ export default function Frame({
               {facts?.length ? (
                 <div className="flex flex-col">
                   {facts.map((fact) => (
-                    <p key={fact} className="m-0 text-body-sm font-normal text-text-primary">
+                    <p key={fact} className={`m-0 text-body-sm font-normal ${textClass}`}>
                       {fact}
                     </p>
                   ))}
                 </div>
               ) : (
                 (role || date) && (
-                  <p className="m-0 text-body-sm font-normal text-text-primary">
+                  <p className={`m-0 text-body-sm font-normal ${textClass}`}>
                     {[role, date].filter(Boolean).join(', ')}
                   </p>
                 )
@@ -192,7 +218,7 @@ export default function Frame({
             <Media {...media} className={mediaClassName} radius={mediaRadius} />
             {liveUrl && (
               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2">
-                <ButtonLink variant="primary" href={liveUrl} target="_blank" rel="noopener noreferrer">
+                <ButtonLink {...buttonProps} href={liveUrl} target="_blank" rel="noopener noreferrer">
                   {liveLabel}
                   <ExternalLinkIcon width={16} height={16} />
                 </ButtonLink>

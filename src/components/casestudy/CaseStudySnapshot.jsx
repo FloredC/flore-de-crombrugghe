@@ -78,30 +78,79 @@ const PAIR_GRID = 'grid grid-cols-1 gap-space-24 md:grid-cols-2 md:gap-space-40'
 // arithmetic backwards.
 const WHAT_GRID = 'grid grid-cols-1 gap-space-24 md:grid-cols-[720fr_525fr] md:gap-space-40'
 
+// radius 12 + `Shadow universal`, both read off the frames. The shadow is what
+// lifts a white-backgrounded screenshot off a white page — without it these
+// read as holes rather than objects. Shared by stills and video embeds so the
+// two can't drift apart.
+const FRAME_CHROME = 'overflow-hidden rounded-radius-12 shadow-universal'
+
 /**
- * One screenshot with its caption underneath.
+ * A Vimeo embed, sized by the video's own aspect rather than the design's box.
+ *
+ * The frame draws a 1283x596 placeholder rectangle (ratio 2.15) with the words
+ * "Video embed" in the middle, which is a stand-in for the player, not a claim
+ * about its shape. The real video is 1280x720 — plain 16:9, confirmed against
+ * Vimeo's oEmbed endpoint rather than assumed. Reserving the box at 2.15 would
+ * letterbox the player inside its own rounded frame.
+ *
+ * `dnt=1` is Vimeo's Do Not Track parameter: it stops the player setting
+ * tracking cookies and reporting analytics. The site has no cookie banner, so
+ * an embed that quietly starts tracking visitors would be a consent problem the
+ * page has no way to answer. This keeps it to a plain video player.
+ *
+ * `loading="lazy"` is right here, unlike on the hero image — the embed is well
+ * below the fold, and it pulls in the whole Vimeo player.
+ */
+function VideoEmbed({ videoId, title }) {
+  return (
+    <div className={`relative aspect-video w-full ${FRAME_CHROME}`}>
+      <iframe
+        src={`https://player.vimeo.com/video/${videoId}?dnt=1`}
+        title={title}
+        loading="lazy"
+        allow="fullscreen; picture-in-picture"
+        allowFullScreen
+        className="absolute inset-0 h-full w-full border-0"
+      />
+    </div>
+  )
+}
+
+/**
+ * One piece of evidence with its caption underneath — a still or a video embed.
  *
  * A local component rather than `Media`'s own `caption` prop, which renders
  * centred `body-sm` in `text-secondary` — right for the homepage cards, wrong
- * here. The frame draws these captions left-aligned at `body` in
+ * here. The frames draw these captions left-aligned at `body` in
  * `text-primary`, reading as a sentence about the image rather than a label on
  * it, so this owns the figcaption.
  */
-function View({ src, alt, caption, aspect }) {
+function View({ kind = 'image', src, alt, caption, aspect, videoId, title, label }) {
   return (
     <figure className="m-0 flex flex-col gap-space-16">
-      <Media
-        kind="image"
-        src={src}
-        alt={alt}
-        placeholderAspect={aspect}
-        // radius 12 + `Shadow universal`, both read off the frame. The shadow
-        // is what lifts a white-backgrounded screenshot off a white page —
-        // without it these six read as holes rather than objects.
-        radius="rounded-radius-12"
-        className="shadow-universal"
-      />
-      <figcaption className="text-body font-normal text-text-primary">{caption}</figcaption>
+      {kind === 'video' ? (
+        <VideoEmbed videoId={videoId} title={title} />
+      ) : (
+        <Media
+          kind="image"
+          src={src}
+          alt={alt}
+          label={label}
+          placeholderAspect={aspect}
+          radius="rounded-radius-12"
+          className="shadow-universal"
+        />
+      )}
+      {caption && (
+        // CAPTION MEASURE: the frames draw every caption at 621.5 — half the
+        // content width — even under a full-bleed item. A caption running the
+        // full 1184 under the video would be a 130-character line, well past a
+        // comfortable measure, so the cap is kept rather than let the caption
+        // inherit its item's width.
+        <figcaption className="max-w-[621px] text-body font-normal text-text-primary">
+          {caption}
+        </figcaption>
+      )}
     </figure>
   )
 }
@@ -121,22 +170,29 @@ export default function CaseStudySnapshot({ data }) {
             already has this measure and does not need a third one. */}
         <Block width="wide" className={`${WHAT_GRID} items-center`}>
           <div className={`flex flex-col gap-space-24 ${ARTIFAKT.prose}`}>
-            <SectionHeader title={data.what.title} />
+            {/* OPTIONAL. Teamchatviz titles this section ("Slack Stats
+                Visualised"); Sinomocene hides the title layer (node 4940:6703,
+                `hidden`) and opens straight into the prose, whose own first
+                line is doing the work a heading would. */}
+            {data.what.title && <SectionHeader title={data.what.title} />}
             {data.what.body.map((paragraph) => (
               <p key={paragraph} className="m-0 text-body-lg font-normal">
                 {paragraph}
               </p>
             ))}
           </div>
-          {/* THE ICONS ARE INSET, not full-bleed in their column — Flore added
-              the padding in Figma on 2026-08-26 (node 4957:6776) to bring them
-              down in size. The frame is 525 wide and holds the artwork at 397,
-              so 64 of padding either side.
-              A PERCENTAGE, not `px-space-64`: 64/525 = 12.19%, and expressing
-              it as a proportion means the inset keeps its relationship to the
-              artwork at every width instead of eating the column on a phone,
-              where a fixed 64 each side would leave the icons 215px wide. */}
-          <div className="px-[12.19%]">
+          {/* THE SUPPORTING IMAGE IS INSET in its column, by an amount each
+              page sets for itself — Flore pads these in Figma to bring the
+              artwork down in size, and the two pages use different values
+              (Teamchatviz 64 of 525, Sinomocene 72 of 525).
+              A PERCENTAGE, not a `px-space-N` class, and not a Tailwind
+              arbitrary value: expressed as a proportion the inset keeps its
+              relationship to the artwork at every width, where a fixed 64 each
+              side would eat the column on a phone and leave the artwork ~215px
+              wide. An inline style rather than a class because the value is
+              content, and Tailwind cannot generate a class from a runtime
+              string -- `px-[${'{'}inset{'}'}]` would silently produce nothing. */}
+          <div style={{ paddingInline: data.what.mediaInset }}>
             <Media {...data.what.media} radius="rounded-none" />
           </div>
         </Block>
@@ -150,12 +206,26 @@ export default function CaseStudySnapshot({ data }) {
             that the row title sits BELOW the section title (36) and above the
             body — 28 holds that relationship, which 36 would flatten.
             Flagged to Flore. */}
-        {data.views.map((row) => (
-          <Block key={row.title} width="wide" className="flex flex-col gap-space-24 xl:gap-space-40">
-            <h2 className="m-0 text-h2 font-semibold text-text-primary">{row.title}</h2>
-            <div className={PAIR_GRID}>
-              {row.items.map((item) => (
-                <View key={item.src} {...item} aspect={data.viewAspect} />
+        {data.views.map((row, index) => (
+          <Block
+            // Rows are positional and a title is optional, so the title cannot
+            // be the key -- Sinomocene has two untitled rows, which would
+            // collide on `undefined`.
+            key={row.title ?? `row-${index}`}
+            width="wide"
+            className="flex flex-col gap-space-24 xl:gap-space-40"
+          >
+            {row.title && (
+              <h2 className="m-0 text-h2 font-semibold text-text-primary">{row.title}</h2>
+            )}
+            {/* ONE ITEM RUNS FULL WIDTH, two share the row. Sinomocene's video
+                is a single full-width item under "How it works" (node
+                4940:6711 spans the whole 1283 container) while its stills come
+                in pairs, so the row's own length decides the grid rather than a
+                flag in the content file that could disagree with it. */}
+            <div className={row.items.length === 1 ? '' : PAIR_GRID}>
+              {row.items.map((item, i) => (
+                <View key={item.src ?? item.videoId ?? i} {...item} aspect={item.aspect ?? data.viewAspect} />
               ))}
             </div>
           </Block>
