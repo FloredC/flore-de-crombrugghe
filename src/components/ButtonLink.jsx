@@ -30,7 +30,12 @@ const TYPE_CLASS = 'text-body font-bold tracking-[0.02em]'
 export const FOCUS_CLASS =
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2'
 
-const CHROME_CLASS = `inline-flex items-center gap-1 rounded-radius-32 border px-6 py-4 ${FOCUS_CLASS}`
+// px-5/py-3 across the laptop band, back to px-6/py-4 at 2xl. The button is
+// the second-largest fixed term in a project card after the media -- 61px tall
+// at rest, which is 7% of the card -- and it is the only one that costs nothing
+// to compress, since the label rides the `body` token down with it. 12 + 24 +
+// 12 + 2 = 50px, still clear of the 44px tap-target floor.
+const CHROME_CLASS = `inline-flex items-center gap-1 rounded-radius-32 border px-6 py-4 xl:px-5 xl:py-3 2xl:px-6 2xl:py-4 ${FOCUS_CLASS}`
 
 // The link/menu treatment: one class shared by every plain-text ButtonLink
 // usage in the app -- Footer's "Download CV", SubpageNav's "Back to

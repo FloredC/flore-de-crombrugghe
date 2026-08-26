@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import ImagePlaceholder from '../ImagePlaceholder'
 import assetUrl from '../../lib/assetUrl'
+import { MEDIA_MAX_H } from '../../lib/caseStudyLayout'
 
 /**
  * The page's one media primitive: image, video, or a labelled placeholder while
@@ -51,6 +52,34 @@ export default function Media({
   // null until the file reports its own dimensions. Once set, it wins.
   const [naturalRatio, setNaturalRatio] = useState(null)
 
+  // The height ceiling, expressed as a WIDTH cap so it composes with `maxWidth`
+  // through a plain `min()` and leaves the frame's aspectRatio in charge of the
+  // shape. width = height x ratio, so a cap on height is a cap on width once
+  // the ratio is known -- which is exactly what this component already measures.
+  //
+  // Capping height directly would have been the obvious move and is the wrong
+  // one: `aspectRatio` plus `max-height` makes the box shorter than its ratio
+  // demands, and `object-contain` then letterboxes the media inside its own
+  // frame, so the rounded corners and any future frame chrome would sit around
+  // empty space. Deriving the width keeps the frame the media's true shape,
+  // which is the whole premise of this file.
+  //
+  // Falls back to `placeholderAspect` before the file has reported, matching
+  // what the frame itself is using at that moment -- so the cap can't disagree
+  // with the ratio it is derived from.
+  //
+  // Both `maxWidth` and `ratio` are optional at the call site, so the cap is
+  // composed rather than assumed: with no ratio there is nothing to derive from
+  // and `maxWidth` passes through untouched; with no `maxWidth` the height
+  // ceiling stands alone. Interpolating an absent value into `min()` would
+  // produce invalid CSS, which the browser drops SILENTLY -- taking the design
+  // width down with it rather than erroring.
+  const ratio = naturalRatio ?? placeholderAspect
+  const heightCap = ratio ? `calc(${MEDIA_MAX_H} * ${ratio})` : null
+  const designWidth = typeof maxWidth === 'number' ? `${maxWidth}px` : maxWidth
+  const cappedWidth =
+    designWidth && heightCap ? `min(${designWidth}, ${heightCap})` : (heightCap ?? designWidth)
+
   // `maxWidth` is the design's display width (see MEDIA_WIDTH in
   // caseStudyLayout.js). It caps how large the media is drawn WITHOUT touching
   // its proportions -- the ratio below is still the file's own, so nothing is
@@ -75,7 +104,7 @@ export default function Media({
     <div
       className={`w-full overflow-hidden rounded-radius-24 ${className}`}
       // The real ratio as soon as it's known; the declared one only before that.
-      style={{ aspectRatio: naturalRatio ?? placeholderAspect, maxWidth }}
+      style={{ aspectRatio: ratio, maxWidth: cappedWidth }}
     >
       {!src ? (
         // Reuses the site's existing placeholder convention (dashed grey +

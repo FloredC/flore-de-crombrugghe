@@ -100,7 +100,18 @@ export const SPACE = {
   // across a section boundary measures 130-144 there (e.g. the What image ends
   // at 650 and the Why title starts at 794). 80 stays at small sizes -- the
   // frame is a desktop layout and 140 is too much of a hole on a phone.
-  break: 'gap-space-80 xl:gap-space-140',
+  //
+  // 100 across the laptop band (2026-08-25). This gap is what was doing the
+  // chapter-separation work, and at a 790px viewport 140 of it is 18% of the
+  // screen -- spent on nothing, in a page where a chapter measures 415-2064 and
+  // so never fits in one screen anyway. Two consecutive section headers were
+  // essentially never co-visible; on PitchPivot they average 1.8 screens apart.
+  //
+  // Deliberately NOT taken all the way down to `chapter` (40): the ratio
+  // between the two is the whole hierarchy. 100/40 = 2.5 still reads as a
+  // clearly larger step, where 60/40 would not. The break shrinks, the
+  // grouping step does not, so chapters separate MORE rather than less.
+  break: 'gap-space-80 xl:gap-space-100 2xl:gap-space-140',
 }
 
 // --- Named measures ---------------------------------------------------------
@@ -225,11 +236,40 @@ export const MEDIA_WIDTH = {
   feature: 560,
 }
 
+// --- No asset taller than the screen ----------------------------------------
+//
+// A ceiling on how tall ANY case-study asset may render, applied inside Media
+// as a width cap derived from the media's own measured ratio (see Media.jsx) --
+// so it never crops, never letterboxes, and never fights `MEDIA_WIDTH` above.
+// Whichever of the two is tighter wins.
+//
+// This is a CORRECTNESS FLOOR, not a density lever, and it is worth being clear
+// about the difference. Measured on the Artifakt page at 1440x790, one asset
+// (`the-scaffold.png`, a portrait screenshot in a half-width column) rendered
+// 524x857 -- 1.08 of the viewport height. An image that cannot be seen at once
+// stops being evidence and becomes an interruption. But it is one asset out of
+// eleven, so fixing it takes about 1% off the page: the case studies get their
+// scannability from the type scale and SPACE.break, not from here.
+//
+// 88svh rather than a laptop/desktop pair, deliberately: "taller than the
+// window" is not a thing only laptops suffer from, and a single number needs no
+// regime to reason about. It is inert on any window tall enough for the asset
+// -- at 1728x1000 it resolves to 880 and the tallest asset on either page is
+// 857, so the large-desktop pages are untouched.
+//
+// The remaining 12svh is for the caption that usually sits under the frame,
+// so a captioned figure still fits in one screen.
+//
+// `svh` not `vh`, for the reason PanZoomContainer gives: `vh` tracks the
+// largest mobile viewport and moves as browser chrome collapses during scroll,
+// which would resize media mid-scroll.
+export const MEDIA_MAX_H = '88svh'
+
 // A Thesis gets DOUBLE break above and below. Applied as padding on the block
 // itself rather than a bigger gap in the stack, because the stack's gap is one
 // value for every boundary — special-casing one child from the parent would
 // mean the parent knowing which child is a Thesis.
-export const THESIS_BREATH = 'py-space-80 xl:py-space-120'
+export const THESIS_BREATH = 'py-space-80 2xl:py-space-120'
 
 // --- The Artifakt page's own measure ----------------------------------------
 //

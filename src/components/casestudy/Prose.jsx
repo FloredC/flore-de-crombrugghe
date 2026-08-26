@@ -120,7 +120,19 @@ export default function Prose({ blocks, className = '' }) {
         }
         // First block never carries a top margin -- the block above it is the
         // section header, whose spacing belongs to the section, not here.
-        const space = index === 0 ? '' : introducesNext(blocks[index - 1]) ? '' : 'mt-space-32'
+        // 24 across the laptop band, and it is DERIVED from the rule above
+        // rather than tuned: the gap is meant to equal one blank line at the
+        // current reading size, and `body-lg` steps 20/1.6 (= 32) down to
+        // 18/1.55 (= 27.9) at `xl`. 24 and 32 are the spacing tokens either
+        // side of 27.9, and 24 is the nearer of the two -- barely, so if the
+        // leading is loosened again this should be rechecked rather than
+        // assumed. So the paragraph rhythm tracks the type instead of being a
+        // constant the type walked away from. Mobile keeps 32 -- it is
+        // arguably already loose by this same rule (16 x 1.6 = 25.6), but that
+        // is a pre-existing question and not one this pass was asked to
+        // reopen.
+        const space =
+          index === 0 ? '' : introducesNext(blocks[index - 1]) ? '' : 'mt-space-32 xl:mt-space-24 2xl:mt-space-32'
         // Index as key: two paragraphs in one section can legitimately be
         // identical strings (they are not, today), and the array is static per
         // render either way.

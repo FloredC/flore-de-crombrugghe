@@ -123,13 +123,14 @@
 <body>
 
 <h1>Case-study page — the block system, built on PitchPivot</h1>
-<p class="subtitle">The subpage system for <code class="inline">/work/:slug</code>: a width-based block vocabulary, its spacing rhythm, and the copy and research data that fill it. PitchPivot is the reference implementation — the other five case studies are meant to inherit this.</p>
-<p class="date-range">Sessions: 17 Aug 2026</p>
+<p class="subtitle">The subpage system for <code class="inline">/work/:slug</code>: a width-based block vocabulary, its spacing rhythm, and the copy and research data that fill it. PitchPivot is the reference implementation. Artifakt is the second page built on it — and the session that found the vocabulary is worth sharing while the <em>composition</em> is not.</p>
+<p class="date-range">Sessions: 17 Aug – 25 Aug 2026</p>
 
 <div class="toc">
   <div class="toc-title">Sessions in this doc</div>
   <ol>
     <li><a href="#sec-2026-08-17">Copy, research integrity, spacing and assets</a><span class="toc-phase">Building with Claude</span></li>
+    <li><a href="#sec-2026-08-25">Artifakt — the system’s second page, which didn’t use the system</a><span class="toc-phase">Building with Claude</span></li>
   </ol>
 </div>
 
@@ -308,6 +309,151 @@
   <div class="hook">
     <div class="hook-label">Shareable hook</div>
     I spent a session fact-checking my own case study and found five errors — including a sentence describing research participants I never interviewed. It came from reading placeholder text in my Figma file as if it were data. The numbers on a portfolio page are claims about real people; they deserve the same rigour as the research itself.
+  </div>
+</div>
+
+<div class="section" id="sec-2026-08-25">
+  <div class="section-header">
+    <span class="section-date">21–25 Aug 2026</span>
+    <span class="section-title">Artifakt — the system's second page, which didn't use the system</span>
+    <span class="phase-tag">Building with Claude</span>
+  </div>
+  <p class="section-desc">
+    Building the Artifakt case study on the block vocabulary above — except it turned out not to fit, and forcing it would have been the wrong call. The session ran across several days of design-and-build ping-pong: Flore edited the Figma frame while the page was being built, and the copy was re-pulled four separate times. It ended with the process logs published as real pages, a diagram rebuilt from an iframe into a component, and 42&nbsp;MB of HTML turned into 0.2&nbsp;MB.
+  </p>
+
+  <h3 class="sub">The central decision — one system, two compositions</h3>
+  <p class="section-desc">
+    The doc above argues for a width-based block vocabulary with PitchPivot as the reference implementation, and says the other five case studies should inherit it. The first attempt to do that failed, and it's worth being precise about why, because the conclusion isn't "the system was wrong".
+  </p>
+
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">21 Aug</div>
+      <div class="decision-what">Give Artifakt its own composition file rather than routing it through <code class="inline">CaseStudy.jsx</code></div>
+      <div class="decision-why"><code class="inline">CaseStudy.jsx</code> reads named slots — <code class="inline">what</code>, <code class="inline">turningPoint</code>, <code class="inline">features</code>, <code class="inline">takeaways</code>, <code class="inline">process</code> — and renders a fixed sequence of typed evidence components. Artifakt has none of those shapes: no StatGrid, no three QuoteCards, no RankedBars, no FeatureBlock pair. Forcing it through would have meant naming its "How I worked" section <code class="inline">turningPoint</code> to satisfy a key. That's a lie in the data model that every future reader has to decode.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">21 Aug</div>
+      <div class="decision-what">Share the visual system, not the composition</div>
+      <div class="decision-why">Flore's clarification settled it: "I was talking more about the visual structure and the spaces." Frame, SectionHeader, Media, Container, ButtonLink, ProjectCard and the spacing tokens are all imported. Only the section order and shapes differ — which is exactly the part that genuinely differs in the design file. Concrete payoff: nothing in the new page can regress PitchPivot, and a spacing fix in a shared primitive still reaches both.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">21 Aug</div>
+      <div class="decision-what">Scope "Rule 1" to PitchPivot instead of bending Artifakt to satisfy it</div>
+      <div class="decision-why">Rule 1 — no two consecutive blocks share a width — throws in dev. Artifakt's frame gets its rhythm the opposite way: every text container sits at a fixed 720 measure all the way down, and the <em>media</em> does the pacing (1282 full stages, a 720 stage, 523 side-by-sides, one radius-60 showcase). Applying Rule 1 would have fired on the second section and forced a rhythm the design doesn't have.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">25 Aug</div>
+      <div class="decision-what">Chapter spacing overridden in code, not sampled from the frame</div>
+      <div class="decision-why">The frame draws 40 of padding either side of a section, giving a flat 80 between chapters. Flore asked for PitchPivot's rhythm instead — <code class="inline">SPACE.break</code>, 80 at small sizes and 140 from <code class="inline">xl</code>. Pointed at the shared constant rather than hardcoding 140, so the two pages can't drift. Noted in the file because anyone re-sampling the frame later will find 80 and think the code is wrong.</div>
+    </div>
+  </div>
+
+  <h3 class="sub">Four bugs — and what each one says about where to look</h3>
+  <p class="section-desc">
+    The pattern worth carrying forward: <b>three of these four survived a clean <code class="inline">npm run build</code>.</b> The bundler is not a correctness check. Every one was found by opening the page and measuring it.
+  </p>
+
+  <table>
+    <tr><th>Bug</th><th>Symptom</th><th>Cause</th></tr>
+    <tr>
+      <td><b>Popover state race</b><span class="status needs-work">reported by Flore</span></td>
+      <td>Two of five pipeline steps didn't open on hover — "or only after a first click"</td>
+      <td>Moving between neighbours fires <em>two</em> callbacks: open on the one entered, close on the one left. Order isn't guaranteed, React batches both, last writer wins. A close landing second overwrote the open. Fixed by scoping the close: a step may only close <em>itself</em>.</td>
+    </tr>
+    <tr>
+      <td><b>Iframe src not base-prefixed</b></td>
+      <td>Embed silently collapsed to 15px in production; dev looked perfect</td>
+      <td>A content-supplied path Vite never sees, so it resolved against the domain root. Fixed by moving <code class="inline">assetUrl</code> <em>inside</em> the component so no call site can forget — the homepage had remembered, the new call site hadn't.</td>
+    </tr>
+    <tr>
+      <td><b>Deleted constants</b></td>
+      <td>Page rendered completely blank</td>
+      <td>A scripted block replacement cut three <code class="inline">const</code> declarations along with the function it was rewriting. <code class="inline">✓ built in 1.28s</code>, then <code class="inline">MEDIA_LAYOUT is not defined</code> at runtime.</td>
+    </tr>
+    <tr>
+      <td><b>Missing <code class="inline">box-sizing</code></b></td>
+      <td>Fifth pipeline step wrapped onto its own row and stretched to full width</td>
+      <td>190px min-width + 28px padding + 2px border = 220px actual under content-box. Five of those overflowed a 1114 row by 110px. Read as "a different kind of object", not as a layout bug.</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    <b>The self-inflicted one.</b> The image-externalisation script deleted all 137 extracted images on its second run. A doc already converted was skipped, so it contributed nothing to the "accounted for" set — and <code class="inline">--prune</code> then treated every file as an orphan. Recovered from a backup taken minutes earlier. Two fixes: a skipped doc now registers the references it already carries, and the script <b>refuses to prune when that would delete everything</b> in a folder. The second guard is redundant with the first on purpose.
+  </div>
+
+  <h3 class="sub">What didn't survive contact with the build</h3>
+  <ul style="font-size:13px; line-height:1.8; color:#444; margin-left:18px; max-width:760px;">
+    <li><b>The pipeline diagram as an embed.</b> Built as a self-contained HTML iframe, and the hover previews were clipped at the frame's bottom edge. Not fixable inside an embed: an iframe is a hard clipping boundary, the parent sizes it to <code class="inline">scrollHeight</code>, and an absolutely-positioned popover contributes nothing to that. Rebuilt in-page, where the popover portals to <code class="inline">&lt;body&gt;</code> and <code class="inline">flip</code>/<code class="inline">shift</code> keep it on screen. Three things fell out of the move that were worth more than the fix: the embed had hardcoded <code class="inline">#420bc1</code> and <code class="inline">#8b5cf6</code> because an iframe can't read its parent's custom properties (they're real tokens); it carried its own copies of three HK Grotesk weights; and it duplicated a reset, a type scale and a colour scale in a second stylesheet nobody would think to update.</li>
+    <li><b>Uploading images by hand.</b> 143 files uploaded, of which 46 were in none of the six documents — and 40 document images had no file at all. The documents went on ignoring the folder because their <code class="inline">src</code> attributes still pointed at inlined base64. Replaced with a script that reads each doc, writes every inlined image out content-hashed, and rewrites the reference. <b>41.8&nbsp;MB → 0.2&nbsp;MB of HTML.</b></li>
+    <li><b>Hand-editing the process logs to add navigation.</b> Figma asks for the subpage navbar on the log pages. The obvious move — paste a header into each of the six files — was wrong: they're generated exports, and the repo already learned this with <code class="inline">language-river.html</code>. Six hand-edited headers is six edits to redo on every re-export. A route wraps them instead, so re-exporting a log is a pure file drop.</li>
+    <li><b>A width cap carried across assets.</b> <code class="inline">MEDIA_WIDTH.hero</code> is 450, measured from PitchPivot's 1798×2234 hero (ratio 0.80). Artifakt's is 545×1185 (ratio 0.46) — a phone inside browser chrome. At 450 it rendered <b>976px tall</b>, so the hero alone filled a laptop viewport and the page appeared to start empty. A display width carried to a different aspect ratio is a different height, and it looks untouched in the diff.</li>
+  </ul>
+
+  <h3 class="sub">Figma → Claude working notes</h3>
+  <p class="section-desc">
+    Continuing the list from the previous session. These are all new, and all cost real time before being understood.
+  </p>
+  <ul style="font-size:13px; line-height:1.8; color:#444; margin-left:18px; max-width:760px;">
+    <li><b>Markdown pasted into a text layer is not styled copy.</b> The frame first arrived with <code class="inline">- </code>, <code class="inline">&gt; </code> and <code class="inline">**</code> rendering as literal characters, so the design showed no bullet, quote or emphasis treatment at all. After Flore restyled it in Figma the same content came back as real lists, real bold/italic runs and italic asides — and only then could the block types be read off it. <b>Restyling in Figma is what makes the copy machine-readable</b>, not just prettier.</li>
+    <li><b><code class="inline">[BUILT]</code> in a frame name is load-bearing and was on the wrong frames.</b> Per the repo's own convention it means "code wins, don't re-pull this copy" — and it was sitting on two frames whose pages didn't exist yet. Left alone it would have told the next session to ignore the very frame it was meant to build from.</li>
+    <li><b>Re-read node values every time; they move.</b> The against-the-defaults artwork was 394.79 wide in the morning and 333.5 by the afternoon. Both were "the Figma value". The only reason the cap is right is that it was re-read rather than reused.</li>
+    <li><b>Layer names lie; only the text content is data.</b> Half the frame's text layers are still named "PitchPivot helps designers translate design thinki" — Figma keeps the name from creation. One caption was flagged as wrong based on a layer name plus an inference from a neighbouring screenshot, and that flag was itself wrong.</li>
+    <li><b>Duplicated frames carry duplicated content errors.</b> Two thumbnail filenames were crossed relative to what they picture, and a caption from one section had been pasted onto another's stage. Matching by filename would have shipped both. Every thumbnail was opened and matched to what it actually shows.</li>
+    <li><b>The design file can be behind the code, and knowing which way round matters.</b> Five things ended the session with code ahead of Figma — two Guide bubbles, one paragraph, two white stages and a deleted embed stage. All flagged in the files, because a re-pull would silently undo them.</li>
+  </ul>
+
+  <h3 class="sub">A parked investigation, with numbers</h3>
+  <p class="section-desc">
+    Flore reported that everything felt too big on a 1500px laptop and asked for a structured plan. The measurement contradicted two of the premises, so the plan was written and then deliberately shelved — the findings are in <code class="inline">process-docs/vertical-density/</code> with a re-runnable harness.
+  </p>
+  <ul style="font-size:13px; line-height:1.8; color:#444; margin-left:18px; max-width:760px;">
+    <li><b>The type scale is already fluid.</b> Every step is a <code class="inline">clamp()</code> between 402 and 1622. There are no breakpoints to add; the question is whether the desktop anchors are right, which is a different question with a different answer.</li>
+    <li><b>The constraint is viewport <em>height</em>, and type scales on <em>width</em>.</b> The featured card measures 878px at 1280×800, 883px at 1500×850, 887px at 1728×1080 — nine pixels of variation across a 450px width range. It isn't too big; laptops are short. No width-keyed breakpoint can express that.</li>
+    <li><b>Type is a weak lever where it was assumed to be strong.</b> A 12% type reduction takes 3.9% off the homepage and 8.0% off a case study. Spacing at −30% gives −8.8%. The featured card is <b>68% image</b> — 600px of media against 260px of text.</li>
+    <li><b>"Every chapter in one viewport" isn't reachable by scaling.</b> Two chapters on each case study sit at 2.0–2.4 viewports. Getting there needs −54%; type and spacing together give −10%. Those need structural change, not a smaller type scale.</li>
+  </ul>
+
+  <h3 class="sub">Narration — what the page was missing</h3>
+  <p class="section-desc">
+    Flore asked for a short evaluation of the narration logic once the page was built. Three of the four findings became work in the same session.
+  </p>
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">24 Aug</div>
+      <div class="decision-what">The artists were named once and never shown</div>
+      <div class="decision-why">"Bring an artist in" is one of three stated goals, and the page argued most readers would meet one of these artists for the first time here — while showing five names in a bullet. Fixed with one traced sketch rendered five ways, placed directly under the goal that claims it. It's also a premise for "Designing against the model's defaults" much later, which only lands once the roster has been seen.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">24 Aug</div>
+      <div class="decision-what">No stakes — every problem on the page was a design problem, not a human one</div>
+      <div class="decision-why">The page went from "what it is" straight to "the question I faced". A hiring manager arriving cold learned what was built and how well it was solved, but not why it should exist. Split in two: the effort problem opens the establishing section, and "effort only counts if the recipient can see it" opens the reveal, where the wobble in the traced line is the proof.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">24 Aug</div>
+      <div class="decision-what">The Guide became load-bearing narration instead of an aside</div>
+      <div class="decision-why">A section's prose opened on "Six interviews… sharpened <em>it</em>", where "it" was the question the avatar had just asked. Readers skim past avatars. PitchPivot's contract is that the Guide <em>reacts</em> to prose that already stands alone — restored here, with the prose regaining its opener and the bubble becoming "I went in assuming the barrier was emotional. It wasn't."</div>
+    </div>
+  </div>
+
+  <h3 class="sub">Still open</h3>
+  <ul style="font-size:13px; line-height:1.8; color:#444; margin-left:18px; max-width:760px;">
+    <li><b>Five places where the code is ahead of Figma</b> — two Guide bubbles (scaffold, testing were replaced by Flore; the reveal's opening paragraph is still mine), the white stages on user-testing and final-product, and the second embed stage that should be deleted from the frame.</li>
+    <li>The scaffold image has the same over-sizing the defaults image had — 524 rendered against 401 in the frame. Not raised, so not changed.</li>
+    <li>"The per-artist prompt table" points at the prompting-process log, which is an assumption about where that table lives.</li>
+    <li><code class="inline">Hero.jsx:180</code> drives the map hotspots with the same unguarded open/close shape that caused the popover race. It rarely fires there because the hotspots are far apart. One-line fix, not applied.</li>
+    <li>Vertical density is parked with a plan and a baseline. The single highest-value piece is the featured card: worst offender, 68% image, isolated in one variant, and it doesn't need the rest of the plan to be worth doing.</li>
+    <li>Four case studies are still stubs: welcome-to-my-city, sinomocene, teamchatviz, roche.</li>
+  </ul>
+
+  <div class="note">
+    <b>Worth a screenshot when there's time.</b> Three moments in this session would document better as images than prose: the pipeline preview clipped at the iframe's bottom edge versus flipping upward in-page; the five-artist grid (one sketch, five hands) that fixed the biggest narration gap; and the before/after of chapter spacing at 80 versus 140. Text-only for now by choice.
+  </div>
+
+  <div class="hook">
+    <div class="hook-label">Shareable hook</div>
+    I built my second case-study page on the system I'd designed for the first one — and the right call turned out to be not using it. The two pages share every primitive: spacing, type, media frames, buttons. What they don't share is the composition, because the designs genuinely differ. A design system earns its keep by making the shared parts unarguable, not by making every page the same shape.
   </div>
 </div>
 
