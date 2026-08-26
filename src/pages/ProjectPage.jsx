@@ -5,6 +5,7 @@ import Badge from '../components/Badge'
 import Container from '../components/Container'
 import CaseStudy from '../components/casestudy/CaseStudy'
 import CaseStudyArtifakt from '../components/casestudy/CaseStudyArtifakt'
+import CaseStudySnapshot from '../components/casestudy/CaseStudySnapshot'
 import { getProjectBySlug, getCaseStudyBySlug } from '../lib/content'
 
 export default function ProjectPage() {
@@ -40,9 +41,16 @@ export default function ProjectPage() {
   // content stays content: which React component renders a page is a code
   // decision, and putting a component name in a copy file invites someone to
   // "fix" it during a content edit.
+  //
+  // CaseStudySnapshot is the first entry meant to serve SEVERAL slugs -- the
+  // three project snapshots (Teamchatviz, then Sinomocene and Roche) are one
+  // layout with three content files, which is what makes them a tier rather
+  // than three short pages. So it is listed once per slug here, not branched
+  // on inside the component.
   const LAYOUTS = {
     pitchpivot: CaseStudy,
     artifakt: CaseStudyArtifakt,
+    teamchatviz: CaseStudySnapshot,
   }
   // Falls back to the PitchPivot composition, which is the reference
   // implementation -- a new content module with no registry entry renders

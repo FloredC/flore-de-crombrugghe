@@ -64,8 +64,8 @@ const LOGS = '/work/artifakt/process'
 // should not churn if a filename does.
 //
 // THUMBNAIL NAMES DO NOT MATCH THEIR CONTENT for two of the six, and that is
-// not a mistake to tidy: `card-final-product.png` pictures loading-state specs
-// and `card-loading-animations.png` pictures the final-screen "one shell, five
+// not a mistake to tidy: `card-final-product.webp` pictures loading-state specs
+// and `card-loading-animations.webp` pictures the final-screen "one shell, five
 // faces" page. Each thumbnail was opened and matched to what it actually shows.
 // Renaming the files is the real fix; pairing them by filename is the bug.
 export const processLogs = [
@@ -73,42 +73,42 @@ export const processLogs = [
     slug: 'reveal-ai-integration',
     file: 'reveal-ai-integration.html',
     title: 'Reveal & AI integration',
-    thumb: 'card-reveal.png',
+    thumb: 'card-reveal.webp',
     alt: 'First page of the “Reveal — AI Integration Visual Process” log',
   },
   {
     slug: 'prompting-process',
     file: 'prompting-process.html',
     title: 'Prompting process',
-    thumb: 'card-two-pipeline.png',
+    thumb: 'card-two-pipeline.webp',
     alt: 'First page of the “Image Generation & Prompting Process” log, showing the two-pass pipeline diagram',
   },
   {
     slug: 'visual-system',
     file: 'visual-system.html',
     title: 'Visual system',
-    thumb: 'card-visual-system.png',
+    thumb: 'card-visual-system.webp',
     alt: 'A page of design tokens, type scale and icon decisions',
   },
   {
     slug: 'loading-animations',
     file: 'loading-animations.html',
     title: 'Loading animations',
-    thumb: 'card-final-product.png',
+    thumb: 'card-final-product.webp',
     alt: 'Loading-state screen specs and a five-step animation sequence',
   },
   {
     slug: 'scaffold-process',
     file: 'scaffold-process.html',
     title: 'Scaffold process',
-    thumb: 'card-scaffold.png',
+    thumb: 'card-scaffold.webp',
     alt: 'Experiment 006, contour reduction variants of a horse sketch',
   },
   {
     slug: 'final-screen-redesign',
     file: 'final-screen-redesign.html',
     title: 'Final screen redesign',
-    thumb: 'card-loading-animations.png',
+    thumb: 'card-loading-animations.webp',
     alt: 'The “one shell, five faces” page showing the five artist portraits and copy decisions',
   },
 ]
@@ -139,11 +139,11 @@ export default {
     liveLabel: 'Try it out',
     zone: 'Lab',
     subsection: 'Own products',
-    // The hero stage is `surface-highlight`, not the graph-paper `bg-notebook`
+    // The hero stage is `surface-yellow`, not the graph-paper `bg-notebook`
     // the PitchPivot hero uses. Sampled (node 4897:4515) — a deliberate
     // divergence between the two case studies, flagged to Flore rather than
     // quietly unified.
-    stage: 'bg-surface-highlight',
+    stage: 'bg-surface-yellow',
     // Grey border + soft shadow + radius 16, sampled from the phone screenshot
     // in the hero (node 4897:4524). PitchPivot's hero media takes a hard black
     // border instead, which is why this is a prop rather than baked into Frame.
@@ -151,8 +151,8 @@ export default {
       'mx-auto border border-border-grey rounded-radius-16 shadow-[0_0_12px_0_rgba(0,0,0,0.25)]',
     media: {
       kind: 'image',
-      src: `${M}/hero.png`,
-      label: '[ hero.png — 545x1185 portrait product screenshot ]',
+      src: `${M}/hero.webp`,
+      label: '[ hero.webp — 545x1185 portrait product screenshot ]',
       // The delivered file's REAL pixel dimensions, read off the asset rather
       // than guessed from the design frame, so the space reserved before load
       // is exactly the space the media takes and there is no layout shift.
@@ -203,11 +203,11 @@ export default {
         // One of the four stages that KEPT the yellow when Flore stripped it
         // off the rest, 2026-08-24 (node 4897:4533 still binds
         // Colors/Surface/highlight at Radius/4).
-        tint: 'bg-surface-highlight',
+        tint: 'bg-surface-yellow',
         radius: 'rounded-radius-4',
-        src: `${M}/how-it-works.png`,
-        label: '[ how-it-works.png — 2457x820 core flow banner ]',
-        placeholderAspect: '2457 / 820',
+        src: `${M}/how-it-works.webp`,
+        label: '[ how-it-works.webp — 2000x667 core flow banner ]',
+        placeholderAspect: '2000 / 667',
         alt: 'The core flow across five phone screens: the Joy logo, a traced sketch, five artist style cards, the finished artwork addressed to Jo, and the result shared in a chat',
       },
     },
@@ -248,9 +248,9 @@ export default {
         plain: true,
         kind: 'video',
         src: `${M}/artifakt.mp4`,
-        poster: `${M}/artifakt-poster.png`,
+        poster: `${M}/artifakt-poster.webp`,
         label: '[ artifakt.mp4 — portrait UI screencast ]',
-        placeholderAspect: '1206 / 2622',
+        placeholderAspect: '920 / 2000',
         alt: 'A screen recording of Artifakt: typing an intention, tracing the scaffold, and the finished artwork appearing',
         caption: 'state 21.08.26',
       },
@@ -274,9 +274,9 @@ export default {
         // A plain white band, no radius at all (node 4931:4525 is `bg-white`
         // with no corner rounding) -- the only stage on the page without one.
         radius: 'rounded-none',
-        src: `${M}/five-artists.png`,
-        label: '[ five-artists.png — 2598x1136 one sketch, five artist styles ]',
-        placeholderAspect: '2598 / 1136',
+        src: `${M}/five-artists.webp`,
+        label: '[ five-artists.webp — 2000x875 one sketch, five artist styles ]',
+        placeholderAspect: '2000 / 875',
         alt: 'One traced sketch rendered five ways, labelled Louise Bourgeois, Kara Walker, Niki de Saint Phalle, Naoko Takeuchi and Keith Haring',
         // Figma has a double space after the comma (node 4931:4523); single here.
         caption: 'Five artists, a fixed curated roster',
@@ -341,8 +341,8 @@ export default {
         layout: 'split',
         // White is MediaStage's default now; only the radius is unusual here.
         radius: 'rounded-radius-20',
-        src: `${M}/the-cakes.png`,
-        label: '[ the-cakes.png — 987x342 three-cake stimulus ]',
+        src: `${M}/the-cakes.webp`,
+        label: '[ the-cakes.webp — 987x342 three-cake stimulus ]',
         placeholderAspect: '987 / 342',
         alt: 'Three drawings of the same birthday cake at increasing levels of finish: a rough outline, a more detailed line drawing, and a coloured illustration',
         caption: 'Testing question “Which one feels like it came from someone who cares and why?”',
@@ -390,8 +390,8 @@ export default {
       // why the pipeline is split in two, and it was text-only before.
       media: {
         layout: 'split',
-        src: `${M}/the-reveal.png`,
-        label: '[ the-reveal.png — 993x731 two-pass mental model ]',
+        src: `${M}/the-reveal.webp`,
+        label: '[ the-reveal.webp — 993x731 two-pass mental model ]',
         placeholderAspect: '993 / 731',
         alt: 'A diagram of the two-pass approach: a Van Gogh sunflowers painting labelled “look at art”, a detail of the brushwork labelled “study the technique”, a photograph of real sunflowers labelled “study the subject”, and a new painting labelled “create your own art”',
         // Figma reads "Mental modal for fix 1" — "modal" for "model".
@@ -434,7 +434,7 @@ export default {
             name: 'User sketch',
             detail: 'Canvas drawing, 768px wide',
             preview: {
-              src: `${M}/pipeline/input.png`,
+              src: `${M}/pipeline/input.webp`,
               aspect: '1704 / 1800',
               alt: 'A loose pencil sketch on the Artifakt canvas',
               caption: 'Raw user sketch on the canvas — loose pencil lines, no colour.',
@@ -446,7 +446,7 @@ export default {
             detail: 'Line width, invert, flood fill — per artist',
             accent: true,
             preview: {
-              src: `${M}/pipeline/pre-process.png`,
+              src: `${M}/pipeline/pre-process.webp`,
               aspect: '1704 / 1800',
               alt: 'The sketch after cleaning and per-artist line-weight adjustment',
               caption:
@@ -459,7 +459,7 @@ export default {
             detail: 'Flux Dev img2img · no artist name · strength 0.75–0.82',
             accent: true,
             preview: {
-              src: `${M}/pipeline/pass-1.png`,
+              src: `${M}/pipeline/pass-1.webp`,
               aspect: '1704 / 1800',
               alt: 'Output of pass one: strong form and material, no artist colour yet',
               caption: 'Gesture and material established — strong form, no artist colour yet.',
@@ -471,7 +471,7 @@ export default {
             detail: 'Flux Dev img2img · artist name + colour + motifs · strength 0.70–0.90',
             accent: true,
             preview: {
-              src: `${M}/pipeline/pass-2.png`,
+              src: `${M}/pipeline/pass-2.webp`,
               aspect: '1704 / 1800',
               alt: 'Output of pass two: the artist’s colour, motifs and full style applied',
               caption: 'Artist identity applied — colour, motifs and full style on top.',
@@ -482,7 +482,7 @@ export default {
             name: 'Artwork',
             detail: 'Displayed on Screen 2',
             preview: {
-              src: `${M}/pipeline/output.png`,
+              src: `${M}/pipeline/output.webp`,
               aspect: '1704 / 1800',
               alt: 'The finished artwork as shown on Screen 2',
               caption: 'Final artwork shown on Screen 2.',
@@ -561,8 +561,8 @@ export default {
       // inside half a column.
       media: {
         layout: 'split',
-        src: `${M}/the-scaffold.png`,
-        label: '[ the-scaffold.png — 835x1365 scaffold + contour experiments ]',
+        src: `${M}/the-scaffold.webp`,
+        label: '[ the-scaffold.webp — 835x1365 scaffold + contour experiments ]',
         placeholderAspect: '835 / 1365',
         alt: 'The Artifakt scaffold screen above a sheet of contour-reduction experiments showing a horse sketch reduced to progressively simpler outlines',
         // FIGMA'S CAPTION HERE IS WRONG and is deliberately not carried over:
@@ -635,8 +635,8 @@ export default {
         // Note this number moved: it was 394.79 earlier the same day. Re-read
         // rather than assumed, which is the only reason the cap is right.
         maxWidth: 334,
-        src: `${M}/against-the-defaults.png`,
-        label: '[ against-the-defaults.png — 691x1100 before/after grid ]',
+        src: `${M}/against-the-defaults.webp`,
+        label: '[ against-the-defaults.webp — 691x1100 before/after grid ]',
         placeholderAspect: '691 / 1100',
         alt: 'Two before-and-after pairs of generated figures for the keyword “strong”: in each row an arrow leads from the model’s default output to a corrected version with explicit attribute language',
         caption: 'Correcting representation biases',
@@ -690,8 +690,8 @@ export default {
       // puts the yellow back.
       media: {
         layout: 'split',
-        src: `${M}/user-testing.png`,
-        label: '[ user-testing.png — 1183x749 test session photos ]',
+        src: `${M}/user-testing.webp`,
+        label: '[ user-testing.webp — 1183x749 test session photos ]',
         placeholderAspect: '1183 / 749',
         alt: 'Two photographs from a moderated session: a tester tracing an Artifakt sketch on a phone held in both hands',
         caption: 'User testing session',
@@ -758,9 +758,9 @@ export default {
       ],
       // MAPPED BY CONTENT, NOT BY FILENAME — and two of the six do not agree.
       // Each thumbnail was opened and read before being placed here, because
-      // the delivered names cross over: `card-final-product.png` is a page of
+      // the delivered names cross over: `card-final-product.webp` is a page of
       // loading-state and animation-sequence specs, and
-      // `card-loading-animations.png` is the "one shell, five faces" page of
+      // `card-loading-animations.webp` is the "one shell, five faces" page of
       // final-screen design decisions. So the two files are swapped relative
       // to their names.
       //
@@ -799,9 +799,9 @@ export default {
         // the tinted surround reads as a mount rather than a thin border.
         // MediaStage centres it (`items-center`), so the margin is even.
         maxWidth: 880,
-        src: `${M}/final-product.png`,
-        label: '[ final-product.png — 2432x1282 four-screen gallery ]',
-        placeholderAspect: '2432 / 1282',
+        src: `${M}/final-product.webp`,
+        label: '[ final-product.webp — 2000x1054 four-screen gallery ]',
+        placeholderAspect: '2000 / 1054',
         alt: 'Four Artifakt screens side by side: the traced scaffold, the artist picker, the finished artwork, and the share view',
         caption: 'Final product',
       },

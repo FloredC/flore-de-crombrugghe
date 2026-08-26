@@ -47,6 +47,16 @@ export default function Media({
   placeholderAspect,
   maxWidth,
   caption,
+  // RADIUS IS A PROP, added 2026-08-26 for the Teamchatviz snapshot, whose six
+  // view screenshots are drawn at radius 12 rather than this file's 24.
+  //
+  // A prop rather than letting the call site pass `rounded-radius-12` through
+  // `className`: both are plain border-radius utilities of equal specificity,
+  // so which one wins is decided by their order in Tailwind's generated CSS,
+  // not by the order they appear in the string. That resolves in whichever
+  // direction the config happens to emit and would flip silently. Same reason
+  // MediaStage already takes one.
+  radius = 'rounded-radius-24',
   className = '',
 }) {
   // null until the file reports its own dimensions. Once set, it wins.
@@ -102,7 +112,7 @@ export default function Media({
   // the media sits nearer its own text as a result. Flagged.
   const frame = (
     <div
-      className={`w-full overflow-hidden rounded-radius-24 ${className}`}
+      className={`w-full overflow-hidden ${radius} ${className}`}
       // The real ratio as soon as it's known; the declared one only before that.
       style={{ aspectRatio: ratio, maxWidth: cappedWidth }}
     >

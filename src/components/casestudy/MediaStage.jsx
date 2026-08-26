@@ -7,7 +7,7 @@ import Media from './Media'
  * WHY THE TINT LIVES HERE AND NOT IN THE FILE
  *
  * Flore's exported artwork is TRANSPARENT PNG (verified by opening the files,
- * not assumed: `how-it-works.png` and `against-the-defaults.png` both render
+ * not assumed: `how-it-works.webp` and `against-the-defaults.webp` both render
  * with no background of their own). Figma composes each one over a rectangle
  * filled with `Colors/surface/highlight`, and that rectangle is what makes the
  * artwork read as inset rather than floating on white. So the tint is the

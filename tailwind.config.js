@@ -173,9 +173,12 @@ export default {
           background: 'var(--colors-surface-background)',
           canvas: 'var(--colors-surface-canvas)',
           // The Artifakt case study's stage colour -- hero background, every
-          // image stage, the final-product panel. Hand-added to semantic.css
-          // (see the comment there) rather than re-exported.
-          highlight: 'var(--colors-surface-highlight)',
+          // image stage, the final-product panel. Hand-maintained in
+          // semantic.css by Flore's decision, NOT awaiting a re-export -- see
+          // the comment there before "fixing" it.
+          yellow: 'var(--colors-surface-yellow)',
+          // The snapshot tier's hero stage. Same hand-maintained caveat.
+          grey: 'var(--colors-surface-grey)',
           subtle: 'var(--colors-surface-subtle)',
           inverted: 'var(--colors-surface-inverted)',
         },
@@ -327,6 +330,13 @@ export default {
       },
       animation: {
         'marker-pulse': 'marker-pulse 2.4s cubic-bezier(0, 0, 0.2, 1) infinite',
+      },
+      // Figma's one named effect style, `Shadow universal`
+      // (DROP_SHADOW, #00000040, offset 0/0, radius 10, spread 0). Named after
+      // the Figma style rather than after where it is used, since the file
+      // treats it as a single shared effect.
+      boxShadow: {
+        universal: '0 0 10px 0 rgba(0, 0, 0, 0.25)',
       },
       borderRadius: {
         'radius-4': 'var(--radius-4)',

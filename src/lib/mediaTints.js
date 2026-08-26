@@ -15,12 +15,12 @@
 //
 // Artifakt joined the tokenised three on 2026-08-21. It was the literal
 // #fdffe6, and this file's own note above is what flagged it: the colour DOES
-// have a Figma name, `Colors/surface/highlight`, it just wasn't in the token
+// have a Figma name, `Colors/Surface/yellow`, it just wasn't in the token
 // CSS export yet. It is now (see semantic.css), so the duplicate hex is gone
 // and the homepage card tint and the Artifakt case-study stages are one value
 // in one place. Confirmed identical in the browser, not assumed.
 export const mediaTints = {
-  artifakt: 'var(--colors-surface-highlight)',
+  artifakt: 'var(--colors-surface-yellow)',
   'welcome-to-my-city': '#f6f9ff',
   pitchpivot: '#dfe8fd',
   rega: 'var(--colors-chart-chart-red-fill)',

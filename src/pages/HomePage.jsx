@@ -15,7 +15,7 @@ import Container from '../components/Container'
 // paths can't have: Vite rewrites the URL, which means the GitHub Pages base
 // prefix is applied automatically and this can't join the class of bugs that
 // broke five thumbnails in production while looking fine in dev.
-import portraitFlore from '../assets/illustrations/portrait-flore.png'
+import portraitFlore from '../assets/illustrations/portrait-flore.webp'
 import {
   PAGE_STACK,
   SECTION_PAD_WORK,
