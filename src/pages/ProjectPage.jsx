@@ -6,15 +6,12 @@ import Container from '../components/Container'
 import CaseStudy from '../components/casestudy/CaseStudy'
 import CaseStudyArtifakt from '../components/casestudy/CaseStudyArtifakt'
 import CaseStudySnapshot from '../components/casestudy/CaseStudySnapshot'
+import CaseStudyNda from '../components/casestudy/CaseStudyNda'
 import { getProjectBySlug, getCaseStudyBySlug } from '../lib/content'
 
 export default function ProjectPage() {
   const { slug } = useParams()
   const project = getProjectBySlug(slug)
-
-  if (!project || project.status === 'nda-project') {
-    return <Navigate to="/" replace />
-  }
 
   // A project with a case-study module renders a built page; the rest keep
   // the original stub until they're built. Deliberately a per-page opt-in
@@ -22,6 +19,22 @@ export default function ProjectPage() {
   // (CASE-STUDY-SYSTEM.md), so the remaining four shouldn't be migrated onto
   // it sight unseen.
   const caseStudy = getCaseStudyBySlug(slug)
+
+  // NDA PROJECTS NOW HAVE PAGES, added 2026-08-27.
+  //
+  // This route used to redirect every `nda-project` straight to `/`, because
+  // those four had no page to show — their cards linked off-site to the live
+  // product instead. Figma's `NDA` section (node 4980:7811) gave all four a
+  // real subpage, so the blanket redirect is gone.
+  //
+  // The guard it leaves behind is narrower and still worth having: an NDA
+  // project with NO case-study module has nothing to render but the stub
+  // <article> below, which would be a near-empty page carrying a real project's
+  // name. Sending it home is the better failure. Every NDA project has a module
+  // today, so this is a floor, not a live branch.
+  if (!project || (project.status === 'nda-project' && !caseStudy)) {
+    return <Navigate to="/" replace />
+  }
 
   // WHY A REGISTRY AND NOT ONE COMPONENT, added 2026-08-21 with Artifakt.
   //
@@ -53,6 +66,12 @@ export default function ProjectPage() {
     teamchatviz: CaseStudySnapshot,
     sinomocene: CaseStudySnapshot,
     roche: CaseStudySnapshot,
+    // The NDA tier — four slugs, one layout, same reasoning as the snapshots
+    // above. See CaseStudyNda.jsx.
+    rega: CaseStudyNda,
+    myride: CaseStudyNda,
+    'trail-app': CaseStudyNda,
+    sbb: CaseStudyNda,
   }
   // Falls back to the PitchPivot composition, which is the reference
   // implementation -- a new content module with no registry entry renders

@@ -61,7 +61,18 @@ const CHROME_CLASS = `inline-flex items-center gap-1 rounded-radius-32 border px
 // action-link treatment "Tertiary". Same thing, so both names map here rather
 // than one silently rendering unstyled -- worth collapsing to one name in
 // Figma eventually, flagged to Flore.
-export const LINK_CLASS = `font-bold text-action-link-foreground hover:text-action-link-foreground-hover active:text-action-link-foreground-pressed ${FOCUS_CLASS}`
+// The link treatment WITHOUT the weight -- colour steps plus the focus ring,
+// and deliberately no underline (see the long note above; underline belongs to
+// LINK_UNDERLINE_CLASS and the navbar's current-section state alone).
+//
+// Split out 2026-08-27 for the ProjectCard title, which became the card's link
+// when the CTA buttons were removed. The title has its own weight
+// (`text-h2 font-semibold`), so applying LINK_CLASS whole would have silently
+// restyled every card title to bold. Same states, one definition, no drift --
+// LINK_CLASS is now composed from this rather than repeating it.
+export const LINK_COLOR_CLASS = `text-action-link-foreground hover:text-action-link-foreground-hover active:text-action-link-foreground-pressed ${FOCUS_CLASS}`
+
+export const LINK_CLASS = `font-bold ${LINK_COLOR_CLASS}`
 
 // The underline itself, matching Figma's rule under the label: ~2px thick,
 // sitting 2px below the text. Used exclusively for the navbar's
