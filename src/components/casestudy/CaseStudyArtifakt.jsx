@@ -1,5 +1,4 @@
 import Container from '../Container'
-import ProjectCard from '../ProjectCard'
 import ButtonLink from '../ButtonLink'
 import ContactEmailButton from '../ContactEmailButton'
 import { ArrowRightIcon } from '../icons'
@@ -12,7 +11,7 @@ import AvatarNote from './AvatarNote'
 import ProcessLogCards from './ProcessLogCards'
 import PipelineDiagram from './PipelineDiagram'
 import { ARTIFAKT, SPACE } from '../../lib/caseStudyLayout'
-import { getProjectBySlug, contactSection } from '../../lib/content'
+import { contactSection } from '../../lib/content'
 
 /**
  * The Artifakt case study page.
@@ -31,7 +30,7 @@ import { getProjectBySlug, contactSection } from '../../lib/content'
  * what Flore actually asked for (2026-08-21: "I was talking more about the
  * visual structure and the spaces"). Everything that decides how the page
  * looks and breathes is imported: Frame, SectionHeader, Media, Container,
- * ButtonLink, ProjectCard, and the spacing tokens. What differs is only the
+ * ButtonLink, and the spacing tokens. What differs is only the
  * order and the section shapes -- which is exactly the part that genuinely
  * differs in the design file.
  *
@@ -316,7 +315,7 @@ export default function CaseStudyArtifakt({ data }) {
   // Looked up from the real project list rather than duplicated into the
   // content file, so the next project's title, tint, thumbnail and CTA are the
   // same objects the homepage renders and can't drift from it.
-  const nextProject = data.onward?.slug ? getProjectBySlug(data.onward.slug) : null
+  // `nextProject` is gone -- see the note on the exit block below.
 
   return (
     // `SPACE.break` rather than a flat 80 -- Flore, 2026-08-25: the chapters
@@ -333,35 +332,23 @@ export default function CaseStudyArtifakt({ data }) {
         <Section key={section.id} section={section} />
       ))}
 
-      {/* The page's exit. Figma ends on the contact block alone; the
-          next-project card is Flore's addition (2026-08-21) and points at
-          Welcome to my city.
+      {/* The page's exit -- back to Figma's own shape, which ends on the
+          contact block alone.
 
-          Not the `Onward` component, which bundles a card with its own
-          single-CTA contact block -- this page's contact block is the
-          two-button one (LinkedIn + copy-to-clipboard email), matching the
-          frame and the homepage's Contact section. Composing the two pieces
-          here rather than adding a variant to Onward keeps that component
-          exactly as PitchPivot needs it. */}
+          THE NEXT-PROJECT CARD WAS REMOVED 2026-08-27. It was Flore's addition
+          (2026-08-21) and pointed at Welcome to my city; moving between
+          projects is now `ProjectNavigation`, the prev/next band ProjectPage
+          renders on every subpage below <main>. Keeping a curated card here
+          would answer the same question twice on one screen -- and with a
+          different answer, since the band follows the Work grid's order rather
+          than a hand-picked slug.
+
+          The contact block stays and is still not `Onward`: this page's
+          version is the two-button one (LinkedIn + copy-to-clipboard email),
+          matching the frame and the homepage's Contact section, where Onward's
+          is a prompt and one CTA. */}
       <Container className="flex flex-col gap-space-64">
-        {nextProject && (
-          <div className="flex flex-col gap-space-40">
-            {/* Matches Onward's own eyebrow treatment -- body-sm semibold
-                secondary, no uppercase and no tracking, because every text
-                style in the Figma file sets letterSpacing 0. */}
-            <h2 className="m-0 text-body-sm font-semibold text-text-secondary">
-              {data.onward.heading}
-            </h2>
-            {/* Capped rather than filling the column: a single project card
-                stretched to 1184 stops reading as a card. `medium` is the
-                2-up homepage variant, the closest match to this width. */}
-            <div className="w-full max-w-[562px]">
-              <ProjectCard project={nextProject} size="medium" />
-            </div>
-          </div>
-        )}
-
-        <div className="flex max-w-[846px] flex-col gap-space-16 border-t border-border-divider pt-space-64">
+        <div className="flex max-w-[846px] flex-col gap-space-16">
           <h2 className="m-0 text-h2 font-semibold">{data.contact.heading}</h2>
           <p className="m-0 text-body-lg font-normal">{data.contact.description}</p>
           {/* The email and LinkedIn URL come from contact.mdx, not from this

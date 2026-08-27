@@ -25,12 +25,13 @@ import { MEDIA_WIDTH } from '../../lib/caseStudyLayout'
  * ---------------------------------------------------------------------------
  * WHAT THIS TIER DELIBERATELY DOES NOT HAVE
  *
- * NO `Onward` BLOCK. Every other subpage ends with one — a curated next
- * project plus a contact CTA. None of the four frames draws one, and rather
- * than invent the exit these pages hand the reader back through the nav's
- * "Back to Portfolio" and the Footer, which ProjectPage renders around every
- * subpage anyway. Flagged to Flore as the one place the tier breaks with the
- * others; it is one entry in the content files away if she wants it.
+ * NO EXIT BLOCK OF ITS OWN. The four frames draw neither an `Onward` nor a
+ * contact block, and this layout adds neither.
+ *
+ * The prev/next band every subpage now ends on is `ProjectNavigation`, and it
+ * is rendered by ProjectPage OUTSIDE <main> rather than by any layout — see
+ * the note there. It briefly lived in this file, when the NDA pages were the
+ * only ones that had it; it moved out on 2026-08-27 when it went site-wide.
  *
  * NO WIDTH ALTERNATION to check. `useWidthRuleCheck` is not called, for the
  * same reason CaseStudySnapshot skips it and then some: with exactly two

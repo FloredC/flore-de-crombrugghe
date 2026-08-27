@@ -7,7 +7,8 @@ import CaseStudy from '../components/casestudy/CaseStudy'
 import CaseStudyArtifakt from '../components/casestudy/CaseStudyArtifakt'
 import CaseStudySnapshot from '../components/casestudy/CaseStudySnapshot'
 import CaseStudyNda from '../components/casestudy/CaseStudyNda'
-import { getProjectBySlug, getCaseStudyBySlug } from '../lib/content'
+import ProjectNavigation from '../components/ProjectNavigation'
+import { getProjectBySlug, getCaseStudyBySlug, getAdjacentProjects } from '../lib/content'
 
 export default function ProjectPage() {
   const { slug } = useParams()
@@ -119,6 +120,20 @@ export default function ProjectPage() {
           </Container>
         </article>
       )}
+      {/* PREV/NEXT LIVES HERE, NOT INSIDE A LAYOUT -- added 2026-08-27, and
+          moved out of CaseStudyNda when it went onto every subpage.
+
+          OUTSIDE <main>, deliberately. The band is a full-bleed rule-topped
+          strip that belongs against the footer; rendered inside <main> it sat
+          above that element's `pb-space-140 2xl:pb-space-200`, which put a
+          screen of empty white between the band and the footer.
+
+          ONE WIRING POINT rather than a call in each of the four layouts: this
+          is navigation between pages, not part of any page's composition, and
+          every subpage gets exactly the same treatment. It also means the stub
+          page (a project with no case-study module, currently Welcome to my
+          city) gets it for free. */}
+      <ProjectNavigation {...getAdjacentProjects(slug)} />
       <Footer />
     </>
   )
