@@ -7,6 +7,7 @@ import CaseStudy from '../components/casestudy/CaseStudy'
 import CaseStudyArtifakt from '../components/casestudy/CaseStudyArtifakt'
 import CaseStudySnapshot from '../components/casestudy/CaseStudySnapshot'
 import CaseStudyNda from '../components/casestudy/CaseStudyNda'
+import CaseStudyWip from '../components/casestudy/CaseStudyWip'
 import ProjectNavigation from '../components/ProjectNavigation'
 import { getProjectBySlug, getCaseStudyBySlug, getAdjacentProjects } from '../lib/content'
 
@@ -73,6 +74,9 @@ export default function ProjectPage() {
     myride: CaseStudyNda,
     'trail-app': CaseStudyNda,
     sbb: CaseStudyNda,
+    // Hero plus one paragraph, while the real content is written. See
+    // CaseStudyWip.jsx for why this is its own layout and not a reuse.
+    'welcome-to-my-island': CaseStudyWip,
   }
   // Falls back to the PitchPivot composition, which is the reference
   // implementation -- a new content module with no registry entry renders
@@ -130,9 +134,10 @@ export default function ProjectPage() {
 
           ONE WIRING POINT rather than a call in each of the four layouts: this
           is navigation between pages, not part of any page's composition, and
-          every subpage gets exactly the same treatment. It also means the stub
-          page (a project with no case-study module, currently Welcome to my
-          city) gets it for free. */}
+          every subpage gets exactly the same treatment — including the stub
+          <article> branch above, which as of 2026-08-27 nothing reaches: every
+          one of the ten projects now has a case-study module. The branch stays
+          as the floor for the next project added before its page exists. */}
       <ProjectNavigation {...getAdjacentProjects(slug)} />
       <Footer />
     </>

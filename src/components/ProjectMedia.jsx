@@ -97,16 +97,61 @@ const MEDIA_VARS = {
     'xl:[--media-frame:58.5%] xl:[--media-image:80.77%] ' +
     'xl:[--media-frame-cap:40svh] xl:[--media-image-cap:55.16svh] ' +
     '2xl:[--media-frame:68.5053%] 2xl:[--media-image:94.47%]',
-  // `small` takes NEITHER regime treatment from `xl` up -- no artwork shrink and
-  // no height cap. Its artwork is 90.23% of the frame at every width, and the
-  // frame is just tall enough to hold it plus a band of tint. See the note
-  // below.
+  // `small` takes NEITHER regime treatment from `xl` up -- no artwork shrink
+  // and no height cap. One frame ratio and one artwork width at every width.
+  //
+  // RESAMPLED 2026-08-27 from Flore's edit to the ProjectMedia instance
+  // (node 2928:78184), which now draws 354.67 x 340 with the artwork at
+  // 287.77 x 250:
+  //
+  //   frame  340    of 354.67  =  95.8639%   (was 108.5527%, and 96% at xl)
+  //   image  287.77 of 354.67  =  81.1372%   (was 90.23%)
+  //
+  // The `xl:[--media-frame:96%]` override is gone rather than kept at a new
+  // value: it existed because the artwork's own height forced a taller frame
+  // than Figma drew, and the base ratio is now 95.86% -- the same number that
+  // override was reaching for. One value, no regime split.
+  //
+  // Content minimum, rechecked because it is what made this variant awkward
+  // before: artwork 250 + caption gap 16 + caption 40 = 306, which is 86.3% of
+  // the card. The 95.86% ratio sits ABOVE that, so the ratio governs the height
+  // and the spacer minimum is not being hit. That was not true of the old
+  // numbers. See the note below.
   small:
-    '[--media-frame:108.5527%] [--media-image:90.23%] ' +
-    '[--media-frame-cap:100svh] [--media-image-cap:83.1svh] ' +
-    'xl:[--media-frame:96%]',
+    '[--media-frame:95.8639%] [--media-image:81.1372%] ' +
+    '[--media-frame-cap:100svh] [--media-image-cap:84.64svh]',
 }
 
+// --- `small`: WHY IT CANNOT BE LANDSCAPE YET (2026-08-27) -------------------
+//
+// Flore's goal for these three cards: "give them the same landscape ratio as
+// the other cards. I don't think this rectangular aspect works."
+//
+// That is blocked on the ASSETS, not on this file, and the numbers are worth
+// keeping so nobody re-attempts it in CSS:
+//
+//   every medium/large thumbnail   1062x631  (Artifakt 1760x910)   ratio 1.68
+//   the three small thumbnails     1280x1112                       ratio 1.15
+//
+// The small trio's artwork is near-square while the rest of the family is
+// landscape. Because the artwork sits CONTAINED on the tint rather than being
+// cropped to the panel, its own height is what sets the panel's height floor —
+// so a landscape panel can only be bought by shrinking the artwork.
+//
+// Measured against the 354.67 card, with the caption's 16 gap + 40 box:
+//
+//   to match `medium`'s 68.5% frame   panel 243   artwork must be 60.7% wide
+//   Flore's current drawing            panel 340   artwork is       81.1% wide
+//
+// So true parity costs another ~25% off artwork that she already objected to
+// as "very small and hard to see" (see the 2026-08-25 note below). The two
+// goals are genuinely incompatible at this asset ratio.
+//
+// THE FIX IS A RE-EXPORT, and it is cheap: at 1.683 the artwork Flore has
+// already drawn (81.14% = 287.77 wide) would be 171 tall, so the panel lands at
+// 227 = 64% of the card — landscape, slightly MORE so than `medium`, with no
+// shrinking at all. One line here follows.
+//
 // --- `small`: the panel hugs the artwork (Flore, 2026-08-25) ----------------
 //
 // Flore: "there's no need for them to be rectangles" -- the Sinomocene,

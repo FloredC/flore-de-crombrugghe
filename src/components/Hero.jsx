@@ -12,7 +12,7 @@ import { getDiscipline } from '../lib/disciplines'
 // Real copy sampled from Figma's Hero "Guide" component -- not placeholder.
 const GREETING = (
   <>
-    Hi, thanks for visiting my city —<br />I design consumer apps and internal tools for high-stakes, large-scale
+    Hi, thanks for visiting my island —<br />I design consumer apps and internal tools for high-stakes, large-scale
     services.
   </>
 )

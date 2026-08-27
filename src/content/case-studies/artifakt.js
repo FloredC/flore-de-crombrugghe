@@ -817,7 +817,7 @@ export default {
   // card is the same object the homepage renders and can't drift from it.
   onward: {
     heading: 'Next project',
-    slug: 'welcome-to-my-city',
+    slug: 'welcome-to-my-island',
   },
 
   // Sampled from the frame's own Contact Section (node 4897:4650). Note this

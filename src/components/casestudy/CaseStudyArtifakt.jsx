@@ -336,7 +336,7 @@ export default function CaseStudyArtifakt({ data }) {
           contact block alone.
 
           THE NEXT-PROJECT CARD WAS REMOVED 2026-08-27. It was Flore's addition
-          (2026-08-21) and pointed at Welcome to my city; moving between
+          (2026-08-21) and pointed at Welcome to my island; moving between
           projects is now `ProjectNavigation`, the prev/next band ProjectPage
           renders on every subpage below <main>. Keeping a curated card here
           would answer the same question twice on one screen -- and with a

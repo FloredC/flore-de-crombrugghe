@@ -133,7 +133,7 @@ function ProjectLink({ project, direction }) {
       {/* THE TITLE WRAPS, where the file sets `whitespace-nowrap` on the
           desktop frames. Both examples in the file are the same short string;
           the real titles are not. At the site's 1184 measure each side is
-          capped at 45% (~533), and "Welcome to my city — The making of a
+          capped at 45% (~533), and "Welcome to my island — The making of a
           story-first portfolio" runs past that on one line. The mobile frame
           already wraps its own title (`min-w-full`), so this only diverges
           from the desktop symbols, and only for the long titles. */}

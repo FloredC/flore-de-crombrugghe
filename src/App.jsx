@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect } from 'react'
-import { Routes, Route, useLocation, useNavigationType } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation, useNavigationType } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import ProjectPage from './pages/ProjectPage'
 import ProcessLogPage from './pages/ProcessLogPage'
@@ -150,6 +150,17 @@ export default function App() {
       <ScrollToHash />
       <Routes>
         <Route path="/" element={<HomePage />} />
+        {/* THE ONE RENAMED SLUG, 2026-08-27. "Welcome to my city" became
+            "Welcome to my island" (Flore's call), which moved its route.
+            That URL was live and shareable, so it forwards instead of 404ing
+            -- `replace` so the old address doesn't sit in the back button.
+            This is the only redirect on the site; if a second slug is ever
+            renamed, these want collecting into a map rather than growing a
+            list of one-off routes. */}
+        <Route
+          path="/work/welcome-to-my-city"
+          element={<Navigate to="/work/welcome-to-my-island" replace />}
+        />
         <Route path="/work/:slug" element={<ProjectPage />} />
         {/* One level below a case study: a generated process-log document,
             framed with the site's nav. See ProcessLogPage on why the documents

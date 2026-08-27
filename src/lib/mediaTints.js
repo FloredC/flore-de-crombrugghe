@@ -21,7 +21,7 @@
 // in one place. Confirmed identical in the browser, not assumed.
 export const mediaTints = {
   artifakt: 'var(--colors-surface-yellow)',
-  'welcome-to-my-city': '#f6f9ff',
+  'welcome-to-my-island': '#f6f9ff',
   pitchpivot: '#dfe8fd',
   rega: 'var(--colors-chart-chart-red-fill)',
   sbb: '#efefef',

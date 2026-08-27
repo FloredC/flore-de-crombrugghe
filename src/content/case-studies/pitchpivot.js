@@ -396,7 +396,7 @@ export default {
           //     else's product in Flore's portfolio. Note the contrast is doing
           //     real work here: "general-purpose" is precisely what PitchPivot
           //     is not, so the phrase sets up the structure argument that
-          //     follows. `welcome-to-my-city.mdx` still names Claude Code, and
+          //     follows. `welcome-to-my-island.mdx` still names Claude Code, and
           //     deliberately — that's a built-with credit, not a competitor.
           //
           // The product description is drawn from this file's own `features`
