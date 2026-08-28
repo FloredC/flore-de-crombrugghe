@@ -18,12 +18,29 @@ export default function Wayfinding({
   avatarVariant = 'sections-left',
   bubbleVariant = 'right',
   hidden = false,
+  // HIDE THE BREADCRUMB HALF, KEEP THE GUIDE -- Flore, 2026-08-28, for the
+  // Approach section's "Selected talks & writing" row. Figma sets exactly this
+  // on that instance: the Wayfinding (node 4494:6497) still renders, with its
+  // `Breadcrumb` child (4924:1549) marked hidden and `Guide` (4924:1550) left
+  // alone.
+  //
+  // A separate flag rather than dropping `zone`/`subsection` from the content
+  // file, which would have hidden it too by absence. Those two are still TRUE
+  // of the row -- it really does sit in Plaza -- and they are the same fields
+  // the taxonomy is read from elsewhere. Deleting a fact to change a layout is
+  // how content files start lying.
+  //
+  // Note this is the mirror of how the Guide already works: that half is driven
+  // by `bubbleCopy` being present, because a Guide with no copy is an empty
+  // bubble and there is nothing to keep. A breadcrumb with no zone would be the
+  // same, but here the zone exists and is simply not shown.
+  breadcrumbHidden = false,
 }) {
   if (hidden) return null
 
   return (
     <div data-component="wayfinding" className="flex flex-wrap items-center justify-between gap-8">
-      <DistrictBreadcrumb zone={zone} subsection={subsection} />
+      {!breadcrumbHidden && <DistrictBreadcrumb zone={zone} subsection={subsection} />}
       {/* No bubbleCopy means no Guide at all -- not an empty bubble. Contact is
           the real case: its Wayfinding in Figma (node 4522:18469) is the
           breadcrumb alone, with no avatar and no speech bubble, and Flore
