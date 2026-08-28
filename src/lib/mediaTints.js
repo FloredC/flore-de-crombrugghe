@@ -28,7 +28,19 @@ export const mediaTints = {
   myride: '#e1e2f7',
   'trail-app': '#e5efe1',
   sinomocene: '#ffe4e7',
-  teamchatviz: '#d8fbfc',
+  // `--blue-10`, Flore 2026-08-28. A PRIMITIVE, referenced knowingly: she named
+  // it as the value and flagged the same thing this file's note above already
+  // says -- "the color of the teamchatviz background is blue_10, a primitive
+  // which is not ideal. i have that problem for all the backgrounds in the
+  // cards. i think i'll review all the colors at some point and create semantic
+  // tokens."
+  //
+  // NOT written as `var(--colors-surface-canvas)` even though that token also
+  // resolves to `--blue-10` today. They are equal by coincidence, not by
+  // meaning: surface-canvas is the page/hero stage, and pointing a card tint at
+  // it would silently couple the two, so re-theming one would move the other.
+  // The primitive is the honest reference until the semantic pass names it.
+  teamchatviz: 'var(--blue-10)',
   roche: 'var(--white)',
 }
 

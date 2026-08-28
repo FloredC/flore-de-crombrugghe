@@ -367,82 +367,104 @@ export default function ProjectMedia({ src, alt, caption, size = 'medium', badge
       />
       <div
         data-component="project-media-tint"
-        // PANEL PADDING is `small`-only, from Flore's component: Spaces/4 at the
-        // top and Spaces/12 at the bottom, added 2026-08-28 "to make the
-        // captions visible". The other two sizes have never had any -- their
-        // artwork is centred in a frame with room to spare.
+        // PANEL PADDING is `small`-only, from Flore's component: Spaces/8 top
+        // and bottom (node 2928:78064). The other two sizes have never had any
+        // -- their artwork is centred in a frame with room to spare.
         className={`flex flex-col justify-center [grid-area:1/1] ${STACK_ALIGN[size]} ${FRAME_RADIUS[size]} ${
-          size === 'small' ? 'pb-space-12 pt-space-4' : ''
+          size === 'small' ? 'gap-space-12 py-space-8' : ''
         }`}
         style={{ backgroundColor: tint }}
       >
-        <div
-          // `h-full` on `small` so the stack fills the padded panel and the
-          // artwork below has a height to take a share OF. Without it the stack
-          // is content-sized, `flex-1` has nothing to grow into, and the
-          // artwork collapses to nothing.
-          className={`flex flex-col items-center justify-center ${STACK_GAP[size]} ${
-            size === 'small' ? 'h-full' : ''
-          }`}
-          style={{ width: 'min(var(--media-image), var(--media-image-cap))' }}
-        >
-          <img
-            src={src}
-            alt={alt}
-            // THE FLEXIBLE ARTWORK, for sizes that declare no IMAGE_ASPECT
-            // (currently `small` only -- see the note there). It takes the
-            // height left over after the caption, the gap and the padding, and
-            // `object-cover` crops the file to that box.
-            //
-            // `min-h-0` because a flex item will not shrink below its content's
-            // intrinsic size without it, and an <img>'s intrinsic height is the
-            // file's full height -- so the artwork would push the panel taller
-            // instead of fitting inside it.
-            // NO `min-h-0` on the flexible variant, deliberately: that class
-            // is the usual companion to `flex-1`, and here it would defeat the
-            // floor. `min-height: auto` is what lets the aspect-ratio act as a
-            // minimum; zeroing it lets the artwork shrink to nothing and the
-            // panel never grows for a long caption.
-            className={`w-full object-cover ${IMAGE_ASPECT[size] ? '' : 'flex-1'}`}
-            loading="lazy"
-            decoding="async"
-            style={{ aspectRatio: IMAGE_ASPECT[size] ?? IMAGE_ASPECT.smallFloor }}
-          />
-          {caption && (
-            <p
-              data-component="project-media-caption"
-              // TWO LINES RESERVED ON `small` -- Flore, 2026-08-28: "The
-              // background should fill and adjust to the media in the row with
-              // the longest text (so everything is aligned)."
-              //
-              // The three panels are equal-width and share one frame ratio, so
-              // the only thing that could make them different heights is the
-              // caption's line count: Sinomocene's runs to two lines where
-              // Teamchatviz's and Roche's run to one. Under the old near-square
-              // ratio that was invisible, because the frame was tall enough to
-              // swallow the extra line. At the new, tighter ratio it would
-              // show as one panel standing proud of its neighbours.
-              //
-              // Reserving the taller case makes all three identical BY
-              // CONSTRUCTION rather than by the ratio happening to be generous
-              // -- which is also why the frame percentage above can be derived
-              // exactly instead of padded for safety.
-              //
-              // `2.8em` = 2 lines x the token's own 1.4 line-height, in `em` so
-              // it tracks `text-caption` as that ramps 12 -> 13 -> 14 across
-              // breakpoints. A hardcoded px would drift at two of the three.
-              //
-              // A THREE-line caption would break the row again. That is the
-              // right failure: it is visible immediately and the fix is to
-              // shorten the caption, which is a content decision.
-              className={`w-full text-center text-caption font-normal ${
-                size === 'small' ? 'min-h-[2.8em] pr-space-12' : ''
-              }`}
+        {size === 'small' ? (
+          <>
+            {/* THE CAPTION IS CENTRED ON THE PANEL, NOT ON THE ARTWORK --
+                Flore, 2026-08-28, restructured in the component (node
+                2928:78062): the caption wrapper moved OUT of the Image mask and
+                is now its full-width sibling.
+
+                It matters because the artwork is only 81% of the panel and is
+                RIGHT-ALIGNED (see STACK_ALIGN -- the deliberate cropped-
+                screenshot look), so a caption centred inside the artwork's
+                column sat visibly off-centre in the tinted panel it appears to
+                belong to. Now the artwork keeps its right-hand bleed and the
+                caption reads as centred in the card.
+
+                So the two are siblings here rather than one stack: the artwork
+                sits in a right-aligned wrapper that takes the leftover height,
+                and the caption spans the panel underneath it. */}
+            <div
+              // `flex-1` takes the height left after the caption and the
+              // padding -- this is the flexible sizing from the previous pass,
+              // just moved onto the wrapper now that the stack is gone.
+              // `min-h-0` is NOT set, deliberately: the image's aspect-ratio
+              // floor depends on `min-height: auto`. See IMAGE_ASPECT.
+              className="flex min-h-0 flex-1 flex-col"
+              style={{ width: 'min(var(--media-image), var(--media-image-cap))' }}
             >
-              {caption}
-            </p>
-          )}
-        </div>
+              <img
+                src={src}
+                alt={alt}
+                // `object-top` so the 18.8% the crop has to remove all comes
+                // off the bottom rather than being split top and bottom -- the
+                // top is where these images carry what identifies them.
+                className="min-h-0 w-full flex-1 object-cover object-top"
+                loading="lazy"
+                decoding="async"
+                style={{ aspectRatio: IMAGE_ASPECT.smallFloor }}
+              />
+            </div>
+            {caption && (
+              <p
+                data-component="project-media-caption"
+                // `w-full` is the whole point -- the panel's width, not the
+                // artwork's.
+                //
+                // `px-space-16`, SYMMETRIC, as of 2026-08-28. It was `pr-12`,
+                // which nudged the text 6px left of the panel's true centre --
+                // I flagged that as a deliberate-looking lean toward the edge
+                // the artwork bleeds away from, and Flore's answer was to even
+                // it up. The text is now optically centred on the tint, which
+                // is what "centre the caption on the background" asked for.
+                //
+                // TWO LINES RESERVED (`2.8em` = 2 x the token's 1.4
+                // line-height, in `em` so it tracks `text-caption` as that ramps
+                // 12 -> 13 -> 14). It is what keeps the three artworks the same
+                // size as each other: the panels are equalised by subgrid, so
+                // without a fixed caption box a one-line card would hand its
+                // spare height to its artwork and the row would go uneven.
+                //
+                // `flex items-center` so a one-line caption sits centred in
+                // that reserved box rather than clinging to its top edge,
+                // matching the component's own `items-center` wrapper.
+                className="flex min-h-[2.8em] w-full items-center justify-center px-space-16 text-center text-caption font-normal"
+              >
+                {caption}
+              </p>
+            )}
+          </>
+        ) : (
+          <div
+            className={`flex flex-col items-center justify-center ${STACK_GAP[size]}`}
+            style={{ width: 'min(var(--media-image), var(--media-image-cap))' }}
+          >
+            <img
+              src={src}
+              alt={alt}
+              className="w-full object-cover"
+              loading="lazy"
+              decoding="async"
+              style={{ aspectRatio: IMAGE_ASPECT[size] }}
+            />
+            {caption && (
+              <p
+                data-component="project-media-caption"
+                className="w-full text-center text-caption font-normal"
+              >
+                {caption}
+              </p>
+            )}
+          </div>
+        )}
       </div>
       {/* The frame's border, as an overlay so it doesn't participate in
           layout -- see the --media-image note above for why. Solid, not
