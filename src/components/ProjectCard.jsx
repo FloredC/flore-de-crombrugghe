@@ -36,7 +36,23 @@ export default function ProjectCard({ project, size = 'medium' }) {
       // `group` so the media frame can lift on hover of the card as a whole
       // (see ProjectMedia); `relative` so the CTA's stretched ::after below
       // has this article as its containing block.
-      className="group relative flex w-full min-w-0 scroll-mt-space-120 flex-col gap-space-16 2xl:gap-space-24"
+      // SMALL CARDS ARE SUBGRID ITEMS, the rest are flex columns.
+      //
+      // The 3-up row declares two tracks (see WORK_GRID_3UP); a small card
+      // spans both and adopts them, so its media panel shares a track with its
+      // two neighbours and they all take the tallest one's height. That is what
+      // makes the row survive a caption wrapping to an extra line.
+      //
+      // `gap-space-16` still wins over the parent's `gap-y-space-72`: a subgrid
+      // inherits the parent's gaps but may override them, and this does.
+      // Verified in the browser -- inner gap 16, column gap 60, unchanged.
+      //
+      // The other sizes stay flex: `large` sits alone in its own wrapper and
+      // `medium` has no fixed-ratio panel to be pushed past, so neither has a
+      // row to align with.
+      className={`group relative w-full min-w-0 scroll-mt-space-120 gap-space-16 2xl:gap-space-24 ${
+        size === 'small' ? 'row-span-2 grid grid-rows-subgrid' : 'flex flex-col'
+      }`}
     >
       <ProjectMedia
         src={assetUrl(project.thumbnail)}

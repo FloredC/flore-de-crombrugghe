@@ -100,26 +100,37 @@ const MEDIA_VARS = {
   // `small` takes NEITHER regime treatment from `xl` up -- no artwork shrink
   // and no height cap. One frame ratio and one artwork width at every width.
   //
-  // RESAMPLED 2026-08-27 from Flore's edit to the ProjectMedia instance
-  // (node 2928:78184), which now draws 354.67 x 340 with the artwork at
-  // 287.77 x 250:
+  // The artwork width, 81.1372% (287.77 of 354.67), is Flore's own from the
+  // ProjectMedia instance (node 2928:78184) and is NOT touched by this pass --
+  // only the artwork's crop and the frame's height moved.
   //
-  //   frame  340    of 354.67  =  95.8639%   (was 108.5527%, and 96% at xl)
-  //   image  287.77 of 354.67  =  81.1372%   (was 90.23%)
+  // DERIVED, not sampled -- recomputed 2026-08-28 from the 3:2 crop above.
+  // Against Figma's 354.667 card, with the artwork at 81.1372% (287.77 wide):
   //
-  // The `xl:[--media-frame:96%]` override is gone rather than kept at a new
-  // value: it existed because the artwork's own height forced a taller frame
-  // than Figma drew, and the base ratio is now 95.86% -- the same number that
-  // override was reaching for. One value, no regime split.
+  //   panel padding    Spaces/4 top + 12 bottom =  16
+  //   caption          2 lines x 14 x 1.4       =  39.2   (reserved, below)
+  //   caption gap      Spaces/8                 =   8
+  //   artwork          whatever is left         = 191.85
+  //                                              -------
+  //   content                                     255.05 -> 71.91% of 354.667
   //
-  // Content minimum, rechecked because it is what made this variant awkward
-  // before: artwork 250 + caption gap 16 + caption 40 = 306, which is 86.3% of
-  // the card. The 95.86% ratio sits ABOVE that, so the ratio governs the height
-  // and the spacer minimum is not being hit. That was not true of the old
-  // numbers. See the note below.
+  // Read the other way round now that the artwork is flexible: this percentage
+  // SETS the panel height, and the artwork gets the remainder. 71.91% keeps the
+  // artwork at the 288x192 that Flore signed off ("it looks good"), while the
+  // padding and the tighter caption gap come from her component. Raise this
+  // number and the artwork gets taller; nothing else needs touching.
+  //
+  // The frame ratio and the content height are therefore THE SAME NUMBER, on
+  // purpose. The frame is a grid cell holding a ratio spacer and the content,
+  // so whichever is taller wins; making them equal means the panel is exactly
+  // as tall as it needs to be and no taller, and every card in the row lands on
+  // the same height. Re-derive this if the crop, the artwork width or the
+  // caption reservation change -- it is arithmetic, not taste.
+  //
+  // Image cap re-derived with it: 287.77 / 255.05 = 1.1283.
   small:
-    '[--media-frame:95.8639%] [--media-image:81.1372%] ' +
-    '[--media-frame-cap:100svh] [--media-image-cap:84.64svh]',
+    '[--media-frame:71.91%] [--media-image:81.1372%] ' +
+    '[--media-frame-cap:100svh] [--media-image-cap:112.83svh]',
 }
 
 // --- `small`: WHY IT CANNOT BE LANDSCAPE YET (2026-08-27) -------------------
@@ -256,14 +267,45 @@ const MEDIA_VARS = {
 const IMAGE_ASPECT = {
   large: '880 / 447',
   medium: '530.904 / 315.719',
-  small: '320 / 278',
+  // `small` DECLARES NO RATIO -- Flore, 2026-08-28: "it doesn't work with
+  // images of a fixed size... the images sizes should be more flexible."
+  //
+  // It briefly had `3 / 2` here, which is exactly the fixed size she is
+  // objecting to: a hardcoded crop that every other number had to be arranged
+  // around, and that silently overrode whatever ratio she exported. Her
+  // component makes the artwork a MASK inside the panel instead (node
+  // 2928:78065 -- `overflow-clip` with the image scaled larger behind it), so
+  // the crop is a consequence of the box, not a declaration.
+  //
+  // `small` instead sets a FLOOR, not a size. The artwork is `flex-1` in the
+  // stack below, so it takes whatever height is left after the caption, its gap
+  // and the panel's padding -- but it will not shrink past 3:2, because on a
+  // flex item `min-height: auto` resolves to the intrinsic size and an
+  // `aspect-ratio` is what supplies that.
+  //
+  // That floor is what makes the group height adapt to the caption, which is
+  // the behaviour Flore asked for ("The height of the small cards group should
+  // adapt to the longest text (number of lines)"). Without it a longer caption
+  // silently ate the artwork instead:
+  //
+  //   2-line caption   leftover 192 = the floor exactly -> panel 255, ratio wins
+  //   3-line caption   leftover 172 < floor             -> artwork holds at 192
+  //                                                        and the panel GROWS
+  //
+  // So the number is a minimum shape, not a fixed crop -- the artwork is free
+  // to be less cropped whenever there is room, and the panel is free to be
+  // taller whenever the words need it.
+  smallFloor: '3 / 2',
+  small: null,
 }
 
 // Gap between artwork and caption, inside the tinted area.
 const STACK_GAP = {
   large: 'gap-space-24',
   medium: 'gap-space-12',
-  small: 'gap-space-16',
+  // 8 as of 2026-08-28, from Flore's component (Image mask 2928:78065, whose
+  // 252.66 height is 204.66 artwork + 8 + 40 caption).
+  small: 'gap-space-8',
 }
 
 // Small is the one variant whose artwork is right-aligned rather than centred:
@@ -325,26 +367,76 @@ export default function ProjectMedia({ src, alt, caption, size = 'medium', badge
       />
       <div
         data-component="project-media-tint"
-        className={`flex flex-col justify-center [grid-area:1/1] ${STACK_ALIGN[size]} ${FRAME_RADIUS[size]}`}
+        // PANEL PADDING is `small`-only, from Flore's component: Spaces/4 at the
+        // top and Spaces/12 at the bottom, added 2026-08-28 "to make the
+        // captions visible". The other two sizes have never had any -- their
+        // artwork is centred in a frame with room to spare.
+        className={`flex flex-col justify-center [grid-area:1/1] ${STACK_ALIGN[size]} ${FRAME_RADIUS[size]} ${
+          size === 'small' ? 'pb-space-12 pt-space-4' : ''
+        }`}
         style={{ backgroundColor: tint }}
       >
         <div
-          className={`flex flex-col items-center justify-center ${STACK_GAP[size]}`}
+          // `h-full` on `small` so the stack fills the padded panel and the
+          // artwork below has a height to take a share OF. Without it the stack
+          // is content-sized, `flex-1` has nothing to grow into, and the
+          // artwork collapses to nothing.
+          className={`flex flex-col items-center justify-center ${STACK_GAP[size]} ${
+            size === 'small' ? 'h-full' : ''
+          }`}
           style={{ width: 'min(var(--media-image), var(--media-image-cap))' }}
         >
           <img
             src={src}
             alt={alt}
-            className="w-full object-cover"
+            // THE FLEXIBLE ARTWORK, for sizes that declare no IMAGE_ASPECT
+            // (currently `small` only -- see the note there). It takes the
+            // height left over after the caption, the gap and the padding, and
+            // `object-cover` crops the file to that box.
+            //
+            // `min-h-0` because a flex item will not shrink below its content's
+            // intrinsic size without it, and an <img>'s intrinsic height is the
+            // file's full height -- so the artwork would push the panel taller
+            // instead of fitting inside it.
+            // NO `min-h-0` on the flexible variant, deliberately: that class
+            // is the usual companion to `flex-1`, and here it would defeat the
+            // floor. `min-height: auto` is what lets the aspect-ratio act as a
+            // minimum; zeroing it lets the artwork shrink to nothing and the
+            // panel never grows for a long caption.
+            className={`w-full object-cover ${IMAGE_ASPECT[size] ? '' : 'flex-1'}`}
             loading="lazy"
             decoding="async"
-            style={{ aspectRatio: IMAGE_ASPECT[size] }}
+            style={{ aspectRatio: IMAGE_ASPECT[size] ?? IMAGE_ASPECT.smallFloor }}
           />
           {caption && (
             <p
               data-component="project-media-caption"
+              // TWO LINES RESERVED ON `small` -- Flore, 2026-08-28: "The
+              // background should fill and adjust to the media in the row with
+              // the longest text (so everything is aligned)."
+              //
+              // The three panels are equal-width and share one frame ratio, so
+              // the only thing that could make them different heights is the
+              // caption's line count: Sinomocene's runs to two lines where
+              // Teamchatviz's and Roche's run to one. Under the old near-square
+              // ratio that was invisible, because the frame was tall enough to
+              // swallow the extra line. At the new, tighter ratio it would
+              // show as one panel standing proud of its neighbours.
+              //
+              // Reserving the taller case makes all three identical BY
+              // CONSTRUCTION rather than by the ratio happening to be generous
+              // -- which is also why the frame percentage above can be derived
+              // exactly instead of padded for safety.
+              //
+              // `2.8em` = 2 lines x the token's own 1.4 line-height, in `em` so
+              // it tracks `text-caption` as that ramps 12 -> 13 -> 14 across
+              // breakpoints. A hardcoded px would drift at two of the three.
+              //
+              // A THREE-line caption would break the row again. That is the
+              // right failure: it is visible immediately and the fix is to
+              // shorten the caption, which is a content decision.
               className={`w-full text-center text-caption font-normal ${
-                size === 'small' ? 'pr-space-12' : ''
+                size === 'small' ? 'min-h-[2.8em] pr-space-12' : ''
               }`}
             >
               {caption}

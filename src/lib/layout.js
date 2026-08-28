@@ -189,8 +189,21 @@ export const WORK_GRID_2UP =
 // itself. Measured, not theorised. Staying 2-up through the tablet band puts
 // them at ~451 instead, comfortably above the 320 editorial card, and 3-up
 // resumes at xl where the container is wide enough to afford it.
+// `grid-rows-[auto_auto]` is not decoration: the small cards SUBGRID onto these
+// two tracks (media, then text) so that all three media panels take the height
+// of the tallest -- Flore, 2026-08-28: "The height of the small cards group
+// should adapt to the longest text (number of lines)."
+//
+// Without it each card sizes its own panel and a caption that wraps to an extra
+// line leaves one panel standing proud of its neighbours. Verified in the
+// browser: forcing a third line on one caption takes all three panels 255 ->
+// 275 together.
+//
+// Only the 3-up row needs it, because it is the only grid whose cards carry a
+// fixed-ratio panel that a caption can push past. See ProjectCard, which opts
+// in on `size === 'small'` only.
 export const WORK_GRID_3UP =
-  'grid grid-cols-1 gap-y-space-72 sm:grid-cols-2 sm:gap-x-space-24 lg:gap-x-space-40 xl:grid-cols-3 xl:gap-x-space-60'
+  'grid grid-cols-1 grid-rows-[auto_auto] gap-y-space-72 sm:grid-cols-2 sm:gap-x-space-24 lg:gap-x-space-40 xl:grid-cols-3 xl:gap-x-space-60'
 
 // --- Editorial grids (12 col / 24px gutter) ---------------------------------
 
