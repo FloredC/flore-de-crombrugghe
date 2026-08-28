@@ -112,6 +112,7 @@ function ApproachSubsection({ subsection }) {
         zone={subsection.zone}
         subsection={subsection.subsection}
         bubbleCopy={subsection.bubbleCopy}
+        breadcrumbHidden={subsection.breadcrumbHidden}
       />
       {subsection.layout === 'value-cards' && (
         <div className={VALUE_CARD_GRID}>

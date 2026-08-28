@@ -20,6 +20,12 @@ subsections:
         image: "/images/home/approach/img-anchoring.svg"
   - zone: "Plaza"
     subsection: "Selected talks & writing"
+    # The row keeps its zone and subsection -- it really is in Plaza -- but does
+    # not DRAW the breadcrumb. Flore, 2026-08-28, matching Figma, where this
+    # Wayfinding's Breadcrumb child is hidden and only the Guide renders.
+    # Two Plaza rows in a row repeated "You are here: Plaza" directly under
+    # itself, which read as a stutter rather than as orientation.
+    breadcrumbHidden: true
     # Supplied by Flore directly 2026-08-05, replacing the version pulled from
     # Figma (node 4494:6497), which read "documenting an retrospect projects".
     # HEADS UP: Figma still has that older wording, so this is the one string on

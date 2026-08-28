@@ -97,16 +97,72 @@ const MEDIA_VARS = {
     'xl:[--media-frame:58.5%] xl:[--media-image:80.77%] ' +
     'xl:[--media-frame-cap:40svh] xl:[--media-image-cap:55.16svh] ' +
     '2xl:[--media-frame:68.5053%] 2xl:[--media-image:94.47%]',
-  // `small` takes NEITHER regime treatment from `xl` up -- no artwork shrink and
-  // no height cap. Its artwork is 90.23% of the frame at every width, and the
-  // frame is just tall enough to hold it plus a band of tint. See the note
-  // below.
+  // `small` takes NEITHER regime treatment from `xl` up -- no artwork shrink
+  // and no height cap. One frame ratio and one artwork width at every width.
+  //
+  // The artwork width, 81.1372% (287.77 of 354.67), is Flore's own from the
+  // ProjectMedia instance (node 2928:78184) and is NOT touched by this pass --
+  // only the artwork's crop and the frame's height moved.
+  //
+  // DERIVED, not sampled -- recomputed 2026-08-28 from the 3:2 crop above.
+  // Against Figma's 354.667 card, with the artwork at 81.1372% (287.77 wide):
+  //
+  //   panel padding    Spaces/4 top + 12 bottom =  16
+  //   caption          2 lines x 14 x 1.4       =  39.2   (reserved, below)
+  //   caption gap      Spaces/8                 =   8
+  //   artwork          whatever is left         = 191.85
+  //                                              -------
+  //   content                                     255.05 -> 71.91% of 354.667
+  //
+  // Read the other way round now that the artwork is flexible: this percentage
+  // SETS the panel height, and the artwork gets the remainder. 71.91% keeps the
+  // artwork at the 288x192 that Flore signed off ("it looks good"), while the
+  // padding and the tighter caption gap come from her component. Raise this
+  // number and the artwork gets taller; nothing else needs touching.
+  //
+  // The frame ratio and the content height are therefore THE SAME NUMBER, on
+  // purpose. The frame is a grid cell holding a ratio spacer and the content,
+  // so whichever is taller wins; making them equal means the panel is exactly
+  // as tall as it needs to be and no taller, and every card in the row lands on
+  // the same height. Re-derive this if the crop, the artwork width or the
+  // caption reservation change -- it is arithmetic, not taste.
+  //
+  // Image cap re-derived with it: 287.77 / 255.05 = 1.1283.
   small:
-    '[--media-frame:108.5527%] [--media-image:90.23%] ' +
-    '[--media-frame-cap:100svh] [--media-image-cap:83.1svh] ' +
-    'xl:[--media-frame:96%]',
+    '[--media-frame:71.91%] [--media-image:81.1372%] ' +
+    '[--media-frame-cap:100svh] [--media-image-cap:112.83svh]',
 }
 
+// --- `small`: WHY IT CANNOT BE LANDSCAPE YET (2026-08-27) -------------------
+//
+// Flore's goal for these three cards: "give them the same landscape ratio as
+// the other cards. I don't think this rectangular aspect works."
+//
+// That is blocked on the ASSETS, not on this file, and the numbers are worth
+// keeping so nobody re-attempts it in CSS:
+//
+//   every medium/large thumbnail   1062x631  (Artifakt 1760x910)   ratio 1.68
+//   the three small thumbnails     1280x1112                       ratio 1.15
+//
+// The small trio's artwork is near-square while the rest of the family is
+// landscape. Because the artwork sits CONTAINED on the tint rather than being
+// cropped to the panel, its own height is what sets the panel's height floor —
+// so a landscape panel can only be bought by shrinking the artwork.
+//
+// Measured against the 354.67 card, with the caption's 16 gap + 40 box:
+//
+//   to match `medium`'s 68.5% frame   panel 243   artwork must be 60.7% wide
+//   Flore's current drawing            panel 340   artwork is       81.1% wide
+//
+// So true parity costs another ~25% off artwork that she already objected to
+// as "very small and hard to see" (see the 2026-08-25 note below). The two
+// goals are genuinely incompatible at this asset ratio.
+//
+// THE FIX IS A RE-EXPORT, and it is cheap: at 1.683 the artwork Flore has
+// already drawn (81.14% = 287.77 wide) would be 171 tall, so the panel lands at
+// 227 = 64% of the card — landscape, slightly MORE so than `medium`, with no
+// shrinking at all. One line here follows.
+//
 // --- `small`: the panel hugs the artwork (Flore, 2026-08-25) ----------------
 //
 // Flore: "there's no need for them to be rectangles" -- the Sinomocene,
@@ -211,14 +267,45 @@ const MEDIA_VARS = {
 const IMAGE_ASPECT = {
   large: '880 / 447',
   medium: '530.904 / 315.719',
-  small: '320 / 278',
+  // `small` DECLARES NO RATIO -- Flore, 2026-08-28: "it doesn't work with
+  // images of a fixed size... the images sizes should be more flexible."
+  //
+  // It briefly had `3 / 2` here, which is exactly the fixed size she is
+  // objecting to: a hardcoded crop that every other number had to be arranged
+  // around, and that silently overrode whatever ratio she exported. Her
+  // component makes the artwork a MASK inside the panel instead (node
+  // 2928:78065 -- `overflow-clip` with the image scaled larger behind it), so
+  // the crop is a consequence of the box, not a declaration.
+  //
+  // `small` instead sets a FLOOR, not a size. The artwork is `flex-1` in the
+  // stack below, so it takes whatever height is left after the caption, its gap
+  // and the panel's padding -- but it will not shrink past 3:2, because on a
+  // flex item `min-height: auto` resolves to the intrinsic size and an
+  // `aspect-ratio` is what supplies that.
+  //
+  // That floor is what makes the group height adapt to the caption, which is
+  // the behaviour Flore asked for ("The height of the small cards group should
+  // adapt to the longest text (number of lines)"). Without it a longer caption
+  // silently ate the artwork instead:
+  //
+  //   2-line caption   leftover 192 = the floor exactly -> panel 255, ratio wins
+  //   3-line caption   leftover 172 < floor             -> artwork holds at 192
+  //                                                        and the panel GROWS
+  //
+  // So the number is a minimum shape, not a fixed crop -- the artwork is free
+  // to be less cropped whenever there is room, and the panel is free to be
+  // taller whenever the words need it.
+  smallFloor: '3 / 2',
+  small: null,
 }
 
 // Gap between artwork and caption, inside the tinted area.
 const STACK_GAP = {
   large: 'gap-space-24',
   medium: 'gap-space-12',
-  small: 'gap-space-16',
+  // 8 as of 2026-08-28, from Flore's component (Image mask 2928:78065, whose
+  // 252.66 height is 204.66 artwork + 8 + 40 caption).
+  small: 'gap-space-8',
 }
 
 // Small is the one variant whose artwork is right-aligned rather than centred:
@@ -231,8 +318,20 @@ const STACK_ALIGN = {
   small: 'items-end',
 }
 
+// RADIUS IS RESPONSIVE ON `large` ONLY -- Flore, 2026-08-28: "There seems to be
+// a bug in the rounded corners of the artifakt media card on mobile (rounded
+// corners are too big compared to the others)."
+//
+// It was a flat 32 at every width. That is right at `xl`, where the featured
+// card really is the biggest thing on the page (977 wide against the 2-up's 562
+// and the 3-up's 355) and a larger radius reads as proportional. Below `xl` the
+// grids all collapse to one column, so every card is the SAME width -- and the
+// only card with a 32 radius then looks like a mistake rather than a hierarchy.
+//
+// `xl` is the breakpoint because that is where the featured card stops sharing
+// its width with everything else (see WORK_FEATURED_CARD in lib/layout.js).
 const FRAME_RADIUS = {
-  large: 'rounded-radius-32',
+  large: 'rounded-radius-20 xl:rounded-radius-32',
   medium: 'rounded-radius-20',
   small: 'rounded-radius-20',
 }
@@ -280,32 +379,104 @@ export default function ProjectMedia({ src, alt, caption, size = 'medium', badge
       />
       <div
         data-component="project-media-tint"
-        className={`flex flex-col justify-center [grid-area:1/1] ${STACK_ALIGN[size]} ${FRAME_RADIUS[size]}`}
+        // PANEL PADDING is `small`-only, from Flore's component: Spaces/8 top
+        // and bottom (node 2928:78064). The other two sizes have never had any
+        // -- their artwork is centred in a frame with room to spare.
+        className={`flex flex-col justify-center [grid-area:1/1] ${STACK_ALIGN[size]} ${FRAME_RADIUS[size]} ${
+          size === 'small' ? 'gap-space-12 py-space-8' : ''
+        }`}
         style={{ backgroundColor: tint }}
       >
-        <div
-          className={`flex flex-col items-center justify-center ${STACK_GAP[size]}`}
-          style={{ width: 'min(var(--media-image), var(--media-image-cap))' }}
-        >
-          <img
-            src={src}
-            alt={alt}
-            className="w-full object-cover"
-            loading="lazy"
-            decoding="async"
-            style={{ aspectRatio: IMAGE_ASPECT[size] }}
-          />
-          {caption && (
-            <p
-              data-component="project-media-caption"
-              className={`w-full text-center text-caption font-normal ${
-                size === 'small' ? 'pr-space-12' : ''
-              }`}
+        {size === 'small' ? (
+          <>
+            {/* THE CAPTION IS CENTRED ON THE PANEL, NOT ON THE ARTWORK --
+                Flore, 2026-08-28, restructured in the component (node
+                2928:78062): the caption wrapper moved OUT of the Image mask and
+                is now its full-width sibling.
+
+                It matters because the artwork is only 81% of the panel and is
+                RIGHT-ALIGNED (see STACK_ALIGN -- the deliberate cropped-
+                screenshot look), so a caption centred inside the artwork's
+                column sat visibly off-centre in the tinted panel it appears to
+                belong to. Now the artwork keeps its right-hand bleed and the
+                caption reads as centred in the card.
+
+                So the two are siblings here rather than one stack: the artwork
+                sits in a right-aligned wrapper that takes the leftover height,
+                and the caption spans the panel underneath it. */}
+            <div
+              // `flex-1` takes the height left after the caption and the
+              // padding -- this is the flexible sizing from the previous pass,
+              // just moved onto the wrapper now that the stack is gone.
+              // `min-h-0` is NOT set, deliberately: the image's aspect-ratio
+              // floor depends on `min-height: auto`. See IMAGE_ASPECT.
+              className="flex min-h-0 flex-1 flex-col"
+              style={{ width: 'min(var(--media-image), var(--media-image-cap))' }}
             >
-              {caption}
-            </p>
-          )}
-        </div>
+              <img
+                src={src}
+                alt={alt}
+                // `object-top` so the 18.8% the crop has to remove all comes
+                // off the bottom rather than being split top and bottom -- the
+                // top is where these images carry what identifies them.
+                className="min-h-0 w-full flex-1 object-cover object-top"
+                loading="lazy"
+                decoding="async"
+                style={{ aspectRatio: IMAGE_ASPECT.smallFloor }}
+              />
+            </div>
+            {caption && (
+              <p
+                data-component="project-media-caption"
+                // `w-full` is the whole point -- the panel's width, not the
+                // artwork's.
+                //
+                // `px-space-16`, SYMMETRIC, as of 2026-08-28. It was `pr-12`,
+                // which nudged the text 6px left of the panel's true centre --
+                // I flagged that as a deliberate-looking lean toward the edge
+                // the artwork bleeds away from, and Flore's answer was to even
+                // it up. The text is now optically centred on the tint, which
+                // is what "centre the caption on the background" asked for.
+                //
+                // TWO LINES RESERVED (`2.8em` = 2 x the token's 1.4
+                // line-height, in `em` so it tracks `text-caption` as that ramps
+                // 12 -> 13 -> 14). It is what keeps the three artworks the same
+                // size as each other: the panels are equalised by subgrid, so
+                // without a fixed caption box a one-line card would hand its
+                // spare height to its artwork and the row would go uneven.
+                //
+                // `flex items-center` so a one-line caption sits centred in
+                // that reserved box rather than clinging to its top edge,
+                // matching the component's own `items-center` wrapper.
+                className="flex min-h-[2.8em] w-full items-center justify-center px-space-16 text-center text-caption font-normal"
+              >
+                {caption}
+              </p>
+            )}
+          </>
+        ) : (
+          <div
+            className={`flex flex-col items-center justify-center ${STACK_GAP[size]}`}
+            style={{ width: 'min(var(--media-image), var(--media-image-cap))' }}
+          >
+            <img
+              src={src}
+              alt={alt}
+              className="w-full object-cover"
+              loading="lazy"
+              decoding="async"
+              style={{ aspectRatio: IMAGE_ASPECT[size] }}
+            />
+            {caption && (
+              <p
+                data-component="project-media-caption"
+                className="w-full text-center text-caption font-normal"
+              >
+                {caption}
+              </p>
+            )}
+          </div>
+        )}
       </div>
       {/* The frame's border, as an overlay so it doesn't participate in
           layout -- see the --media-image note above for why. Solid, not

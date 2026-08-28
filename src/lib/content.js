@@ -59,4 +59,40 @@ export const approachSection = sectionFrontmatter('approach')
 export const aboutSection = sectionFrontmatter('about')
 export const contactSection = sectionFrontmatter('contact')
 
+// --- The Work grid's reading order, flattened -------------------------------
+//
+// Every project in the order a visitor MEETS them on the homepage: each Work
+// subsection in the order work.mdx lists them, and inside each one the `order`
+// field that `getProjectsFor` already applies.
+//
+// Derived from the same two sources the homepage renders from rather than
+// declared as its own list. A hand-kept sequence here would be a third place
+// that encodes reading order, and it would drift the first time a project's
+// `order` changed -- silently, because both orders would still look plausible.
+export function projectSequence() {
+  return workSection.subsections.flatMap((s) => getProjectsFor(s.zone, s.subsection))
+}
+
+// The projects either side of `slug` in that sequence, for ProjectNavigation.
+//
+// DOES NOT WRAP AROUND, and that is Figma's call rather than mine: the
+// ProjectNavigation component set ships a `Prev Only` state (node 4999:5305),
+// which only has a reason to exist if the last project has no next. So the ends
+// of the sequence really are ends. `null` on either side is a normal result.
+//
+// Returns the project OBJECTS, not slugs -- the nav needs the title and
+// thumbnail, and resolving them here keeps the component from reaching back
+// into content.
+export function getAdjacentProjects(slug) {
+  const sequence = projectSequence()
+  const index = sequence.findIndex((project) => project.slug === slug)
+  // -1 for a project that is somehow not in the Work grid: no neighbours rather
+  // than the last and first, which is what a naive index-1/index+1 would give.
+  if (index === -1) return { prev: null, next: null }
+  return {
+    prev: sequence[index - 1] ?? null,
+    next: sequence[index + 1] ?? null,
+  }
+}
+
 export const hotspots = hotspotsData

@@ -35,7 +35,25 @@ export const FOCUS_CLASS =
 // at rest, which is 7% of the card -- and it is the only one that costs nothing
 // to compress, since the label rides the `body` token down with it. 12 + 24 +
 // 12 + 2 = 50px, still clear of the 44px tap-target floor.
-const CHROME_CLASS = `inline-flex items-center gap-1 rounded-radius-32 border px-6 py-4 xl:px-5 xl:py-3 2xl:px-6 2xl:py-4 ${FOCUS_CLASS}`
+// A MOBILE STEP, added 2026-08-28 -- Flore: "The buttons on mobile are very
+// big. Can you make them smaller and adapt this to the responsive system?"
+//
+// The scale had three regimes and mobile was sharing the LARGEST of them: base
+// and `2xl` were both px-6/py-4, with only the laptop band compressed. So a
+// 402-wide phone was drawing the same 58px-tall button as a 1622 monitor.
+//
+// Now mobile has its own step and the ramp is monotonic through the site's own
+// breakpoints -- `md` is the established phone/tablet boundary (Nav.jsx), `xl`
+// and `2xl` keep the laptop/large-desktop pair exactly as they were:
+//
+//   base   px-5 py-3   50px tall   (was 58)
+//   md     px-6 py-4   58px
+//   xl     px-5 py-3   50px        (unchanged, the laptop compression)
+//   2xl    px-6 py-4   58px        (unchanged)
+//
+// 50 keeps the tap target clear of the 44px WCAG floor with room to spare, so
+// this is a visual reduction and not an accessibility one.
+const CHROME_CLASS = `inline-flex items-center gap-1 rounded-radius-32 border px-5 py-3 md:px-6 md:py-4 xl:px-5 xl:py-3 2xl:px-6 2xl:py-4 ${FOCUS_CLASS}`
 
 // The link/menu treatment: one class shared by every plain-text ButtonLink
 // usage in the app -- Footer's "Download CV", SubpageNav's "Back to
@@ -61,7 +79,18 @@ const CHROME_CLASS = `inline-flex items-center gap-1 rounded-radius-32 border px
 // action-link treatment "Tertiary". Same thing, so both names map here rather
 // than one silently rendering unstyled -- worth collapsing to one name in
 // Figma eventually, flagged to Flore.
-export const LINK_CLASS = `font-bold text-action-link-foreground hover:text-action-link-foreground-hover active:text-action-link-foreground-pressed ${FOCUS_CLASS}`
+// The link treatment WITHOUT the weight -- colour steps plus the focus ring,
+// and deliberately no underline (see the long note above; underline belongs to
+// LINK_UNDERLINE_CLASS and the navbar's current-section state alone).
+//
+// Split out 2026-08-27 for the ProjectCard title, which became the card's link
+// when the CTA buttons were removed. The title has its own weight
+// (`text-h2 font-semibold`), so applying LINK_CLASS whole would have silently
+// restyled every card title to bold. Same states, one definition, no drift --
+// LINK_CLASS is now composed from this rather than repeating it.
+export const LINK_COLOR_CLASS = `text-action-link-foreground hover:text-action-link-foreground-hover active:text-action-link-foreground-pressed ${FOCUS_CLASS}`
+
+export const LINK_CLASS = `font-bold ${LINK_COLOR_CLASS}`
 
 // The underline itself, matching Figma's rule under the label: ~2px thick,
 // sitting 2px below the text. Used exclusively for the navbar's

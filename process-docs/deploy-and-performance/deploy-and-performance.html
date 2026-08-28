@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Map &amp; layout system</title>
+<title>Deploy &amp; performance</title>
 <style>
   @font-face {
     font-family: 'HK Grotesk';
@@ -134,12 +134,13 @@
 
 <h1>Deploy &amp; performance</h1>
 <p class="subtitle">Getting the site off localhost and onto a real URL, and finding out what only breaks once it's there. Mostly a story about bugs that are structurally invisible in development — the ones where the code reads correctly, the dev server looks perfect, and production disagrees.</p>
-<p class="date-range">Sessions: 5 Aug 2026</p>
+<p class="date-range">Sessions: 5 Aug – 26 Aug 2026</p>
 
 <div class="toc">
   <div class="toc-title">Sessions in this doc</div>
   <ol>
     <li><a href="#sec-2026-08-05">First deploy, and the class of bug dev can't show you</a><span class="toc-phase">Building with Claude</span></li>
+    <li><a href="#sec-2026-08-26">The second image pass: format, not just size</a><span class="toc-phase">Building with Claude</span></li>
   </ol>
 </div>
 
@@ -198,6 +199,70 @@
   <div class="hook">
     <div class="hook-label">Shareable hook</div>
     Deploying my portfolio revealed five broken images that had been broken for days. Not a regression — they had never worked in production, and nothing could have told me: the paths came from content files, so the build tool never saw them, and the dev server serves from the root where they happen to resolve. The bug wasn't in the code. It was in the fact that the only environment that disagreed with my code didn't exist yet.
+  </div>
+</div>
+
+<div class="section" id="sec-2026-08-26">
+  <div class="section-header">
+    <span class="section-date">26 Aug 2026</span>
+    <span class="section-title">The second image pass: format, not just size</span>
+    <span class="phase-tag">Building with Claude</span>
+  </div>
+  <p class="section-desc">The 5 Aug pass resized every image to 2&times; its render width and stopped there — it never changed format, and three projects' worth of assets arrived after it. Revisiting the whole site cut the built output from 106MB to 47MB. Mostly a story about where the weight actually was, which was not where I'd have guessed.</p>
+
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">perf</div>
+      <div class="decision-what">Converted the site to WebP — <b>40.6MB &rarr; 8.8MB</b> in <code class="inline">public/images</code>, 78% saved</div>
+      <div class="decision-why">Resizing alone had already been done and only got 34% from here; the format change is what got the rest. Anything over 2000px on its longest edge was downscaled first — still ~2&times; for retina, since nothing on the site displays wider than the 1184 content column. The two PitchPivot video posters were 5600px wide, which is where the single biggest wins came from.</div>
+    </div>
+    <div class="decision key-decision">
+      <div class="decision-date">perf</div>
+      <div class="decision-what">The process-log folder was a second, larger pool nobody was counting — <b>26.2MB &rarr; 6.1MB</b></div>
+      <div class="decision-why">31MB of exported process-log screenshots sitting in <code class="inline">public/process</code>, referenced by hash-named paths from six static HTML files. It was bigger than the entire project-images folder and had never been through any optimisation pass, because every previous pass had looked at <code class="inline">public/images</code>. <b>Worth remembering: "the images" is not a folder, it's a question.</b></div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">quality</div>
+      <div class="decision-what">Chose the lossless/lossy split per image by measuring, not by rule of thumb</div>
+      <div class="decision-why">Going fully lossy saved 87%; the honest version saved 78%. The 3MB difference buys 17 images that are mathematically identical to their source rather than subtly degraded. The ones that needed it are those with large flat areas next to hard edges — raising the quality setting barely helped them (q98 measured essentially the same peak error as q90), so it was lossless or nothing. Verified afterwards that all 13 in the main pool decode with zero error.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">gotcha</div>
+      <div class="decision-what">The social preview image stays a PNG, deliberately</div>
+      <div class="decision-why">LinkedIn, Slack and several other unfurlers don't reliably render WebP. A social card that fails to load is worse than a large one — and it's the single image most likely to be seen by the people the site is for. It's now the only raster file on the site that isn't WebP.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">gotcha</div>
+      <div class="decision-what">A first attempt at measuring quality reported catastrophic damage that wasn't real</div>
+      <div class="decision-why">Comparing the transparent PNGs directly showed maximum error on dozens of images — black-to-white pixel differences. The cause was comparing pixels <em>underneath</em> full transparency, which lossy WebP is free to discard because nobody can see them. Compositing both versions over white first dropped the worst real error to 34/255. <b>The measurement was broken, not the images</b> — and the broken version was the one that looked alarming enough to act on.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">assets</div>
+      <div class="decision-what">Replaced a 76MB video with a Vimeo embed</div>
+      <div class="decision-why">Too big for GitHub Pages in practice and close to the per-file ceiling. Deleting the file doesn't reclaim the weight — it's still in the commit that added it, so every clone still downloads it. That's fixable only by rewriting the branch before it merges, which is a decision with a deadline attached rather than something to do later.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">process</div>
+      <div class="decision-what">Backed the originals up outside the repo before touching anything</div>
+      <div class="decision-why">Several of the newest images were still untracked, so git was not a safety net for them — an in-place conversion would have been unrecoverable. Worth checking <em>which</em> files are actually tracked before running anything destructive across a folder, rather than assuming version control has it covered.</div>
+    </div>
+  </div>
+
+  <div class="fig-grid">
+    <div class="fig">
+      <div class="fig-tag">quality check</div>
+      <img src="assets/webp-quality-comparison.png" alt="Three side-by-side crops comparing original and WebP-compressed images at 1:1">
+      <div class="fig-cap"><b>Original vs WebP, 1:1 crops</b> — line art and chart labels (top two) survive lossy compression cleanly. The bottom pair is the failure case: the flat black area picks up grey mottling and edge ringing. That third row is why the lossless carve-out exists.</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>Where the remaining weight is.</b> Of the 47MB built site, ~13MB is video and ~7.5MB is the map and district SVGs plus fonts. The images are no longer the biggest thing.
+  </div>
+
+  <div class="hook">
+    <div class="hook-label">Shareable hook</div>
+    I cut my portfolio's build from 106MB to 47MB, and the single biggest pool of weight turned out to be a folder I'd never thought to look in — exported process-log screenshots, larger than every project image on the site combined. The lesson wasn't about compression settings. It was that "have you optimised the images?" quietly means "the images you remember having."
   </div>
 </div>
 

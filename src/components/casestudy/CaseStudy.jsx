@@ -11,7 +11,6 @@ import RankedBars from './RankedBars'
 import Media from './Media'
 import Onward from './Onward'
 import { SPACE } from '../../lib/caseStudyLayout'
-import { getProjectBySlug } from '../../lib/content'
 import { FOCUS_CLASS } from '../ButtonLink'
 import emphasise from '../../lib/emphasis'
 
@@ -55,7 +54,10 @@ export default function CaseStudy({ data }) {
   // Looked up from the real project list rather than duplicated into the
   // content file, so the next project's title, tint, thumbnail and CTA are the
   // same objects the homepage renders and can't drift from it.
-  const nextProject = data.onward?.slug ? getProjectBySlug(data.onward.slug) : null
+  // `nextProject` is gone -- the curated next-project card was replaced by the
+  // site-wide `ProjectNavigation` band (ProjectPage renders it outside <main>),
+  // so nothing here resolves `data.onward.slug` any more. The field stays in the
+  // content files; see the note in Onward.jsx.
 
   return (
     <article
@@ -302,7 +304,7 @@ export default function CaseStudy({ data }) {
       </div>
 
       {/* 8 — Onward. */}
-      <Onward heading={data.onward.heading} project={nextProject} contact={data.onward.contact} />
+      <Onward heading={data.onward.heading} contact={data.onward.contact} />
     </article>
   )
 }

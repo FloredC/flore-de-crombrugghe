@@ -772,6 +772,15 @@ export default {
       // Mapped from the `processLogs` export at the bottom of this file, so the
       // cards here and the /work/artifakt/process/:log route read ONE list.
       // Duplicating it would let a card and its page disagree about a title.
+      // THE REPO LINK CLOSES THIS SECTION, below the six log cards -- Flore
+      // 2026-08-28, node 5022:9636, which is a child of the Process section
+      // (4897:4623) at x=171, y=912: the section's left margin, 40 below the
+      // card container's bottom edge at 872.
+      //
+      // It belongs here rather than in the hero because this is the section
+      // about how the thing was built; the source is the last and most
+      // detailed of the process artefacts, after the six logs.
+      cta: { href: 'https://github.com/FloredC/Artifakt', label: 'Github repo' },
       logs: processLogs.map((log) => ({
         title: log.title,
         href: `/work/artifakt/process/${log.slug}`,
@@ -817,7 +826,7 @@ export default {
   // card is the same object the homepage renders and can't drift from it.
   onward: {
     heading: 'Next project',
-    slug: 'welcome-to-my-city',
+    slug: 'welcome-to-my-island',
   },
 
   // Sampled from the frame's own Contact Section (node 4897:4650). Note this

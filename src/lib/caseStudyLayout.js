@@ -234,6 +234,17 @@ export const MEDIA_WIDTH = {
   hero: 450,
   banner: 1164,
   feature: 560,
+  // The NDA tier's hero. Its own number, per the warning on ARTIFAKT.heroMedia
+  // below: 689 is the width Figma draws the `hero-*` frame at on all four
+  // subpages (e.g. node 4975:7708), and those exports are LANDSCAPE (~1.56)
+  // where PitchPivot's hero asset is portrait (0.80). Reusing `hero` (450)
+  // would have rendered them at 60% of the designed size rather than cropping
+  // anything, which is the quiet version of the same mistake.
+  //
+  // One constant for the tier rather than a `maxWidth` in each of the four
+  // content files: all four frames draw the same width, so it is a layout
+  // decision about the tier, not a per-page content value.
+  ndaHero: 689,
 }
 
 // --- No asset taller than the screen ----------------------------------------

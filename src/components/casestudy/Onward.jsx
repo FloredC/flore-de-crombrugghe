@@ -34,16 +34,33 @@ export default function Onward({ heading, project, contact }) {
           the codebase is the documented one on button labels (see
           ButtonLink.jsx, Flore's call). This now matches SectionHeader's own
           eyebrow treatment. */}
-      <h2 className="text-body-sm font-semibold text-text-secondary">{heading}</h2>
+      {/* THE NEXT-PROJECT CARD IS OPTIONAL, AND IS NOW ALWAYS OMITTED --
+          2026-08-27. Moving between projects became `ProjectNavigation`, a
+          prev/next band ProjectPage renders on every subpage, so a curated
+          next-project card here would be the second answer to the same
+          question in the same screen.
 
-      {/* The card is capped rather than filling the wide column: a single
-          project card stretched to 1184 stops reading as a card. `medium`
-          size is the 2-up homepage variant, which is the closest match to
-          this width. */}
+          What is left is the CONTACT half, which is not navigation and was
+          never duplicated: a prompt and one CTA to the homepage's Contact
+          section. Flore asked for the page navigation to be replaced, not for
+          the contact exit to be deleted, so it stays.
+
+          The heading goes with the card rather than surviving it -- it names
+          the card ("What's next"), and on its own above a contact prompt it
+          would be a label for nothing. Kept as a prop rather than ripped out
+          of the four content files, so restoring the card is passing `project`
+          again. */}
       {project && (
-        <div className={`w-full ${MEASURE.nextCard}`}>
-          <ProjectCard project={project} size="medium" />
-        </div>
+        <>
+          <h2 className="text-body-sm font-semibold text-text-secondary">{heading}</h2>
+          {/* The card is capped rather than filling the wide column: a single
+              project card stretched to 1184 stops reading as a card. `medium`
+              size is the 2-up homepage variant, which is the closest match to
+              this width. */}
+          <div className={`w-full ${MEASURE.nextCard}`}>
+            <ProjectCard project={project} size="medium" />
+          </div>
+        </>
       )}
 
       <div className="flex flex-col gap-space-24 border-t border-border-divider pt-space-40">

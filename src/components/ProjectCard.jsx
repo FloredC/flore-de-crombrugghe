@@ -1,18 +1,29 @@
+import { Link } from 'react-router-dom'
 import ProjectMedia from './ProjectMedia'
 import assetUrl from '../lib/assetUrl'
-import ButtonLink from './ButtonLink'
+import { LINK_COLOR_CLASS } from './ButtonLink'
 import Badge from './Badge'
-import { ExternalLinkIcon } from './icons'
 import { mediaTints, DEFAULT_MEDIA_TINT } from '../lib/mediaTints'
 
+// THE CARD HAS NO CTA BUTTON -- Flore, 2026-08-27, removed from the Figma
+// instances first (e.g. the Rega card, node 2928:73731, which now ends at the
+// description).
+//
+// The button was never the click target: the card has always been ONE anchor
+// with a stretched `::after` covering the whole article, so the reader was
+// already tapping a ~769x702 area and the pill was a LABEL on it. Removing it
+// therefore takes nothing off the tap target, which is the usual objection.
+// What it does take away is the affordance and the accessible name, so both
+// move onto the title below rather than disappearing.
+//
+// EVERY CARD NOW GOES TO A SUBPAGE. NDA projects used to be the exception --
+// their cards opened the live product in a new tab, because there was no page
+// to send anyone to. There is now (see CaseStudyNda.jsx), so the special case
+// is gone and the live-product link lives on the subpage's hero instead. That
+// is also what retired `cta` in the project frontmatter: nothing reads it any
+// more, and the subpages carry their own `liveLabel`. Left in the .mdx files
+// rather than stripped from ten of them -- flagged to Flore as now-unused.
 export default function ProjectCard({ project, size = 'medium' }) {
-  const isNda = project.status === 'nda-project'
-  // NDA cards link off-site, so they open in a new tab rather than
-  // navigating the reader away from the portfolio entirely.
-  const cardLink = isNda
-    ? { href: project.externalLink, target: '_blank', rel: 'noopener noreferrer' }
-    : { to: `/work/${project.slug}` }
-
   return (
     <article
       id={`project-${project.slug}`}
@@ -25,7 +36,23 @@ export default function ProjectCard({ project, size = 'medium' }) {
       // `group` so the media frame can lift on hover of the card as a whole
       // (see ProjectMedia); `relative` so the CTA's stretched ::after below
       // has this article as its containing block.
-      className="group relative flex w-full min-w-0 scroll-mt-space-120 flex-col gap-space-16 2xl:gap-space-24"
+      // SMALL CARDS ARE SUBGRID ITEMS, the rest are flex columns.
+      //
+      // The 3-up row declares two tracks (see WORK_GRID_3UP); a small card
+      // spans both and adopts them, so its media panel shares a track with its
+      // two neighbours and they all take the tallest one's height. That is what
+      // makes the row survive a caption wrapping to an extra line.
+      //
+      // `gap-space-16` still wins over the parent's `gap-y-space-72`: a subgrid
+      // inherits the parent's gaps but may override them, and this does.
+      // Verified in the browser -- inner gap 16, column gap 60, unchanged.
+      //
+      // The other sizes stay flex: `large` sits alone in its own wrapper and
+      // `medium` has no fixed-ratio panel to be pushed past, so neither has a
+      // row to align with.
+      className={`group relative w-full min-w-0 scroll-mt-space-120 gap-space-16 2xl:gap-space-24 ${
+        size === 'small' ? 'row-span-2 grid grid-rows-subgrid' : 'flex flex-col'
+      }`}
     >
       <ProjectMedia
         src={assetUrl(project.thumbnail)}
@@ -68,39 +95,50 @@ export default function ProjectCard({ project, size = 'medium' }) {
           {/* 8 at 402, 4 at 1622 -- the one gap that gets *wider* on mobile.
               Measured, not inferred; flagged to Flore as a possible slip. */}
           <div className="flex flex-col gap-space-8 xl:gap-space-4">
-            <h3 className="text-h2 font-semibold">{project.title}</h3>
+            {/* THE TITLE IS THE CARD'S LINK, and the card's only anchor and tab
+                stop -- the role the CTA button used to hold.
+
+                Moving it here rather than deleting it is what keeps the card
+                accessible. The anchor's text is the link's ACCESSIBLE NAME, so
+                ten cards used to announce as ten links all called "Read case
+                study" / "View Project"; they now announce by project, which is
+                a real improvement rather than a break-even.
+
+                NO UNDERLINE -- Flore, 2026-08-27, explicitly. The affordance is
+                the colour step from `LINK_COLOR_CLASS` (the site's existing
+                "menu"/action-link states, which have never carried a hover
+                underline either) plus the media frame's lift, which already
+                fires from anywhere on the card because of the stretched overlay
+                below. Underline stays reserved for the navbar's current-section
+                mark. Weight is the title's own `font-semibold`, which is why
+                this uses LINK_COLOR_CLASS and not LINK_CLASS -- the latter
+                would force bold.
+
+                Stretched link: the `::after` covers the whole card, so the card
+                is clickable as a whole while staying ONE anchor and one tab
+                stop -- no nested <a>, nothing duplicated for screen readers.
+                Known tradeoff, Flore's call 2026-08-05 and unchanged by this:
+                the overlay sits above the text, so card copy isn't selectable.
+
+                The FOCUS RING comes with LINK_COLOR_CLASS and draws around the
+                title block, not the whole card. Deliberate: it shows what is
+                focused, and the title spans the card's width anyway. */}
+            <h3 className="text-h2 font-semibold">
+              <Link
+                to={`/work/${project.slug}`}
+                className={`${LINK_COLOR_CLASS} after:absolute after:inset-0 after:content-['']`}
+              >
+                {project.title}
+              </Link>
+            </h3>
             <p className="text-body-lg font-normal">{project.description}</p>
           </div>
         </div>
-        {/* Figma puts a flex-1 spacer between the text and the button, so the
-            two 16px container gaps compose to a 32px minimum before the
-            spacer grows. mt-auto + pt reproduces that without an empty node. */}
-        <div className="mt-auto pt-space-16 xl:pt-space-12 2xl:pt-space-16">
-          {/* Sampled from Figma's real ProjectCard (Size=large): CTA is the
-              filled primary button, not a plain text link -- corrects the
-              "tertiary" variant used before, which CLAUDE.md's naming table
-              suggested but the actual component doesn't use.
-              NDA cards are the one exception: sampled directly from the real
-              Rega card (node 2928:73731), the CTA there is the outline
-              secondary button, not primary -- I'd applied primary
-              universally before, which Flore caught. */}
-          {/* Stretched link: the ::after covers the whole card, so the card is
-              clickable as a whole while staying ONE anchor and one tab stop --
-              no nested <a>, no duplicate link for screen readers to announce.
-              Because the overlay is part of this anchor, the button's own
-              hover/pressed states already fire from anywhere on the card, so
-              the card and its button respond together for free.
-              Known tradeoff, Flore's call 2026-08-05: the overlay sits above
-              the title and description, so card text is no longer selectable. */}
-          <ButtonLink
-            variant={isNda ? 'secondary' : 'primary'}
-            className="after:absolute after:inset-0 after:content-['']"
-            {...cardLink}
-          >
-            {project.cta}
-            {isNda && <ExternalLinkIcon width={16} height={16} />}
-          </ButtonLink>
-        </div>
+        {/* THE mt-auto SPACER WENT WITH THE BUTTON. It existed to bottom-anchor
+            the CTA so cards in a row shared a baseline; with nothing below the
+            description there is nothing to push down, and a spacer would only
+            add dead height. Cards in a row now end where their copy ends --
+            their TOPS still align, because the media frame is a fixed ratio. */}
       </div>
     </article>
   )

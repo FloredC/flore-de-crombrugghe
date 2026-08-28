@@ -3,7 +3,6 @@ import Frame from './Frame'
 import Media from './Media'
 import Onward from './Onward'
 import SectionHeader from './SectionHeader'
-import { getProjectBySlug } from '../../lib/content'
 import { ARTIFAKT } from '../../lib/caseStudyLayout'
 
 /**
@@ -196,7 +195,10 @@ function View({ kind = 'image', src, alt, caption, aspect, videoId, title, label
 }
 
 export default function CaseStudySnapshot({ data }) {
-  const nextProject = data.onward?.slug ? getProjectBySlug(data.onward.slug) : null
+  // `nextProject` is gone -- the curated next-project card was replaced by the
+  // site-wide `ProjectNavigation` band (ProjectPage renders it outside <main>),
+  // so nothing here resolves `data.onward.slug` any more. The field stays in the
+  // content files; see the note in Onward.jsx.
 
   return (
     <article data-component="case-study-snapshot" data-slug={data.slug}>
@@ -283,7 +285,6 @@ export default function CaseStudySnapshot({ data }) {
 
         <Onward
           heading={data.onward.heading}
-          project={nextProject}
           contact={data.onward.contact}
         />
       </div>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project snapshots — building a third content tier</title>
+<style>
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk'), local('HKGrotesk-Regular');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk SemiBold'), local('HKGrotesk-SemiBold');
+    font-weight: 600;
+  }
+
+  :root {
+    --accent: #fd6d2b;       /* the site's own accent orange (orange-70) */
+    --accent-tint: #fff1e9;
+    --ink: #1a1a1a;
+    --paper: #f5f4f0;
+    --muted: #666;
+    --line: #e0ddd8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'HK Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 48px 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .subtitle { font-size: 14px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; max-width: 720px; }
+  .date-range { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 32px; }
+
+  .toc {
+    background: #fff;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 56px;
+  }
+  .toc-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; margin-bottom: 12px; }
+  .toc ol { list-style: none; }
+  .toc li { margin-bottom: 6px; font-size: 13px; }
+  .toc a { color: var(--ink); text-decoration: none; }
+  .toc a:hover { color: var(--accent); text-decoration: underline; }
+  .toc .toc-phase { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-left: 8px; }
+
+  .section {
+    margin-bottom: 80px;
+    border-top: 2px solid var(--ink);
+    padding-top: 24px;
+    scroll-margin-top: 24px;
+  }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 4px; flex-wrap: wrap; }
+  .section-date { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #999; }
+  .section-title { font-size: 20px; font-weight: 600; }
+  .phase-tag {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    padding: 3px 10px; border-radius: 20px; background: var(--accent-tint); color: var(--accent);
+  }
+  .section-desc { font-size: 14px; line-height: 1.7; color: #444; margin: 12px 0 24px; max-width: 720px; }
+
+  .sub { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; margin: 40px 0 4px; }
+
+  .concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+  .concept-block { background: #fff; border-radius: 10px; padding: 16px; border: 1.5px solid var(--line); }
+  .concept-block h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .concept-block p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  .decision-log { margin-top: 24px; }
+  .decision {
+    display: grid; grid-template-columns: 100px 1fr 1fr; gap: 16px;
+    padding: 16px 0; border-bottom: 1px solid #e8e5e0; font-size: 13px;
+  }
+  .decision:last-child { border-bottom: none; }
+  .decision-date { color: #999; font-size: 12px; padding-top: 2px; }
+  .decision-what { line-height: 1.5; }
+  .decision-why { color: var(--muted); line-height: 1.5; }
+  .decision.key-decision { box-shadow: -3px 0 0 0 var(--accent); background: var(--accent-tint); padding-left: 12px; }
+  .decision.key-decision .decision-what { color: var(--accent); font-weight: 600; }
+
+  blockquote {
+    margin: 12px 0; padding: 10px 16px; border-left: 3px solid var(--accent);
+    color: #444; font-style: italic; background: #fff; border-radius: 0 8px 8px 0; font-size: 13px;
+  }
+  blockquote cite { display: block; font-style: normal; font-size: 12px; color: #999; margin-top: 4px; }
+
+  .note {
+    font-size: 13px; background: #fff8e1; border-left: 3px solid #f39c12; padding: 10px 14px;
+    border-radius: 0 6px 6px 0; color: #555; line-height: 1.6; margin-top: 12px;
+  }
+
+  .hook {
+    margin-top: 24px; padding: 18px 20px; background: var(--ink); color: #fff;
+    border-radius: 12px; font-size: 14px; line-height: 1.6;
+  }
+  .hook-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-tint); margin-bottom: 6px; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+  th { text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #999; padding: 8px 12px; border-bottom: 2px solid var(--line); }
+  td { padding: 10px 12px; border-bottom: 1px solid #f0ede8; vertical-align: top; line-height: 1.5; }
+  tr:last-child td { border-bottom: none; }
+
+  code.inline { background: #f0ede8; padding: 1px 6px; border-radius: 5px; font-size: 12px; font-family: 'SF Mono', Menlo, monospace; }
+</style>
+</head>
+<body>
+
+<h1>Project snapshots — building a third content tier</h1>
+<p class="subtitle">Sinomocene, Teamchatviz and the Roche Icon System: three short project pages that are deliberately not case studies. Mostly a story about how much of a design system you can only discover by building the third instance of it — and about the difference between a rule that holds and a rule that has only been tested twice.</p>
+<p class="date-range">Sessions: 26 Aug 2026</p>
+
+<div class="toc">
+  <div class="toc-title">Sessions in this doc</div>
+  <ol>
+    <li><a href="#sec-2026-08-26">Three pages, one layout, and the assumption that lasted a day</a><span class="toc-phase">Building with Claude</span></li>
+  </ol>
+</div>
+
+<div class="section" id="sec-2026-08-26">
+  <div class="section-header">
+    <span class="section-date">26 Aug 2026</span>
+    <span class="section-title">Three pages, one layout, and the assumption that lasted a day</span>
+    <span class="phase-tag">Building with Claude</span>
+  </div>
+  <p class="section-desc">The two full case studies (PitchPivot, Artifakt) were built. This session added the tier below them: three short project pages with their own register, sharing one layout component. I designed each frame in Figma first and handed them over one at a time, which turned out to matter — the three diverged in ways nobody would have predicted from the first one.</p>
+
+  <div class="sub">Where the work started</div>
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">scope</div>
+      <div class="decision-what">Designed each frame in Figma first, rather than having Claude propose layouts from the content</div>
+      <div class="decision-why">Claude laid out both options with trade-offs and leaned the other way — the content brief was prescriptive enough that a code proposal would have been faster, and it offered 2–3 treatments to pick from by eye. Designing first won anyway, and the session justified it: the three frames ended up differing on stage colour, button variant, corner radius, which sections carry titles, and whether a row holds one item or two. A code proposal would have produced three identical pages and I'd have spent the session arguing them apart.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">tier</div>
+      <div class="decision-what">Defined the tier by <em>register</em>, not by length</div>
+      <div class="decision-why">From the content brief: snapshots are "descriptive, not reflective. State what it is, what was formally difficult, what it deliberately doesn't do. No 'the turning point was' — that register belongs to the three real case studies, and reserving it is what makes the tiering legible." That constraint is now written into the top of the content files as a rule for future edits, not just a description of today's copy — if a snapshot ever grows a Turning Point section, the tier has collapsed and the case studies above it lose their meaning.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">layout</div>
+      <div class="decision-what">One component for all three pages, with nothing keyed on the project slug</div>
+      <div class="decision-why">PitchPivot and Artifakt each have their own layout file, because their Figma frames genuinely differ in composition. The snapshots are the opposite case: three structurally identical pages that differ only in content, and that sameness <em>is</em> the tier. So anything that varies has to arrive as data. Adding Sinomocene and Roche after Teamchatviz was one registry line plus one content file each.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">layout</div>
+      <div class="decision-what">Opted the tier out of the case-study system's width-alternation rule</div>
+      <div class="decision-why">The case-study pages enforce "no two consecutive blocks share a width" — the alternation is what gives a long argued page its rhythm, and it's checked at runtime in dev. A snapshot's rows are the same width three times running on purpose: it's a <em>catalogue</em>, not an argument, and varying the widths would imply one view matters more than another. Noted explicitly in the code rather than silently skipped, because "the check isn't running" and "the check doesn't apply" look identical from outside.</div>
+    </div>
+  </div>
+
+  <div class="sub">What didn't survive contact with the third page</div>
+  <p class="section-desc">This is the part worth remembering. Two designs are enough to see a pattern and not enough to know it's real.</p>
+
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">props</div>
+      <div class="decision-what">Built one "tone" switch controlling both text colour and button style — and had to split it a day later</div>
+      <div class="decision-why">Sinomocene's hero is dark, so tone=dark set white text <em>and</em> the outlined button together. The reasoning was defensive: keeping them bundled meant nobody could later pick white text with a dark button on a dark stage and ship an unreadable hero. Then Roche arrived — a <em>light</em> stage with an <em>outlined</em> button, a combination the bundled version literally could not express. The safety concern was real but was being solved in the wrong place; it now lives where it belongs, on the button itself. <b>The generalisation was drawn from two examples and broke on the third.</b></div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">chrome</div>
+      <div class="decision-what">Image framing changed three times in one session: shadow → shadow+radius on Roche → grey border everywhere</div>
+      <div class="decision-why">The last change is the interesting one, and it came from me rather than the build: the drop shadow read as an <em>interaction state</em>. Cards and buttons elsewhere on the site use elevation for hover and selected, so a permanently-raised screenshot looked either clickable or already chosen. A 1px hairline bounds the image without claiming it's interactive. Recorded in the code so nobody re-adds elevation later without meeting the reason.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">chrome</div>
+      <div class="decision-what">Kept three genuinely different treatments rather than normalising them</div>
+      <div class="decision-why">Teamchatviz's supporting image stays completely bare (it's loose transparent artwork — a box would frame nothing), Sinomocene's legend takes the border with square corners, Roche runs radius 16 where the other two run 12. Each was read off the file and each is deliberate. The temptation to unify all three into one number would have quietly overruled three design decisions.</div>
+    </div>
+  </div>
+
+  <div class="sub">What I learned about how I structure the Figma file</div>
+  <p class="section-desc">Meta-knowledge, not product decisions — the stuff that's easy to forget by the next project. Each of these cost a round-trip this session.</p>
+
+  <table>
+    <tr><th style="width:34%">What happened</th><th>Cost, and what to do next time</th></tr>
+    <tr>
+      <td><b>Hero slots held a placeholder from another project</b></td>
+      <td>All three frames had the Teamchatviz People Land screenshot sitting in the hero, including on Sinomocene and Roche. Twice this read as "the hero is designed" when the asset didn't exist yet, and both times it surfaced only after the page was built. <b>Next time:</b> leave the slot genuinely empty, or fill it with the real asset. A placeholder from a different project is indistinguishable from a decision.</td>
+    </tr>
+    <tr>
+      <td><b>Layer names weren't updated when fills were swapped</b></td>
+      <td>Every image on all three pages was still named <code class="inline">01-channel-heartbeat-teamchatviz-screenshot…</code>, including the Roche icon plates. Mapping images to captions had to be done from the rendered screenshot instead of the layer list, which is slower and easier to get wrong. <b>Next time:</b> rename on swap, or accept that the mapping has to be confirmed visually.</td>
+    </tr>
+    <tr>
+      <td><b>Duplicating a row duplicated its caption</b></td>
+      <td>Happened twice. Teamchatviz row one had Channel Land's caption under the People Land image; Roche's second row still has the same "Base forms" caption under both plates. Both were caught by reading the copy against the brief, not by looking at the page. <b>Next time:</b> when a row is duplicated, the caption is the field to check first — the image gets swapped and the text gets forgotten.</td>
+    </tr>
+    <tr>
+      <td><b>Hidden layers to omit a section — this worked well</b></td>
+      <td>Sinomocene and Roche hide the What-section title rather than deleting it, and hide row titles on the untitled rows. Unambiguous to read, and it keeps the frames structurally parallel so one layout can serve all three. Worth keeping as a habit.</td>
+    </tr>
+    <tr>
+      <td><b>Bound variables paid off; raw hex didn't</b></td>
+      <td>Almost everything resolved to a real token, which meant the code could reference the token rather than copy a colour. The two exceptions cost time: the hero greys were raw hex until they got named, and a scaled instance produced a <code class="inline">0.406px</code> border that had to be recognised as a scaling artifact rather than a design value.</td>
+    </tr>
+    <tr>
+      <td><b>Housekeeping that adds noise</b></td>
+      <td>Every snapshot frame carries two stacked NavbarDesktop instances and a stray empty 1014×162 container. Harmless — the nav is built from code — but they're the kind of thing that makes the next read of the file slower.</td>
+    </tr>
+  </table>
+
+  <div class="sub">Verifying by measuring, not by reading the code back</div>
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">verify</div>
+      <div class="decision-what">A claim written in a code comment turned out to be false, and only measuring caught it</div>
+      <div class="decision-why">The Teamchatviz hero was rendering with no frame at all, because a comment asserted the export had a drop shadow baked into the PNG and that adding a corner radius would clip it. Measured: the file is 99.7% fully opaque with 0% transparent pixels — there is no soft surround at all. The claim was true of the <em>first</em> hero export (the one with the Slack badge) and was never rechecked when it was replaced. <b>A confident comment is not evidence.</b></div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">verify</div>
+      <div class="decision-what">Browser measurement caught three things a code read would have passed</div>
+      <div class="decision-why">Sinomocene's legend was missing a drop shadow the file specified; Teamchatviz's icons were rendering at the component's default radius 24 instead of square; and a first attempt at measuring image quality reported catastrophic errors that turned out to be an artifact of comparing transparent pixels rather than what a viewer sees. All three looked correct in the source.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">verify</div>
+      <div class="decision-what">Checked the video's real dimensions instead of trusting the design's placeholder box</div>
+      <div class="decision-why">The frame draws a 1283×596 rectangle (2.15:1) labelled "Video embed". The actual video is plain 16:9, so reserving the box at the drawn ratio would have letterboxed the player inside its own rounded frame. Also surfaced that the caption described a 42-minute piece while the embed runs 5:02 — resolved by calling it an excerpt rather than changing the number, since the 42 minutes is a true fact about the work.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">assets</div>
+      <div class="decision-what">Verified duplicate images by checksum rather than by filename or file size</div>
+      <div class="decision-why">Both the Sinomocene and Roche heroes are byte-identical copies of images already used further down their own pages — confirmed by SHA-256, which is the only check that distinguishes "same picture" from "similar picture, coincidentally similar size". Still open as a design question rather than a bug: each page currently shows the same image twice.</div>
+    </div>
+  </div>
+
+  <div class="sub">Smaller decisions worth keeping</div>
+  <div class="decision-log">
+    <div class="decision">
+      <div class="decision-date">copy</div>
+      <div class="decision-what">Inline bold represented as <code class="inline">**markers**</code> in the content strings</div>
+      <div class="decision-why">The bold runs are mid-sentence, not whole paragraphs, so a per-paragraph flag couldn't express them. The tidier alternative — an array of <code class="inline">{text, bold}</code> segments — shatters a sentence into a dozen fragments, which makes proofreading the copy against Figma genuinely hard and lets a typo hide at a segment boundary. Markers keep each paragraph one legible string, and render as real <code class="inline">&lt;strong&gt;</code> so screen readers get the emphasis too.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">privacy</div>
+      <div class="decision-what">Vimeo embed carries the Do Not Track parameter</div>
+      <div class="decision-why">The site has no cookie banner, so an embed that quietly starts setting tracking cookies would be a consent problem the page has no way to answer. <code class="inline">dnt=1</code> keeps it a plain video player.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">process</div>
+      <div class="decision-what">Merged the main branch into the working branch before building</div>
+      <div class="decision-why">The branch was ten commits behind, including a whole responsiveness pass that changed the hero spacing and added the layout constants the new pages sit inside. Building first would have meant building against a stale system and redoing it. Worth checking at the <em>start</em> of a session, not when something looks wrong.</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>No visuals in this entry.</b> Screenshots were taken throughout the session but rendered in chat rather than saved to disk. The three pages are live at <code class="inline">/work/teamchatviz</code>, <code class="inline">/work/sinomocene</code> and <code class="inline">/work/roche</code> — before/after pairs worth capturing are the shadow-versus-border framing and the three different hero stages side by side. Drop them into <code class="inline">assets/</code> and they can be wired in.
+  </div>
+
+  <div class="note" style="background:#fbe9e7;border-left-color:#c0392b">
+    <b>Still open, carried forward.</b> Both the Sinomocene and Roche heroes reuse an image from their own page. Roche's <code class="inline">P163_07…</code> scan is delivered but placed nowhere, while another scan fills two slots. Roche's second row still carries the same caption twice.
+  </div>
+
+  <div class="hook">
+    <div class="hook-label">Shareable hook</div>
+    I built a design system rule from two examples and it broke on the third — within a day. Two of my project pages had a dark background with an outlined button, so I bundled "dark" and "outlined" into a single setting, reasoning they always travel together. Then the third page turned up light-with-outlined: a combination my own abstraction couldn't express. The instinct to prevent a bad combination was right. Encoding it as "these two things are the same decision" was not.
+  </div>
+</div>
+
+</body>
+</html>

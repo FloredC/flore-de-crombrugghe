@@ -6,15 +6,14 @@ import Container from '../components/Container'
 import CaseStudy from '../components/casestudy/CaseStudy'
 import CaseStudyArtifakt from '../components/casestudy/CaseStudyArtifakt'
 import CaseStudySnapshot from '../components/casestudy/CaseStudySnapshot'
-import { getProjectBySlug, getCaseStudyBySlug } from '../lib/content'
+import CaseStudyNda from '../components/casestudy/CaseStudyNda'
+import CaseStudyWip from '../components/casestudy/CaseStudyWip'
+import ProjectNavigation from '../components/ProjectNavigation'
+import { getProjectBySlug, getCaseStudyBySlug, getAdjacentProjects } from '../lib/content'
 
 export default function ProjectPage() {
   const { slug } = useParams()
   const project = getProjectBySlug(slug)
-
-  if (!project || project.status === 'nda-project') {
-    return <Navigate to="/" replace />
-  }
 
   // A project with a case-study module renders a built page; the rest keep
   // the original stub until they're built. Deliberately a per-page opt-in
@@ -22,6 +21,22 @@ export default function ProjectPage() {
   // (CASE-STUDY-SYSTEM.md), so the remaining four shouldn't be migrated onto
   // it sight unseen.
   const caseStudy = getCaseStudyBySlug(slug)
+
+  // NDA PROJECTS NOW HAVE PAGES, added 2026-08-27.
+  //
+  // This route used to redirect every `nda-project` straight to `/`, because
+  // those four had no page to show — their cards linked off-site to the live
+  // product instead. Figma's `NDA` section (node 4980:7811) gave all four a
+  // real subpage, so the blanket redirect is gone.
+  //
+  // The guard it leaves behind is narrower and still worth having: an NDA
+  // project with NO case-study module has nothing to render but the stub
+  // <article> below, which would be a near-empty page carrying a real project's
+  // name. Sending it home is the better failure. Every NDA project has a module
+  // today, so this is a floor, not a live branch.
+  if (!project || (project.status === 'nda-project' && !caseStudy)) {
+    return <Navigate to="/" replace />
+  }
 
   // WHY A REGISTRY AND NOT ONE COMPONENT, added 2026-08-21 with Artifakt.
   //
@@ -53,6 +68,15 @@ export default function ProjectPage() {
     teamchatviz: CaseStudySnapshot,
     sinomocene: CaseStudySnapshot,
     roche: CaseStudySnapshot,
+    // The NDA tier — four slugs, one layout, same reasoning as the snapshots
+    // above. See CaseStudyNda.jsx.
+    rega: CaseStudyNda,
+    myride: CaseStudyNda,
+    'trail-app': CaseStudyNda,
+    sbb: CaseStudyNda,
+    // Hero plus one paragraph, while the real content is written. See
+    // CaseStudyWip.jsx for why this is its own layout and not a reuse.
+    'welcome-to-my-island': CaseStudyWip,
   }
   // Falls back to the PitchPivot composition, which is the reference
   // implementation -- a new content module with no registry entry renders
@@ -100,6 +124,21 @@ export default function ProjectPage() {
           </Container>
         </article>
       )}
+      {/* PREV/NEXT LIVES HERE, NOT INSIDE A LAYOUT -- added 2026-08-27, and
+          moved out of CaseStudyNda when it went onto every subpage.
+
+          OUTSIDE <main>, deliberately. The band is a full-bleed rule-topped
+          strip that belongs against the footer; rendered inside <main> it sat
+          above that element's `pb-space-140 2xl:pb-space-200`, which put a
+          screen of empty white between the band and the footer.
+
+          ONE WIRING POINT rather than a call in each of the four layouts: this
+          is navigation between pages, not part of any page's composition, and
+          every subpage gets exactly the same treatment — including the stub
+          <article> branch above, which as of 2026-08-27 nothing reaches: every
+          one of the ten projects now has a case-study module. The branch stays
+          as the floor for the next project added before its page exists. */}
+      <ProjectNavigation {...getAdjacentProjects(slug)} />
       <Footer />
     </>
   )
