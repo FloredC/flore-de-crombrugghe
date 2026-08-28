@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figma → code sync</title>
+<style>
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk'), local('HKGrotesk-Regular');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk SemiBold'), local('HKGrotesk-SemiBold');
+    font-weight: 600;
+  }
+
+  :root {
+    --accent: #fd6d2b;
+    --accent-tint: #fff1e9;
+    --ink: #1a1a1a;
+    --paper: #f5f4f0;
+    --muted: #666;
+    --line: #e0ddd8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'HK Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 48px 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .subtitle { font-size: 14px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; max-width: 720px; }
+  .date-range { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 32px; }
+
+  .toc { background: #fff; border: 1.5px solid var(--line); border-radius: 12px; padding: 20px 24px; margin-bottom: 56px; }
+  .toc-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; margin-bottom: 12px; }
+  .toc ol { list-style: none; }
+  .toc li { margin-bottom: 6px; font-size: 13px; }
+  .toc a { color: var(--ink); text-decoration: none; }
+  .toc a:hover { color: var(--accent); text-decoration: underline; }
+  .toc .toc-phase { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-left: 8px; }
+
+  .section { margin-bottom: 80px; border-top: 2px solid var(--ink); padding-top: 24px; scroll-margin-top: 24px; }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 4px; flex-wrap: wrap; }
+  .section-date { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #999; }
+  .section-title { font-size: 20px; font-weight: 600; }
+  .phase-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 3px 10px; border-radius: 20px; background: var(--accent-tint); color: var(--accent); }
+  .section-desc { font-size: 14px; line-height: 1.7; color: #444; margin: 12px 0 24px; max-width: 720px; }
+
+  h3.sub { font-size: 14px; font-weight: 600; margin: 32px 0 4px; }
+
+  .status { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 3px 10px; border-radius: 20px; margin-left: 12px; }
+  .status.working { background: #e8f5e9; color: #27ae60; }
+  .status.needs-work { background: #fff8e1; color: #f39c12; }
+  .status.abandoned { background: #fbe9e7; color: #c0392b; }
+
+  .concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+  .concept-block { background: #fff; border-radius: 10px; padding: 16px; border: 1.5px solid var(--line); }
+  .concept-block h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .concept-block p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  .decision-log { margin-top: 24px; }
+  .decision { display: grid; grid-template-columns: 130px 1fr 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid #e8e5e0; font-size: 13px; }
+  .decision:last-child { border-bottom: none; }
+  .decision-date { color: #999; font-size: 12px; padding-top: 2px; }
+  .decision-what { line-height: 1.5; }
+  .decision-why { color: var(--muted); line-height: 1.5; }
+  .decision.key-decision { box-shadow: -3px 0 0 0 var(--accent); background: var(--accent-tint); padding-left: 12px; }
+  .decision.key-decision .decision-what { color: var(--accent); font-weight: 600; }
+
+  blockquote { margin: 12px 0; padding: 10px 16px; border-left: 3px solid var(--accent); color: #444; font-style: italic; background: #fff; border-radius: 0 8px 8px 0; font-size: 13px; }
+  blockquote cite { display: block; font-style: normal; font-size: 12px; color: #999; margin-top: 4px; }
+
+  .note { font-size: 13px; background: #fff8e1; border-left: 3px solid #f39c12; padding: 10px 14px; border-radius: 0 6px 6px 0; color: #555; line-height: 1.6; margin-top: 12px; }
+
+  .hook { margin-top: 24px; padding: 18px 20px; background: var(--ink); color: #fff; border-radius: 12px; font-size: 14px; line-height: 1.6; }
+  .hook-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-tint); margin-bottom: 6px; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+  th { text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #999; padding: 8px 12px; border-bottom: 2px solid var(--line); }
+  td { padding: 10px 12px; border-bottom: 1px solid #f0ede8; vertical-align: top; line-height: 1.5; }
+  tr:last-child td { border-bottom: none; }
+
+  code.inline { background: #f0ede8; padding: 1px 6px; border-radius: 5px; font-size: 12px; font-family: 'SF Mono', Menlo, monospace; }
+</style>
+</head>
+<body>
+
+<h1>Figma → code sync</h1>
+<p class="subtitle">Two days of building the portfolio straight out of the Figma file: four NDA subpages, a prev/next component that went through five shapes, and a long refinement loop on cards and illustrations. Mostly a log of what made that loop fast or slow — the product decisions are here, but the reusable material is about how the design file has to be structured for someone else to build from it.</p>
+<p class="date-range">Sessions: 27 Aug – 28 Aug 2026</p>
+
+<div class="toc">
+  <div class="toc-title">Sessions in this doc</div>
+  <ol>
+    <li><a href="#sec-2026-08-27">New pages: the NDA tier, the island page, and killing the card buttons</a><span class="toc-phase">Building with Claude</span></li>
+    <li><a href="#sec-2026-08-28">The refinement loop: pagination, card media, illustrations</a><span class="toc-phase">Building with Claude</span></li>
+  </ol>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-2026-08-27">
+  <div class="section-header">
+    <span class="section-date">27 Aug 2026</span>
+    <span class="section-title">New pages: the NDA tier, the island page, and killing the card buttons</span>
+    <span class="phase-tag">Building with Claude</span>
+  </div>
+  <p class="section-desc">Started by asking for a read on the Figma NDA section before building anything — which turned out to be the right order, because the review found four content bugs and a structural blocker that would each have cost a round-trip if they'd been discovered mid-build. Then built the pages, and in the process removed every CTA button from the homepage cards.</p>
+
+  <h3 class="sub">Reviewing before building paid for itself</h3>
+  <p class="section-desc">The four NDA frames had been duplicated from PitchPivot, and the duplication left fingerprints: every body text layer was still <em>named</em> "PitchPivot helps designers translate design thinki…". That's cosmetic, but it's the tell that explained the real errors riding along with it.</p>
+
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">Pre-build review</div>
+      <div class="decision-what">Read the whole Figma section and report problems <em>before</em> writing any code</div>
+      <div class="decision-why">Found: SAC's eyebrow was myRIDE's copy; myRIDE and SAC both credited "Ubique for SBB"; SBB's image layer was named <code class="inline">trail-app-thumbnail.png</code>; duplicate NavbarDesktop instances on all four frames; an orphan empty container 3,000px below each frame's bottom. Two of these were real, publishable content errors on a client's project.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Correction</div>
+      <div class="decision-what">Fixed SAC's credit line in code against the frame — <code class="inline">2022 … Ubique for SAC</code>, not <code class="inline">2024 … Ubique for SBB</code></div>
+      <div class="decision-why">The frame contradicted itself: its own Scale line said 2022, and the client is the Swiss Alpine Club. Shipping a wrong client attribution on a real client's project isn't a divergence worth deferring. Flagged rather than silently applied.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Blocker</div>
+      <div class="decision-what">The route actively refused to render NDA projects</div>
+      <div class="decision-why"><code class="inline">ProjectPage</code> redirected every <code class="inline">nda-project</code> to <code class="inline">/</code>, because before this they had no page to go to. Replaced with a narrower guard: redirect only if an NDA project has no case-study module.</div>
+    </div>
+  </div>
+
+  <h3 class="sub">The card CTA question <span class="status working">shipped</span></h3>
+  <p class="section-desc">Flore wanted to delete the CTA buttons from the project cards and rely on the cards themselves, and asked whether the usual objection ("you always need a button, especially on mobile") held.</p>
+  <p class="section-desc">It didn't, and the reason was measurable: every card was <em>already</em> a single anchor with a stretched <code class="inline">::after</code> covering the whole article. The tap target was the entire 769×702 card and always had been — the pill was a label on a target, not the target. Removing it changed the hit area by nothing.</p>
+
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">27 Aug</div>
+      <div class="decision-what">Move the link onto the card title instead of deleting the anchor</div>
+      <div class="decision-why">The anchor's text is its accessible name. Ten cards used to announce as ten links all called "Read case study" / "View Project"; they now announce by project. Removing the button was a net <em>accessibility gain</em>, not a break-even — but only because the anchor moved rather than disappearing.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">27 Aug</div>
+      <div class="decision-what">No underline on the title link</div>
+      <div class="decision-why">Flore, explicitly. The affordance is the site's existing action-link colour step plus the media frame's hover lift — both already built, neither needing an underline. Underline stays reserved for the navbar's current-section mark.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">27 Aug</div>
+      <div class="decision-what">Split <code class="inline">LINK_COLOR_CLASS</code> out of <code class="inline">LINK_CLASS</code></div>
+      <div class="decision-why"><code class="inline">LINK_CLASS</code> carries <code class="inline">font-bold</code>; applying it whole would have silently restyled every card title. Same states, one definition, no drift.</div>
+    </div>
+  </div>
+
+  <h3 class="sub">"Island", not "city"</h3>
+  <p class="section-desc">Building the Welcome to my city page surfaced a naming split: the Figma frame, the page title and the asset folder all said <strong>island</strong>, while the slug, the route, the homepage card and the whole map concept said <strong>city</strong>. Flagged rather than reconciled, because it's a naming decision. Flore chose island.</p>
+  <div class="note">
+    The rename went past the project: the homepage greeting bubble and the <code class="inline">og:image:alt</code> both carried the old metaphor. The tell that it was a concept rename rather than a page rename was in Flore's own hero screenshot — the asset already read "Hi, thanks for visiting my island" while the live site still said city. The old URL redirects rather than 404s, since it had been live and shareable.
+  </div>
+
+  <h3 class="sub">Two things worth remembering about the assets</h3>
+  <div class="concept-grid">
+    <div class="concept-block">
+      <h4>Baked-in chrome</h4>
+      <p>The NDA hero exports had the NDA stamp burned into the artwork, where everywhere else on the site it's a live <code class="inline">Badge</code> component. That means it can't be reused, it scales down with the image on a phone, and it's a picture of a component that can drift from the component.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Format drift</h4>
+      <p>Delivered as PNG (up to 597KB) where every other asset on the site is WebP. Converted on the way in — 1.3MB down to 315KB. Also renamed <code class="inline">hero-sac</code> → <code class="inline">hero-trail-app</code>, since SAC is the client and <code class="inline">trail-app</code> is the slug.</p>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>Figures to add later (text-only for now):</b> the four NDA frames side by side; the Work grid before/after the CTA buttons came off; the SBB hero showing the NDA stamp floating detached from the artwork.
+  </div>
+
+  <div class="hook">
+    <div class="hook-label">Shareable hook</div>
+    I deleted every call-to-action button from my portfolio's project cards. The usual objection is that you need a button so people know it's clickable — but the cards were already a single link covering the whole 769×702 area, so the button was a label on a target, not the target. Removing it actually made the site <em>more</em> accessible: ten links that all announced as "Read case study" now announce by project name.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-2026-08-28">
+  <div class="section-header">
+    <span class="section-date">28 Aug 2026</span>
+    <span class="section-title">The refinement loop: pagination, card media, illustrations</span>
+    <span class="phase-tag">Building with Claude</span>
+  </div>
+  <p class="section-desc">A long back-and-forth: Flore edits a component in Figma, I adapt, she looks at it on her laptop and phone, repeat. Productive, but this is the session where the cost of <em>how</em> the Figma file is structured showed up most clearly — three of the four slowest moments were file-structure problems, not code problems.</p>
+
+  <h3 class="sub">The pagination component: five shapes in two days</h3>
+  <table>
+    <tr><th>Version</th><th>Shape</th><th>What changed and why</th></tr>
+    <tr><td>v1</td><td>Thumbnail beside title, label above</td><td>First build. Title at 24 SemiBold.</td></tr>
+    <tr><td>v2</td><td>Thumbnail below title</td><td>Title dropped to 18 Bold; thumbnail became the dominant element.</td></tr>
+    <tr><td>v3</td><td>Mobile stops stacking</td><td>Mobile became the same row as desktop — this <em>simplified</em> the component: the <code class="inline">flex-col md:flex-row</code> split and the divider both went.</td></tr>
+    <tr><td>v4</td><td>Equal halves, weights change</td><td>Mobile split into two <code class="inline">flex-1</code> halves 40 apart. Label went Bold on mobile / SemiBold on desktop.</td></tr>
+    <tr><td>v5</td><td>Fillers for alignment</td><td>The alignment fix — see below. This is the one that took two attempts.</td></tr>
+  </table>
+
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">28 Aug</div>
+      <div class="decision-what">Read "filler" as intent, not as a component to reproduce</div>
+      <div class="decision-why">Flore added a <code class="inline">filler</code> node in Figma so the two sides would align regardless of title length. I built it literally: an explicit spacer element <em>and</em> a 200px floor on the mobile row, because the frame drew both. On her phone that left ~63px of dead air in the middle of the band.</div>
+    </div>
+  </div>
+
+  <blockquote>
+    "I added fillers to be sure that everything would be aligned but you took it too literal… Don't add unnecessary space."
+    <cite>— Flore, after seeing v5 on her phone</cite>
+  </blockquote>
+
+  <p class="section-desc">The correct read was structural and had no spacer in it: give each column exactly two children — a text group and the thumbnail — and let <code class="inline">justify-between</code> pin one to the top and the other to the bottom. The row stretches both columns to the taller one's height, so the shorter column simply gets more space in the middle. Nothing is added; the leftover is absorbed where there's nothing to misalign.</p>
+
+  <div class="note">
+    <b>The general lesson:</b> a <code class="inline">filler</code>, a <code class="inline">spacer</code>, a fixed row height — these are how a designer <em>expresses</em> "these should line up" inside Figma's box model. They're a description of the goal, not a spec for the DOM. The mobile row's 200px and the desktop row's 255.666 were both sized around multi-line <em>test strings</em> in the frame (<code class="inline">jfd;ljfkdjfal;djafkldj…</code>), so reproducing them faithfully imported placeholder text as a layout constant.
+  </div>
+
+  <h3 class="sub">Where the Figma file cost the most time</h3>
+
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">Slowest moment</div>
+      <div class="decision-what">A button instance living in a page frame I wasn't reading</div>
+      <div class="decision-why">The GitHub button (<code class="inline">5022:9636</code>) is a child of <code class="inline">4897:4623</code> — a section in a <em>different</em> Artifakt page frame from the one I'd inspected. I searched that frame's hero and all eleven sections; it genuinely wasn't there. <code class="inline">get_metadata</code> on a node returns <code class="inline">x=171, y=912</code> but never names the parent, and 171 is the left margin on every section, so I inferred the hero. Cost: two wrong placements.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Fix</div>
+      <div class="decision-what">Send the <em>containing</em> node id, not the component's</div>
+      <div class="decision-why">One call and it's unambiguous. A component id says what a thing looks like; only the parent says where it goes. Worth doing by default when a new element is being placed rather than restyled.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Also costly</div>
+      <div class="decision-what">Chrome baked into illustration assets</div>
+      <div class="decision-why">The four principles SVGs contained the rounded border as a <code class="inline">#D2D2D2</code> path <em>inside</em> the artwork. So the frame couldn't be resized — scaling a 278×262 asset into a 278×200 box would have shrunk its own border and left a 212-wide rounded rectangle floating inside a 278-wide card. Had to strip the border path from all four files and move the frame into CSS.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Repeat offender</div>
+      <div class="decision-what">Copy-paste drift between duplicated frames</div>
+      <div class="decision-why">Same root cause as the NDA frames the day before. Layer names are the cheapest tell: if a frame's text layers are still named after the frame they were duplicated from, assume the copy needs checking too.</div>
+    </div>
+  </div>
+
+  <h3 class="sub">The small cards: a constraint that wasn't a CSS problem</h3>
+  <p class="section-desc">Flore wanted the three Feature-case cards "more rectangular than square" and aligned as a row. The alignment was solvable; the shape wasn't, at first, and the reason was in the assets:</p>
+
+  <table>
+    <tr><th>Card size</th><th>Asset</th><th>Ratio</th></tr>
+    <tr><td>large (Artifakt)</td><td>1760×910</td><td>1.93</td></tr>
+    <tr><td>medium (6 cards)</td><td>1062×631</td><td>1.68</td></tr>
+    <tr><td>small (3 cards)</td><td>1280×1112</td><td><strong>1.15</strong></td></tr>
+  </table>
+
+  <p class="section-desc">Because the artwork sits <em>contained</em> on the tint rather than cropped to the panel, its own height set the panel's floor. A landscape panel could only be bought by shrinking the artwork — which Flore had already rejected on the 25th as "very small and hard to see". The two goals were genuinely incompatible at that asset ratio.</p>
+
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">28 Aug</div>
+      <div class="decision-what">Stop hardcoding the crop; derive the artwork box from the panel</div>
+      <div class="decision-why"><code class="inline">IMAGE_ASPECT.small</code> was a fixed <code class="inline">3/2</code> that every other number had to be arranged around — and it silently overrode whatever ratio Flore exported. Making the artwork <code class="inline">flex-1</code> means it takes whatever height is left after the caption and padding, so changing the caption or the padding moves the artwork automatically.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">28 Aug</div>
+      <div class="decision-what">Keep <code class="inline">3/2</code> as a <em>floor</em>, not a size</div>
+      <div class="decision-why">On a flex item, <code class="inline">min-height: auto</code> resolves to the intrinsic size, and an <code class="inline">aspect-ratio</code> is what supplies that. So a long caption grows the <em>panel</em> instead of quietly eating the image. (This also means <code class="inline">min-h-0</code> — the usual companion to <code class="inline">flex-1</code> — must <em>not</em> be set, or the floor collapses.)</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">28 Aug</div>
+      <div class="decision-what">Subgrid for the 3-up row</div>
+      <div class="decision-why">"The height of the small cards group should adapt to the longest text." Reserving two caption lines only covers the current content. Subgrid makes it dynamic: forcing a third line onto one caption takes all three panels 255 → 275 <em>together</em>, verified in the browser.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">28 Aug</div>
+      <div class="decision-what"><code class="inline">object-top</code> instead of centre</div>
+      <div class="decision-why">The crop amount is arithmetic and can't be argued with — a 1.2 source in a 1.48 box loses 18.8% of its height. But the default centre position was splitting that loss between top and bottom, taking ~22px off each end. The top is where these images carry what identifies them. Same crop, better crop, costs nothing.</div>
+    </div>
+  </div>
+
+  <h3 class="sub">Technical traps worth not re-learning</h3>
+  <table>
+    <tr><th>Trap</th><th>Symptom</th><th>Fix</th></tr>
+    <tr>
+      <td><code class="inline">getBBox()</code> on an <code class="inline">&lt;svg&gt;</code> root</td>
+      <td>Returned inks ~1.6× too large once a viewBox was set. I built the principles' shared canvas around those numbers and the drawings came out small and floating.</td>
+      <td>Measure the <code class="inline">&lt;path&gt;</code>, not the root. The corrected union then landed on exactly (100, 65) — the centre of a 200×130 box, which is what Flore's component already used.</td>
+    </tr>
+    <tr>
+      <td>Tailwind class interpolation</td>
+      <td><code class="inline">group-hover:${SHADOW}</code> compiles to <em>nothing</em>. The hover shadow would have silently never painted.</td>
+      <td>Tailwind scans source text for complete literals and never evaluates the file. Every variant written out in full, with a comment saying why the repetition stays.</td>
+    </tr>
+    <tr>
+      <td><code class="inline">box-sizing: border-box</code></td>
+      <td><code class="inline">min-h-[200px]</code> on a padded row produced a 137px row.</td>
+      <td>min-height includes the padding. Write the total (264 = 200 + 32 + 32).</td>
+    </tr>
+    <tr>
+      <td><code class="inline">object-fit</code> default</td>
+      <td>The ValueCard images had a declared aspect ratio and no <code class="inline">object-fit</code> — so they'd been silently <em>stretching</em>, because the browser default is <code class="inline">fill</code>, not contain.</td>
+      <td>Always state it when a box's ratio can differ from the file's.</td>
+    </tr>
+    <tr>
+      <td>Mobile sharing the largest regime</td>
+      <td>Buttons were 58px tall on a 402px phone — the same as on a 1622 monitor, because base and <code class="inline">2xl</code> both used <code class="inline">px-6 py-4</code> and only the laptop band was compressed.</td>
+      <td>Gave mobile its own step (50px). A three-regime scale where mobile inherits the widest is a bug waiting to be noticed on a phone.</td>
+    </tr>
+    <tr>
+      <td>Radius not responsive</td>
+      <td>The featured card's <code class="inline">radius-32</code> was flat at every width. Below <code class="inline">xl</code> every grid collapses to one column, so all ten cards are the same width and only one had bigger corners.</td>
+      <td><code class="inline">rounded-radius-20 xl:rounded-radius-32</code>. Found by Flore on her phone, not on the laptop.</td>
+    </tr>
+  </table>
+
+  <h3 class="sub">Testing on a real phone</h3>
+  <p class="section-desc">Three of the day's bugs — the oversized buttons, the card radius, and the crop reading as too aggressive — were all found by Flore looking at the site on her actual phone, not in a browser at 390px. Getting that working took a detour worth recording:</p>
+  <div class="note">
+    <b>Two recurring localhost traps.</b> (1) Vite silently moves to the next free port when 5173 is taken, so the remembered URL points at nothing while the server is alive one port over — the URL is whatever Vite prints, not what you remember. (2) The dev server binds to loopback only; a phone can't reach it without <code class="inline">npm run dev -- --host</code>, and you can't add that flag to a server that's already running. One terminal tab = one server; typing a new command into a busy tab feeds it to the running process, not to bash. That last one cost three exchanges.
+  </div>
+
+  <div class="note">
+    <b>Figures to add later (text-only for now):</b> the pagination band before/after the fillers (the dead-air version vs. the hugging version); the 3-up small card row before and after the ratio change; the principles row before/after the frame moved into CSS; the mobile button size comparison.
+  </div>
+
+  <h3 class="sub">What I'd do differently next time</h3>
+  <div class="concept-grid">
+    <div class="concept-block">
+      <h4>Send the parent, not the part</h4>
+      <p>When a <em>new</em> element is being placed rather than an existing one restyled, the containing frame's node id answers the only question that matters. A component id alone can't.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Keep test strings out of sampled frames</h4>
+      <p>Placeholder text sized two row heights that then got imported as layout constants. If a frame is going to be built from, its content should be the real content or obviously-marked stand-ins.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Export artwork without its frame</h4>
+      <p>Borders, stamps and rounded corners belong in CSS, where they can be resized and restyled. Baked into the asset they freeze the layout around them.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Say the goal, not the mechanism</h4>
+      <p>"These should stay aligned however long the text is" would have got the right answer first time. "I added fillers" got a literal filler.</p>
+    </div>
+  </div>
+
+  <div class="hook">
+    <div class="hook-label">Shareable hook</div>
+    Spent a day building my portfolio from my own Figma file and learned more about how I <em>structure</em> that file than about the design. The slowest moment wasn't a hard layout problem — it was a button that lived in a different page frame than the one I was reading, so its coordinates looked plausible somewhere it didn't belong. The fix is one habit: when you're placing something new, send the containing frame, not the component. A component id tells you what a thing looks like; only the parent tells you where it goes.
+  </div>
+</div>
+
+</body>
+</html>
