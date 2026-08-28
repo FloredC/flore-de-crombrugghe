@@ -202,6 +202,7 @@ export default function Frame({
                 )
               )}
             </div>
+
           </div>
 
           {/* The button now FLOATS over the media's bottom edge, as Figma draws

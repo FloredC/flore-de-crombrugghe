@@ -1,7 +1,7 @@
 import Container from '../Container'
 import ButtonLink from '../ButtonLink'
 import ContactEmailButton from '../ContactEmailButton'
-import { ArrowRightIcon } from '../icons'
+import { ArrowRightIcon, ExternalLinkIcon } from '../icons'
 import Frame from './Frame'
 import SectionHeader from './SectionHeader'
 import Prose from './Prose'
@@ -180,7 +180,7 @@ const SCREENCAST_MAX_WIDTH = 'min(400px, calc(80svh * 1206 / 2622))'
 const SPLIT_ROW = 'grid grid-cols-1 items-center gap-space-40 lg:grid-cols-2'
 
 function Section({ section }) {
-  const { title, note, prose, link, media, extraMedia, pipeline, logs } = section
+  const { title, note, prose, link, media, extraMedia, pipeline, logs, cta } = section
   const split = media?.layout === 'split'
 
   // WHERE THE TITLE SITS, derived rather than declared per section.
@@ -299,6 +299,27 @@ function Section({ section }) {
         {pipeline && <PipelineDiagram {...pipeline} />}
 
         {logs && <ProcessLogCards logs={logs} />}
+
+        {/* A section-closing CTA. Only the Process section uses one today (the
+            repo link) -- see the note in the content file for why it sits here
+            and not in the hero.
+
+            Secondary and full-size, from node 5022:9636, and left-aligned on
+            the section's own margin like everything else in the column.
+            `self-start` because Container is a flex column: without it the
+            button stretches to the full content width. */}
+        {cta && (
+          <ButtonLink
+            variant="secondary"
+            className="self-start"
+            href={cta.href}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {cta.label}
+            <ExternalLinkIcon width={20} height={20} />
+          </ButtonLink>
+        )}
       </Container>
     </section>
   )

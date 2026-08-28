@@ -318,8 +318,20 @@ const STACK_ALIGN = {
   small: 'items-end',
 }
 
+// RADIUS IS RESPONSIVE ON `large` ONLY -- Flore, 2026-08-28: "There seems to be
+// a bug in the rounded corners of the artifakt media card on mobile (rounded
+// corners are too big compared to the others)."
+//
+// It was a flat 32 at every width. That is right at `xl`, where the featured
+// card really is the biggest thing on the page (977 wide against the 2-up's 562
+// and the 3-up's 355) and a larger radius reads as proportional. Below `xl` the
+// grids all collapse to one column, so every card is the SAME width -- and the
+// only card with a 32 radius then looks like a mistake rather than a hierarchy.
+//
+// `xl` is the breakpoint because that is where the featured card stops sharing
+// its width with everything else (see WORK_FEATURED_CARD in lib/layout.js).
 const FRAME_RADIUS = {
-  large: 'rounded-radius-32',
+  large: 'rounded-radius-20 xl:rounded-radius-32',
   medium: 'rounded-radius-20',
   small: 'rounded-radius-20',
 }
