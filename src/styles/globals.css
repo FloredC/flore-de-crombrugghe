@@ -134,6 +134,43 @@ article[id] {
   scroll-margin-top: 120px;
 }
 
+/* ---------------------------------------------------------------------------
+   Chapter anchors — where a chapter LANDS when you jump to it
+   ---------------------------------------------------------------------------
+   The base rule above clears the fixed global nav and nothing more, so a
+   heading lands just under the pill with the rest of the screen empty beneath
+   it. A chapter jump wants the heading in the upper QUARTER of the reading
+   area instead, with editorial whitespace above it -- so this is a viewport
+   fraction, not a nav-height constant.
+
+   `svh`, matching every other viewport-height measure on the site (see
+   PanZoomContainer and the Artifakt screencast cap): `vh` tracks the LARGEST
+   mobile viewport and shifts as the browser chrome collapses, which would move
+   the landing position mid-scroll.
+
+   The clamp ends are both floors, not taste: 120px is the base rule's own nav
+   clearance, so a short viewport can never land a heading under the pill; 240px
+   stops a very tall window from pushing the heading into the middle of the
+   screen.
+
+   READ, NOT DUPLICATED, BY THE SCROLLSPY. `useChapterProgress` reads this back
+   off the element with `getComputedStyle().scrollMarginTop` -- already resolved
+   to px -- and puts its threshold line slightly below it. That is what keeps
+   "where a chapter lands" and "which chapter counts as current" from drifting
+   apart into two numbers that disagree.
+--------------------------------------------------------------------------- */
+/* The element-qualified selectors are not decoration. `section[id]` above is
+   (0,1,1) and a bare `[data-chapter-anchor]` is (0,1,0), so the attribute
+   selector alone LOSES to the base rule on every element that has both -- which
+   is all five of them. Measured, not assumed: chapters landed at the base 120px
+   until these were added. Matching the qualifier and coming later in the file is
+   what makes this win. */
+[data-chapter-anchor],
+section[data-chapter-anchor],
+article[data-chapter-anchor] {
+  scroll-margin-top: clamp(120px, 22svh, 240px);
+}
+
 body {
   margin: 0;
   font-family: 'HK Grotesk', sans-serif;

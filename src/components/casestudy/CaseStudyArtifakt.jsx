@@ -10,7 +10,9 @@ import MediaStage from './MediaStage'
 import AvatarNote from './AvatarNote'
 import ProcessLogCards from './ProcessLogCards'
 import PipelineDiagram from './PipelineDiagram'
+import CaseStudyChapters from './CaseStudyChapters'
 import { ARTIFAKT, SPACE } from '../../lib/caseStudyLayout'
+import { ARTIFAKT_CHAPTERS, CASE_STUDY_OUTRO } from '../../lib/chapters'
 import { contactSection } from '../../lib/content'
 
 /**
@@ -179,7 +181,14 @@ const SCREENCAST_MAX_WIDTH = 'min(400px, calc(80svh * 1206 / 2622))'
 // the one that has to stay readable.
 const SPLIT_ROW = 'grid grid-cols-1 items-center gap-space-40 lg:grid-cols-2'
 
-function Section({ section }) {
+// Which of the eleven sections a chapter starts on. Derived from the chapter
+// config rather than listed here, so the two cannot drift: adding a chapter
+// moves the marker with it, and a config pointing at a section id this page
+// does not render simply marks nothing (and the nav's scrollspy treats that
+// chapter as unreachable) instead of silently anchoring the wrong section.
+const CHAPTER_ANCHOR_IDS = new Set(ARTIFAKT_CHAPTERS.chapters.map((chapter) => chapter.id))
+
+function Section({ section, isChapterAnchor }) {
   const { title, note, prose, link, media, extraMedia, pipeline, logs, cta } = section
   const split = media?.layout === 'split'
 
@@ -219,7 +228,21 @@ function Section({ section }) {
   )
 
   return (
-    <section data-section={section.id}>
+    // THE SECTION ID IS NOW A REAL ANCHOR, added with the chapter nav.
+    //
+    // These ids were already declared in the content file and already treated
+    // as anchors there ("The `id` stays `how-i-worked`: it is a stable anchor,
+    // not a label"), but only ever reached the DOM as `data-section` -- so
+    // nothing could actually link to them. Emitting `id` as well makes the
+    // page's existing structure addressable without inventing a parallel set
+    // of anchors, which is what let the chapter nav point at real sections
+    // rather than at markers added for its benefit.
+    //
+    // `data-chapter-anchor` is separate from `id` on purpose: it marks the
+    // five sections a chapter STARTS on, and its only job is to carry the
+    // larger `scroll-margin-top` from globals.css. The other six sections stay
+    // on the site-wide 120px, because they are not jump destinations.
+    <section id={section.id} data-section={section.id} data-chapter-anchor={isChapterAnchor || undefined}>
       {/* The whole section is one column: full-width title, then the Guide,
           then the content row. `gap-space-40` is the step Figma puts between
           all three (title ends y=90, bubble starts y=130, row starts y=308
@@ -350,7 +373,11 @@ export default function CaseStudyArtifakt({ data }) {
       <Frame {...data.frame} />
 
       {data.body.map((section) => (
-        <Section key={section.id} section={section} />
+        <Section
+          key={section.id}
+          section={section}
+          isChapterAnchor={CHAPTER_ANCHOR_IDS.has(section.id)}
+        />
       ))}
 
       {/* The page's exit -- back to Figma's own shape, which ends on the
@@ -368,7 +395,13 @@ export default function CaseStudyArtifakt({ data }) {
           version is the two-button one (LinkedIn + copy-to-clipboard email),
           matching the frame and the homepage's Contact section, where Onward's
           is a prompt and one CTA. */}
-      <Container className="flex flex-col gap-space-64">
+      {/* `id` added with the chapter nav: this block ("Feedback or comments?")
+          is where the article ends and the page's own actions begin, so it is
+          the point the reading-progress line completes at and the point the
+          chapter nav hides at. Marking the boundary here rather than measuring
+          "somewhere near the bottom" is what keeps the floating control off the
+          contact copy, the prev/next band and the footer. */}
+      <Container id={CASE_STUDY_OUTRO} className="flex flex-col gap-space-64">
         <div className="flex max-w-[846px] flex-col gap-space-16">
           <h2 className="m-0 text-h2 font-semibold">{data.contact.heading}</h2>
           <p className="m-0 text-body-lg font-normal">{data.contact.description}</p>
@@ -390,6 +423,12 @@ export default function CaseStudyArtifakt({ data }) {
           </div>
         </div>
       </Container>
+
+      {/* Both floating controls. Last in the article so they are last in the
+          tab order too -- a reader tabbing through the page reaches the content
+          before the shortcut to it, and the global nav (rendered by ProjectPage
+          above <main>) still comes first of all. */}
+      <CaseStudyChapters config={ARTIFAKT_CHAPTERS} />
     </article>
   )
 }

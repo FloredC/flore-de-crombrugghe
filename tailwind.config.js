@@ -163,6 +163,10 @@ export default {
         text: {
           primary: 'var(--colors-text-text-primary)',
           secondary: 'var(--colors-text-text-secondary)',
+          // The quietest text role -- the chapter nav's inactive labels, and
+          // so far nothing else. Hand-carried in semantic.css because the
+          // Figma export missed it; see the note there before "fixing" it.
+          tertiary: 'var(--colors-text-text-tertiary)',
           inverted: 'var(--colors-text-inverted)',
         },
         border: {

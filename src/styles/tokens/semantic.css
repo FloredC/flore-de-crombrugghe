@@ -58,6 +58,23 @@
   --colors-surface-subtle: var(--grey-10);
   --colors-surface-inverted: var(--grey-90);
   /* ---------------------------------------------------------------------
+     text-tertiary — a REAL Figma variable that the export missed.
+
+     `Colors/Text/text-tertiary` exists in the file and is what the Chapter
+     Nav's inactive labels bind to (read with `get_variable_defs` on node
+     5052:7430, not sampled off the screenshot). It simply is not in the
+     export above, the same way `Colors/Surface/highlight` wasn't.
+
+     Carried by hand for that reason, but NOTE what separates it from the two
+     literals below: this line forwards a primitive rather than copying a
+     value, so if grey-70 ever changes in Figma this still follows it. The only
+     thing that can go stale is the mapping itself (text-tertiary -> grey-70),
+     which is one fact, not a colour.
+
+     #656262 on white is 6.0:1, so the quiet label still clears WCAG AA.
+     --------------------------------------------------------------------- */
+  --colors-text-text-tertiary: var(--grey-70);
+  /* ---------------------------------------------------------------------
      HAND-MAINTAINED, PERMANENTLY. Flore's decision, 2026-08-26.
 
      The rest of this file is a verbatim Figma export, and the standing rule
