@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { handleAnchorClick } from '../lib/anchorScroll'
 
 const VARIANTS = ['primary', 'secondary', 'tertiary', 'menu', 'popover']
 
@@ -30,30 +31,38 @@ const TYPE_CLASS = 'text-body font-bold tracking-[0.02em]'
 export const FOCUS_CLASS =
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2'
 
-// px-5/py-3 across the laptop band, back to px-6/py-4 at 2xl. The button is
-// the second-largest fixed term in a project card after the media -- 61px tall
-// at rest, which is 7% of the card -- and it is the only one that costs nothing
-// to compress, since the label rides the `body` token down with it. 12 + 24 +
-// 12 + 2 = 50px, still clear of the 44px tap-target floor.
-// A MOBILE STEP, added 2026-08-28 -- Flore: "The buttons on mobile are very
-// big. Can you make them smaller and adapt this to the responsive system?"
+// THE RAMP COLLAPSED TO ONE VERTICAL VALUE, 2026-08-30, when Flore resized the
+// ButtonLink component in Figma to match what the site had already been
+// building: it is now 95x53 with Spaces/24 x Spaces/12 padding, one size, no
+// breakpoint variants (nodes 2928:76324 / 2928:76326, and the navbar's own
+// Contact instance 4449:12724).
 //
-// The scale had three regimes and mobile was sharing the LARGEST of them: base
-// and `2xl` were both px-6/py-4, with only the laptop band compressed. So a
-// 402-wide phone was drawing the same 58px-tall button as a 1622 monitor.
+// The history is worth keeping, because this looks like a value change and is
+// really a retirement. The old ramp was:
 //
-// Now mobile has its own step and the ramp is monotonic through the site's own
-// breakpoints -- `md` is the established phone/tablet boundary (Nav.jsx), `xl`
-// and `2xl` keep the laptop/large-desktop pair exactly as they were:
+//   base   px-5 py-3   50px      mobile step (Flore, 2026-08-28: "the buttons
+//   md     px-6 py-4   ~60px     on mobile are very big")
+//   xl     px-5 py-3   ~52px     the laptop compression
+//   2xl    px-6 py-4   61px      the generous Figma value
 //
-//   base   px-5 py-3   50px tall   (was 58)
-//   md     px-6 py-4   58px
-//   xl     px-5 py-3   50px        (unchanged, the laptop compression)
-//   2xl    px-6 py-4   58px        (unchanged)
+// The laptop compression existed to shave a 61px button down inside a project
+// card. Nothing is 61px any more, so it had no job left -- and `xl` undoing
+// `md` only to have `2xl` undo `xl` again was a see-saw that only made sense
+// while the two ends disagreed. One `py-3` everywhere is now the SAME design,
+// stated once.
 //
-// 50 keeps the tap target clear of the 44px WCAG floor with room to spare, so
-// this is a visual reduction and not an accessibility one.
-const CHROME_CLASS = `inline-flex items-center gap-1 rounded-radius-32 border px-5 py-3 md:px-6 md:py-4 xl:px-5 xl:py-3 2xl:px-6 2xl:py-4 ${FOCUS_CLASS}`
+// The height still moves across breakpoints, because the label does: `body`
+// runs 16 -> 18, so the button measures 50px on a phone and 53px at the Figma
+// frame. That is the type scale doing the work a padding ramp used to fake.
+//
+// `px-5` SURVIVES ON MOBILE, deliberately -- the one place this is not
+// Figma's 24. Flore tuned the phone buttons down by hand and Figma has no
+// mobile frame for this component, so widening them back to 24 would undo a
+// real decision on the strength of a value that was never measured at that
+// width.
+//
+// 50px keeps the tap target clear of the 44px WCAG floor with room to spare.
+const CHROME_CLASS = `inline-flex items-center gap-1 rounded-radius-32 border px-5 py-3 md:px-6 ${FOCUS_CLASS}`
 
 // The link/menu treatment: one class shared by every plain-text ButtonLink
 // usage in the app -- Footer's "Download CV", SubpageNav's "Back to
@@ -64,15 +73,15 @@ const CHROME_CLASS = `inline-flex items-center gap-1 rounded-radius-32 border px
 // Color dims grey-90 -> grey-80 (hover) -> grey-70 (pressed) -- not disputed,
 // still the real action-link tokens. NO underline on hover or pressed, for
 // any of them: I'd previously split this into two classes on the theory that
-// Download CV/Back to Portfolio had a sampled hover-underline (from the
-// standalone Buttons&Controls grid) while the navbar links didn't -- Flore
+// Download CV and the subpage nav's back link had a sampled hover-underline
+// (from the standalone Buttons&Controls grid) while the navbar links didn't -- Flore
 // corrected that too: same component, same states, no hover underline either
 // way. The Buttons&Controls grid's hover row showing an underline doesn't
 // override that.
 //
 // Underline is reserved entirely for LINK_UNDERLINE_CLASS below, applied only
 // to mark "this is the current section" on nav links -- never triggered by
-// hover/active, and never used on Download CV/Back to Portfolio, which have
+// hover/active, and never used on Download CV or the subpage back link, which have
 // no concept of "current" at all.
 //
 // Naming: Figma calls this variant "menu"; CLAUDE.md's button family calls the
@@ -139,7 +148,15 @@ const VARIANT_CLASS = {
   menu: `inline-flex items-center gap-1 ${LINK_CLASS}`,
 }
 
-export default function ButtonLink({ variant = 'primary', to, href, children, className: extraClassName, ...props }) {
+export default function ButtonLink({
+  variant = 'primary',
+  to,
+  href,
+  children,
+  className: extraClassName,
+  onClick,
+  ...props
+}) {
   if (!VARIANTS.includes(variant)) {
     throw new Error(`ButtonLink: unknown variant "${variant}"`)
   }
@@ -150,14 +167,41 @@ export default function ButtonLink({ variant = 'primary', to, href, children, cl
 
   if (to) {
     return (
-      <Link to={to} className={className} {...dataAttrs} {...props}>
+      // `onClick` is passed explicitly because it is destructured out of
+      // `props` above for the anchor branch -- without this line the router
+      // branch would silently drop any handler a caller passed.
+      <Link to={to} className={className} onClick={onClick} {...dataAttrs} {...props}>
         {children}
       </Link>
     )
   }
 
   return (
-    <a href={href} className={className} {...dataAttrs} {...props}>
+    // IN-PAGE ANCHORS SCROLL THEMSELVES, wired here rather than at each call
+    // site. Every `href="#..."` button on the site -- the navbar's Contact, the
+    // map popovers' "View project" -- gets smooth, repeatable scrolling from
+    // this one line, and a new one gets it without anyone remembering to.
+    //
+    // The test is `#` as the FIRST character, which is exactly the difference
+    // between an in-page anchor and a cross-document one: the subpage nav's
+    // `/#contact` is a real navigation to the homepage and must stay one, so it
+    // falls through untouched. See lib/anchorScroll.js for why the browser's
+    // own fragment navigation is not enough.
+    //
+    // A caller's own `onClick` still runs, and runs FIRST -- so a handler that
+    // calls `preventDefault` (or does its own navigation) wins, and the scroll
+    // bows out. That is why `onClick` is destructured out of `props` instead of
+    // being spread: spreading it would have silently replaced this one.
+    <a
+      href={href}
+      className={className}
+      onClick={(event) => {
+        onClick?.(event)
+        handleAnchorClick(event, href)
+      }}
+      {...dataAttrs}
+      {...props}
+    >
       {children}
     </a>
   )

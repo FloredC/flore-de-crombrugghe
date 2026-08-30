@@ -209,23 +209,6 @@ export default function useChapterProgress({ chapters, revealFrom, endAt }) {
   return { activeId, visible, fillRef }
 }
 
-/**
- * Jump to a chapter.
- *
- * `scrollIntoView` rather than a computed `window.scrollTo`, deliberately: it
- * honours the element's own `scroll-margin-top`, so the landing position stays
- * a CSS value that responds to viewport height instead of a magic number in a
- * click handler.
- *
- * `'instant'`, NOT `'auto'`, for reduced motion. In the CSSOM enum `auto` means
- * "use the element's computed scroll-behavior", and `globals.css` sets that to
- * `smooth` on `html` -- so `auto` here would animate for exactly the readers
- * who asked it not to. The site has made this mistake twice already; see the
- * notes on ScrollToTop and ScrollToHash in App.jsx.
- */
-export function scrollToChapter(id) {
-  const target = document.getElementById(id)
-  if (!target) return
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  target.scrollIntoView({ behavior: reduced ? 'instant' : 'smooth', block: 'start' })
-}
+// Jumping to a chapter is `lib/anchorScroll.js` -- the same helper every other
+// `href="#..."` on the site now uses. This file used to carry its own copy;
+// they were identical, and a chapter link is not a special kind of anchor.

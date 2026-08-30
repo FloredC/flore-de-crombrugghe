@@ -1,5 +1,6 @@
 import Block from './Block'
 import Frame from './Frame'
+import CaseStudyContact from './CaseStudyContact'
 import emphasise from '../../lib/emphasis'
 import { MEDIA_WIDTH } from '../../lib/caseStudyLayout'
 
@@ -25,8 +26,14 @@ import { MEDIA_WIDTH } from '../../lib/caseStudyLayout'
  * ---------------------------------------------------------------------------
  * WHAT THIS TIER DELIBERATELY DOES NOT HAVE
  *
- * NO EXIT BLOCK OF ITS OWN. The four frames draw neither an `Onward` nor a
- * contact block, and this layout adds neither.
+ * ITS EXIT IS THE SHARED CONTACT BLOCK, added 2026-08-30 at Flore's request
+ * ("you have to add a contact section on the NDA subpages as well"), because
+ * the subpage nav's Contact button now points at the page you are on rather
+ * than at the homepage -- and these four had nothing for it to point at.
+ *
+ * A DELIBERATE DIVERGENCE FROM THE FRAMES, flagged rather than quietly
+ * sampled: the four NDA frames draw neither an `Onward` nor a contact block.
+ * They still don't. See CaseStudyContact.jsx.
  *
  * The prev/next band every subpage now ends on is `ProjectNavigation`, and it
  * is rendered by ProjectPage OUTSIDE <main> rather than by any layout — see
@@ -73,7 +80,20 @@ import { MEDIA_WIDTH } from '../../lib/caseStudyLayout'
 // alone and the NDA stage is correspondingly shorter — which also keeps the
 // hero off the whole first screen (see the HERO_VERTICAL_RESERVE note in
 // Hero.jsx for why that matters). Flagged rather than special-cased.
-const SECTION_GAP = 'pt-space-80 xl:pt-space-100 2xl:pt-space-140'
+// RENAMED FROM `SECTION_GAP` on 2026-08-30, because the old name described
+// something it never did and that misreading shipped a bug. It is PADDING above
+// the body, not a gap between anything -- so when the contact block was added
+// as a second child of the wrapper it sat flush against the columns, with no
+// space at all. Flore caught it on sight ("there is not enough space between the
+// content and the contact section on the NDA pages").
+const SECTION_PAD = 'pt-space-80 xl:pt-space-100 2xl:pt-space-140'
+
+// The same step, as a real gap. The tier has exactly one vertical rhythm and
+// now uses it in both places it needs one: from the hero into the body, and
+// from the body into the contact block. Derived from SECTION_PAD's values
+// rather than chosen separately, so the two cannot drift into an ending that
+// breathes differently from the opening.
+const SECTION_GAP = 'gap-space-80 xl:gap-space-100 2xl:gap-space-140'
 
 // The two columns. `md`, the site's phone/tablet boundary (see Nav.jsx) —
 // below it they stack, since a 40-gap two-up at phone width would leave each
@@ -143,7 +163,7 @@ export default function CaseStudyNda({ data }) {
         media={{ maxWidth: MEDIA_WIDTH.ndaHero, ...data.frame.media }}
       />
 
-      <div className={SECTION_GAP}>
+      <div className={`flex flex-col ${SECTION_PAD} ${SECTION_GAP}`}>
         <Block width="wide" className={COLUMN_GRID}>
           {data.columns.map((column) => (
             <div key={column.title} className="flex flex-col gap-space-24">
@@ -164,6 +184,11 @@ export default function CaseStudyNda({ data }) {
             </div>
           ))}
         </Block>
+
+        {/* The wrapper is now a flex column carrying SECTION_GAP, so the step
+            from the columns to here is the tier's own rhythm rather than a
+            one-off value invented for the newest element. */}
+        <CaseStudyContact voice="homepage" {...data.contact} />
       </div>
     </article>
   )

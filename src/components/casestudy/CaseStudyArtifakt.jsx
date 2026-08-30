@@ -11,6 +11,7 @@ import AvatarNote from './AvatarNote'
 import ProcessLogCards from './ProcessLogCards'
 import PipelineDiagram from './PipelineDiagram'
 import CaseStudyChapters from './CaseStudyChapters'
+import CaseStudyContact from './CaseStudyContact'
 import { ARTIFAKT, SPACE } from '../../lib/caseStudyLayout'
 import { ARTIFAKT_CHAPTERS, CASE_STUDY_OUTRO } from '../../lib/chapters'
 import { contactSection } from '../../lib/content'
@@ -395,34 +396,16 @@ export default function CaseStudyArtifakt({ data }) {
           version is the two-button one (LinkedIn + copy-to-clipboard email),
           matching the frame and the homepage's Contact section, where Onward's
           is a prompt and one CTA. */}
-      {/* `id` added with the chapter nav: this block ("Feedback or comments?")
-          is where the article ends and the page's own actions begin, so it is
-          the point the reading-progress line completes at and the point the
-          chapter nav hides at. Marking the boundary here rather than measuring
-          "somewhere near the bottom" is what keeps the floating control off the
-          contact copy, the prev/next band and the footer. */}
-      <Container id={CASE_STUDY_OUTRO} className="flex flex-col gap-space-64">
-        <div className="flex max-w-[846px] flex-col gap-space-16">
-          <h2 className="m-0 text-h2 font-semibold">{data.contact.heading}</h2>
-          <p className="m-0 text-body-lg font-normal">{data.contact.description}</p>
-          {/* The email and LinkedIn URL come from contact.mdx, not from this
-              page's content file: they are facts about Flore rather than about
-              this page, and a second copy is how one of them goes stale.
-              flex-col on mobile -- the two buttons together are wider than a
-              phone. */}
-          <div className="mt-space-24 flex flex-col items-start gap-space-24 sm:flex-row">
-            <ButtonLink
-              variant="primary"
-              href={contactSection.linkedinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              LinkedIn
-            </ButtonLink>
-            <ContactEmailButton email={contactSection.email} />
-          </div>
-        </div>
-      </Container>
+      {/* The page's exit. EXTRACTED to CaseStudyContact 2026-08-30 -- this was
+          written inline here, and it is now the block every subpage ends on, so
+          it had to stop being one page's markup. Nothing about what it renders
+          changed; it carries the same id, the same copy (from this page's
+          content file) and the same two buttons.
+
+          Still not `Onward`: this page's version is the two-button one
+          (LinkedIn + copy-to-clipboard email), where Onward's was a prompt and
+          one CTA that navigated away to the homepage. */}
+      <CaseStudyContact {...data.contact} />
 
       {/* Both floating controls. Last in the article so they are last in the
           tab order too -- a reader tabbing through the page reaches the content

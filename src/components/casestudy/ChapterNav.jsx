@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { FOCUS_CLASS } from '../ButtonLink'
 import { ArrowDownIcon } from '../icons'
-import { scrollToChapter } from '../../lib/useChapterProgress'
+import { handleAnchorClick } from '../../lib/anchorScroll'
 
 /**
  * The floating chapter navigator — presentation only.
@@ -97,17 +97,26 @@ function ChapterLabel({ label, active }) {
  * times to leave the page. The `href` still resolves on its own for every other
  * kind of click, and `App.jsx`'s ScrollToHash handles it on a cold load.
  */
-function ChapterLink({ chapter, active, onSelect, className = '' }) {
+function ChapterLink({ chapter, active, onClose, className = '' }) {
   return (
     <a
       href={`#${chapter.id}`}
       aria-current={active ? 'true' : undefined}
       data-current={active || undefined}
+      // The SAME handler every other anchor on the site uses -- it scrolls
+      // smoothly, honours `scroll-margin-top`, respects reduced motion, leaves
+      // modified clicks to the browser, and updates the URL with `replaceState`
+      // so four chapter jumps don't become four presses of Back.
+      //
+      // This used to be a bespoke copy of that logic. Consolidating it is not
+      // just tidying: the copy did not update the hash at all, so a chapter was
+      // the one destination on the site whose URL a reader could not share.
+      //
+      // `onClose` runs first and unconditionally, so the mobile menu closes
+      // even on a cmd-click that the scroll itself declines to handle.
       onClick={(event) => {
-        // Leave modified clicks to the browser -- they mean "open elsewhere".
-        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return
-        event.preventDefault()
-        onSelect(chapter.id)
+        onClose?.()
+        handleAnchorClick(event, `#${chapter.id}`)
       }}
       className={`group flex flex-col items-center gap-space-4 rounded-radius-4 ${FOCUS_CLASS} ${className}`}
     >
@@ -118,7 +127,7 @@ function ChapterLink({ chapter, active, onSelect, className = '' }) {
 }
 
 /** `breakpoint=desktop` (node 5052:7381) — all five labels in one capsule. */
-function ChapterNavWide({ chapters, activeId, onSelect, className }) {
+function ChapterNavWide({ chapters, activeId, className }) {
   return (
     <nav aria-label="Chapters" data-component="chapter-nav" data-variant="wide" className={className}>
       <ul
@@ -127,7 +136,7 @@ function ChapterNavWide({ chapters, activeId, onSelect, className }) {
       >
         {chapters.map((chapter) => (
           <li key={chapter.id} className="flex">
-            <ChapterLink chapter={chapter} active={chapter.id === activeId} onSelect={onSelect} />
+            <ChapterLink chapter={chapter} active={chapter.id === activeId} />
           </li>
         ))}
       </ul>
@@ -144,7 +153,7 @@ function ChapterNavWide({ chapters, activeId, onSelect, className }) {
  * belonging to the control that opened it, and capped at the viewport width so
  * a longer chapter list on a future page cannot push it off screen.
  */
-function ChapterNavNarrow({ chapters, activeId, onSelect, visible, className }) {
+function ChapterNavNarrow({ chapters, activeId, visible, className }) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef(null)
 
@@ -193,14 +202,11 @@ function ChapterNavNarrow({ chapters, activeId, onSelect, visible, className }) 
                 <ChapterLink
                   chapter={chapter}
                   active={chapter.id === activeId}
-                  onSelect={(id) => {
-                    // Close first, then scroll. The scrollspy takes the active
-                    // state from there like any other scroll -- selection does
-                    // not set it directly, so a click and a scroll can never
-                    // leave the nav claiming two different chapters.
-                    setOpen(false)
-                    onSelect(id)
-                  }}
+                  // Close, then scroll. The scrollspy picks the active state up
+                  // from the scroll like any other -- selection never sets it
+                  // directly, so a click and a scroll can't leave the nav
+                  // claiming two different chapters.
+                  onClose={() => setOpen(false)}
                   // Figma's rhythm and the tap-target floor are the same number
                   // here, which is why neither had to be compromised: a 20px
                   // label with 12px of padding either side is a 44px row, and
@@ -261,8 +267,6 @@ function ChapterNavNarrow({ chapters, activeId, onSelect, visible, className }) 
 }
 
 export default function ChapterNav({ chapters, activeId, visible }) {
-  const onSelect = (id) => scrollToChapter(id)
-
   return (
     <div
       // BELOW the global nav (z-30) and above page content. The two never
@@ -321,13 +325,11 @@ export default function ChapterNav({ chapters, activeId, visible }) {
       <ChapterNavWide
         chapters={chapters}
         activeId={activeId}
-        onSelect={onSelect}
         className={`hidden md:block ${visible ? 'pointer-events-auto' : ''}`}
       />
       <ChapterNavNarrow
         chapters={chapters}
         activeId={activeId}
-        onSelect={onSelect}
         visible={visible}
         className={`md:hidden ${visible ? 'pointer-events-auto' : ''}`}
       />

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { handleAnchorClick } from '../lib/anchorScroll'
 import ButtonLink, { FOCUS_CLASS, LINK_CLASS, LINK_UNDERLINE_CLASS } from './ButtonLink'
 import { ArrowBackIcon, ArrowUpIcon, MenuIcon, CloseIcon } from './icons'
 import homeIcon from '../assets/icons/ic-home.svg'
@@ -60,10 +61,37 @@ function useCurrentSection() {
 // Shared pill chrome, sampled from Figma's navbar variants: white bg, 1px
 // bottom border in navbar/border, radius-60, drop-shadow 0/0/5 black 25%.
 const PILL_CLASS =
-  'items-center justify-between gap-6 rounded-radius-60 border-b border-border-grey bg-surface-background shadow-[0px_0px_5px_0px_rgba(0,0,0,0.25)]'
+  'min-h-[70px] items-center justify-between gap-6 rounded-radius-60 border-b border-border-grey bg-surface-background shadow-[0px_0px_5px_0px_rgba(0,0,0,0.25)]'
 
-// 58px circular home avatar, ringed with the secondary/Contact button's
+// WHY THE HEIGHT IS DECLARED RATHER THAN LEFT TO THE CONTENTS -- Flore,
+// 2026-08-30: "Navbars should have the same size across pages."
+//
+// Without it they only agree by luck, and they didn't. The homepage pill is
+// sized by the 53px home avatar, which is a fixed pixel size, so it drew 70 at
+// every width. The subpage pill has no avatar -- its tallest child is the
+// Contact button, whose height rides the fluid `body` token -- so it measured
+// 67 on a phone, 68 at `md` and 70 only at the Figma frame. Same padding, same
+// components, three different heights, and nothing in the code said otherwise.
+//
+// 70 is not derived here, it is the component height Figma draws on all four
+// closed variants (4449:12901 homepage desktop, 4449:12978 homepage mobile,
+// 4449:12972 / 4449:13002 subpage). Stating it once is what makes "the same
+// size across pages" a property of the code rather than a coincidence between
+// two content stacks.
+//
+// A MINIMUM, not a fixed height: the mobile pill's open state grows a menu
+// below the bar and must stay free to. This sets the floor the closed states
+// all sit on.
+
+// 53px circular home avatar, ringed with the secondary/Contact button's
 // border color+weight so it reads as the same treatment, not just "a border".
+//
+// 53, NOT 58, since 2026-08-30 (node 4449:12869). Flore: "the back to top
+// button in the nav [is] now too big compared to the other cta". It was sized
+// when the Contact button was 58-61px tall; the button came down and the avatar
+// did not, so the pill's two ends stopped agreeing. 53 is now exactly the
+// ButtonLink's own height at the Figma frame, which is what makes the pill read
+// as balanced rather than as an avatar with a button next to it.
 //
 // States from Figma's ButtonAction variant=home row: the ring dims grey-90 ->
 // grey-80 (hover) -> grey-70 (pressed), and focus draws the blue focus ring.
@@ -82,13 +110,17 @@ function HomeAvatar({ href, label }) {
     <a
       href={href}
       aria-label={label}
+      // "Back to the map" is an in-page jump like any other, so it scrolls
+      // rather than relying on a fragment navigation that does nothing once
+      // the URL already says `#hero`.
+      onClick={(event) => handleAnchorClick(event, href)}
       className={`group relative block shrink-0 rounded-full ${FOCUS_CLASS}`}
     >
       <img
         src={homeIcon}
         alt=""
-        width={58}
-        height={58}
+        width={53}
+        height={53}
         className="rounded-full border border-action-secondary-border transition-colors group-hover:border-action-secondary-border-hover group-active:border-action-secondary-border-pressed"
       />
       <ArrowUpIcon
@@ -107,20 +139,76 @@ function HomeAvatar({ href, label }) {
 //
 // Contact is a real cross-document link (`/#contact`), not a bare `#contact`
 // anchor, since the Contact section lives on the homepage and we aren't on it.
-// Padding differs slightly between the two Figma subpage samples (desktop
-// px-12/py-8, mobile pl-24/pr-4) -- carried over faithfully rather than
-// unified, since the bare text link needs more breathing room from the pill
-// edge than the Contact button does.
+//
+// PADDING IS NOW ONE SET OF VALUES AT EVERY WIDTH (nodes 4449:12972 desktop and
+// 4449:13002 mobile, resampled 2026-08-30): pl-12 / pr-8 / py-8. This used to
+// carry a responsive split -- `pl-24 pr-4` below `md`, `px-12` above -- read off
+// two Figma samples that disagreed at the time. They no longer do, so the
+// breakpoint went with them: an override that says the same thing on both sides
+// is just a second place to edit.
+//
+// The asymmetry that remains is real and survives: the bare text link needs
+// more room from the pill edge (12) than the chromed Contact button does (8),
+// because the button's own border already draws that gap for it.
 // `onBackClick` lets a page intercept the back link. It stays a real <Link>
 // with a real `to`, so middle-click, cmd-click and "open in new tab" all still
 // work and the destination is visible in the status bar -- the handler only
 // changes what a plain left-click does. See ProcessLogPage on why.
-function SubpageNav({ backTo, backLabel = 'Back to Portfolio', onBackClick }) {
+// THE LABEL IS "Work", not "Back to Portfolio" -- Flore's Figma change,
+// 2026-08-30, on both subpage variants (nodes 4449:12972 desktop and
+// 4449:13002 mobile, which draw "← Work" identically).
+//
+// The arrow is what says "back", so the words only have to name the
+// destination. That also makes the label the same word the homepage navbar
+// uses for the same place, which is the more useful consistency: a reader who
+// followed "Work" into a project is offered "Work" to get back out.
+//
+// It stays a PROP with a default rather than a hardcoded string, because the
+// process-log pages legitimately point somewhere else -- see the `backTo`
+// note further down.
+// `contactHref` -- where the Contact button goes. Defaults to the homepage's
+// section, and every case-study subpage overrides it with its own (see
+// ProjectPage). Flore, 2026-08-30: "the contact button on the subpages should
+// lead to the contact section at the bottom of these specific subpages (not the
+// home page)."
+//
+// A PROP WITH A DEFAULT rather than a hardcoded in-page anchor, because not
+// every page that renders this nav has a contact section: the process-log pages
+// are a rendered document with no exit block of their own, and pointing them at
+// a `#case-study-outro` that isn't in the DOM would be a button that scrolls to
+// the top of the page and calls it done. They keep the homepage target.
+function SubpageNav({ backTo, backLabel = 'Work', contactHref = '/#contact', onBackClick }) {
   return (
     <nav
       data-component="nav"
       data-variant="subpage"
-      className={`${PILL_CLASS} flex py-space-8 pl-space-24 pr-space-4 md:px-space-12`}
+      // WIDTH IS DECLARED, not left to the contents -- Flore, 2026-08-30: "the
+      // subpage nav is not wide enough now... so that the navbar gets a bit
+      // bigger again."
+      //
+      // Shortening the label to "Work" took 79px out of a pill that was already
+      // only as wide as what was in it, so the two controls collapsed toward
+      // each other and the bar stopped reading as a bar. Figma answers this by
+      // giving the component a FIXED width and letting `justify-between` spread
+      // the two children across it -- 300 at desktop (node 4449:12972) and 367
+      // on mobile (node 4449:13002).
+      //
+      // That is why there is no gap value here to copy: the space between the
+      // back link and Contact is 94px at desktop and 161px on mobile, neither of
+      // which is a spacing token, because neither is a spacing decision. They
+      // are both just "whatever is left". Setting the width is the honest
+      // translation; a hardcoded 94px gap would be a derived number that stops
+      // being right the moment a label changes.
+      //
+      // `min-w` rather than `w` for the same reason the pill's height is a
+      // `min-h`: it reproduces Figma exactly while the content is smaller, and
+      // grows instead of overflowing if a label is ever longer -- which the
+      // process-log pages already exercise with "Back to Artifakt".
+      //
+      // 367 on mobile is also the mobile HOMEPAGE nav's width, so the two match
+      // there as Flore asked. `w-full` under the cap because a phone narrower
+      // than 367 has to win.
+      className={`${PILL_CLASS} flex w-full max-w-[367px] py-space-8 pl-space-12 pr-space-8 md:w-auto md:min-w-[300px] md:max-w-none`}
     >
       <Link
         to={backTo}
@@ -130,7 +218,7 @@ function SubpageNav({ backTo, backLabel = 'Back to Portfolio', onBackClick }) {
         <ArrowBackIcon aria-hidden="true" />
         {backLabel}
       </Link>
-      <ButtonLink variant="secondary" href="/#contact">
+      <ButtonLink variant="secondary" href={contactHref}>
         Contact
       </ButtonLink>
     </nav>
@@ -140,7 +228,12 @@ function SubpageNav({ backTo, backLabel = 'Back to Portfolio', onBackClick }) {
 // Desktop homepage navbar: home avatar + section anchors + Contact button.
 function DesktopHomeNav({ currentSection }) {
   return (
-    <nav data-component="nav" data-variant="homepage-desktop" className={`${PILL_CLASS} hidden p-2 md:flex`}>
+    // `p-space-8` (node 4449:12901). This went 8 -> 4 -> 8 across two passes and
+    // the round trip is worth recording rather than looking like a mistake: 4
+    // was right while the Contact button was still being resized, and once it
+    // settled at 53 Flore put the inset back. 53 + 8 + 8 + the 1px bottom border
+    // is the 70px pill the component now draws.
+    <nav data-component="nav" data-variant="homepage-desktop" className={`${PILL_CLASS} hidden p-space-8 md:flex`}>
       <HomeAvatar href="#hero" label="Back to the map" />
       <ul className="flex items-center gap-10" style={{ listStyle: 'none' }}>
         {LINKS.map((link) => {
@@ -151,7 +244,18 @@ function DesktopHomeNav({ currentSection }) {
                 href={link.href}
                 aria-current={isCurrent ? 'true' : undefined}
                 data-current={isCurrent || undefined}
-                className={`text-body-sm ${LINK_CLASS} ${isCurrent ? LINK_UNDERLINE_CLASS : ''}`}
+                onClick={(event) => handleAnchorClick(event, link.href)}
+                // `inline-block py-space-8` -- Figma's own ButtonLink
+                // variant=menu is 40x40 (px-0, py-8 around a 24px line), and
+                // these were rendering as bare 24px-tall inline text. The pill
+                // is unchanged either way, since `items-center` sizes it off
+                // the taller Contact button; what grows is the click target.
+                // `inline-block` because vertical padding on an inline element
+                // paints outside its line box without contributing height --
+                // it would have overflowed the row instead of filling it.
+                className={`inline-block py-space-8 text-body-sm ${LINK_CLASS} ${
+                  isCurrent ? LINK_UNDERLINE_CLASS : ''
+                }`}
               >
                 {link.label}
               </a>
@@ -203,11 +307,18 @@ function MobileHomeNav({ currentSection }) {
       data-component="nav"
       data-variant="homepage-mobile"
       data-open={open}
-      className={`${PILL_CLASS} flex w-full max-w-[367px] flex-col !items-stretch p-space-4 md:hidden ${
+      // `p-space-8`, matching the desktop pill and both Figma mobile states --
+      // closed is 367x70 (node 4449:12978) and open is 367x364 (node 4516:3617),
+      // and both take the same 8px inset. The open state's own overrides below
+      // (gap-12, pb-16, radius-32) are unchanged; only the base inset moved.
+      className={`${PILL_CLASS} flex w-full max-w-[367px] flex-col !items-stretch p-space-8 md:hidden ${
         open ? 'gap-space-12 !rounded-radius-32 pb-space-16' : ''
       }`}
     >
-      <div className="flex h-[58px] items-center justify-between gap-6">
+      {/* 53 to match the avatar, down from 58 -- the mobile closed pill is
+          367x62 in Figma (node 4449:12978), which is 53 + the 4px inset either
+          side + the 1px bottom border. */}
+      <div className="flex h-[53px] items-center justify-between gap-6">
         <HomeAvatar href="#hero" label="Back to the map" />
         <button
           type="button"
@@ -235,7 +346,10 @@ function MobileHomeNav({ currentSection }) {
                 href={link.href}
                 aria-current={isCurrent ? 'true' : undefined}
                 data-current={isCurrent || undefined}
-                onClick={() => setOpen(false)}
+                onClick={(event) => {
+                  setOpen(false)
+                  handleAnchorClick(event, link.href)
+                }}
                 className={`flex w-full items-center px-space-12 py-space-14 text-body-sm ${LINK_CLASS} ${
                   isCurrent ? LINK_UNDERLINE_CLASS : ''
                 }`}
@@ -259,7 +373,7 @@ function MobileHomeNav({ currentSection }) {
 // `backTo`/`backLabel` let a page override where the subpage nav points. Only
 // the process-log pages do -- they sit one level below a case study, so "Back
 // to Portfolio" would skip the page the reader came from.
-export default function Nav({ backTo: backToOverride, backLabel, onBackClick }) {
+export default function Nav({ backTo: backToOverride, backLabel, contactHref, onBackClick }) {
   const { pathname } = useLocation()
   const isHome = pathname === '/'
   // Going back from a case study returns the reader to the card they left
@@ -304,7 +418,12 @@ export default function Nav({ backTo: backToOverride, backLabel, onBackClick }) 
           <MobileHomeNav currentSection={currentSection} />
         </>
       ) : (
-        <SubpageNav backTo={backTo} backLabel={backLabel} onBackClick={onBackClick} />
+        <SubpageNav
+          backTo={backTo}
+          backLabel={backLabel}
+          contactHref={contactHref}
+          onBackClick={onBackClick}
+        />
       )}
     </div>
   )

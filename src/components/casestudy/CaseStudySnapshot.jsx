@@ -1,7 +1,7 @@
 import Block from './Block'
 import Frame from './Frame'
 import Media from './Media'
-import Onward from './Onward'
+import CaseStudyContact from './CaseStudyContact'
 import SectionHeader from './SectionHeader'
 import { ARTIFAKT } from '../../lib/caseStudyLayout'
 
@@ -20,7 +20,7 @@ import { ARTIFAKT } from '../../lib/caseStudyLayout'
  *   Frame          the shared hero, with the snapshot tier's own stage colour
  *   What           prose beside a supporting image
  *   Views          N titled rows, each a pair of captioned screenshots
- *   Onward         the shared exit
+ *   CaseStudyContact  the shared exit (was `Onward` until 2026-08-30)
  *
  * ---------------------------------------------------------------------------
  * THIS PAGE OPTS OUT OF RULE 1, AND THAT IS THE DESIGN, NOT AN OVERSIGHT.
@@ -283,10 +283,9 @@ export default function CaseStudySnapshot({ data }) {
           </Block>
         ))}
 
-        <Onward
-          heading={data.onward.heading}
-          contact={data.onward.contact}
-        />
+        {/* WAS `Onward` -- see the note in CaseStudy.jsx. The snapshot tier
+            took PitchPivot's shape here and follows it out of it. */}
+        <CaseStudyContact voice="homepage" {...data.contact} />
       </div>
     </article>
   )
