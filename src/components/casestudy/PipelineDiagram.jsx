@@ -15,6 +15,7 @@ import {
 } from '@floating-ui/react'
 import { Link } from 'react-router-dom'
 import Media from './Media'
+import EyeAnimation from './EyeAnimation'
 import { FOCUS_CLASS } from '../ButtonLink'
 import emphasise from '../../lib/emphasis'
 import { ArrowRightIcon } from '../icons'
@@ -194,9 +195,19 @@ function PipelineStep({ step, isOpen, onOpenChange, isLast }) {
         type="button"
         aria-expanded={isOpen}
         className={`${STEP_BASE} ${FOCUS_CLASS} ${
+          // `accent` (#321366) at 1px -- Flore, 2026-08-30: "use that same
+          // colour for the borders of the pass interaction cards. Use the same
+          // stroke width as the outline buttons for these cards -> 1px." The
+          // width was already 1 (STEP_BASE's bare `border`); it is the COLOUR
+          // that moves, off the chart-purple scale and onto the page's own
+          // accent, so the cards and the progress bar read as one system.
+          //
+          // A non-accent step still starts on `border-grey` and steps to the
+          // accent on hover, which is the same before/after relationship it had
+          // -- only the colour it lands on changed.
           step.accent
-            ? 'border-chart-purple-stroke hover:border-chart-purple-text'
-            : 'border-border-grey hover:border-chart-purple-text'
+            ? 'border-accent hover:border-accent'
+            : 'border-border-grey hover:border-accent'
         }`}
         {...getReferenceProps()}
       >
@@ -204,8 +215,31 @@ function PipelineStep({ step, isOpen, onOpenChange, isLast }) {
             first dropped: they ARE the strength of this diagram, so it has to
             advertise them rather than let them be found by accident.
             `pr` on the kicker keeps the label clear of it. */}
-        <span className="absolute right-space-10 top-space-8 text-caption-sm font-semibold text-chart-purple-text">
-          ⊡ preview
+        {/* THE GLYPH IS NOW FLORE'S EYE, replacing a `⊡` typed into the
+            string. Same badge, same words, same job -- it is the affordance
+            that says the card has something to show -- but the mark now opens
+            and blinks while the card is hovered, which is the state the card is
+            in when the preview appears. A static character could not say that.
+
+            It is `active` on hover AND on keyboard focus, so the affordance is
+            not mouse-only. `isOpen` is the disclosure's own state, which is
+            already true in both cases.
+
+            `items-center` and a gap, because the eye is a 20px box where the
+            character was a glyph on the text's own baseline. */}
+        <span className="absolute right-space-10 top-space-8 flex items-center text-caption-sm font-semibold text-chart-purple-text">
+          <EyeAnimation active={isOpen} size={16} />
+          {/* THE WORD IS GONE FROM THE PAGE BUT NOT FROM THE BUTTON -- Flore,
+              2026-08-30: "once that's done, the 'preview' text is not necessary
+              anymore." True of the eye, which now reads as an eye rather than a
+              speck, and it earns its place as the whole badge.
+
+              It stays as `sr-only` because the eye is `aria-hidden` decoration:
+              deleting the word outright would have quietly removed "preview"
+              from this button's accessible name, leaving a screen reader with
+              the kicker and title and no hint that anything opens. The visible
+              badge is now the icon; the name is unchanged. */}
+          <span className="sr-only">preview</span>
         </span>
         <span className="block pr-[62px] text-caption-sm font-semibold uppercase tracking-[0.06em] text-text-secondary">
           {step.kicker}
@@ -230,7 +264,11 @@ function PipelineStep({ step, isOpen, onOpenChange, isLast }) {
           <div
             ref={refs.setFloating}
             style={{ ...floatingStyles, ...transitionStyles }}
-            className="z-50 w-[300px] rounded-radius-12 border-2 border-chart-purple-stroke bg-surface-background p-space-8 shadow-[0_8px_28px_0_rgba(80,40,140,0.18)]"
+            // 1px accent, matching the cards it belongs to. It was `border-2`
+            // in the chart-purple, which after the card change would have left
+            // the preview a different colour AND a different weight from the
+            // control that opens it.
+            className="z-50 w-[300px] rounded-radius-12 border border-accent bg-surface-background p-space-8 shadow-[0_8px_28px_0_rgba(80,40,140,0.18)]"
             {...getFloatingProps()}
           >
             {/* Through Media so the preview gets the same no-crop, no-collapse,

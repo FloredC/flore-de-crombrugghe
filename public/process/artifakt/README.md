@@ -18,6 +18,32 @@ keeps working as a standalone page with no import, no bundling and no route.
 
 Anything in `src/` would need to go through Vite, which would try to bundle it.
 
+## THESE FILES ARE HAND-EDITED. Re-apply after any re-export.
+
+Added 2026-08-30. Everything else about this folder assumes a re-export is a
+pure file drop — it no longer is, and this is the note that says so.
+
+Flore's call, and it is the right one: these documents contain interactive cards
+whose borders change colour on hover and click, so keeping them in step with the
+site's own cards is a code concern, not something worth re-exporting a working
+document for.
+
+**The two rules applied to every border declaration in all six files:**
+
+| | before | after |
+|---|---|---|
+| stroke width | `1.5px` | `1px` — matching the site's outline buttons |
+| accent colour | `#7c3aed` | `#321366` — the site's `--colors-accent` |
+
+Only `border*` properties were touched. The same purple still appears as TEXT
+and as background tints (17 occurrences) and was deliberately left alone —
+the instruction was about borders. If those should follow too, it is the same
+one-line search-and-replace without the `border` restriction.
+
+If you re-export a log, this reverts. The fix is a search-and-replace on the new
+file, and it is cheap enough that it is not worth automating until it has been
+needed twice.
+
 ## Two things that will bite
 
 **Paths.** The site is served from `/flore-de-crombrugghe/` in production, not

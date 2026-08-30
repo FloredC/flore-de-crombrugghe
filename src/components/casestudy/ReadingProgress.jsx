@@ -44,7 +44,12 @@ export default function ReadingProgress({ fillRef }) {
       // on that wrapper away from disappearing.
       className="pointer-events-none fixed inset-x-0 top-0 z-40 h-[3px] bg-surface-subtle"
     >
-      <div ref={fillRef} className="h-full w-full origin-left scale-x-0 bg-text-primary" />
+      {/* `bg-accent` (#321366), not `text-primary` -- Flore, 2026-08-30. The
+          fill was the same near-black as the body copy, which made a 3px line
+          across the top of a text page read as part of the page furniture. A
+          colour that appears nowhere else in the reading column is what makes it
+          legible as a measure of something. */}
+      <div ref={fillRef} className="h-full w-full origin-left scale-x-0 bg-accent" />
     </div>
   )
 }

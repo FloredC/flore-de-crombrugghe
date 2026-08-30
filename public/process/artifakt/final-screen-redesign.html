@@ -113,13 +113,13 @@
   }
   .flow-screen {
     background: #fff;
-    border: 1.5px solid #ddd;
+    border: 1px solid #ddd;
     border-radius: 10px;
     padding: 12px 16px;
     font-size: 13px;
     min-width: 130px;
   }
-  .flow-screen.active { border-color: #7c3aed; }
+  .flow-screen.active { border-color: #321366; }
   .flow-screen .flow-label {
     font-size: 10px;
     font-weight: 700;
@@ -144,7 +144,7 @@
     background: #fff;
     border-radius: 10px;
     padding: 16px;
-    border: 1.5px solid #e0ddd8;
+    border: 1px solid #e0ddd8;
   }
   .concept-block h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
   .concept-block p { font-size: 12px; color: #666; line-height: 1.5; }
@@ -190,7 +190,7 @@
   }
   .img-slot {
     background: #fff;
-    border: 1.5px dashed #ccc;
+    border: 1px dashed #ccc;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
@@ -212,7 +212,7 @@
     border-color: #e0ddd8;
     cursor: zoom-in;
   }
-  .img-slot:hover { border-color: #7c3aed; }
+  .img-slot:hover { border-color: #321366; }
   .img-slot img { width: 100%; height: auto; object-fit: contain; border-radius: 6px; display: block; }
   /* zero basis + grow: the image takes exactly the space the caption leaves,
      so a one-line and a two-line caption still give the same slot height */
@@ -252,7 +252,7 @@
   }
   .img-slot:hover .img-remove { display: flex; }
   .img-slot-static { cursor: zoom-in; }
-  .img-slot-static:hover { border-color: #7c3aed; }
+  .img-slot-static:hover { border-color: #321366; }
   .img-slot-static img { width: 100%; height: auto; object-fit: contain; border-radius: 6px; display: block; }
 
   /* ── Back link ── */
@@ -289,12 +289,12 @@
   #pd-toolbar {
     position: fixed; right: 20px; bottom: 20px; z-index: 9998;
     display: flex; align-items: center; gap: 10px;
-    background: #fff; border: 1.5px solid #e0ddd8; border-radius: 999px;
+    background: #fff; border: 1px solid #e0ddd8; border-radius: 999px;
     padding: 8px 10px 8px 16px;
     box-shadow: 0 6px 24px rgba(0,0,0,0.12);
     font-size: 12px; color: #888;
   }
-  #pd-toolbar.dirty { border-color: #7c3aed; color: #321366; }
+  #pd-toolbar.dirty { border-color: #321366; color: #321366; }
   #pd-save {
     border: none; border-radius: 999px; padding: 7px 14px;
     font-size: 12px; font-weight: 600; font-family: inherit;

@@ -115,6 +115,22 @@
      would be worse than an honest literal, since the invented name is the
      thing that would silently survive a future export.
      --------------------------------------------------------------------- */
+  /* Artifakt's accent: the reading-progress fill, and the borders of the
+     pipeline's pass-interaction cards. Flore, 2026-08-30 — a new semantic token
+     in her Figma variables, given here as the hex she quoted (#321366).
+
+     NAME IS A PLACEHOLDER. The Figma variable exists but is not published to a
+     library, so `search_design_system` cannot see it and no node in the file
+     binds it yet — which means I could read the value but not what she called
+     it. `accent` is descriptive of the role it plays here; rename it to the
+     real variable name when she confirms, and this and its Tailwind entry are
+     the only two lines to touch.
+
+     A LITERAL, like the two below and for the same reason: no primitive is
+     close (the nearest, purple-80, is a different hue), so an invented
+     primitive name would be worse than an honest hex. */
+  --colors-accent: #321366;
+
   /* Artifakt: the hero stage, its image stages, the final-product panel. */
   --colors-surface-yellow: #fdffe6;
   /* The project snapshots' hero stage (Teamchatviz, and Sinomocene/Roche
