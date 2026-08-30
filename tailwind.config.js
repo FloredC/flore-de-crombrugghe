@@ -168,6 +168,9 @@ export default {
           // Figma export missed it; see the note there before "fixing" it.
           tertiary: 'var(--colors-text-text-tertiary)',
           inverted: 'var(--colors-text-inverted)',
+          // The quiet label on a dark surface — the chapter nav's inactive
+          // chapters. Hand-carried in semantic.css; see the note there.
+          'inverted-tertiary': 'var(--colors-text-inverted-tertiary)',
         },
         border: {
           grey: 'var(--colors-border-grey)',

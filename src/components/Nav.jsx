@@ -123,8 +123,23 @@ function HomeAvatar({ href, label }) {
         height={53}
         className="rounded-full border border-action-secondary-border transition-colors group-hover:border-action-secondary-border-hover group-active:border-action-secondary-border-pressed"
       />
+      {/* SIZE STATED, not inherited from the asset -- part of consolidating
+          Flore's 2026-08-30 re-export. `ic-arrow-up` used to be a one-off
+          20.34-tall stroke drawing that was never in the design system; it is
+          now a proper 20x20 filled icon matching `ic-arrow-down`, so it renders
+          at the same size as every other icon on the site and follows its
+          container's colour like them.
+          
+          The visible arrow IS smaller than before -- the old glyph inked ~88%
+          of its box and the new one 60% -- which is the "renders a bit smaller"
+          Flore noticed. Left at the system's 20 rather than scaled up to match
+          the old drawing: this is now one icon at one size everywhere, which is
+          what consolidating it means. Flagged as a number to raise if the arrow
+          reads too quiet on the 53px thumbnail. */}
       <ArrowUpIcon
         aria-hidden="true"
+        width={20}
+        height={20}
         className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
       />
     </a>

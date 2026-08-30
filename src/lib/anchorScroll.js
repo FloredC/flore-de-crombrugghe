@@ -62,6 +62,22 @@ export function scrollToAnchor(id) {
 }
 
 /**
+ * Back to the top of the page.
+ *
+ * Not an anchor, because there is nothing to anchor to: a case study's first
+ * element is the hero stage, which carries no id, and giving it one purely so a
+ * button could point at it would be inventing a destination to justify a link.
+ * The top of the document is a position, not a place -- so this is a real
+ * `<button>` calling `scrollTo`, per the tag-follows-behavior rule in CLAUDE.md.
+ *
+ * Shares `scrollBehavior()` with the anchor path so "back to top" and "jump to a
+ * chapter" cannot animate differently, and so reduced motion is answered once.
+ */
+export function scrollToTop() {
+  window.scrollTo({ top: 0, left: 0, behavior: scrollBehavior() })
+}
+
+/**
  * The click handler for an in-page anchor. Returns without preventing the
  * default in every case it does not handle, so anything unusual falls back to
  * the browser rather than becoming a dead link.

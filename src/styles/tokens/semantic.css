@@ -74,6 +74,13 @@
      #656262 on white is 6.0:1, so the quiet label still clears WCAG AA.
      --------------------------------------------------------------------- */
   --colors-text-text-tertiary: var(--grey-70);
+  /* The same story one shade over: `Colors/Text/inverted-tertiary` is a real
+     Figma variable (read from the inverted Chapter Nav, node 5052:7430) that
+     the export also missed. It is the quiet label ON a dark surface, where
+     `--colors-text-inverted` is the loud one. Forwards a primitive, so a change
+     to grey-20 still reaches it. #d2d2d2 on #0e0e0e is 12.8:1 — far clear of
+     AA, which matters because this is the tier the reader is NOT on. */
+  --colors-text-inverted-tertiary: var(--grey-20);
   /* ---------------------------------------------------------------------
      HAND-MAINTAINED, PERMANENTLY. Flore's decision, 2026-08-26.
 

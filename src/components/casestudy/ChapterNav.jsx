@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { FOCUS_CLASS } from '../ButtonLink'
-import { ArrowDownIcon } from '../icons'
-import { handleAnchorClick } from '../../lib/anchorScroll'
+import { ArrowUpIcon, ChevronDownIcon, ChevronUpIcon } from '../icons'
+import { handleAnchorClick, scrollToTop } from '../../lib/anchorScroll'
 
 /**
  * The floating chapter navigator — presentation only.
@@ -17,41 +17,76 @@ import { handleAnchorClick } from '../../lib/anchorScroll'
  * presentation and the scroll logic can be changed independently.
  *
  * SECONDARY TO THE GLOBAL NAV, BY CONSTRUCTION rather than by intention:
- * `z-20` against the global nav's `z-30`, a 1px grey border where the global
- * pill carries a drop shadow, and 14px caption type against the pill's 18px
- * bold. Nothing here competes for the same job.
+ * `z-20` against the global nav's `z-30`, 16px labels against the pill's 18px
+ * bold, and no shadow where the global pill has one. It is the louder of the
+ * two surfaces since the inversion, but not the more important control.
  */
 
-// ONE SHARED CAPSULE, not five pills. Figma's padding is asymmetric --
-// pt-12 / pb-8 -- because the active item's rule hangs below the label and the
-// smaller bottom inset is what keeps it optically centred. Carried over as-is;
-// evening it out is what makes the capsule look bottom-heavy.
-const CAPSULE_CLASS = 'border border-border-grey bg-surface-background px-space-40 backdrop-blur-[2px]'
-
-// Figma's vertical padding for the two CLOSED capsules -- the wide row and the
-// collapsed trigger. Resampled 2026-08-30 after Flore made the control less
-// self-effacing: it was 12/8 against a 14px label, and is now 14/12 against a
-// 16px one. Both halves of that change matter, and it is worth saying why the
-// padding moved at all: a bigger label inside the old insets would have made
-// the capsule read as tight rather than as louder.
+// ONE SHARED CAPSULE, not five pills.
 //
-// Still asymmetric, and still for the same reason -- the active item's rule
-// hangs below its label, so an even inset would leave the row sitting high in
-// its own capsule.
+// INVERTED 2026-08-30 -- Flore: "I edited the chapter nav again and made it
+// inverted so that it's more visible." The control was a white pill on a white
+// page and read as part of the page; a dark one reads as a control laid over it.
 //
-// The expanded menu deliberately does NOT take this. Figma left that variant on
-// the old 12/8 (node 5052:7429), and in our build its rows carry their own
-// padding to reach a 44px tap target anyway -- stacking the two would double
-// the inset above the first row.
-const CAPSULE_PAD_Y = 'pt-space-14 pb-space-12'
+// AND THE BORDER WENT WITH IT, over two passes: first the two pills, then the
+// expanded menu (which had briefly kept a rim in a raw #a8a8a8 -- the one value
+// in this component with no token behind it). All three are borderless now. It
+// was doing a job on white -- separating the pill from the page -- that black
+// does on its own.
+const CAPSULE_CLASS = 'bg-surface-inverted backdrop-blur-[2px]'
 
-// The active state's rule: 16x2, `text-primary`, 4px under the label
-// (node 5052:7655). A real element rather than `text-decoration`, because it is
-// a fixed 16px centred under the label and not the width of the text -- an
-// underline utility cannot draw that. It is also why LINK_UNDERLINE_CLASS (the
-// global nav's current-section marker) is deliberately not reused: same idea,
-// different mark, and the global nav's is the louder one.
-const ACTIVE_RULE_CLASS = 'h-[2px] w-[16px] bg-text-primary'
+// The focus ring's 2px offset paints in `ring-offset-color`, which Tailwind
+// defaults to WHITE -- on a black pill that draws a white halo round every
+// focused chapter, which reads as a border rather than as focus. Pointing it at
+// the capsule's own fill makes the gap disappear into the pill and leaves only
+// the blue ring, which is what the offset is for.
+const FOCUS_ON_DARK = `${FOCUS_CLASS} focus-visible:ring-offset-surface-inverted`
+
+// PADDING IS PER-VARIANT, and has been since the inversion. The three used to
+// share one value; the desktop row now has its own, because it gained a button
+// on the right that needs less room from the edge than a text label does.
+//
+// All three stay ASYMMETRIC top-to-bottom for the same reason they always were:
+// the active item's rule hangs below its label, so an even inset would leave
+// the row sitting high in its own capsule.
+const PAD_WIDE = 'pl-space-24 pr-space-12 pt-space-10 pb-space-8'
+const PAD_TRIGGER = 'px-space-40 pt-space-14 pb-space-12'
+
+// BOTH MOBILE VARIANTS ARE A FIXED 250 (nodes 5052:7428 and 5052:7429) -- Flore,
+// 2026-08-30: "the chapter menu on mobile is too narrow now; make it larger as
+// represented in Figma."
+//
+// This replaces `w-full` on the menu, which was the previous request ("make the
+// size of the menu the same as the chapter bar") solved the wrong way. Tying the
+// menu to the trigger did make them equal, but it also made them equal to the
+// ACTIVE CHAPTER'S LABEL: with "Making it work" selected the trigger is wide and
+// the menu looked right, and with "Overview" selected it collapsed to ~150 and
+// wrapped "Back to top" onto two lines. A width that depends on which chapter
+// you are reading is not a width.
+//
+// 250 is the answer to both requests at once: the two are the same size because
+// they are the same number, and neither moves as the reader scrolls.
+//
+// Capped against the viewport for phones narrower than 250 + the wrapper's own
+// gutters -- rare, but the failure would be a control hanging off the screen.
+const MOBILE_WIDTH = 'w-[250px] max-w-[calc(100vw-32px)]'
+// The expanded menu takes no vertical padding of its own -- its rows carry
+// theirs to reach a 44px tap target, and stacking the two would double the
+// inset above the first row.
+const PAD_MENU = 'px-space-40'
+
+// The active state's rule: 16x2, 4px under the label (node 5052:7655). A real
+// element rather than `text-decoration`, because it is a fixed 16px centred
+// under the label and not the width of the text -- an underline utility cannot
+// draw that. It is also why LINK_UNDERLINE_CLASS (the global nav's
+// current-section marker) is deliberately not reused: same idea, different mark.
+//
+// WHITE on all three variants, and the file now agrees. It briefly did not: the
+// collapsed trigger still bound `Colors/Text/text-primary` after the inversion
+// pass, i.e. a black rule on a black pill. This rendered white through that
+// window and Flore inverted the layer on 2026-08-30, so the divergence is
+// closed rather than standing.
+const ACTIVE_RULE_CLASS = 'h-[2px] w-[16px] bg-text-inverted'
 
 /**
  * One chapter label.
@@ -76,8 +111,8 @@ function ChapterLabel({ label, active }) {
       <span
         className={`col-start-1 row-start-1 whitespace-nowrap transition-colors motion-reduce:transition-none ${
           active
-            ? 'font-semibold text-text-primary'
-            : 'font-normal text-text-tertiary group-hover:font-semibold group-hover:text-text-primary'
+            ? 'font-semibold text-text-inverted'
+            : 'font-normal text-text-inverted-tertiary group-hover:font-semibold group-hover:text-text-inverted'
         }`}
       >
         {label}
@@ -118,7 +153,7 @@ function ChapterLink({ chapter, active, onClose, className = '' }) {
         onClose?.()
         handleAnchorClick(event, `#${chapter.id}`)
       }}
-      className={`group flex flex-col items-center gap-space-4 rounded-radius-4 ${FOCUS_CLASS} ${className}`}
+      className={`group flex flex-col items-center gap-space-4 rounded-radius-4 ${FOCUS_ON_DARK} ${className}`}
     >
       <ChapterLabel label={chapter.label} active={active} />
       {active && <span aria-hidden="true" className={ACTIVE_RULE_CLASS} />}
@@ -126,20 +161,84 @@ function ChapterLink({ chapter, active, onClose, className = '' }) {
   )
 }
 
-/** `breakpoint=desktop` (node 5052:7381) — all five labels in one capsule. */
+/**
+ * Figma's `ButtonAction-small` — a ringed circle around an up arrow. It appears
+ * at two sizes: 35px alone at the right end of the wide capsule (node
+ * 5054:9071), and 24px inside the expanded menu's "Back to top" row (node
+ * 5058:5592).
+ *
+ * PRESENTATIONAL, not a button. At 35 it IS the whole control; at 24 it is the
+ * right-hand end of a row whose label is the other half, and only one of those
+ * two can be the `<button>`. So the ring lives here and the semantics live at
+ * the call sites — which is also why it is `aria-hidden`: whichever button wraps
+ * it already carries the name.
+ *
+ * THE RING IS CSS, NOT THE EXPORTED ASSET. Figma composes the circle from an
+ * ellipse image; it is a plain circular stroke, so drawing it as a border is the
+ * same picture with nothing to keep in sync, and the ring then follows its
+ * container's colour rather than being baked in. The ARROW is the real exported
+ * icon — the same `ic-arrow-up.svg` the homepage nav's home avatar draws.
+ *
+ * The arrow is 57% of the circle at both sizes (20 of 35, 14 of 24), which is
+ * the one number that has to travel between them.
+ */
+function TopArrowCircle({ size, arrow }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="flex shrink-0 items-center justify-center rounded-full border border-current"
+      style={{ width: size, height: size }}
+    >
+      <ArrowUpIcon width={arrow} height={arrow} />
+    </span>
+  )
+}
+
+/**
+ * The wide capsule's back-to-top: the 35px circle on its own, as a real
+ * `<button>`. It scrolls, it does not navigate, and there is nothing on the page
+ * to anchor to (see `scrollToTop` in lib/anchorScroll.js).
+ *
+ * 35px clears WCAG 2.2's 24px minimum target with room. No hover treatment,
+ * because the Figma component defines none — flagged rather than invented.
+ */
+function BackToTopButton({ className = '' }) {
+  return (
+    <button
+      type="button"
+      onClick={scrollToTop}
+      aria-label="Back to top"
+      data-component="chapter-nav-top"
+      className={`flex shrink-0 items-center text-text-inverted ${FOCUS_ON_DARK} ${className}`}
+    >
+      <TopArrowCircle size={35} arrow={20} />
+    </button>
+  )
+}
+
+/** `breakpoint=desktop` (node 5052:7381) — five labels and the back-to-top. */
 function ChapterNavWide({ chapters, activeId, className }) {
   return (
     <nav aria-label="Chapters" data-component="chapter-nav" data-variant="wide" className={className}>
-      <ul
-        className={`${CAPSULE_CLASS} ${CAPSULE_PAD_Y} flex items-start justify-center gap-space-16 rounded-radius-60`}
-        style={{ listStyle: 'none', margin: 0 }}
-      >
-        {chapters.map((chapter) => (
-          <li key={chapter.id} className="flex">
-            <ChapterLink chapter={chapter} active={chapter.id === activeId} />
-          </li>
-        ))}
-      </ul>
+      {/* CONTENT-SIZED WITH AN EXPLICIT GAP, where Figma sets a fixed 586px
+          width and lets `justify-between` open the space between the last label
+          and the button.
+          
+          The frame no longer sets a fixed width at all -- it is auto-width with
+          an explicit `gap-32`, which is exactly what this had been
+          reverse-engineering out of the old 586. The derived number is gone and
+          the stated one is here, which is the better version of the same
+          layout: it cannot drift as the fluid type resizes the labels. */}
+      <div className={`${CAPSULE_CLASS} ${PAD_WIDE} flex items-center gap-space-32 rounded-radius-60`}>
+        <ul className="flex items-start gap-space-16" style={{ listStyle: 'none', margin: 0 }}>
+          {chapters.map((chapter) => (
+            <li key={chapter.id} className="flex">
+              <ChapterLink chapter={chapter} active={chapter.id === activeId} />
+            </li>
+          ))}
+        </ul>
+        <BackToTopButton />
+      </div>
     </nav>
   )
 }
@@ -194,7 +293,9 @@ function ChapterNavNarrow({ chapters, activeId, visible, className }) {
           // `mb-space-8`: the small gap the menu keeps from its trigger.
           // `max-w-[calc(100vw-32px)]` matches the wrapper's own px-space-16
           // gutter, so the menu can never be wider than the screen it opens on.
-          className={`${CAPSULE_CLASS} absolute bottom-full left-1/2 mb-space-8 max-w-[calc(100vw-32px)] -translate-x-1/2 rounded-radius-24`}
+          // `left-0` and the shared fixed width, so the menu sits exactly over
+          // the trigger and matches it edge to edge. See MOBILE_WIDTH.
+          className={`${CAPSULE_CLASS} ${PAD_MENU} ${MOBILE_WIDTH} absolute bottom-full left-0 mb-space-8 flex flex-col gap-space-24 rounded-radius-24`}
         >
           <ul className="flex flex-col items-start" style={{ listStyle: 'none', margin: 0 }}>
             {chapters.map((chapter) => (
@@ -226,6 +327,41 @@ function ChapterNavNarrow({ chapters, activeId, visible, className }) {
               </li>
             ))}
           </ul>
+
+          {/* BACK TO TOP closes the menu — node 5054:9138. It is the one row
+              here that is not a chapter, so it sits outside the list rather
+              than as a sixth <li>: a screen reader should not hear "6 items"
+              for five chapters.
+
+              A FULL-WIDTH ROW, label left and the ringed circle right, since
+              Flore's 2026-08-30 pass. It used to be a shrink-to-fit label with
+              a bare arrow beside it; the row now spans the menu with
+              `justify-between`, which puts the circle on the same right margin
+              the menu's own padding sets and makes the whole row the target
+              rather than just the words.
+
+              The circle is decorative here (see TopArrowCircle) -- this button
+              already carries the name, and two accessible names in one control
+              is one too many.
+
+              The 48px Figma draws between the last chapter and this row is
+              built from `gap-space-24` plus the 12px each row already carries,
+              so the chapter rhythm and this step cannot drift into two numbers.
+
+              Quiet colour like an inactive chapter, because it is the same kind
+              of thing: somewhere else you could be. */}
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false)
+              scrollToTop()
+            }}
+            data-component="chapter-nav-top"
+            className={`flex min-h-[44px] w-full shrink-0 items-center justify-between whitespace-nowrap py-space-12 text-body-sm font-normal text-text-inverted-tertiary transition-colors hover:text-text-inverted motion-reduce:transition-none ${FOCUS_ON_DARK}`}
+          >
+            Back to top
+            <TopArrowCircle size={24} arrow={14} />
+          </button>
         </nav>
       )}
 
@@ -243,24 +379,44 @@ function ChapterNavNarrow({ chapters, activeId, visible, className }) {
         // menu keeps radius-24 now, which reads better than it sounds -- the
         // squarer corner is what distinguishes the open panel from the pill
         // that opened it.
-        className={`${CAPSULE_CLASS} ${CAPSULE_PAD_Y} flex items-center gap-space-4 rounded-radius-60 ${FOCUS_CLASS}`}
+        // `justify-between`, not a gap: at a fixed 250 the label sits on the
+        // left margin and the chevron on the right, which is what the frame
+        // draws and what keeps the chevron in one place as the active label
+        // changes length underneath it.
+        className={`${CAPSULE_CLASS} ${PAD_TRIGGER} ${MOBILE_WIDTH} flex items-center justify-between rounded-radius-60 text-text-inverted ${FOCUS_ON_DARK}`}
       >
         {/* The visible label is the current chapter, which on its own reads as
             a statement rather than a control. The screen-reader prefix says
             what the button does; `aria-expanded` says what state it is in. */}
         <span className="sr-only">Chapters, current chapter: </span>
         <span className="flex flex-col items-center gap-space-4">
-          <span className="text-body-sm font-semibold text-text-primary">
+          <span className="text-body-sm font-semibold text-text-inverted">
             {activeChapter?.label}
           </span>
           <span aria-hidden="true" className={ACTIVE_RULE_CLASS} />
         </span>
-        <ArrowDownIcon
-          aria-hidden="true"
-          width={20}
-          height={20}
-          className={`transition-transform duration-200 motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}
-        />
+        {/* A CHEVRON, not the up/down arrow, and SWAPPED rather than rotated.
+            Both are Flore's call, 2026-08-30.
+
+            The chevron is the point of the change: this trigger sits a few
+            pixels from a back-to-top button, and with an arrow on each they read
+            as one control pointing two ways. A chevron says "this opens", an
+            arrow says "this goes somewhere".
+
+            Swapped rather than rotated because Figma draws two variants and
+            Flore exported two assets (nodes 5052:7428 collapsed, 5058:2897
+            open). The paths ARE exact 180° rotations of each other -- checked,
+            not assumed -- so `rotate-180` on the down chevron would render
+            identically today and would animate, which is what this did before.
+            It follows the file instead: if either icon is ever redrawn so they
+            are no longer mirrors, a rotation would silently keep showing the
+            wrong one, and a swap cannot. The cost is the small turn animation,
+            which is one line to bring back. */}
+        {open ? (
+          <ChevronUpIcon aria-hidden="true" width={20} height={20} />
+        ) : (
+          <ChevronDownIcon aria-hidden="true" width={20} height={20} />
+        )}
       </button>
     </div>
   )
