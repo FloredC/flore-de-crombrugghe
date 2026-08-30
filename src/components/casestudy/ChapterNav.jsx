@@ -28,11 +28,22 @@ import { scrollToChapter } from '../../lib/useChapterProgress'
 // evening it out is what makes the capsule look bottom-heavy.
 const CAPSULE_CLASS = 'border border-border-grey bg-surface-background px-space-40 backdrop-blur-[2px]'
 
-// Figma's vertical padding, applied by the two variants that need it. The
-// expanded menu deliberately does NOT take it: its rows carry their own 12px
-// of padding to reach a 44px tap target, and stacking that inside the capsule's
-// padding would double the inset above the first row.
-const CAPSULE_PAD_Y = 'pt-space-12 pb-space-8'
+// Figma's vertical padding for the two CLOSED capsules -- the wide row and the
+// collapsed trigger. Resampled 2026-08-30 after Flore made the control less
+// self-effacing: it was 12/8 against a 14px label, and is now 14/12 against a
+// 16px one. Both halves of that change matter, and it is worth saying why the
+// padding moved at all: a bigger label inside the old insets would have made
+// the capsule read as tight rather than as louder.
+//
+// Still asymmetric, and still for the same reason -- the active item's rule
+// hangs below its label, so an even inset would leave the row sitting high in
+// its own capsule.
+//
+// The expanded menu deliberately does NOT take this. Figma left that variant on
+// the old 12/8 (node 5052:7429), and in our build its rows carry their own
+// padding to reach a 44px tap target anyway -- stacking the two would double
+// the inset above the first row.
+const CAPSULE_PAD_Y = 'pt-space-14 pb-space-12'
 
 // The active state's rule: 16x2, `text-primary`, 4px under the label
 // (node 5052:7655). A real element rather than `text-decoration`, because it is
@@ -58,7 +69,7 @@ const ACTIVE_RULE_CLASS = 'h-[2px] w-[16px] bg-text-primary'
  */
 function ChapterLabel({ label, active }) {
   return (
-    <span className="grid text-caption">
+    <span className="grid text-body-sm">
       <span aria-hidden="true" className="invisible col-start-1 row-start-1 whitespace-nowrap font-semibold">
         {label}
       </span>
@@ -219,14 +230,21 @@ function ChapterNavNarrow({ chapters, activeId, onSelect, visible, className }) 
         data-component="chapter-nav"
         data-variant="narrow-trigger"
         onClick={() => setOpen((wasOpen) => !wasOpen)}
-        className={`${CAPSULE_CLASS} ${CAPSULE_PAD_Y} flex items-start gap-space-4 rounded-radius-24 ${FOCUS_CLASS}`}
+        // radius-60 and `items-center`, both resampled 2026-08-30 (node
+        // 5052:7428). The collapsed trigger used to square off to radius-24 and
+        // top-align its arrow; it is now the same pill as the wide row, with the
+        // arrow centred against the label-plus-rule stack. Only the EXPANDED
+        // menu keeps radius-24 now, which reads better than it sounds -- the
+        // squarer corner is what distinguishes the open panel from the pill
+        // that opened it.
+        className={`${CAPSULE_CLASS} ${CAPSULE_PAD_Y} flex items-center gap-space-4 rounded-radius-60 ${FOCUS_CLASS}`}
       >
         {/* The visible label is the current chapter, which on its own reads as
             a statement rather than a control. The screen-reader prefix says
             what the button does; `aria-expanded` says what state it is in. */}
         <span className="sr-only">Chapters, current chapter: </span>
         <span className="flex flex-col items-center gap-space-4">
-          <span className="text-caption font-semibold text-text-primary">
+          <span className="text-body-sm font-semibold text-text-primary">
             {activeChapter?.label}
           </span>
           <span aria-hidden="true" className={ACTIVE_RULE_CLASS} />
@@ -276,25 +294,42 @@ export default function ChapterNav({ chapters, activeId, visible }) {
           the wrong control on first paint -- the same call Nav.jsx makes for
           the same reason.
 
-          THE BREAKPOINT IS `sm` (640px), chosen by measuring the capsule rather
-          than by picking a device: the five-label row renders 488px wide, so at
-          640 it fills ~83% of the content width and below ~560 it would start
-          touching the gutters. `sm` is the site's own nearest existing step, so
-          this adds no new breakpoint to the responsive system. It is well below
-          `md` (768), where the global nav switches -- deliberate, so the two
-          controls never change shape on the same drag of a window edge. */}
+          THE BREAKPOINT IS `md` (768px), and it MOVED UP from `sm` on
+          2026-08-30 when the label went from 14px to 16px. Worth recording as a
+          dependency rather than a revision: the collapse point is a function of
+          the type size, so a type change silently invalidates whatever number
+          was measured under the old one.
+
+          Measured against the content column (Container's inner box), not the
+          raw viewport, because that is the width the reader sees the capsule
+          sitting inside:
+
+            640   490 of 589   83%   crowded -- reads as near-full-width
+            700   493 of 672   73%
+            768   505 of 728   69%   comfortable
+
+          At 640 the row now leaves 75px each side, against 167px when it was
+          14px type. `md` is the first standard step where it is clearly not
+          crowded, and it is the site's own established phone/tablet boundary
+          (Nav.jsx), so this still adds no new breakpoint.
+
+          It does mean both navs now change shape at the same width, which the
+          `sm` choice was partly avoiding. That trade is worth taking: one
+          phone/tablet boundary for the whole site is easier to reason about
+          than two a few hundred pixels apart, and nobody watches both controls
+          during a resize. */}
       <ChapterNavWide
         chapters={chapters}
         activeId={activeId}
         onSelect={onSelect}
-        className={`hidden sm:block ${visible ? 'pointer-events-auto' : ''}`}
+        className={`hidden md:block ${visible ? 'pointer-events-auto' : ''}`}
       />
       <ChapterNavNarrow
         chapters={chapters}
         activeId={activeId}
         onSelect={onSelect}
         visible={visible}
-        className={`sm:hidden ${visible ? 'pointer-events-auto' : ''}`}
+        className={`md:hidden ${visible ? 'pointer-events-auto' : ''}`}
       />
     </div>
   )

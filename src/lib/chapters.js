@@ -37,7 +37,7 @@
  *   `label` is the nav's wording and exists only here.
  * @property {string} revealFrom
  *   The chapter id at which the nav appears. Above it the reader is still in
- *   the hero and the opening, where a second navigation would be noise.
+ *   the hero, where a floating control has nothing to orient them within yet.
  * @property {string} endAt
  *   The DOM id of the element that ends the article -- the contact block. The
  *   nav hides here and the progress line completes here, so the page's own
@@ -69,6 +69,21 @@ export const ARTIFAKT_CHAPTERS = {
     // thing to choose between.
     { id: 'reflection', label: 'Reflection' },
   ],
-  revealFrom: 'question',
+  // THE FIRST CHAPTER, changed 2026-08-30 (Flore: "appears too late on scroll.
+  // It should be visible as soon as I pass the hero section").
+  //
+  // It was `question`, on the reasoning that the opening does not need
+  // navigating. In practice that meant a reader scrolled through the entire
+  // Overview -- two full sections -- with no sign the page had chapters at all,
+  // so the control announced itself in the middle of the reading rather than at
+  // the door.
+  //
+  // Pointing at the first chapter makes "past the hero" and "the nav appears"
+  // the same moment, because `what` is the first section after the hero: the
+  // nav crosses in when the hero has ~200px left on screen. That reuses the
+  // scrollspy's own threshold rather than measuring the hero separately, which
+  // is what guarantees the nav can never appear showing a chapter the reader
+  // has not reached.
+  revealFrom: 'what',
   endAt: CASE_STUDY_OUTRO,
 }

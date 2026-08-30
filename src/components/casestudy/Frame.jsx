@@ -121,14 +121,51 @@ export default function Frame({
     // built -- Figma's hero background is a grid illustration, and the stage was
     // rendering as flat canvas because no asset existed for it. It never needed
     // an asset; it is a CSS pattern.
-    // The top padding absorbed from ProjectPage's <main> (see the note there):
-    // 120 + 64 = 184 at small, 160 + 120 = 280 at xl, so the spacing above the
-    // hero content is unchanged while the grid itself now reaches y=0.
-    // Asymmetric on purpose -- the extra top is nav clearance, not rhythm.
+    // TOP PADDING RETUNED 2026-08-30 (Flore: "title and image are very far down
+    // in the viewport... I think part of the reason is that the space foreseen
+    // between the navbar and hero content is too big"). Right diagnosis, and
+    // the measurement backs it.
+    //
+    // The padding is still asymmetric because it has to be -- the nav pill is
+    // `fixed` and reserves no layout of its own, so this element owns its
+    // clearance. But it had drifted well past clearance into imbalance. At
+    // 1440x900 the hero drew 200 above and 80 below, and since the pill's own
+    // bottom edge sits at 85, what the eye actually compared was 116px of empty
+    // stage above the title against 80px below it. On a 900px screen the h1
+    // started at y=426 -- past the halfway line, with the reader's first
+    // impression of the page being empty colour.
+    //
+    // The rule now, and it is a rule rather than three tastes:
+    //
+    //     pt  ~=  (pill's bottom edge)  +  pb
+    //
+    // so the gap the reader sees UNDER the floating pill matches the gap under
+    // the content. Measured pill bottoms are 83 / 85 / 94 across the three
+    // bands, which lands each step on a real token:
+    //
+    //   base   144   (83 + 64 = 147)   gap 61 above, 64 below
+    //   xl     160   (85 + 80 = 165)   gap 75 above, 80 below
+    //   2xl    200   (94 + 120 = 214)  gap 106 above, 120 below
+    //
+    // Every one is a touch tighter above than below, which is deliberate:
+    // optical centring wants slightly less space above than below, and the
+    // stage keeps running to y=0 behind the pill regardless.
+    //
+    // THE BOTTOM PADDING IS UNCHANGED. It is the rhythm value -- it sets the
+    // step from the hero into the first section -- and only the top was ever
+    // carrying clearance. Touching both would have moved the page's spacing
+    // system to fix a hero problem.
+    //
+    // This reaches EVERY case study, which is what Flore asked for ("this
+    // applies to all the other pages") and is the reason it belongs here rather
+    // than in one page's layout.
+    //
+    // If the nav pill's height ever changes, this is downstream of it: re-measure
+    // `[data-component="nav"]`'s bottom edge and re-add the pb.
     <Block
       width="bleed"
       as="header"
-      className={`${stage} pb-space-64 pt-space-160 xl:pb-space-80 xl:pt-space-200 2xl:pb-space-120 2xl:pt-space-280`}
+      className={`${stage} pb-space-64 pt-space-144 xl:pb-space-80 xl:pt-space-160 2xl:pb-space-120 2xl:pt-space-200`}
     >
       <Container className="flex flex-col gap-space-40 2xl:gap-space-64">
         {/* The "You are here: Lab — Own products" breadcrumb was removed here on
