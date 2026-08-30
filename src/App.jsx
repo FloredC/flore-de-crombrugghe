@@ -9,7 +9,8 @@ import ProcessLogPage from './pages/ProcessLogPage'
 // The browser only honours a hash on a real document load. React Router
 // navigations don't reload the document, so `/#project-pitchpivot` and
 // `/#contact` rendered the homepage at the top and silently ignored the
-// anchor -- which is what made "Back to Portfolio" always land on the map.
+// anchor -- which is what made the subpage nav's back link always land on
+// the map.
 //
 // Deliberately has no "only on a new route" guard. An earlier version tracked
 // the previous pathname in a ref and bailed out when it hadn't changed, to
@@ -33,7 +34,7 @@ import ProcessLogPage from './pages/ProcessLogPage'
 //
 //  - Skip when there IS a hash. That is ScrollToHash's job below, and racing it
 //    would mean scrolling to the top and then to the anchor, i.e. a visible
-//    jump on every "Back to Portfolio" and every map popover link.
+//    jump on every subpage back link and every map popover link.
 //
 //  - Skip on POP. That is the browser Back/Forward button, where the reader
 //    expects to land where they left, and the browser's own scroll restoration

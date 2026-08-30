@@ -160,10 +160,20 @@ export default {
         // is still better than the literal bg-white/[0.33] they used before,
         // which was a copy of the token's value living in two component files.
         'white-transparent': 'var(--white-transparent)',
+        // Artifakt's accent -- the progress fill and the pipeline cards' borders.
+        // Hand-carried in semantic.css under a placeholder name; see the note there.
+        accent: 'var(--colors-accent)',
         text: {
           primary: 'var(--colors-text-text-primary)',
           secondary: 'var(--colors-text-text-secondary)',
+          // The quietest text role -- the chapter nav's inactive labels, and
+          // so far nothing else. Hand-carried in semantic.css because the
+          // Figma export missed it; see the note there before "fixing" it.
+          tertiary: 'var(--colors-text-text-tertiary)',
           inverted: 'var(--colors-text-inverted)',
+          // The quiet label on a dark surface — the chapter nav's inactive
+          // chapters. Hand-carried in semantic.css; see the note there.
+          'inverted-tertiary': 'var(--colors-text-inverted-tertiary)',
         },
         border: {
           grey: 'var(--colors-border-grey)',

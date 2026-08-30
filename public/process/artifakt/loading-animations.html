@@ -39,7 +39,7 @@
 
   /* ── Image figures ── */
   figure { margin: 24px 0; }
-  figure img { width: 100%; display: block; border-radius: 10px; border: 1.5px solid #e3e1db; background: #fff; }
+  figure img { width: 100%; display: block; border-radius: 10px; border: 1px solid #e3e1db; background: #fff; }
   figcaption { font-size: 12.5px; color: #777; margin-top: 8px; line-height: 1.5; }
   .img-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 18px; margin: 24px 0; }
   .img-row figure { margin: 0; }
@@ -49,13 +49,13 @@
   .decision { padding: 14px 18px; border-left: 3px solid #ddd; background: #fff; border-radius: 0 8px 8px 0; margin-bottom: 12px; }
   .decision .what { font-weight: 600; font-size: 14.5px; margin-bottom: 3px; }
   .decision .why { font-size: 13.5px; color: #555; line-height: 1.6; }
-  .decision.key { border-left-color: #7c3aed; background: #f9f7ff; }
+  .decision.key { border-left-color: #321366; background: #f9f7ff; }
   .decision.key .what { color: #5b21b6; }
 
   /* ── Flow diagram ── */
   .flow { display: flex; align-items: stretch; flex-wrap: wrap; gap: 10px; margin: 22px 0; }
-  .flow-step { background: #fff; border: 1.5px solid #d9d5cd; border-radius: 12px; padding: 14px 16px; flex: 1; min-width: 150px; }
-  .flow-step.hl { border-color: #7c3aed; background: #fbf9ff; }
+  .flow-step { background: #fff; border: 1px solid #d9d5cd; border-radius: 12px; padding: 14px 16px; flex: 1; min-width: 150px; }
+  .flow-step.hl { border-color: #321366; background: #fbf9ff; }
   .flow-step .fs-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.3px; color: #aaa; margin-bottom: 6px; }
   .flow-step.hl .fs-label { color: #7c3aed; }
   .flow-step .fs-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
@@ -63,8 +63,8 @@
   .flow-arrow { align-self: center; color: #c2bdb2; font-size: 22px; flex-shrink: 0; }
 
   /* ── Callouts ── */
-  .callout { background: #fff; border: 1.5px solid #e3e1db; border-radius: 12px; padding: 18px 20px; margin: 22px 0; }
-  .callout.insight { border-color: #7c3aed; background: linear-gradient(180deg,#faf8ff,#fff); }
+  .callout { background: #fff; border: 1px solid #e3e1db; border-radius: 12px; padding: 18px 20px; margin: 22px 0; }
+  .callout.insight { border-color: #321366; background: linear-gradient(180deg,#faf8ff,#fff); }
   .callout h4 { font-size: 14px; margin-bottom: 8px; }
   .callout p { font-size: 13.5px; color: #444; line-height: 1.65; margin-bottom: 8px; }
   .callout p:last-child { margin-bottom: 0; }
@@ -83,7 +83,7 @@
   ─────────────────────────────────────────────── */
   .anim-stage {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    background: #f7f4ed; border: 1.5px solid #e3e1db; border-radius: 14px;
+    background: #f7f4ed; border: 1px solid #e3e1db; border-radius: 14px;
     padding: 44px; margin: 24px 0; min-height: 230px; gap: 16px;
   }
   .anim-stage.paper { background: #feffe9; }
@@ -141,7 +141,7 @@
                animation: cardSpin 2.4s linear infinite; }
   @keyframes cardSpin { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
   .demo-card-face { position: absolute; inset: 0; border-radius: 12px; overflow: hidden;
-                    backface-visibility: hidden; background: #f7f4ed; border: 1.5px solid #7c3aed; }
+                    backface-visibility: hidden; background: #f7f4ed; border: 1px solid #321366; }
   .demo-card-back { transform: rotateY(180deg); }
   .demo-card-face svg { width: 100%; height: 100%; display: block; }
 </style>

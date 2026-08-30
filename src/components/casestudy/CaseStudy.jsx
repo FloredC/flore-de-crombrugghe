@@ -9,7 +9,7 @@ import FeatureBlock from './FeatureBlock'
 import LearningBlock from './LearningBlock'
 import RankedBars from './RankedBars'
 import Media from './Media'
-import Onward from './Onward'
+import CaseStudyContact from './CaseStudyContact'
 import { SPACE } from '../../lib/caseStudyLayout'
 import { FOCUS_CLASS } from '../ButtonLink'
 import emphasise from '../../lib/emphasis'
@@ -303,8 +303,15 @@ export default function CaseStudy({ data }) {
         </Block>
       </div>
 
-      {/* 8 — Onward. */}
-      <Onward heading={data.onward.heading} contact={data.onward.contact} />
+      {/* 8 — the page's exit.
+
+          WAS `Onward`, replaced 2026-08-30. Onward's remaining half was a prompt
+          plus one CTA that navigated to the HOMEPAGE's contact section; the
+          subpage nav's Contact button now has to land on this page instead, so
+          the block it lands on has to actually be a contact section. Same
+          position in the sequence, same `medium` width, so the page's Rule 1
+          run is unchanged. */}
+      <CaseStudyContact {...data.contact} />
     </article>
   )
 }

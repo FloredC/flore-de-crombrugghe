@@ -10,6 +10,7 @@ import CaseStudyNda from '../components/casestudy/CaseStudyNda'
 import CaseStudyWip from '../components/casestudy/CaseStudyWip'
 import ProjectNavigation from '../components/ProjectNavigation'
 import { getProjectBySlug, getCaseStudyBySlug, getAdjacentProjects } from '../lib/content'
+import { CASE_STUDY_OUTRO } from '../lib/chapters'
 
 export default function ProjectPage() {
   const { slug } = useParams()
@@ -85,7 +86,21 @@ export default function ProjectPage() {
 
   return (
     <>
-      <Nav />
+      {/* CONTACT STAYS ON THIS PAGE. Every case-study layout now ends on the
+          shared contact block, so the nav's Contact button scrolls down to it
+          instead of navigating back to the homepage's — Flore, 2026-08-30.
+
+          Passed from here rather than defaulted inside Nav, because Nav is also
+          the process-log pages' nav and those have no contact block of their
+          own; the default stays the homepage so a page without the block can't
+          end up with a button that goes nowhere.
+
+          The stub <article> branch below has no contact block either, but
+          nothing reaches it today (all ten projects have a case-study module),
+          and it is a floor rather than a live branch — flagged rather than
+          guarded, since guarding it would mean threading a second condition
+          through for a case that cannot currently happen. */}
+      <Nav contactHref={`#${CASE_STUDY_OUTRO}`} />
       {caseStudy ? (
         // No wrapper padding: the case study's first block sets its own top
         // spacing and its bleed blocks must reach the window edges. A padded

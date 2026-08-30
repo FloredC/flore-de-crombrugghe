@@ -11,6 +11,16 @@
 // Each icon keeps its intrinsic size from the SVG (20px for the arrow/link
 // set, 24px for menu/close); pass width/height to override.
 export { default as ArrowDownIcon } from '../assets/icons/ic-arrow-down.svg?react'
+// CHEVRONS, added 2026-08-30 -- Flore: "I added chevron icons for the
+// expandable menu so that it's not confused with the 'go up' icon."
+//
+// That distinction is the whole reason they exist, and it is worth keeping
+// straight at the call sites: a CHEVRON means "this opens and closes", an ARROW
+// means "this goes somewhere". The chapter nav needed both at once -- a trigger
+// that expands a menu, and a button that returns to the top of the page -- and
+// with two arrows they read as the same control pointing two ways.
+export { default as ChevronDownIcon } from '../assets/icons/ic-chevron-down.svg?react'
+export { default as ChevronUpIcon } from '../assets/icons/ic-chevron-up.svg?react'
 export { default as ArrowBackIcon } from '../assets/icons/ic-arrow-back.svg?react'
 // The forward arrow on the Artifakt case study's process-log links. The asset
 // has been in src/assets/icons since the original export but was never
@@ -23,6 +33,17 @@ export { default as ArrowRightIcon } from '../assets/icons/ic-arrow-right.svg?re
 // the rest of the set fills with), and Figma holds it at that same black
 // through reg/hover/pressed/focus -- only the ring around it dims. So it stays
 // a literal stroke colour and deliberately doesn't follow the parent's text.
+// RE-EXPORTED 2026-08-30. This was the odd one out of the set: a hand-made
+// stroke drawing on a 13.3x20.34 artboard, painted pure #000000 rather than the
+// design system's #0E0E0E -- so alone among the icons it could not follow its
+// container's colour, and it needed a per-call-site size. Flore added a real
+// one to the library ("it was never in my design system"), and it is now a
+// 20x20 filled glyph that mirrors `ic-arrow-down` exactly.
+//
+// Two things went away with it: a `#000000 -> currentColor` rule in
+// vite.config.js that existed only for this file, and the bespoke sizes at its
+// call sites. Both are gone; every use is now `width={20} height={20}` like the
+// rest of the set.
 export { default as ArrowUpIcon } from '../assets/icons/ic-arrow-up.svg?react'
 export { default as CopyIcon } from '../assets/icons/ic-copy.svg?react'
 export { default as ExternalLinkIcon } from '../assets/icons/ic-external-link.svg?react'

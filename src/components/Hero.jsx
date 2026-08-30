@@ -8,6 +8,7 @@ import { FOCUS_CLASS } from './ButtonLink'
 import { hotspots } from '../lib/content'
 import { hotspotHighlights } from '../lib/hotspotHighlights'
 import { getDiscipline } from '../lib/disciplines'
+import { handleAnchorClick } from '../lib/anchorScroll'
 
 // Real copy sampled from Figma's Hero "Guide" component -- not placeholder.
 const GREETING = (
@@ -197,7 +198,11 @@ function Guide() {
           content model) and keeps the page's single top-level heading where it
           belongs, which nesting the link inside the heading instead would not
           do for the title line. */}
-      <a href="#contact" className={`flex w-fit flex-col rounded-radius-4 ${FOCUS_CLASS}`}>
+      <a
+        href="#contact"
+        onClick={(event) => handleAnchorClick(event, '#contact')}
+        className={`flex w-fit flex-col rounded-radius-4 ${FOCUS_CLASS}`}
+      >
         <h1 className="text-body font-bold leading-[1.3]">Flore de Crombrugghe</h1>
         <p className="text-body font-normal leading-[1.3]">Senior Product Designer</p>
       </a>

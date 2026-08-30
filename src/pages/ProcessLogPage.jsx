@@ -21,6 +21,18 @@ import assetUrl from '../lib/assetUrl'
  * So the documents stay untouched and the app supplies the chrome. Re-exporting
  * a log is then a pure file drop.
  *
+ * THAT LAST SENTENCE STOPPED BEING TRUE ON 2026-08-30, and the exception is
+ * narrow enough to be worth stating rather than hiding: the logs' interactive
+ * cards now carry the site's accent border (`#321366`, 1px), applied by hand to
+ * all six files. Flore's call — those borders change on hover and click, so
+ * they are a code concern rather than something to re-export a working document
+ * for. `public/process/artifakt/README.md` records the two rules and the fact
+ * that a re-export reverts them.
+ *
+ * The chrome/content split above is untouched: the app still supplies the nav,
+ * and nothing was added to the documents. Only existing declarations changed
+ * value.
+ *
  * The cost is honest and worth naming: an iframe means the log's own content is
  * not in this document's outline, browser find-in-page searches the frame only
  * once it has focus, and the URL doesn't change as the reader scrolls the log.
@@ -107,16 +119,21 @@ export default function ProcessLogPage() {
   // and to the homepage otherwise -- never a blank frame.
   if (!entry) return <Navigate to={project ? `/work/${slug}` : '/'} replace />
 
-  // The title the nav's back link shows. `project.title` carries the full
-  // "Artifakt — Tracing your way past the blank canvas"; the back link wants
-  // just the name, which is everything before the em dash.
-  const projectName = project?.title?.split('—')[0].trim() || 'the case study'
-
   return (
     <>
       <Nav
         backTo={`/work/${slug}`}
-        backLabel={`Back to ${projectName}`}
+        // "Case study", not "Back to Artifakt" -- Flore, 2026-08-30.
+        //
+        // It used to derive the project's name from `project.title` (everything
+        // before the em dash). That read as a proper noun where the rest of the
+        // site names a DESTINATION: the case-study pages say "Work", so a log
+        // one level below says "Case study". The arrow carries the "back" in
+        // both, which is why neither says it.
+        //
+        // It also stops being a sentence that grows with the project's name --
+        // "Back to Faster trail discovery for 80k users" was one re-slug away.
+        backLabel="Case study"
         onBackClick={onBackClick}
       />
       <main>

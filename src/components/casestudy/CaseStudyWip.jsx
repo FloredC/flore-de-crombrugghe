@@ -2,6 +2,7 @@ import Block from './Block'
 import Frame from './Frame'
 import emphasise from '../../lib/emphasis'
 import { ARTIFAKT } from '../../lib/caseStudyLayout'
+import CaseStudyContact from './CaseStudyContact'
 
 /**
  * The WORK-IN-PROGRESS layout — a hero and a short body, and nothing else.
@@ -60,6 +61,12 @@ export default function CaseStudyWip({ data }) {
             ))}
           </div>
         </Block>
+      </div>
+
+      {/* Same exit as every other subpage -- the nav's Contact button has to
+          land somewhere on this page too, placeholder body or not. */}
+      <div className="pt-space-80 xl:pt-space-100 2xl:pt-space-140">
+        <CaseStudyContact {...data.contact} />
       </div>
     </article>
   )

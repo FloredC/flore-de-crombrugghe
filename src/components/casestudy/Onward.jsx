@@ -3,6 +3,26 @@ import ProjectCard from '../ProjectCard'
 import ButtonLink from '../ButtonLink'
 import { MEASURE } from '../../lib/caseStudyLayout'
 
+// NOT RENDERED ANYWHERE, since 2026-08-30. Read this before editing it.
+//
+// The component lost both halves to other things, one at a time:
+//
+//   the next-project card  ->  `ProjectNavigation`, the prev/next band
+//                              ProjectPage renders on every subpage (2026-08-27)
+//   the contact half       ->  `CaseStudyContact`, the real contact section
+//                              every subpage now ends on (2026-08-30)
+//
+// The second move is what emptied it. Onward's contact half was a prompt and
+// one CTA that navigated to the HOMEPAGE's contact section; the subpage nav's
+// Contact button now has to land on the page you are already reading, so that
+// block had to become a contact section rather than a signpost to one.
+//
+// Kept rather than deleted because the reasoning below is still the record of
+// how the case-study endings were designed, and because restoring the
+// next-project card is passing `project` again. `data.onward` is still in the
+// content files for the same reason. Flagged to Flore as a deletion she can
+// make in one line if she'd rather not carry it.
+//
 // The page's exit: one curated next project, then a way to get in touch.
 //
 // The next project renders through the real ProjectCard, not a bespoke

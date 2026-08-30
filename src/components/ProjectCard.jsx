@@ -31,7 +31,7 @@ export default function ProjectCard({ project, size = 'medium' }) {
       data-size={size}
       // scroll-mt keeps the card clear of the fixed nav when it's the target of
       // an anchor jump -- both the map popovers' "View project" links and the
-      // "Back to Portfolio" return from a case study. Without it the card's top
+      // back-link return from a case study. Without it the card's top
       // edge lands underneath the nav pill.
       // `group` so the media frame can lift on hover of the card as a whole
       // (see ProjectMedia); `relative` so the CTA's stretched ::after below

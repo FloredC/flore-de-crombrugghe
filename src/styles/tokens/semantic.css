@@ -58,6 +58,30 @@
   --colors-surface-subtle: var(--grey-10);
   --colors-surface-inverted: var(--grey-90);
   /* ---------------------------------------------------------------------
+     text-tertiary — a REAL Figma variable that the export missed.
+
+     `Colors/Text/text-tertiary` exists in the file and is what the Chapter
+     Nav's inactive labels bind to (read with `get_variable_defs` on node
+     5052:7430, not sampled off the screenshot). It simply is not in the
+     export above, the same way `Colors/Surface/highlight` wasn't.
+
+     Carried by hand for that reason, but NOTE what separates it from the two
+     literals below: this line forwards a primitive rather than copying a
+     value, so if grey-70 ever changes in Figma this still follows it. The only
+     thing that can go stale is the mapping itself (text-tertiary -> grey-70),
+     which is one fact, not a colour.
+
+     #656262 on white is 6.0:1, so the quiet label still clears WCAG AA.
+     --------------------------------------------------------------------- */
+  --colors-text-text-tertiary: var(--grey-70);
+  /* The same story one shade over: `Colors/Text/inverted-tertiary` is a real
+     Figma variable (read from the inverted Chapter Nav, node 5052:7430) that
+     the export also missed. It is the quiet label ON a dark surface, where
+     `--colors-text-inverted` is the loud one. Forwards a primitive, so a change
+     to grey-20 still reaches it. #d2d2d2 on #0e0e0e is 12.8:1 — far clear of
+     AA, which matters because this is the tier the reader is NOT on. */
+  --colors-text-inverted-tertiary: var(--grey-20);
+  /* ---------------------------------------------------------------------
      HAND-MAINTAINED, PERMANENTLY. Flore's decision, 2026-08-26.
 
      The rest of this file is a verbatim Figma export, and the standing rule
@@ -91,6 +115,22 @@
      would be worse than an honest literal, since the invented name is the
      thing that would silently survive a future export.
      --------------------------------------------------------------------- */
+  /* Artifakt's accent: the reading-progress fill, and the borders of the
+     pipeline's pass-interaction cards. Flore, 2026-08-30 — a new semantic token
+     in her Figma variables, given here as the hex she quoted (#321366).
+
+     NAME IS A PLACEHOLDER. The Figma variable exists but is not published to a
+     library, so `search_design_system` cannot see it and no node in the file
+     binds it yet — which means I could read the value but not what she called
+     it. `accent` is descriptive of the role it plays here; rename it to the
+     real variable name when she confirms, and this and its Tailwind entry are
+     the only two lines to touch.
+
+     A LITERAL, like the two below and for the same reason: no primitive is
+     close (the nearest, purple-80, is a different hue), so an invented
+     primitive name would be worse than an honest hex. */
+  --colors-accent: #321366;
+
   /* Artifakt: the hero stage, its image stages, the final-product panel. */
   --colors-surface-yellow: #fdffe6;
   /* The project snapshots' hero stage (Teamchatviz, and Sinomocene/Roche
