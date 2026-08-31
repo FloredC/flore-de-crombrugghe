@@ -470,19 +470,41 @@ export default {
       // the model reaches for the icon, and until now the reader had to take
       // that on trust.
       //
-      // Converted from Flore's PNG export to WebP, 2026-08-31, so it matches
-      // every other asset on the page: lossy q90, alpha preserved (the phone
-      // corners are transparent and sit on the stage's own fill). 231 KB -> 73.
+      // RE-EXPORTED later the same day, and the change is the ARROW between the
+      // two screens. It was two panels sitting next to each other, which left
+      // the reader to infer the causality; the arrow states it, which is what
+      // makes this a before/after rather than a pair. Same composition
+      // otherwise, drawn slightly larger (882x766, was 781x678).
+      //
+      // Converted from Flore's PNG export to WebP, so it matches every other
+      // asset on the page: lossy q90, alpha preserved (the phone corners are
+      // transparent and sit on the stage's own fill). 279 KB -> 87.
       media: {
         layout: 'split',
-        // Figma draws the pair at 370.3 inside a 645.5 stage (node 5063:2885),
-        // so the surround is composition rather than margin — the same
-        // absolute-width convention `against-the-defaults` follows below.
-        maxWidth: 370,
+        // NO WIDTH CAP — Flore, 2026-08-31, asked for this one bigger, so it
+        // fills its stage (the 572 split column less MediaStage's 24 of padding
+        // = 524) instead of stopping at a drawn width.
+        //
+        // A DELIBERATE EXCEPTION to the convention the rest of this page
+        // follows, and worth saying so plainly: every other asset here is
+        // capped at its absolute Figma width, and `against-the-defaults` below
+        // was uncapped once and put back (Flore, 2026-08-25: too big in code).
+        // Don't "restore" 370 as a consistency fix.
+        //
+        // The reason the two go opposite ways is what is inside them. The
+        // defaults grid is artwork, and its Figma surround is composition. This
+        // one is two phone SCREENSHOTS, and the screens carry UI text — at 370
+        // each phone was ~150px and every word in it was mush. At 524 they are
+        // ~210 and the headline resolves, which is the difference between
+        // evidence and a picture of evidence.
+        //
+        // `MEDIA_MAX_H` (88svh) still applies underneath and is what stops this
+        // on a very short window; it does not bite at any normal viewport,
+        // where the column is the smaller of the two.
         src: `${M}/the-reveal.webp`,
-        label: '[ the-reveal.webp — 781x678 trace in, spider out ]',
-        placeholderAspect: '781 / 678',
-        alt: 'Two Artifakt screens side by side: on the left the trace screen with the word “water” and a loose hand-drawn line, on the right the reveal showing a Louise Bourgeois spider in which none of the traced line survives',
+        label: '[ the-reveal.webp — 882x766 trace in, spider out ]',
+        placeholderAspect: '882 / 766',
+        alt: 'Two Artifakt screens with an arrow between them: on the left the trace screen with the word “water” and a loose hand-drawn line, on the right the reveal showing a Louise Bourgeois spider in which none of the traced line survives',
         caption: 'Traced line not legible. Artists reach for icons, not technique.',
       },
       // TWO EMBEDS, NOT YET BUILT. Figma draws both as empty dashed
@@ -576,29 +598,27 @@ export default {
             },
           },
         ],
-        // FOUR NOTES, NOT THE SOURCE DOCUMENT'S SIX. "Why two passes?" is said
-        // by the prose directly beside this diagram, so repeating it makes the
-        // figure argue with the page; "Scaffold (Screen 1)" belongs to "The
-        // scaffold" section further down, where the reader meets that problem.
-        // The four kept are the ones the prose does not cover.
-        notes: [
-          {
-            title: 'What strength controls',
-            body: 'Strength is how much the model departs from the input image. 0.0 returns the input untouched; 1.0 ignores it entirely. Higher strength means more artistic transformation but looser sketch fidelity.',
-          },
-          {
-            title: 'Why results vary',
-            body: 'Diffusion models start from random noise (the seed), so two identical prompts produce different results every time. That variance compounds across two passes. The regenerate button on the canvas lets users reroll.',
-          },
-          {
-            title: 'Model used',
-            body: 'fal-ai/flux/dev/image-to-image. 28 inference steps, guidance scale 3.5. No LoRA fine-tuning — style is driven entirely through prompting. LoRA is a future option once the artist roster is validated.',
-          },
-          {
-            title: 'Cost',
-            body: 'Two API calls per artist per generation. All five artists are generated in parallel when Screen 2 loads. Regenerating one artist is two fresh calls for that artist only.',
-          },
-        ],
+        // NO NOTES ROW — removed 2026-08-31, Flore: "it's just too much
+        // content." It was a four-card grid under the diagram covering what
+        // strength controls, why results vary, the model settings, and cost.
+        //
+        // The trim it completes: the row was already down from the source
+        // document's six, because "Why two passes?" is said by the prose beside
+        // this diagram and "Scaffold (Screen 1)" belongs to the scaffold
+        // section further down. Cutting the last four is the same judgement one
+        // step on -- this figure's job is to show the pipeline, and the reader
+        // who wants inference steps and per-call cost is a different reader.
+        //
+        // NOTHING IS LOST, which is what makes the cut cheap: all four notes
+        // came out of the prompting-process log, that log still carries the
+        // material (checked -- strength, seed, LoRA, guidance scale and the
+        // regenerate button are all in it), and `link` above already points at
+        // it from this diagram. The detail moved one click away rather than
+        // going.
+        //
+        // PipelineDiagram still renders a `notes` array when given one
+        // (`notes?.length > 0`), so restoring a shorter row is a paste here and
+        // no code change.
       },
     },
 
