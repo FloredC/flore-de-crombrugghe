@@ -565,12 +565,43 @@ body {
    value is used here on purpose; if a finer grid is wanted on the media frames,
    that is the number to change.
 --------------------------------------------------------------------------- */
-.bg-notebook {
-  background-color: #fbfbfb;
+/* THE GRID IS NOW SHARED, the ground colour is not -- added 2026-08-31 for the
+   PitchPivot homepage card, which wanted this exact pattern over a background
+   colour it already had.
+
+   `.bg-notebook` is unchanged in behaviour and still stands alone: it is the
+   grid plus the #fbfbfb ground, which is what every case-study panel uses.
+   `.bg-notebook-lines` is the grid WITHOUT a ground, for callers that set their
+   own background-color -- the ProjectCard media frames set theirs as an inline
+   style (see mediaTints.js), and an inline background-color beats any class, so
+   pairing those callers with `.bg-notebook` would have produced this same result
+   by accident while looking like a mistake. A separate class says it on purpose.
+
+   The two values live in custom properties so the grid cannot drift between the
+   page and the card. Per the note above, the source deck also has 30px/0.045
+   and 28px/0.04 variants intended for smaller cards; if the 40px cell reads
+   coarse on a card, `--notebook-cell` is the one number to change. */
+:root {
+  --notebook-line: rgba(0, 0, 0, 0.055);
+  --notebook-cell: 40px;
+  /* Flore's #fbfbfb, now named because a second caller needs it. The rule
+     above still insists this hex lives in exactly one place; this IS that
+     place, and the PitchPivot card reads it by name rather than copying the
+     literal into mediaTints.js. If Figma ever names the colour, change it
+     here and nowhere else -- unchanged instruction, one more caller. */
+  --notebook-ground: #fbfbfb;
+}
+
+.bg-notebook,
+.bg-notebook-lines {
   background-image:
-    linear-gradient(rgba(0, 0, 0, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.055) 1px, transparent 1px);
-  background-size: 40px 40px;
+    linear-gradient(var(--notebook-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--notebook-line) 1px, transparent 1px);
+  background-size: var(--notebook-cell) var(--notebook-cell);
+}
+
+.bg-notebook {
+  background-color: var(--notebook-ground);
 }
 
 /* ===========================================================================

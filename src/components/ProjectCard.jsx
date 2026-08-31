@@ -3,7 +3,7 @@ import ProjectMedia from './ProjectMedia'
 import assetUrl from '../lib/assetUrl'
 import { LINK_COLOR_CLASS } from './ButtonLink'
 import Badge from './Badge'
-import { mediaTints, DEFAULT_MEDIA_TINT } from '../lib/mediaTints'
+import { mediaTints, mediaPatterns, DEFAULT_MEDIA_TINT } from '../lib/mediaTints'
 
 // THE CARD HAS NO CTA BUTTON -- Flore, 2026-08-27, removed from the Figma
 // instances first (e.g. the Rega card, node 2928:73731, which now ends at the
@@ -60,6 +60,8 @@ export default function ProjectCard({ project, size = 'medium' }) {
         caption={project.imageCaption}
         size={size}
         tint={mediaTints[project.slug] || DEFAULT_MEDIA_TINT}
+        // Undefined for nine of the ten, which emits no extra class at all.
+        pattern={mediaPatterns[project.slug]}
         badge={<Badge status={project.status} />}
       />
       <div

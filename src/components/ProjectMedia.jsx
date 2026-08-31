@@ -336,7 +336,7 @@ const FRAME_RADIUS = {
   small: 'rounded-radius-20',
 }
 
-export default function ProjectMedia({ src, alt, caption, size = 'medium', badge, tint }) {
+export default function ProjectMedia({ src, alt, caption, size = 'medium', badge, tint, pattern }) {
   return (
     <div
       data-component="project-media"
@@ -382,9 +382,12 @@ export default function ProjectMedia({ src, alt, caption, size = 'medium', badge
         // PANEL PADDING is `small`-only, from Flore's component: Spaces/8 top
         // and bottom (node 2928:78064). The other two sizes have never had any
         // -- their artwork is centred in a frame with room to spare.
+        // `pattern` is a background-IMAGE class (see mediaPatterns in
+        // mediaTints.js); the inline colour below stays the ground it sits on.
+        // The two do not fight: they are different properties.
         className={`flex flex-col justify-center [grid-area:1/1] ${STACK_ALIGN[size]} ${FRAME_RADIUS[size]} ${
           size === 'small' ? 'gap-space-12 py-space-8' : ''
-        }`}
+        } ${pattern ?? ''}`}
         style={{ backgroundColor: tint }}
       >
         {size === 'small' ? (
