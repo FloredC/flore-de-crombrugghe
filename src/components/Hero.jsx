@@ -23,6 +23,33 @@ const GREETING = (
 const MAP_NATIVE_WIDTH = 1622
 const MAP_NATIVE_HEIGHT = 982
 
+// The artwork's own box inside that 1622x982 viewBox, measured with the SVG's
+// `getBBox()` rather than eyeballed: x=127.5, y=33.1, w=1401, h=916.5. So the
+// file carries 33.1px of empty margin above the drawing and 32.4 below (6.7% of
+// its height), plus 127.5 and 93.5 to the sides (13.6% of its width).
+//
+// RE-MEASURE THIS IF THE MAP SVG IS EVER RE-EXPORTED. Three separate things
+// below are derived from it, and all of them would be quietly wrong -- not
+// broken, just slightly off -- if the artwork moved inside its box.
+const MAP_ART = { top: 33.1, bottom: 32.4, height: 916.5, left: 127.5 }
+
+// How far right the map sits in whatever gutter is left over: 0.5 is centred,
+// 1 is flush right. Chosen by Flore from a screenshot matrix on 2026-08-31.
+//
+// It exists because the Guide is a fixed-size block of type overlaid on a map
+// that scales. At the map's native size the Guide takes 18% of its width and
+// sits in the corner the illustration reserves for it; at laptop sizes it takes
+// 26% and crowds the island's coastline. Sliding the map right opens room on
+// the left WITHOUT shrinking the map -- the artwork's own 93.5px of empty right
+// margin absorbs most of the move, so the drawing does not run into the
+// viewport edge.
+//
+// 0.75 rather than 1: flush right clears the Guide completely but banks the
+// entire gutter on one side, and on a short laptop (1366x670, where the map is
+// 961 of 1366) that left the whole bottom-left quadrant empty. Both were shot
+// and compared; this is the chosen middle.
+const MAP_SHIFT_X = 0.75
+
 // Vertical space the hero keeps clear around the map -- what the fit
 // calculation subtracts from the viewport height before working out how wide
 // the map can be.
@@ -33,60 +60,60 @@ const MAP_NATIVE_HEIGHT = 982
 // in the crop branch the Guide is a real stacked block that sat hard against
 // the top edge.
 //
-// --- 72 -> 155, so the page shows it has content (Flore, 2026-08-25) -------
+// --- WHY A RESERVE EXISTS AT ALL (Flore, 2026-08-25) ----------------------
 //
-// At 72 the map claimed the entire first screen and NOTHING below it was
+// Without one the map claimed the entire first screen and NOTHING below it was
 // visible, so a cold visitor had no evidence the page continued. Flore, from a
 // 1512x856 laptop: "you only see the map, not the rest of the page, making it
 // unclear whether there is any content."
 //
-// This was never working, on any screen -- worth stating plainly, because the
-// natural assumption is that something regressed. While the map is height-
-// bound, its height IS `viewport - reserve`, so the whole chain is:
+// That was never working on any screen, which is worth stating plainly because
+// the natural assumption is that something regressed. While the map is
+// height-bound its height IS `viewport - reserve`, so the chain is:
 //
-//   Work heading bottom = 24 (top pad) + (vh - RESERVE)
-//                       + 60 (SECTION_PAD_WORK at xl)
-//                       + 45 (the h1 at its laptop size)
-//                       = vh + 129 - RESERVE
+//   Work heading bottom = hero top pad + (vh - RESERVE)
+//                       + work top pad + heading height
 //
-// The viewport height cancels. At RESERVE 72 the heading therefore sat 57px
-// below the fold at EVERY height where the map is height-bound -- measured at
-// 1512x856, and 31px below at 1728x1080 where the map is capped at native
-// instead. Not a laptop bug, a constant.
+// The viewport height cancels, so a too-small reserve puts the heading the same
+// number of pixels below the fold at EVERY height where the map is
+// height-bound. It is a constant, not a laptop bug.
 //
-// 155 puts the heading fully on screen with ~26px to spare at `xl`, and that is
-// the number Flore chose against a measured 1512x856.
+// --- DERIVED, NOT HAND-TUNED (2026-08-31) ---------------------------------
 //
-// TWO VALUES, because one is not enough: the same 155 clears by exactly 1px at
-// 1728x1080. That band is `2xl`, where the heading is 50px rather than 45 and
-// SECTION_PAD_WORK is 80 rather than 60 -- 25px more chain for the same
-// reserve to absorb. 1px survives nothing: a scrollbar, a rounding difference,
-// a browser with slightly taller chrome, and the heading is under the fold
-// again. 180 restores the same ~26px there.
+// This used to be two literals (155px, 180px at `2xl`) under a comment ending
+// "KEEP THESE IN STEP WITH THE CHAIN" -- exactly the kind of instruction that
+// gets followed until it doesn't. The four terms now live together in
+// globals.css (see the HERO FOLD CHAIN block) and the reserve is computed from
+// them, so changing the gap resizes the map instead of quietly pushing the
+// heading under the fold. `--work-heading-h` is measured at runtime because the
+// heading sits on a fluid clamp and no static number is right at every width.
 //
-// Raising the single number to 180 everywhere would have worked too, and was
-// rejected: it costs another 3% of map at the laptop sizes Flore actually
-// judged this on, to fix a band where the map is already near native size and
-// can afford the space. So the reserve is a custom property with a `2xl:`
-// variant, the same mechanism ProjectMedia uses -- see MEDIA_VARS there.
+// `--work-top-pad` still has a `2xl:` value, and that split is the surviving
+// reason to keep one: at `2xl` the heading is ~50px rather than ~45 and the
+// band can afford more air, because the map is at or near its native cap there
+// and the reserve has stopped binding anyway.
 //
-// KEEP THESE IN STEP WITH THE CHAIN. If SECTION_PAD_WORK or the `h1` size
-// changes, this changes with it; the formula above is how to re-derive it,
-// and `clearance below heading` is what to measure in the browser afterwards.
+// --- THE SIZE CAME BACK (2026-08-31) --------------------------------------
 //
-// THE COST, chosen knowingly: the map is ~10% smaller wherever height binds --
-// 1295 -> 1158 wide at 1512x856, scale 0.798 -> 0.714. Above ~1130px of
-// viewport height nothing changes at all, because the map hits its 1622 native
-// cap before the reserve matters.
+// The reserve cost ~10% of map wherever height binds, and an earlier note here
+// said the only way to buy it back was a tighter SVG re-export. That turned out
+// to be wrong twice over, and both fixes are in:
 //
-// If the map wants that size back, the lever is NOT this number -- it is the
-// asset. Measured from the SVG's own `getBBox()` against its 1622x982 viewBox,
-// the artwork wastes 33px at the top and 32 at the bottom (6.7% of the height)
-// and 127/94 left and right. A tighter re-export renders the island larger
-// inside the same box, which buys back most of this without putting the Work
-// heading back under the fold. That needs Flore to re-export, so it is a note
-// rather than a change.
-const HERO_RESERVE_VARS = '[--hero-reserve:155px] 2xl:[--hero-reserve:180px]'
+//   1. The map->Work gap was cut (60 -> 32 at `xl`, 80 -> 40 at `2xl`), and
+//      because the reserve is derived, that space went straight into the map.
+//   2. The map is fitted to the ARTWORK rather than to the SVG's box -- see
+//      MAP_ART and MAP_FIT_WIDTH -- reclaiming the 6.7% of height the file
+//      carries as empty margin.
+//
+// Together, +11 to +13% of map width across the laptop band, with the clearance
+// under the Work heading unchanged at 26px. Measured across a six-viewport
+// matrix; `npm run shoot` re-runs it.
+//
+// What layout still cannot reach is the 13.6% of wasted WIDTH in the same file.
+// A tighter re-export is the only lever for that, and it buys nothing today
+// because width is not the binding axis anywhere in this band.
+const HERO_RESERVE =
+  'calc(var(--hero-top-pad) + var(--work-top-pad) + var(--work-heading-h) + var(--hero-clearance))'
 
 // Below this width the map stops scaling and goes back to cropping with
 // two-finger pan -- phones, where Figma stacks the Guide above the map
@@ -109,9 +136,37 @@ const CROP_BREAKPOINT = 768
 //
 // svh, not vh: vh tracks the largest mobile viewport and changes as browser
 // chrome collapses during scroll, which would resize the map mid-scroll.
+//
+// The divisor is the ARTWORK's height, not the SVG box's 982. Height is the
+// binding axis at every laptop size, so fitting the box meant reserving space
+// for 65.5px of empty margin the reader sees as nothing -- 6.7% of map size
+// spent on whitespace inside the file. Fitting the drawing instead and letting
+// those two bands hang outside the layout box (see the map div's negative
+// margins) reclaims all of it, with no re-export.
 const MAP_FIT_WIDTH =
   `min(${MAP_NATIVE_WIDTH}px, 100%, ` +
-  `calc((100svh - var(--hero-reserve)) * ${MAP_NATIVE_WIDTH} / ${MAP_NATIVE_HEIGHT}))`
+  `calc((100svh - ${HERO_RESERVE}) * ${MAP_NATIVE_WIDTH} / ${MAP_ART.height}))`
+
+// The Guide's position, both axes, as calc() against the map's WRAPPER -- which
+// is why the Guide is a sibling of the map in the DOM rather than a child of it.
+//
+// Both were briefly derived in JS from a measured map rect instead, and both
+// were wrong on load and stayed wrong: the rect gets read before layout has
+// settled, so the Guide was positioned against a map 49px narrower than the one
+// on screen and nothing re-derived it. A measured position has to be
+// re-measured whenever anything upstream moves, and upstream here includes the
+// type scale. calc() cannot desync.
+//
+// LEFT: the page's own left margin, the same clamp Container uses -- so the
+// Guide lines up with the text further down the page rather than with the map.
+// It used to sit 3% into the map box, in the corner the illustration reserves;
+// that only works while the map is near native size (see MAP_SHIFT_X).
+const GUIDE_LEFT = 'clamp(16px, 4vw, 48px)'
+
+// TOP: 4% down the map box, plus whatever the artwork fit pulled the map upward
+// by, so the Guide holds its position relative to the DRAWING rather than to the
+// SVG's empty top band. 0.04 x (982/1622) = 0.024217 of the map's width.
+const GUIDE_TOP = `calc(var(--map-w) * ${(0.04 * (MAP_NATIVE_HEIGHT / MAP_NATIVE_WIDTH) - MAP_ART.top / MAP_NATIVE_WIDTH).toFixed(6)})`
 
 function useMapFits() {
   const [fits, setFits] = useState(true)
@@ -153,9 +208,85 @@ function useMapWidth(ref, branchKey) {
   return width
 }
 
-// Temporary, dev-only: turns "this feels too small" into a number, so the
-// scale floor gets set from an observed value rather than a guess. Remove
-// once the floor is agreed.
+// Publishes the Work heading's real rendered height as `--work-heading-h`, one
+// of the four terms the map's reserve is computed from.
+//
+// Measured rather than hardcoded because the heading sits on the fluid type
+// scale: its height is a clamp, so no static number is correct at every width,
+// and the previous hand-tuned reserve was only right because someone had
+// checked it at two specific viewports. There is no layout loop to worry about
+// -- the heading's height depends on the viewport width, never on the map.
+function useWorkHeadingHeight() {
+  useEffect(() => {
+    const heading = document.querySelector('#work h2')
+    if (!heading) return undefined
+    const read = () => {
+      document.documentElement.style.setProperty(
+        '--work-heading-h',
+        `${heading.getBoundingClientRect().height}px`,
+      )
+    }
+    read()
+    const ro = new ResizeObserver(read)
+    ro.observe(heading)
+    return () => {
+      ro.disconnect()
+      document.documentElement.style.removeProperty('--work-heading-h')
+    }
+  }, [])
+}
+
+// Exposes the hero's resolved geometry to the screenshot harness as a function
+// on `window`, dev only.
+//
+// It was first written the other way round -- an effect that measured once and
+// wrote the result to a data attribute for `--dump-dom` to scrape. That reports
+// whatever was true when the effect last ran, and on the first shot of a run
+// (the slowest navigation, before anything is warm) it published a layout that
+// had not settled: A at 1280x800 came back claiming 671px of clearance under
+// the Work heading where every other cell in the matrix said 26. One bad number
+// in thirty, in a caption sitting under a screenshot that was itself correct,
+// which is the worst way for a measurement to be wrong.
+//
+// Measuring when asked removes the race rather than papering over it with a
+// longer wait: the harness settles the page first, then calls this, so the
+// numbers describe the frame it is about to capture.
+//
+// The interesting numbers are about the ARTWORK, not the SVG's box: `artGap` is
+// the white space a reader actually sees between the island and the Work
+// heading, and `guideOverArt` is how far the Guide reaches past the island's
+// left edge (negative means it clears). Both differ from the box-level numbers
+// by the empty margins the file carries.
+function useHeroMetrics() {
+  useEffect(() => {
+    if (!import.meta.env.DEV) return undefined
+    window.__heroMetrics = () => {
+      const map = document.querySelector('[data-component="hero-map"]')
+      const guide = document.querySelector('[data-component="guide"]')
+      const heading = document.querySelector('#work h2')
+      if (!map || !guide || !heading) return null
+      const m = map.getBoundingClientRect()
+      const g = guide.getBoundingClientRect()
+      const h = heading.getBoundingClientRect()
+      const scale = m.width / MAP_NATIVE_WIDTH
+      return {
+        viewport: `${window.innerWidth}x${window.innerHeight}`,
+        mapW: Math.round(m.width),
+        scale: +scale.toFixed(3),
+        artGap: Math.round(h.top - (m.bottom - MAP_ART.bottom * scale)),
+        clearance: Math.round(window.innerHeight - h.bottom),
+        guideOverArt: Math.round(g.right - (m.left + MAP_ART.left * scale)),
+      }
+    }
+    return () => {
+      delete window.__heroMetrics
+    }
+  }, [])
+}
+
+// Dev-only corner overlay: turns "this feels too small" into a number while
+// resizing a real window, which is the fastest way to judge the map's size
+// without running the whole screenshot matrix.
 function ScaleReadout({ mapWidth, mapScale }) {
   return (
     <div
@@ -166,6 +297,13 @@ function ScaleReadout({ mapWidth, mapScale }) {
       <strong className="text-action-accent-foreground">{mapScale.toFixed(3)}</strong>
     </div>
   )
+}
+
+// The screenshot harness measures the page itself and captions its own shots,
+// so it passes `?readout=0` to keep the overlay out of the images.
+function readoutEnabled() {
+  if (typeof window === 'undefined') return false
+  return new URLSearchParams(window.location.search).get('readout') !== '0'
 }
 
 function Guide() {
@@ -260,6 +398,9 @@ export default function Hero() {
   const mapWidth = useMapWidth(mapRef, mapFits)
   const mapScale = mapWidth ? mapWidth / MAP_NATIVE_WIDTH : 1
 
+  useWorkHeadingHeight()
+  useHeroMetrics()
+
   return (
     <section
       id="hero"
@@ -270,7 +411,9 @@ export default function Hero() {
       // screen. Now the section is exactly as tall as the map needs, the map
       // sits near the top, and how much of the next section shows through
       // falls out of the window's own height and aspect ratio.
-      className="relative flex flex-col overflow-hidden bg-surface-canvas pt-space-24"
+      // Reads the same variable the reserve is computed from, rather than a
+      // second copy of 24 that could drift from it.
+      className="relative flex flex-col overflow-hidden bg-surface-canvas pt-[var(--hero-top-pad)]"
     >
       {/* Sampled from Figma's "gradient" node: surface-canvas (#f0f6ff) fading
           to white over ~150px, sitting right at the map's bottom edge -- the
@@ -296,27 +439,50 @@ export default function Hero() {
         // in the crop branch, taking a full row of height with just its left
         // third used. Since a 1500px laptop now fits instead of cropping, it
         // gets the overlay again.
-        <div className="flex flex-col">
+        // `relative` and the owner of `--map-w`: both the map and the Guide are
+        // positioned against this box, which is the only element that knows the
+        // hero's full width. Putting the Guide here rather than inside the map
+        // is what lets it be placed by calc() instead of by a measured rect.
+        <div className="relative flex flex-col" style={{ '--map-w': MAP_FIT_WIDTH }}>
           <div
             ref={mapRef}
             data-component="hero-map"
-            className={`relative mx-auto ${HERO_RESERVE_VARS}`}
-            style={{ width: MAP_FIT_WIDTH }}
+            className="relative"
+            style={{
+              width: 'var(--map-w)',
+              // Replaces `mx-auto`. `100%` resolves against the hero, so this is
+              // (total gutter) x (how far right) -- 0.5 would be plain centring.
+              marginLeft: `calc((100% - var(--map-w)) * ${MAP_SHIFT_X})`,
+              // The artwork fit. These pull the SVG's empty top and bottom bands
+              // OUT of the layout box without touching this element's own box --
+              // so the image and every hotspot positioned by percentage inside
+              // it stay locked together, and only the parent's consumed height
+              // changes. Expressed against the map's width because that is the
+              // one dimension both axes scale from.
+              marginTop: `calc(var(--map-w) * ${-(MAP_ART.top / MAP_NATIVE_WIDTH).toFixed(6)})`,
+              marginBottom: `calc(var(--map-w) * ${-(MAP_ART.bottom / MAP_NATIVE_WIDTH).toFixed(6)})`,
+            }}
           >
-            {/* Deliberately NOT scaled as a group. A transform here briefly
-                shrank the whole Guide with the map, which also silently reset
-                every type size inside it -- the bubble's 14px painted at 12,
-                the name and role at 15.5. Type sizes belong to the type scale,
-                not to a transform on a container. The Guide's crowding is
-                handled by sizing its parts (see Avatar) and, still open, by
-                making the bubble's width responsive in the type pass. */}
-            <div
-              data-component="guide"
-              className="absolute left-[3%] top-[4%] z-10 flex max-w-[320px] flex-col items-start gap-2"
-            >
-              <Guide />
-            </div>
             <MapContent activeHotspotId={activeHotspotId} setActiveHotspotId={setActiveHotspotId} />
+          </div>
+          {/* Deliberately NOT scaled as a group. A transform here briefly
+              shrank the whole Guide with the map, which also silently reset
+              every type size inside it -- the bubble's 14px painted at 12,
+              the name and role at 15.5. Type sizes belong to the type scale,
+              not to a transform on a container. The Guide's crowding is
+              handled by sizing its parts (see Avatar) and, still open, by
+              making the bubble's width responsive in the type pass.
+
+              A sibling of the map rather than a child of it, so `left`'s
+              percentages resolve against the hero's width and the Guide can be
+              placed either relative to the map or relative to the page. After
+              the map in the DOM so it paints over the illustration. */}
+          <div
+            data-component="guide"
+            className="absolute z-10 flex max-w-[320px] flex-col items-start gap-2"
+            style={{ left: GUIDE_LEFT, top: GUIDE_TOP }}
+          >
+            <Guide />
           </div>
         </div>
       ) : (
@@ -361,7 +527,9 @@ export default function Hero() {
           </div>
         </>
       )}
-      {import.meta.env.DEV && <ScaleReadout mapWidth={mapWidth} mapScale={mapScale} />}
+      {import.meta.env.DEV && readoutEnabled() && (
+        <ScaleReadout mapWidth={mapWidth} mapScale={mapScale} />
+      )}
     </section>
   )
 }

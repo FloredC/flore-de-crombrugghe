@@ -118,6 +118,55 @@
   }
 }
 
+/* ---------------------------------------------------------------------------
+   THE HERO FOLD CHAIN
+   ---------------------------------------------------------------------------
+   The map is sized to leave the Work heading visible above the fold. Because
+   the map is height-bound at every laptop size, that reserve is not a taste
+   value -- it is arithmetic:
+
+     reserve = hero top pad + map->Work gap + Work heading height + clearance
+
+   These four used to be spread across Hero.jsx (two hardcoded reserve values),
+   layout.js (SECTION_PAD_WORK) and the type scale (the heading), with a comment
+   in Hero.jsx warning that they had to be kept in step by hand. They now live
+   here as one chain, and Hero.jsx computes the reserve with `calc()` instead of
+   restating the answer -- so changing the gap moves the map rather than
+   silently pushing the heading back under the fold.
+
+   --work-heading-h is a fallback only. Hero.jsx measures the real heading and
+   overwrites it, which is what makes this exact under the fluid type scale
+   (the heading's height is a clamp, so no static number is right at every
+   width). The fallback is what first paint uses, and it is the `xl` value.
+--------------------------------------------------------------------------- */
+:root {
+  --hero-top-pad: 24px;
+  --hero-clearance: 26px;
+  --work-top-pad: 40px;
+  --work-heading-h: 45px;
+}
+
+/* The gap tightens on laptops and opens back up on large desktop, which reads
+   backwards until you remember what it is paying for. The laptop band is where
+   viewport height binds hardest, so every pixel here is a pixel off the map;
+   32 is the tightest that still reads as a section boundary. By 1600 the map
+   has hit its native cap and the reserve no longer binds, so the gap costs
+   nothing and goes back to the roomier value.
+
+   Both chosen by Flore on 2026-08-31 from a six-viewport screenshot matrix,
+   against a 60/80 baseline. */
+@media (min-width: 1280px) {
+  :root {
+    --work-top-pad: 32px;
+  }
+}
+
+@media (min-width: 1600px) {
+  :root {
+    --work-top-pad: 40px;
+  }
+}
+
 * {
   box-sizing: border-box;
 }

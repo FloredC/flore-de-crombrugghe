@@ -427,17 +427,55 @@ states have been seen on a real screen and the current one is the chosen one.
 Don't "restore the Figma ratios" as a tidy-up; it has already been tried.
 
 **The hero must never claim the whole first screen** (Flore, 2026-08-25). The
-map is sized to fit the viewport height, so at `HERO_VERTICAL_RESERVE = 72` it
-filled the screen and the "Work" heading sat 57px below the fold on every
-viewport shorter than ~1130px — a cold visitor had no evidence the page
-continued. The reserve is now 155 (180 at `2xl`, whose heading and section
-padding are both larger), which clears the heading by ~26px in both bands. The
-chain is `heading bottom = viewport + topPad + SECTION_PAD_WORK + h1 height −
-reserve`, so it re-derives if any of those move — see the note in `Hero.jsx`.
-Cost: the map is ~10% smaller wherever height binds, and unchanged above
-~1130px. The way to buy that size back is a tighter SVG re-export, not this
-number: the artwork wastes 6.7% of its height and 13.6% of its width as empty
-margin (measured via `getBBox()` against the 1622x982 viewBox).
+map is sized to fit the viewport height, so with too small a reserve it filled
+the screen and the "Work" heading sat below the fold on every viewport shorter
+than ~1130px — a cold visitor had no evidence the page continued. Because the
+viewport height cancels out of the chain, that offset is a *constant*, not a
+laptop bug.
+
+**The reserve is now derived, not a number** (2026-08-31). Its four terms —
+hero top pad, map→Work gap, Work heading height, clearance — live together in
+the **HERO FOLD CHAIN** block in `globals.css`, and `Hero.jsx` computes
+`reserve = calc(sum of the four)`. `SECTION_PAD_WORK` reads the same
+`--work-top-pad`, so the gap and the reserve cannot drift apart; the heading
+term is measured at runtime because it sits on a fluid clamp. This replaced a
+hand-tuned 155/180 pair under a comment saying to keep them in step manually.
+Clearance holds at 26px everywhere (49 at 1728, where the map caps at native).
+
+**The ~10% the reserve cost has been recovered, and not by re-exporting**
+(Flore chose from a screenshot matrix, 2026-08-31). Two levers, both in:
+the map→Work gap dropped 60→32 at `xl` and 80→40 at `2xl` (tightest where
+viewport height binds hardest; roomier at `2xl`, where the map has hit its
+native cap and the gap is free), and the map is now fitted to the **artwork**
+rather than to the SVG's box — `MAP_ART` in `Hero.jsx`, measured by `getBBox()`
+— with the empty 33.1/32.4px bands hung outside the layout box by negative
+margins. Net **+11 to +13% of map width** across the laptop band. What layout
+still can't reach is the file's 13.6% of wasted *width*; a tighter re-export is
+the only lever there, and it buys nothing today because width is never the
+binding axis in this band.
+
+**The map sits 75% right, not centred** (`MAP_SHIFT_X`). The Guide is
+fixed-size type over a map that scales — 18% of the map's width at native, 26%
+at laptop sizes, where it crowded the island's coastline. Sliding the map into
+the artwork's own 93.5px of empty right margin opens room on the left at no
+cost to map size, and the Guide moved from 3% into the map box to the page's
+left margin. Flush right (100%) was built and rejected: it clears the Guide
+completely but banks the whole gutter on one side, emptying the bottom-left
+quadrant at 1366x670. Don't re-propose either extreme; both were shot and
+compared.
+
+**Below `xl` is deliberately untouched** by that pass. Phones keep the crop
+branch, and the tablet band keeps the 40px gap — it gets the artwork fit (which
+is free) but not the tighter gap.
+
+**`npm run shoot`** re-runs the whole thing: it drives headless Chrome over CDP
+across six desktop viewports, captures each at exactly one viewport-height, and
+writes `screenshots/index.html` plus `metrics.json`. Use it rather than
+resizing a window when a change touches what's above the fold. It must be CDP:
+`chrome --headless --screenshot --window-size` sizes the *window*, so the page
+lays out ~87px shorter than asked while the capture stays full height — every
+shot then includes content the real viewport would have cut off, which inverts
+the exact measurement the harness exists to make.
 
 **Known step at the 1600 boundary:** the featured card spans 4 of 6 Work columns
 at laptop and 5 at `2xl`, so it jumps 769 -> 977 wide when a window crosses 1600.
