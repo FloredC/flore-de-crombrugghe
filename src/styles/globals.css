@@ -565,10 +565,252 @@ body {
    value is used here on purpose; if a finer grid is wanted on the media frames,
    that is the number to change.
 --------------------------------------------------------------------------- */
-.bg-notebook {
-  background-color: #fbfbfb;
+/* THE GRID IS NOW SHARED, the ground colour is not -- added 2026-08-31 for the
+   PitchPivot homepage card, which wanted this exact pattern over a background
+   colour it already had.
+
+   `.bg-notebook` is unchanged in behaviour and still stands alone: it is the
+   grid plus the #fbfbfb ground, which is what every case-study panel uses.
+   `.bg-notebook-lines` is the grid WITHOUT a ground, for callers that set their
+   own background-color -- the ProjectCard media frames set theirs as an inline
+   style (see mediaTints.js), and an inline background-color beats any class, so
+   pairing those callers with `.bg-notebook` would have produced this same result
+   by accident while looking like a mistake. A separate class says it on purpose.
+
+   The two values live in custom properties so the grid cannot drift between the
+   page and the card. Per the note above, the source deck also has 30px/0.045
+   and 28px/0.04 variants intended for smaller cards; if the 40px cell reads
+   coarse on a card, `--notebook-cell` is the one number to change. */
+:root {
+  --notebook-line: rgba(0, 0, 0, 0.055);
+  --notebook-cell: 40px;
+  /* Flore's #fbfbfb, now named because a second caller needs it. The rule
+     above still insists this hex lives in exactly one place; this IS that
+     place, and the PitchPivot card reads it by name rather than copying the
+     literal into mediaTints.js. If Figma ever names the colour, change it
+     here and nowhere else -- unchanged instruction, one more caller. */
+  --notebook-ground: #fbfbfb;
+}
+
+.bg-notebook,
+.bg-notebook-lines {
   background-image:
-    linear-gradient(rgba(0, 0, 0, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.055) 1px, transparent 1px);
-  background-size: 40px 40px;
+    linear-gradient(var(--notebook-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--notebook-line) 1px, transparent 1px);
+  background-size: var(--notebook-cell) var(--notebook-cell);
+}
+
+.bg-notebook {
+  background-color: var(--notebook-ground);
+}
+
+/* ===========================================================================
+   SCROLL REVEALS
+   ===========================================================================
+
+   Blocks fade up as they are scrolled into view. Chosen from a live sandbox
+   Flore scrolled through on 2026-08-31 rather than from a description, which
+   matters because the brief was "modern, increases curiosity, but shouldn't
+   move too much" -- and "too much" turns out to be a number you can only find
+   by looking at it.
+
+   FOUR DIALS, AND THEY ARE THE WHOLE TUNING SURFACE. Components carry no
+   durations or distances of their own, so re-timing the site is these four
+   lines and nothing else.
+
+   ARMED BY SCRIPT, NEVER BY THE STYLESHEET. Every hidden rule below is nested
+   under `html[data-reveal-armed]`, an attribute index.html sets before first
+   paint. With no JavaScript, or with reduced motion, that attribute is absent,
+   every rule below stops applying, and the page is simply finished. This is the
+   same principle the Rega avatar already states in its own comment further up
+   -- nothing has to run for it to look right -- applied to the one feature that
+   breaks it by default.
+
+   THE CASCADE TRAP, hit for real while prototyping. The hidden state is keyed
+   on the ABSENCE of `data-reveal-in`; there is deliberately no matching
+   "visible" rule. Written the other way -- a hidden rule plus
+   `[data-reveal-in] [data-reveal] { opacity: 1 }` -- the two selectors have
+   equal specificity and source order decides, which holds until one variant
+   needs a more specific hidden rule. In the sandbox exactly that happened: an
+   override at (0,5,0) beat the visible rule at (0,3,0), and that block faded in
+   but stayed stuck 42px down forever. Every hidden rule here therefore carries
+   `:not([data-reveal-in])`, so a variant can be as specific as it likes and
+   still stop applying the moment the group reveals.
+   ------------------------------------------------------------------------ */
+
+:root {
+  /* How far a block travels. The brief's "not too much" lives here: 12 reads
+     as arrival, 20 starts to read as performance. */
+  --reveal-distance: 12px;
+  --reveal-duration: 520ms;
+  /* Between sibling BLOCKS -- heading, then Guide, then the grid. */
+  --reveal-stagger: 80ms;
+  /* Between CARDS in one grid, deliberately faster. At the block rate a
+     six-card row takes 480ms to finish and reads as a slideshow you have to
+     wait out; at 50 the row lands as one gesture with a direction. */
+  --reveal-stagger-card: 50ms;
+  --reveal-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  /* Long-form prose moves less than a browsing surface does -- see the
+     case-study override at the bottom of this block. */
+  --reveal-distance-prose: 8px;
+}
+
+[data-reveal],
+[data-reveal-cards] > * {
+  transition:
+    opacity var(--reveal-duration) var(--reveal-ease),
+    transform var(--reveal-duration) var(--reveal-ease);
+  transition-delay: calc(var(--reveal-index, 0) * var(--reveal-stagger));
+}
+
+html[data-reveal-armed] [data-reveal-group]:not([data-reveal-in]) [data-reveal],
+html[data-reveal-armed] [data-reveal-group]:not([data-reveal-in]) [data-reveal-cards] > * {
+  opacity: 0;
+  transform: translateY(var(--reveal-distance));
+}
+
+/* CARDS INDEX THEMSELVES, so a grid needs no per-item props and ProjectCard
+   stays a content component with no knowledge of motion. Marking the grid
+   container is the entire change at the call site.
+
+   Six is the largest grid on the site (Harbour's feature cases); the seventh
+   card onward would simply share the sixth's delay, which is a graceful way to
+   run out rather than a bug. */
+[data-reveal-cards] > * {
+  --reveal-stagger: var(--reveal-stagger-card);
+}
+[data-reveal-cards] > *:nth-child(1) { --reveal-index: 0; }
+[data-reveal-cards] > *:nth-child(2) { --reveal-index: 1; }
+[data-reveal-cards] > *:nth-child(3) { --reveal-index: 2; }
+[data-reveal-cards] > *:nth-child(4) { --reveal-index: 3; }
+[data-reveal-cards] > *:nth-child(5) { --reveal-index: 4; }
+[data-reveal-cards] > *:nth-child(n + 6) { --reveal-index: 5; }
+
+/* ---------------------------------------------------------------------------
+   The Guide speaks
+   ---------------------------------------------------------------------------
+   The one reveal on the site that is not a fade-up, and the only one specific
+   to this site rather than borrowable from any other. The avatar rises; a beat
+   later the bubble scales up FROM ITS TAIL, which is the side the avatar is on.
+   Read together that is someone speaking, not a panel appearing -- and it is
+   what the brief's "curiosity" asked for, because something happened and you
+   look at it.
+
+   TRANSFORM-ORIGIN IS THE WHOLE EFFECT. Scaled from its centre the bubble
+   inflates and reads as a popup; scaled from the tail it grows out of the
+   person. `left center` for the default right-facing bubble, mirrored below for
+   the left-facing variant so the origin follows the tail rather than the page.
+
+   THE ARM GESTURE IS NOT NEW MOTION. The avatar already lifts its presenting
+   arm once per 7s idle loop, and that gesture sits at ~70% of the loop -- so
+   left alone it happens about five seconds after the reader has moved on. The
+   negative delay starts the loop just before its own gesture, so the avatar
+   performs the movement it already had, at the moment the bubble arrives, and
+   then settles into the normal cycle. No second animation, nothing to keep in
+   sync, and no conflict with the idle loop on the same element.
+
+   Scoped to Guides. The hero avatar keeps its own timing -- it is not revealing
+   anything, it is already on screen when the page loads. */
+[data-reveal-guide] [data-speech-bubble-variant='right'] { transform-origin: left center; }
+[data-reveal-guide] [data-speech-bubble-variant='left'] { transform-origin: right center; }
+
+[data-reveal-guide] [data-speech-bubble-variant] {
+  transition:
+    opacity calc(var(--reveal-duration) * 0.8) var(--reveal-ease),
+    transform calc(var(--reveal-duration) * 0.8) var(--reveal-ease);
+  /* Behind the avatar, so the person arrives before the sentence does. */
+  transition-delay: calc(var(--reveal-duration) * 0.45);
+}
+[data-reveal-guide] > svg,
+[data-reveal-guide] > [data-component='avatar-rega'] {
+  transition:
+    opacity var(--reveal-duration) var(--reveal-ease),
+    transform var(--reveal-duration) var(--reveal-ease);
+}
+
+html[data-reveal-armed] [data-reveal-group]:not([data-reveal-in]) [data-reveal-guide] > svg {
+  opacity: 0;
+  transform: translateY(var(--reveal-distance));
+}
+html[data-reveal-armed]
+  [data-reveal-group]:not([data-reveal-in])
+  [data-reveal-guide]
+  [data-speech-bubble-variant] {
+  opacity: 0;
+  transform: scale(0.92);
+}
+
+[data-reveal-guide] [data-component='avatar-presenting-idle'] #head-group,
+[data-reveal-guide] [data-component='avatar-presenting-idle'] #hair,
+[data-reveal-guide] [data-component='avatar-presenting-idle'] #arm-presenting,
+[data-reveal-guide] [data-component='avatar-presenting-idle'] #arm-resting {
+  /* 7s loop, gesture at ~4.9s. Starting 350ms short of it puts the movement
+     under the bubble's arrival rather than five seconds after it. */
+  animation-delay: -4.55s;
+}
+
+/* ---------------------------------------------------------------------------
+   Long-form: less travel, no sequence
+   ---------------------------------------------------------------------------
+   A case study is read, not browsed, so its prose blocks move half as far and
+   arrive together instead of in order. The Guide is the deliberate exception
+   and keeps the full treatment above: it is not prose, it is Flore's voice
+   cutting into it, and marking that change of register is the job.
+
+   Measured before deciding, because the intuition was backwards: neighbouring
+   Guides sit 808px apart on Artifakt and 2108 on PitchPivot, against 569 at the
+   tightest on the homepage. The long pages are where they are most spread out. */
+[data-component='case-study'] [data-reveal] {
+  --reveal-distance: var(--reveal-distance-prose);
+  --reveal-stagger: 0ms;
+}
+
+/* NO PER-BLOCK MARKUP ON THESE PAGES, and that follows from the setting above
+   rather than being a shortcut: with the stagger at zero every block in a
+   section shares one start time, so marking them individually would buy
+   nothing. The section's content column is the unit instead -- one child of the
+   group, revealed whole. Adding a section to a case study therefore needs no
+   motion markup at all. */
+[data-component='case-study'] [data-reveal-group] > * {
+  transition:
+    opacity var(--reveal-duration) var(--reveal-ease),
+    transform var(--reveal-duration) var(--reveal-ease);
+}
+html[data-reveal-armed] [data-component='case-study'] [data-reveal-group]:not([data-reveal-in]) > * {
+  opacity: 0;
+  transform: translateY(var(--reveal-distance-prose));
+}
+
+/* The avatar RIDES WITH ITS BLOCK here instead of moving on its own. On the
+   homepage the Guide is its own reveal, so the avatar carries the travel; in a
+   case study the whole column is already moving, and leaving the avatar's own
+   translate on would compose the two into 20px of drift for that one element
+   while everything beside it moved 8. The bubble keeps its scale -- that is the
+   part that reads as speech, and it does not double up with a translate. */
+html[data-reveal-armed]
+  [data-component='case-study']
+  [data-reveal-group]:not([data-reveal-in])
+  [data-reveal-guide]
+  > svg {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal-cards] > *,
+  [data-reveal-guide] > svg,
+  [data-reveal-guide] [data-speech-bubble-variant] {
+    transition: none;
+  }
+  html[data-reveal-armed] [data-reveal-group]:not([data-reveal-in]) [data-reveal],
+  html[data-reveal-armed] [data-reveal-group]:not([data-reveal-in]) [data-reveal-cards] > *,
+  html[data-reveal-armed] [data-reveal-group]:not([data-reveal-in]) [data-reveal-guide] > svg,
+  html[data-reveal-armed]
+    [data-reveal-group]:not([data-reveal-in])
+    [data-reveal-guide]
+    [data-speech-bubble-variant] {
+    opacity: 1;
+    transform: none;
+  }
 }

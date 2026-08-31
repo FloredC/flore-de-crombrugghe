@@ -5,6 +5,7 @@ import SectionHeader from './SectionHeader'
 import StatGrid from './StatGrid'
 import QuoteCard from './QuoteCard'
 import AvatarNote from './AvatarNote'
+import Reveal from '../Reveal'
 import FeatureBlock from './FeatureBlock'
 import LearningBlock from './LearningBlock'
 import RankedBars from './RankedBars'
@@ -77,7 +78,7 @@ export default function CaseStudy({ data }) {
 
       {/* 2 — What is PitchPivot. Narrow prose, then the explanatory
           illustration at `wide`. */}
-      <div className={`flex flex-col ${SPACE.chapter}`}>
+      <Reveal className={`flex flex-col ${SPACE.chapter}`}>
         <Block width="narrow" className="flex flex-col gap-space-24">
           <SectionHeader title={data.what.title} />
           {data.what.body.map((paragraph) => (
@@ -96,10 +97,10 @@ export default function CaseStudy({ data }) {
             <Media {...data.what.media} />
           </div>
         </Block>
-      </div>
+      </Reveal>
 
       {/* 3 — Why This Matters. Narrow prose + sources, then the StatGrid wide. */}
-      <div className={`flex flex-col ${SPACE.chapter}`}>
+      <Reveal className={`flex flex-col ${SPACE.chapter}`}>
         <Block width="narrow" className="flex flex-col gap-space-24">
           <SectionHeader title={data.why.title} />
           {data.why.body.map((paragraph) => (
@@ -133,11 +134,11 @@ export default function CaseStudy({ data }) {
         <Block width="wide" as="div">
           <StatGrid stats={data.why.stats} />
         </Block>
-      </div>
+      </Reveal>
 
       {/* 4 — The Turning Point. Sits before the features deliberately: it is
           why they exist. */}
-      <div className={`flex flex-col ${SPACE.chapter}`}>
+      <Reveal className={`flex flex-col ${SPACE.chapter}`}>
         <Block width="narrow" className="flex flex-col gap-space-24">
           <SectionHeader title={data.turningPoint.title} />
           {data.turningPoint.body?.map((paragraph) => (
@@ -170,10 +171,10 @@ export default function CaseStudy({ data }) {
             ))}
           </ul>
         </Block>
-      </div>
+      </Reveal>
 
       {/* 5 — The Two Core Features. The page's one side-by-side pattern. */}
-      <div className={`flex flex-col ${SPACE.chapter}`}>
+      <Reveal className={`flex flex-col ${SPACE.chapter}`}>
         <Block width="wide" className="flex flex-col gap-space-64 2xl:gap-space-80">
           <SectionHeader title={data.features.title} />
           {data.features.items.map((feature) => (
@@ -198,9 +199,9 @@ export default function CaseStudy({ data }) {
             </div>
           )}
         </Block>
-      </div>
+      </Reveal>
 
-      <div className={`flex flex-col ${SPACE.chapter}`}>
+      <Reveal className={`flex flex-col ${SPACE.chapter}`}>
         {/* 6 — Takeaways. All three LearningBlocks in ONE narrow block, each with
           its RankedBars in its own evidence slot.
           One block rather than one per takeaway, for two reasons that happen to
@@ -238,9 +239,9 @@ export default function CaseStudy({ data }) {
             />
           ))}
         </Block>
-      </div>
+      </Reveal>
 
-      <div className={`flex flex-col ${SPACE.chapter}`}>
+      <Reveal className={`flex flex-col ${SPACE.chapter}`}>
         {/* 7 — The Process. The header sits alone: at `wide` it left-aligns at
           exactly the same content edge it would at any other width, so the
           width here buys nothing visual -- it is Rule 1 bookkeeping. The last
@@ -301,7 +302,7 @@ export default function CaseStudy({ data }) {
             </div>
           </div>
         </Block>
-      </div>
+      </Reveal>
 
       {/* 8 — the page's exit.
 

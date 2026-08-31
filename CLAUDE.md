@@ -302,7 +302,7 @@ One component, `ButtonLink.jsx`, not one component per variant. A `variant` prop
 |---------|------|---------|-----------|-----|
 | Artifakt | `artifakt` | `hotspot-artifakt` | Full case study | "Read case study" |
 | PitchPivot | `pitchpivot` | `hotspot-pitchpivot` | Full case study | "Read case study" |
-| Welcome to my city | `welcome-to-my-city` | none | Full case study | "Read case study" |
+| Welcome to my island | `welcome-to-my-island` | none | Full case study | "Read case study" |
 | Sinomocene | `sinomocene` | none | Feature case | "View Project" |
 | Teamchatviz | `teamchatviz` | none | Feature case | "View Project" |
 | Roche Icon System | `roche` | none | Feature case | "View Project" |
@@ -310,6 +310,12 @@ One component, `ButtonLink.jsx`, not one component per variant. A `variant` prop
 | Redesigning Rega's app | `rega` | `hotspot-rega` | NDA, external link | "Rega App" |
 | Faster trail discovery for 80k users (client: SAC) | `trail-app` | `hotspot-trail-app` | NDA, external link | "SAC App" |
 | SBB | `sbb` | none | NDA, external link | "SBB App" |
+
+**Correction (2026-08-31):** the slug is `welcome-to-my-island`, not `-city`. The
+code has said island since the project was renamed; this table still said city,
+and that is not a harmless doc lag -- a batch of re-exported thumbnails arrived
+named `welcome-to-my-city-thumbnail`, because this table is what someone reads
+when naming an export. Renaming a project means renaming it here too.
 
 **Correction:** "SAC" as a standalone project/slug doesn't exist — resolved earlier in this build. The real project is `trail-app` (title "Faster trail discovery for 80k users"); SAC is the *client name*, "SAC App" is the CTA label. Don't reintroduce a `sac` slug.
 
@@ -517,7 +523,7 @@ For projects with substantial content:
 **Full case studies (own route, full prose):**
 - `/work/artifakt`
 - `/work/pitchpivot`
-- `/work/welcome-to-my-city`
+- `/work/welcome-to-my-island`
 
 **Feature cases (own route, lighter content):**
 - `/work/sinomocene`

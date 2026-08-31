@@ -299,6 +299,39 @@ const IMAGE_ASPECT = {
   small: null,
 }
 
+// HOVER ZOOM ON THE ARTWORK -- Flore, 2026-08-31.
+//
+// NOT A CROP ZOOM, and that is forced by the assets rather than chosen. The
+// usual card zoom works because the image FILLS its frame, so scaling it pushes
+// the edges out under `overflow-hidden` and the picture crops into itself.
+// These thumbnails are the opposite: device shots on transparent ground, sitting
+// contained on a coloured mat (Rega is 40% transparent -- two phones floating).
+// There is no photographic edge to crop into, so scaling grows the object on its
+// mat. Which is the nicer read anyway: the screenshot leans toward you.
+//
+// ON THE ARTWORK, NOT THE FRAME. The frame already animates the card's shadow
+// (see the long note on it below), and the two are deliberately different
+// objects: the frame lifts, the thing inside it grows. Scaling the frame instead
+// would take the mat, the caption and the badge with it, which reads as the
+// whole card being pushed rather than as depth.
+//
+// 300ms against the shadow's 200 is a sequence, not a mismatch: the card lifts
+// first and the artwork settles into the zoom just behind it. Matching them
+// exactly made the two read as one flat push.
+//
+// `transform` only -- it never affects layout, so the caption below cannot be
+// reflowed by this. It can be visually overlapped if the scale goes high enough;
+// at 1.04 the artwork grows by half the caption gap and stays clear. That is the
+// ceiling to respect if this is dialled up.
+// NO `will-change-transform`. It was in the first pass and taken out: it would
+// promote all ten of these images to their own compositor layer permanently, for
+// a transform that runs only while a pointer is over one card. The transition is
+// composited either way; the hint just costs GPU memory on every page load.
+const MEDIA_ZOOM =
+  'transition-transform duration-300 ease-out ' +
+  'motion-reduce:transition-none motion-reduce:group-hover:scale-100 ' +
+  'group-hover:scale-[1.04] group-focus-within:scale-[1.04]'
+
 // Gap between artwork and caption, inside the tinted area.
 const STACK_GAP = {
   large: 'gap-space-24',
@@ -336,7 +369,7 @@ const FRAME_RADIUS = {
   small: 'rounded-radius-20',
 }
 
-export default function ProjectMedia({ src, alt, caption, size = 'medium', badge, tint }) {
+export default function ProjectMedia({ src, alt, caption, size = 'medium', badge, tint, pattern }) {
   return (
     <div
       data-component="project-media"
@@ -382,9 +415,12 @@ export default function ProjectMedia({ src, alt, caption, size = 'medium', badge
         // PANEL PADDING is `small`-only, from Flore's component: Spaces/8 top
         // and bottom (node 2928:78064). The other two sizes have never had any
         // -- their artwork is centred in a frame with room to spare.
+        // `pattern` is a background-IMAGE class (see mediaPatterns in
+        // mediaTints.js); the inline colour below stays the ground it sits on.
+        // The two do not fight: they are different properties.
         className={`flex flex-col justify-center [grid-area:1/1] ${STACK_ALIGN[size]} ${FRAME_RADIUS[size]} ${
           size === 'small' ? 'gap-space-12 py-space-8' : ''
-        }`}
+        } ${pattern ?? ''}`}
         style={{ backgroundColor: tint }}
       >
         {size === 'small' ? (
@@ -419,7 +455,7 @@ export default function ProjectMedia({ src, alt, caption, size = 'medium', badge
                 // `object-top` so the 18.8% the crop has to remove all comes
                 // off the bottom rather than being split top and bottom -- the
                 // top is where these images carry what identifies them.
-                className="min-h-0 w-full flex-1 object-cover object-top"
+                className={`min-h-0 w-full flex-1 object-cover object-top ${MEDIA_ZOOM}`}
                 loading="lazy"
                 decoding="async"
                 style={{ aspectRatio: IMAGE_ASPECT.smallFloor }}
@@ -462,7 +498,7 @@ export default function ProjectMedia({ src, alt, caption, size = 'medium', badge
             <img
               src={src}
               alt={alt}
-              className="w-full object-cover"
+              className={`w-full object-cover ${MEDIA_ZOOM}`}
               loading="lazy"
               decoding="async"
               style={{ aspectRatio: IMAGE_ASPECT[size] }}

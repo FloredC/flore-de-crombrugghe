@@ -1,4 +1,5 @@
 import Container from '../Container'
+import Reveal from '../Reveal'
 import ButtonLink from '../ButtonLink'
 import ContactEmailButton from '../ContactEmailButton'
 import { ArrowRightIcon, ExternalLinkIcon } from '../icons'
@@ -243,7 +244,21 @@ function Section({ section, isChapterAnchor }) {
     // five sections a chapter STARTS on, and its only job is to carry the
     // larger `scroll-margin-top` from globals.css. The other six sections stay
     // on the site-wide 120px, because they are not jump destinations.
-    <section id={section.id} data-section={section.id} data-chapter-anchor={isChapterAnchor || undefined}>
+    // THE SECTION IS THE REVEAL GROUP. It stays a real <section> with its own
+    // id -- `Reveal` renders whatever tag it is given, which matters here
+    // because the chapter nav and the progress line both anchor on these
+    // elements and would lose their targets to a wrapper div.
+    //
+    // Long-form settings, set once in globals.css rather than here: 8px of
+    // travel instead of 12, and no stagger between blocks. Reading wants the
+    // page to hold still; the Guide is the deliberate exception and keeps the
+    // full treatment.
+    <Reveal
+      as="section"
+      id={section.id}
+      data-section={section.id}
+      data-chapter-anchor={isChapterAnchor || undefined}
+    >
       {/* The whole section is one column: full-width title, then the Guide,
           then the content row. `gap-space-40` is the step Figma puts between
           all three (title ends y=90, bubble starts y=130, row starts y=308
@@ -345,7 +360,7 @@ function Section({ section, isChapterAnchor }) {
           </ButtonLink>
         )}
       </Container>
-    </section>
+    </Reveal>
   )
 }
 

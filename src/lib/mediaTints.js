@@ -22,7 +22,17 @@
 export const mediaTints = {
   artifakt: 'var(--colors-surface-yellow)',
   'welcome-to-my-island': '#f6f9ff',
-  pitchpivot: '#dfe8fd',
+  // WAS #dfe8fd, the blue sampled from the Figma card. Replaced 2026-08-31 at
+  // Flore's call so the card carries the case study's own paper: this plus
+  // `bg-notebook-lines` below composes to exactly `.bg-notebook`, the surface
+  // every panel on the PitchPivot page uses.
+  //
+  // I argued for keeping the blue underneath and was wrong about what she
+  // wanted -- recorded because the argument still holds and someone may hit it:
+  // the artwork is a white browser window, so on this near-white ground its own
+  // edge reads faintly and the frame leans on the screenshot's border rather
+  // than on an inset. Seen and chosen. Do not "restore" the blue as a fix.
+  pitchpivot: 'var(--notebook-ground)',
   rega: 'var(--colors-chart-chart-red-fill)',
   sbb: '#efefef',
   myride: '#e1e2f7',
@@ -47,3 +57,21 @@ export const mediaTints = {
 // Anything not listed falls back to the frame's own surface rather than a
 // guessed colour, so a new project reads as "tint not chosen yet".
 export const DEFAULT_MEDIA_TINT = 'var(--colors-surface-background)'
+
+// A PATTERN LAID OVER THE TINT, not instead of it -- Flore, 2026-08-31: "for
+// PitchPivot, can you use that same graph paper effect as on the page itself".
+//
+// It sits here rather than in the component because it is the same kind of
+// decision as the tint above: a per-project surface choice, made per instance.
+// A card either has one or it doesn't.
+//
+// THE PATTERN IS THE GRID ONLY; the ground is still the tint above. That split
+// is what lets PitchPivot land on exactly `.bg-notebook` -- `--notebook-ground`
+// as the tint, this class as the lines -- without either file duplicating the
+// other's value.
+//
+// It also means a future card can take the grid over a coloured ground if that
+// is ever wanted; the mechanism does not assume near-white.
+export const mediaPatterns = {
+  pitchpivot: 'bg-notebook-lines',
+}

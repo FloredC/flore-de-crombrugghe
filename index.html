@@ -50,6 +50,28 @@
       content="An illustrated map of my work: consumer apps and internal tools for high-stakes, large-scale services."
     />
     <script>
+      // ARM THE SCROLL REVEALS.
+      //
+      // Every reveal's hidden state is gated on this attribute, and nothing in
+      // the stylesheet hides anything without it. That inversion is the whole
+      // safety property: if this script never runs -- JS disabled, a bundle
+      // that 404s, an old browser -- the page renders finished rather than
+      // blank. The usual recipe puts `opacity: 0` in the CSS and has the app
+      // remove it, which fails the other way round.
+      //
+      // Inline and synchronous in <head>, before the module below, so the flag
+      // is present at first paint. Set it any later and the first section
+      // paints visible and then jumps to hidden as the app hydrates.
+      //
+      // Skipped entirely for readers who asked for less motion, so the reveals
+      // are never armed for them at all. The CSS has its own
+      // prefers-reduced-motion guard as well; this is the belt to that's braces
+      // and it costs one line.
+      if (!window.matchMedia || !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.setAttribute('data-reveal-armed', '')
+      }
+    </script>
+    <script>
       // Second half of the GitHub Pages deep-link fix -- see public/404.html for
       // the full explanation. That page turns /work/artifakt into /?/work/artifakt
       // and lands here; this turns it back into the real path with

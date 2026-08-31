@@ -1,21 +1,22 @@
-import Nav from '../components/Nav'
-import Hero from '../components/Hero'
-import Wayfinding from '../components/Wayfinding'
-import ProjectCard from '../components/ProjectCard'
-import ValueCard from '../components/ValueCard'
-import MediaCard from '../components/MediaCard'
-import AsideCard from '../components/AsideCard'
-import LanguageRiverEmbed from '../components/LanguageRiverEmbed'
-import ButtonLink from '../components/ButtonLink'
-import ContactEmailButton from '../components/ContactEmailButton'
-import Footer from '../components/Footer'
-import Container from '../components/Container'
+import Nav from "../components/Nav";
+import Hero from "../components/Hero";
+import Wayfinding from "../components/Wayfinding";
+import Reveal from "../components/Reveal";
+import ProjectCard from "../components/ProjectCard";
+import ValueCard from "../components/ValueCard";
+import MediaCard from "../components/MediaCard";
+import AsideCard from "../components/AsideCard";
+import LanguageRiverEmbed from "../components/LanguageRiverEmbed";
+import ButtonLink from "../components/ButtonLink";
+import ContactEmailButton from "../components/ContactEmailButton";
+import Footer from "../components/Footer";
+import Container from "../components/Container";
 // Imported rather than read from contact.mdx frontmatter as a path string.
 // One fixed asset for one component, so an import buys the thing frontmatter
 // paths can't have: Vite rewrites the URL, which means the GitHub Pages base
 // prefix is applied automatically and this can't join the class of bugs that
 // broke five thumbnails in production while looking fine in dev.
-import portraitFlore from '../assets/illustrations/portrait-flore.webp'
+import portraitFlore from "../assets/illustrations/portrait-flore.webp";
 import {
   PAGE_STACK,
   SECTION_PAD_WORK,
@@ -35,103 +36,123 @@ import {
   ABOUT_CONTENT_GAP,
   MEDIA_COLLAGE,
   ASIDE_COLLAGE,
-} from '../lib/layout'
+} from "../lib/layout";
 import {
   workSection,
   approachSection,
   aboutSection,
   contactSection,
   getProjectsFor,
-} from '../lib/content'
+} from "../lib/content";
 
 function WorkSubsection({ subsection }) {
-  const projects = getProjectsFor(subsection.zone, subsection.subsection)
-  const [featured, ...rest] = projects
+  const projects = getProjectsFor(subsection.zone, subsection.subsection);
+  const [featured, ...rest] = projects;
 
   return (
-    <div data-component="work-subsection" className={`flex flex-col ${WAYFINDING_GAP}`}>
+    // THE SUBSECTION IS THE REVEAL GROUP, not the whole Work section: a
+    // visitor meets these one zone at a time, and one group per zone is what
+    // makes the wayfinding row lead its own cards instead of eight rows and
+    // twenty cards all arriving on the first scroll.
+    <Reveal
+      data-component="work-subsection"
+      className={`flex flex-col ${WAYFINDING_GAP}`}
+    >
       <Wayfinding
         zone={subsection.zone}
         subsection={subsection.subsection}
         bubbleCopy={subsection.bubbleCopy}
-        // Micro-animation test, scoped to this one row. Keyed on zone AND
-        // subsection because "Harbour" appears twice in Work -- zone alone
-        // would light up more rows than intended. Every other Wayfinding on
-        // the site, here and in Approach/About, is untouched.
-        // Both keyed on zone AND subsection: "Harbour" appears twice in Work
-        // (Client work at scale, Feature cases), so zone alone would light up
-        // a row that wasn't asked for. Rega lives in "Client work at scale".
-        // Every other Wayfinding, here and in Approach/About, is untouched.
+        // ONE ROW STILL NAMES ITS AVATAR. The Lab -- Own products row used to
+        // name one too ('presenting-idle'); that drawing is now Wayfinding's
+        // default for every row, so asking for it by name would be a value
+        // nothing reads. Rega is the exception because it has its own animation.
+        //
+        // Keyed on zone AND subsection: "Harbour" appears twice in Work (Client
+        // work at scale, Feature cases), so zone alone would light up a row that
+        // wasn't asked for. Rega lives in "Client work at scale".
         avatarVariant={
-          subsection.zone === 'Lab' && subsection.subsection === 'Own products'
-            ? 'presenting-idle'
-            : subsection.zone === 'Harbour' && subsection.subsection === 'Client work at scale'
-              ? 'rega-wind'
-              : undefined
+          subsection.zone === "Harbour" &&
+          subsection.subsection === "Client work at scale"
+            ? "rega-wind"
+            : undefined
         }
       />
-      {subsection.layout === 'featured' && (
+      {subsection.layout === "featured" && (
         <div className={WORK_FEATURED_STACK}>
           {/* Artifakt spans 10 of 12 columns, not the full container width. */}
-          <div className={WORK_FEATURED_ROW}>
+          {/* `data-reveal` rather than `data-reveal-cards`: the featured row
+              holds one card, so there is nothing to stagger against and it
+              should arrive on the block beat, not the faster card one. */}
+          <div
+            className={WORK_FEATURED_ROW}
+            data-reveal
+            style={{ "--reveal-index": 1 }}
+          >
             {featured && (
               <div className={WORK_FEATURED_CARD}>
                 <ProjectCard project={featured} size="large" />
               </div>
             )}
           </div>
-          <div className={WORK_GRID_2UP}>
+          <div className={WORK_GRID_2UP} data-reveal-cards>
             {rest.map((project) => (
               <ProjectCard key={project.slug} project={project} size="medium" />
             ))}
           </div>
         </div>
       )}
-      {subsection.layout === 'grid-2x2' && (
-        <div className={WORK_GRID_2UP}>
+      {subsection.layout === "grid-2x2" && (
+        <div className={WORK_GRID_2UP} data-reveal-cards>
           {projects.map((project) => (
             <ProjectCard key={project.slug} project={project} size="medium" />
           ))}
         </div>
       )}
-      {subsection.layout === 'grid-3' && (
-        <div className={WORK_GRID_3UP}>
+      {subsection.layout === "grid-3" && (
+        <div className={WORK_GRID_3UP} data-reveal-cards>
           {projects.map((project) => (
             <ProjectCard key={project.slug} project={project} size="small" />
           ))}
         </div>
       )}
-    </div>
-  )
+    </Reveal>
+  );
 }
 
 function ApproachSubsection({ subsection }) {
   return (
-    <div data-component="approach-subsection" className={`flex flex-col ${WAYFINDING_GAP}`}>
+    <Reveal
+      data-component="approach-subsection"
+      className={`flex flex-col ${WAYFINDING_GAP}`}
+    >
       <Wayfinding
         zone={subsection.zone}
         subsection={subsection.subsection}
         bubbleCopy={subsection.bubbleCopy}
         breadcrumbHidden={subsection.breadcrumbHidden}
       />
-      {subsection.layout === 'value-cards' && (
-        <div className={VALUE_CARD_GRID}>
+      {subsection.layout === "value-cards" && (
+        <div className={VALUE_CARD_GRID} data-reveal-cards>
           {subsection.valueCards.map((item) => (
             <ValueCard key={item.title} item={item} />
           ))}
         </div>
       )}
-      {subsection.layout === 'media-grid' && (
-        <div data-component="media-collage" className={COLLAGE_GRID}>
+      {subsection.layout === "media-grid" && (
+        <div
+          data-component="media-collage"
+          className={COLLAGE_GRID}
+          data-reveal-cards
+        >
           {subsection.mediaCards.map((item, i) => (
-            <div key={item.href} className={MEDIA_COLLAGE[i] || ''}>
+            <div key={item.href} className={MEDIA_COLLAGE[i] || ""}>
               <MediaCard item={item} />
             </div>
           ))}
         </div>
       )}
-    </div>
-  )
+    </Reveal>
+  );
 }
 
 export default function HomePage() {
@@ -141,7 +162,11 @@ export default function HomePage() {
       <Nav />
 
       <div className={PAGE_STACK}>
-        <section id="work" data-component="section-work" className={SECTION_PAD_WORK}>
+        <section
+          id="work"
+          data-component="section-work"
+          className={SECTION_PAD_WORK}
+        >
           <Container className={`flex flex-col ${SECTION_HEADER_GAP}`}>
             <h2 className="text-h1 font-bold">{workSection.sectionHeader}</h2>
             <div className={SUBSECTION_GAP_WORK}>
@@ -157,7 +182,9 @@ export default function HomePage() {
 
         <section id="approach" data-component="section-approach">
           <Container className={`flex flex-col ${SECTION_HEADER_GAP}`}>
-            <h2 className="text-h1 font-bold">{approachSection.sectionHeader}</h2>
+            <h2 className="text-h1 font-bold">
+              {approachSection.sectionHeader}
+            </h2>
             <div className={SUBSECTION_GAP_EDITORIAL}>
               {approachSection.subsections.map((subsection) => (
                 <ApproachSubsection
@@ -172,37 +199,59 @@ export default function HomePage() {
         <section id="about" data-component="section-about">
           <Container className={`flex flex-col ${SECTION_HEADER_GAP}`}>
             <h2 className="text-h1 font-bold">{aboutSection.sectionHeader}</h2>
-            <div className={`flex flex-col ${WAYFINDING_GAP}`}>
+            <Reveal className={`flex flex-col ${WAYFINDING_GAP}`}>
               <Wayfinding
                 zone={aboutSection.zone}
                 subsection={aboutSection.subsection}
                 bubbleCopy={aboutSection.bubbleCopy}
               />
               <div className={ABOUT_CONTENT_GAP}>
-                <LanguageRiverEmbed
-                  src={aboutSection.languageRiver.embedSrc}
-                  title={aboutSection.languageRiver.title}
-                />
-                <div data-component="aside-collage" className={ASIDE_COLLAGE_GRID}>
+                {/* The river is one block on the beat after the Guide; the
+                    cards below it stagger among themselves. */}
+                <div data-reveal style={{ "--reveal-index": 1 }}>
+                  <LanguageRiverEmbed
+                    src={aboutSection.languageRiver.embedSrc}
+                    title={aboutSection.languageRiver.title}
+                  />
+                </div>
+                <div
+                  data-component="aside-collage"
+                  className={ASIDE_COLLAGE_GRID}
+                  data-reveal-cards
+                >
                   {aboutSection.asideCards.map((item, i) => (
-                    <div key={item.title} className={ASIDE_COLLAGE[i] || ''}>
+                    <div key={item.title} className={ASIDE_COLLAGE[i] || ""}>
                       <AsideCard item={item} />
                     </div>
                   ))}
                 </div>
               </div>
-            </div>
+            </Reveal>
           </Container>
         </section>
 
-        <section id="contact" data-component="section-contact" className={SECTION_PAD_CONTACT}>
-          <Container className={`flex flex-col ${WAYFINDING_GAP}`}>
-            <Wayfinding
-              zone={contactSection.zone}
-              subsection={contactSection.subsection}
-              bubbleCopy={contactSection.bubbleCopy}
-            />
-            {/* Portrait beside the text on desktop, stacked above it on mobile
+        <section
+          id="contact"
+          data-component="section-contact"
+          className={SECTION_PAD_CONTACT}
+        >
+          <Container>
+            {/* Reveal INSIDE Container, not `as={Container}`: that component
+                takes only children/className/id by design and would drop the
+                ref, so the observer would never attach and this section would
+                stay hidden for good. The flex row moves down here with it. */}
+            <Reveal className={`flex flex-col ${WAYFINDING_GAP}`}>
+              {/* No Guide in this one -- Contact's Wayfinding is the breadcrumb
+                alone (see contact.mdx), so the row and the card below it are
+                the two beats here. */}
+              <div data-reveal style={{ "--reveal-index": 0 }}>
+                <Wayfinding
+                  zone={contactSection.zone}
+                  subsection={contactSection.subsection}
+                  bubbleCopy={contactSection.bubbleCopy}
+                />
+              </div>
+              {/* Portrait beside the text on desktop, stacked above it on mobile
                 (Flore's call -- portrait first, then heading, copy, buttons).
                 Figma has no mobile Contact frame at all, so the stacking order
                 is hers rather than sampled. items-center matches the desktop
@@ -218,48 +267,57 @@ export default function HomePage() {
                 layout box back to 180 so the halo overlaps rather than
                 displacing the 48px gap -- what you measure in Figma is the
                 circle, not the shadow. */}
-            <div className="flex flex-col items-start gap-space-24 md:flex-row md:items-center md:gap-space-48">
-              <img
-                src={portraitFlore}
-                alt="Flore de Crombrugghe"
-                width={187}
-                height={187}
-                className="-m-[3.5px] w-[187px] shrink-0"
-              />
-              {/* 846px in Figma -- off both column grids, so it reads as a
+              <div
+                className="flex flex-col items-start gap-space-24 md:flex-row md:items-center md:gap-space-48"
+                data-reveal
+                style={{ "--reveal-index": 1 }}
+              >
+                <img
+                  src={portraitFlore}
+                  alt="Flore de Crombrugghe"
+                  width={187}
+                  height={187}
+                  className="-m-[3.5px] w-[187px] shrink-0"
+                />
+                {/* 846px in Figma -- off both column grids, so it reads as a
                   readable-measure cap on the text block rather than a span. */}
-              <div className="flex max-w-[846px] flex-col gap-space-16">
-                <h2 className="text-h2 font-semibold">{contactSection.heading}</h2>
-                <p className="text-body-lg font-normal">{contactSection.description}</p>
-                {/* Sampled from the real Contact Section node (2928:73875):
+                <div className="flex max-w-[846px] flex-col gap-space-16">
+                  <h2 className="text-h2 font-semibold">
+                    {contactSection.heading}
+                  </h2>
+                  <p className="text-body-lg font-normal">
+                    {contactSection.description}
+                  </p>
+                  {/* Sampled from the real Contact Section node (2928:73875):
                     LinkedIn as the filled primary button, the email
                     as a secondary-chrome button that copies to clipboard rather
                     than a mailto link -- matching the "Say hi" popover's own
                     contact pattern (copy, no navigation) rather than the two
                     generic ButtonLinks this rendered before. */}
-                {/* flex-col on mobile: the two buttons together are wider than a
+                  {/* flex-col on mobile: the two buttons together are wider than a
                     402px viewport (the email address alone doesn't leave room
                     for LinkedIn beside it), so a single non-wrapping row pushed
                     the second button off-screen. Same stacking pattern already
                     used for the Footer's row at this breakpoint. */}
-                <div className="mt-space-32 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-space-24">
-                  <ButtonLink
-                    variant="primary"
-                    href={contactSection.linkedinUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    LinkedIn
-                  </ButtonLink>
-                  <ContactEmailButton email={contactSection.email} />
+                  <div className="mt-space-32 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-space-24">
+                    <ButtonLink
+                      variant="primary"
+                      href={contactSection.linkedinUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      LinkedIn
+                    </ButtonLink>
+                    <ContactEmailButton email={contactSection.email} />
+                  </div>
                 </div>
               </div>
-            </div>
+            </Reveal>
           </Container>
         </section>
 
         <Footer />
       </div>
     </>
-  )
+  );
 }

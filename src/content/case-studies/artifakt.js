@@ -13,6 +13,22 @@
  * real bullet lists, real bold and italic runs, and italic asides. The typed
  * block structure in `body` below mirrors that restyle one-to-one.
  *
+ * RE-PULLED 2026-08-31, after Flore's tightening pass on the frame. Six of the
+ * ten body sections changed. The shape of the edit is the same everywhere:
+ * sentences compressed, lead-ins pulled out of their bullets and promoted to
+ * bold headings over lists, and one aside un-italicised into a bold paragraph.
+ * Two of the three sections that did NOT change are the establishing ones
+ * ("Made by you", "What it is"); the third is this section's own reflection,
+ * which gained a picture instead.
+ *
+ * WHERE THIS FILE STILL DIVERGES FROM THE FRAME, each flagged at its own line:
+ * British spelling (the frame now has "color"/"behavior" in two places), the
+ * capital in "Canny", a dropped article in one reveal bullet, "5 in-person test
+ * sessions" (the frame says "moderated", which contradicts the Testing section
+ * — Flore adjudicated on 2026-08-21 and the number was never the problem), and
+ * the Jules quote's attribution, which the frame sets upright inside an
+ * otherwise italic line. Fix them in the frame and these notes can go.
+ *
  * NOT taken from `~/Downloads/artifakt-case-study-narrative.md`, which is the
  * earlier draft. Where the two disagree the frame wins, per CLAUDE.md: this
  * page is not built yet, so Figma is the brief. The differences are real and
@@ -305,17 +321,18 @@ export default {
           // The opening question is BACK in the prose, which is what makes the
           // next sentence's "it" resolve without reading the bubble.
           type: 'p',
-          text: 'I started with a practical question: how do you help someone make a unique visual for another person, when most people freeze the moment they’re asked to create something themselves?',
+          text: 'How do you help someone make a visual for another person, when most people freeze the moment they’re asked to create something?',
         },
         {
-          // "Six interviews", not Figma's "Six Interviews" — a mid-sentence
-          // capital, treated as a typo rather than carried over.
+          // The age range and the *what*/*how* italics both went in Flore's
+          // 2026-08-31 tightening pass; the frame now draws this line plain
+          // apart from the bold lead-in.
           type: 'p',
-          text: '**Six interviews across ages 28 to 75** sharpened it — people aren’t reluctant, they’re blocked by *what* to make, not *how*.',
+          text: '**Six interviews** sharpened it — people aren’t reluctant, they’re blocked by what to make, not how.',
         },
         {
           type: 'p',
-          text: 'Then an early test contradicted me. I showed people three versions of the same drawing — rough, refined, finished — and asked which felt like it came from someone who cared. The most finished one won, from people who had just told me they valued imperfection in gifts. My stimulus was flawed (only one version had colour), but the contradiction held up in every session afterwards:',
+          text: 'Then an early test contradicted me. Three versions of one drawing — rough, refined, finished — which felt like it came from someone who cared? The finished one won, from people who had just told me they valued imperfection. My stimulus was flawed (only one version had colour), but the contradiction held in every session after:',
         },
         {
           type: 'p',
@@ -323,10 +340,16 @@ export default {
         },
         {
           type: 'p',
-          text: 'That’s why **the reveal became my first design focus**, ahead of the drawing tool itself — and it turned the project’s question into a narrower one:',
+          text: 'That’s why the reveal became my first design focus, ahead of the drawing tool:',
         },
         {
-          type: 'aside',
+          // A BOLD PARAGRAPH, NOT AN `aside` — Flore took the italic off this
+          // line in the 2026-08-31 pass (node 4897:4563 draws it upright HK
+          // Grotesk Bold). It now matches "People want to have made it" four
+          // blocks above, which is the same move: the section's conclusion in
+          // the page's own voice, where italic is reserved for the "Lesson:"
+          // asides and participant speech.
+          type: 'p',
           text: '**When AI helps you make something, at what point does it stop being yours?**',
         },
       ],
@@ -363,40 +386,126 @@ export default {
       //
       // DRAFT COPY, not pulled from Figma — flagged for Flore's sign-off and a
       // sync back into the frame.
+      //
+      // REWRITTEN 2026-08-31 from the frame. The five long bullets became four
+      // short LISTS, each introduced by its own bold lead-in paragraph — so
+      // "Wanted", "Got", "Dead ends" and "Fix 2" are now headings over their
+      // items rather than the first words of one. That is why the block count
+      // jumped from three to eleven for copy that got shorter.
+      //
+      // Each lead-in is written `**Wanted**:` with the colon OUTSIDE the bold,
+      // not `**Wanted:**`. Two reasons, and both matter: the frame itself puts
+      // the colon outside the bold run on four of the five, and Prose's
+      // tight-spacing rule reads the RAW string for a trailing `:` — with the
+      // colon inside the markers the string ends in `**` and the lead-in would
+      // float 32px above the list it introduces.
       prose: [
         {
           type: 'p',
-          text: 'Effort only counts if the recipient can see it. The wobble in a traced line is the proof, and the reveal is where it gets shown — which is why I built the transformation before the drawing tool.',
+          text: 'Effort counts only if visible. The wobble in a traced line proves it, **shown in the reveal** — so I built transformation before drawing.',
         },
+        { type: 'p', text: '**Wanted**:' },
         {
           type: 'list',
           items: [
-            '**Wanted:** the traced line still legible, the artist’s hand clearly present, enough surprise that it reads as a gift and not a filter.',
-            '**Got:** spiders. Ask for Louise Bourgeois and the model draws her most famous motif instead of treating your lines in her manner. Every artist had a version of this — the model reaches for the icon, not the technique.',
-            '**Dead ends:** Replicate + ControlNet, dropped after ~$10 of credit. Then Flux Pro Redux — which failed because the sketch was never actually being sent in the request. I judged the output for a full phase before checking the payload.',
-            '**Fix 1 — describe the material, not the artist.** Thread, tension, stitched surface, instead of the name. Naming an artist summons their greatest hits.',
-            '**Fix 2 — split the pipeline in two.** Pass 1 builds structure and material with no artist named at all. Pass 2 applies the artist and colour. Eight phases of sweeping a single strength value came first: low values gave my sketch back untouched, high values gave a beautiful image that wasn’t mine.',
+            'traced line legible,',
+            'artist’s hand clear,',
+            'surprise so it feels like a gift, not a filter.',
+          ],
+        },
+        { type: 'p', text: '**Got**:' },
+        {
+          type: 'list',
+          items: [
+            // "leads the model to", not the frame's "leads model to" — a
+            // dropped article rather than the clipped register the rest of
+            // this pass is written in. Fix the frame so a re-pull keeps it.
+            'asking for L. Bourgeois leads the model to draw spiders, her famous motif, not your lines in her style.',
+            'Artists **reach for icons, not technique**.',
+          ],
+        },
+        { type: 'p', text: '**Dead ends**:' },
+        {
+          type: 'list',
+          items: [
+            'Replicate + ControlNet overlays new images, losing visible lines.',
+            'Flux Pro Redux never sent the sketch.',
+          ],
+        },
+        {
+          type: 'p',
+          text: '**Fix 1**: **describe material, not artist** — thread, tension, stitched surface.',
+        },
+        { type: 'p', text: '**Fix 2**:' },
+        {
+          type: 'list',
+          items: [
+            // "colour", not the frame's "color" — this page is British
+            // throughout ("colour", "behaviour", "grey") and a single American
+            // spelling inside one bullet reads as a slip, not a choice.
+            '**Split pipeline** — Pass 1 builds structure without artist, Pass 2 adds artist and colour.',
+            'Eight phases tested strength values; low kept the sketch, high gave beautiful but not mine.',
           ],
         },
         {
           type: 'aside',
-          text: '**Lesson:** when the same trade-off appears at every value you test, the problem is structural. Change the shape of the pipeline, not the dial.',
+          text: '**Lesson**: if the trade-off persists, change the pipeline shape, not the dial.',
         },
       ],
 
-      // NEW ASSET, 2026-08-24: the art-class metaphor the prose describes —
-      // look at art, study the technique, study the subject, then make your own
-      // without the reference in front of you. It is the clearest statement of
-      // why the pipeline is split in two, and it was text-only before.
+      // SWAPPED 2026-08-31 (Flore, node 5063:2885). This stage used to hold the
+      // art-class mental model; that asset is still on the page but has moved
+      // down to "What this changed about how I work", where it illustrates the
+      // reflection rather than the failure. Its file was renamed to
+      // `the-reveal-mental-model.webp` in the same pass, which FREED THE NAME
+      // `the-reveal.webp` — and the new asset then took it. So that filename
+      // points at a different picture than it did before 2026-08-31, and git
+      // shows the swap as a delete plus an add rather than a rename. Don't
+      // reconcile the two by name, and don't trust a pre-31 reference to
+      // `the-reveal.webp` to mean this image.
+      //
+      // What sits here now is the evidence for the paragraph beside it: the
+      // trace going in, and Louise Bourgeois's spider coming out with the
+      // traced line gone. Showing the failure is the point — the prose claims
+      // the model reaches for the icon, and until now the reader had to take
+      // that on trust.
+      //
+      // RE-EXPORTED later the same day, and the change is the ARROW between the
+      // two screens. It was two panels sitting next to each other, which left
+      // the reader to infer the causality; the arrow states it, which is what
+      // makes this a before/after rather than a pair. Same composition
+      // otherwise, drawn slightly larger (882x766, was 781x678).
+      //
+      // Converted from Flore's PNG export to WebP, so it matches every other
+      // asset on the page: lossy q90, alpha preserved (the phone corners are
+      // transparent and sit on the stage's own fill). 279 KB -> 87.
       media: {
         layout: 'split',
+        // NO WIDTH CAP — Flore, 2026-08-31, asked for this one bigger, so it
+        // fills its stage (the 572 split column less MediaStage's 24 of padding
+        // = 524) instead of stopping at a drawn width.
+        //
+        // A DELIBERATE EXCEPTION to the convention the rest of this page
+        // follows, and worth saying so plainly: every other asset here is
+        // capped at its absolute Figma width, and `against-the-defaults` below
+        // was uncapped once and put back (Flore, 2026-08-25: too big in code).
+        // Don't "restore" 370 as a consistency fix.
+        //
+        // The reason the two go opposite ways is what is inside them. The
+        // defaults grid is artwork, and its Figma surround is composition. This
+        // one is two phone SCREENSHOTS, and the screens carry UI text — at 370
+        // each phone was ~150px and every word in it was mush. At 524 they are
+        // ~210 and the headline resolves, which is the difference between
+        // evidence and a picture of evidence.
+        //
+        // `MEDIA_MAX_H` (88svh) still applies underneath and is what stops this
+        // on a very short window; it does not bite at any normal viewport,
+        // where the column is the smaller of the two.
         src: `${M}/the-reveal.webp`,
-        label: '[ the-reveal.webp — 993x731 two-pass mental model ]',
-        placeholderAspect: '993 / 731',
-        alt: 'A diagram of the two-pass approach: a Van Gogh sunflowers painting labelled “look at art”, a detail of the brushwork labelled “study the technique”, a photograph of real sunflowers labelled “study the subject”, and a new painting labelled “create your own art”',
-        // Figma reads "Mental modal for fix 1" — "modal" for "model".
-        // Corrected here; fix the frame so a re-pull doesn't restore it.
-        caption: 'Mental model for fix 1',
+        label: '[ the-reveal.webp — 882x766 trace in, spider out ]',
+        placeholderAspect: '882 / 766',
+        alt: 'Two Artifakt screens with an arrow between them: on the left the trace screen with the word “water” and a loose hand-drawn line, on the right the reveal showing a Louise Bourgeois spider in which none of the traced line survives',
+        caption: 'Traced line not legible. Artists reach for icons, not technique.',
       },
       // TWO EMBEDS, NOT YET BUILT. Figma draws both as empty dashed
       // placeholders (nodes 4897:4571 / 4897:4577) and Flore confirmed
@@ -489,29 +598,27 @@ export default {
             },
           },
         ],
-        // FOUR NOTES, NOT THE SOURCE DOCUMENT'S SIX. "Why two passes?" is said
-        // by the prose directly beside this diagram, so repeating it makes the
-        // figure argue with the page; "Scaffold (Screen 1)" belongs to "The
-        // scaffold" section further down, where the reader meets that problem.
-        // The four kept are the ones the prose does not cover.
-        notes: [
-          {
-            title: 'What strength controls',
-            body: 'Strength is how much the model departs from the input image. 0.0 returns the input untouched; 1.0 ignores it entirely. Higher strength means more artistic transformation but looser sketch fidelity.',
-          },
-          {
-            title: 'Why results vary',
-            body: 'Diffusion models start from random noise (the seed), so two identical prompts produce different results every time. That variance compounds across two passes. The regenerate button on the canvas lets users reroll.',
-          },
-          {
-            title: 'Model used',
-            body: 'fal-ai/flux/dev/image-to-image. 28 inference steps, guidance scale 3.5. No LoRA fine-tuning — style is driven entirely through prompting. LoRA is a future option once the artist roster is validated.',
-          },
-          {
-            title: 'Cost',
-            body: 'Two API calls per artist per generation. All five artists are generated in parallel when Screen 2 loads. Regenerating one artist is two fresh calls for that artist only.',
-          },
-        ],
+        // NO NOTES ROW — removed 2026-08-31, Flore: "it's just too much
+        // content." It was a four-card grid under the diagram covering what
+        // strength controls, why results vary, the model settings, and cost.
+        //
+        // The trim it completes: the row was already down from the source
+        // document's six, because "Why two passes?" is said by the prose beside
+        // this diagram and "Scaffold (Screen 1)" belongs to the scaffold
+        // section further down. Cutting the last four is the same judgement one
+        // step on -- this figure's job is to show the pipeline, and the reader
+        // who wants inference steps and per-call cost is a different reader.
+        //
+        // NOTHING IS LOST, which is what makes the cut cheap: all four notes
+        // came out of the prompting-process log, that log still carries the
+        // material (checked -- strength, seed, LoRA, guidance scale and the
+        // regenerate button are all in it), and `link` above already points at
+        // it from this diagram. The detail moved one click away rather than
+        // going.
+        //
+        // PipelineDiagram still renders a `notes` array when given one
+        // (`notes?.length > 0`), so restoring a shorter row is a paste here and
+        // no code change.
       },
     },
 
@@ -524,32 +631,44 @@ export default {
       // to the prose rather than set it up.
       note: 'I built the scaffold to guide users, but testers felt it was telling them what to draw.',
       prose: [
-        { type: 'p', text: 'Testing gave me the sharpest question of the project:' },
+        { type: 'p', text: 'Testing raised the project’s sharpest question:' },
         {
+          // STILL FULLY ITALIC, where the frame now sets only the quoted
+          // sentence italic and leaves "— Jules" upright. `quote` is one italic
+          // block and emphasis.jsx has no un-italic marker to nest inside it
+          // (that is a documented limit, not an oversight). Kept as a real
+          // <blockquote> rather than downgraded to a paragraph carrying
+          // `*...*` — the semantics are worth more than the attribution's
+          // slant. Say the word and it flips.
           type: 'quote',
-          text: '"Why do I have to trace something when it’s already there?" — Jules',
+          text: '"Why trace something that’s already there?" — Jules',
         },
         {
           type: 'p',
-          text: 'The scaffold was too finished. It had already made every decision, so tracing felt like busywork rather than authorship. All four testers hit this.',
+          text: 'The scaffold was too complete, making tracing feel like busywork, not creation. All testers noticed this.',
         },
         {
           type: 'list',
           items: [
-            '**First instinct — fix it with UX tools.** Softer copy, reworded instruction, looser prompt. I tried art-school language: *think in volumes first*. The model has no idea what that means.',
-            '**Expensive detour:** generating the scaffold by running img2img over an SVG motif. Largest single chunk of credit in the project, and it produced a *more* finished illustration.',
-            '**The reframe:** "make this less detailed" is a subtraction problem, not a generation problem. Image-to-image transforms style; it doesn’t remove structure.',
-            '**The fix, in code not prompts:** generate a normal sketch, then subtract — grayscale → blur → Canny → flood-fill → keep only the outer contours. Prototyped in Python, ported to browser Canvas so it runs on static hosting with no backend.',
-            '**Still open:** the flood-fill assumes a closed contour. Give it a bicycle and it fills the canvas black.',
+            '**First idea** — UX tweaks: softer copy, looser prompts, art-school style (think volumes first). The model didn’t get it.',
+            '**Costly detour**: generating the scaffold via img2img on an SVG motif. Biggest credit chunk, but it made a more finished illustration.',
+            '**Reframe**: "Make this less detailed" is subtraction, not generation. Image-to-image changes style, not structure.',
+            // "Canny" capitalised, against the frame's "canny" — it is a
+            // person's name (the Canny edge detector), the same class of fix
+            // as "Six interviews" above.
+            '**Fix** in code, not prompts: generate a sketch, then subtract — grayscale → blur → Canny → flood-fill → keep outer contours. Prototyped in Python, ported to browser Canvas for static hosting.',
+            '**Still a problem**: flood-fill assumes closed contours. Give it a bike, it fills the canvas black.',
           ],
         },
         {
+          // "behaviour", not the frame's "behavior" — British throughout, same
+          // call as "colour" in the reveal section.
           type: 'p',
-          text: 'Once the scaffold gave people less, tracing started to feel like a decision. The wording mattered too: "trace the image" implied accuracy, and testers asked whether they had to follow it. Softening the instruction changed behaviour more than the interface did.',
+          text: 'With a simpler scaffold, tracing felt like a choice. Wording mattered: "trace the image" implied precision. Softer wording changed behaviour more than the interface.',
         },
         {
           type: 'aside',
-          text: '**Lesson:** when a UX complaint won’t resolve with UX tools, look upstream. This one was a generation problem wearing an interaction problem’s clothes.',
+          text: '**Lesson**: when UX tweaks fail, look upstream. This was a generation issue disguised as interaction.',
         },
       ],
       link: { label: 'The contour-reduction experiments', href: `${LOGS}/scaffold-process` },
@@ -599,8 +718,11 @@ export default {
           text: 'The harder part wasn’t technical. The model often suggested well-known artists like Picasso because they were easier to generate and saved me hours of work. But **choosing artists simply because the model knew them better would undermine the purpose of the product**.',
         },
         {
+          // "Lesson", not "Note" — retitled in the frame on 2026-08-31, which
+          // puts it in step with the asides closing the reveal and scaffold
+          // sections.
           type: 'aside',
-          text: '**Note:** I built this as a remediation pass after noticing skewed output, not as a first-draft requirement. Given that representation is a stated value here, it should have been in the first prompt I wrote, not the twentieth.',
+          text: '**Lesson:** I added this remediation after seeing skewed output; it should have been in the initial prompt since representation is a key value.',
         },
       ],
       // POINTS AT THE SAME DOCUMENT as "The 14 phases behind this pipeline"
@@ -658,27 +780,31 @@ export default {
         { type: 'p', text: 'Four moderated in-person sessions.' },
         {
           type: 'p',
-          text: '**Every single person hesitated before tracing. Every single person lit up at the result.** Four out of four said they’d send it — and every one of them wanted to immediately make another.',
+          text: '**Every single person hesitated before tracing. Every single person lit up at the result.** All said they’d send it — and wanted to make another straight away.',
+        },
+        {
+          // The full stop sits OUTSIDE the bold, matching the frame. Small, and
+          // the kind of thing a re-pull would otherwise keep re-flagging.
+          type: 'p',
+          text: '**That gap is the finding**. People don’t understand why they’re drawing until they see what it becomes — the product front-loads uncertainty and back-loads the payoff. A good ending doesn’t validate the path to it.',
         },
         {
           type: 'p',
-          text: '**That gap is the finding.** People don’t understand why they’re drawing until they see what it becomes, so the product front-loads uncertainty and back-loads the payoff. A consistently good ending doesn’t validate the path to it.',
+          text: 'It also answered the question I started with. **Ownership is partial: it’s my idea but not my drawing.** For a scaffold model that’s the honest ceiling — and enough to make them want to send it.',
         },
         {
-          type: 'p',
-          text: 'It also answered the question I started with. **Ownership turned out to be partial**: testers said *it’s my idea* but not *my drawing*. For a scaffold model, that’s the honest ceiling — and it was enough to make them want to send it.',
-        },
-        {
-          type: 'p',
-          text: 'The testing also killed something. The onboarding animation confused three testers in a row, so I removed it rather than redesigning it a fourth time.',
-        },
-        {
-          type: 'p',
-          text: 'Still unresolved: **the artist bio** — the most culturally meaningful moment in the product — was the least discovered thing in it. And erase clears everything, where testers expected stroke-by-stroke undo.',
-        },
-        {
-          type: 'p',
-          text: '**Next test:** promise the reveal before the trace, and see whether the hesitation drops.',
+          // THE LAST FOUR PARAGRAPHS ARE NOW ONE LIST — Flore, 2026-08-31. The
+          // killed animation, the two open problems and the next test were four
+          // separate paragraphs saying four separate things; as a list with
+          // bold status labels they read as one set of outcomes, which is what
+          // they are.
+          type: 'list',
+          items: [
+            '**Killed.** The onboarding animation confused three testers in a row. Removed rather than redesigned a fourth time.',
+            '**Still open.** The artist bio — the most culturally meaningful moment in the product — was the least discovered thing in it.',
+            '**Still open.** Erase clears everything; testers expected stroke-by-stroke undo.',
+            '**Next test.** Promise the reveal before the trace, and see whether the hesitation drops.',
+          ],
         },
       ],
       // Re-exported larger, 2026-08-24 (1183x749, was 923x584).
@@ -702,10 +828,13 @@ export default {
     {
       id: 'reflection',
       title: 'What this changed about how I work',
-      // NARROWER THAN THE REST — Flore's call, confirmed 2026-08-24. The two
-      // closing sections read at the split-column measure rather than the
-      // page's 720, so the page tapers as it ends. See ARTIFAKT.proseNarrow.
-      measure: 'narrow',
+      // NO `measure: 'narrow'` ANY MORE, and its absence is the point. This
+      // section used to be text-only, and the narrow measure is what made the
+      // page taper as it ended (Flore, 2026-08-24). It now carries media, so it
+      // is a split row and the COLUMN is the measure — `measure` is ignored on
+      // that branch (see CaseStudyArtifakt.jsx), and leaving it in place would
+      // read as a live setting that does nothing. "The Process" below is still
+      // text-only and still narrow, so the taper survives.
       prose: [
         {
           type: 'p',
@@ -716,6 +845,28 @@ export default {
           text: '**AI output arrives looking finished**, which makes it easy to accept as a given and tune around the edges. The design work is in **refusing that** — knowing what the model is actually doing, and noticing where its convenience is quietly making a decision that should have been yours.',
         },
       ],
+      // MOVED HERE FROM THE REVEAL SECTION, 2026-08-31 (Flore, node 5063:3080),
+      // and the caption was rewritten with it — it used to read "Mental model
+      // for fix 1", scoped to one fix in a list. It now names the whole
+      // two-pass pipeline and where the idea came from, which is why it earns a
+      // place next to the reflection instead: the section is about changing the
+      // question rather than the setting, and this is the picture of having
+      // done that.
+      //
+      // The file kept its name through the move (`the-reveal-mental-model`,
+      // renamed from `the-reveal` on 2026-08-31). Every asset on this page is
+      // WebP again as of that date; there is no PNG left here.
+      media: {
+        layout: 'split',
+        // Figma draws it at 475.4 inside a 651.5 stage (node 5063:3079).
+        maxWidth: 475,
+        src: `${M}/the-reveal-mental-model.webp`,
+        label: '[ the-reveal-mental-model.webp — 993x731 two-pass mental model ]',
+        placeholderAspect: '993 / 731',
+        alt: 'A diagram of the two-pass approach: a Van Gogh sunflowers painting labelled “look at art”, a detail of the brushwork labelled “study the technique”, a photograph of real sunflowers labelled “study the subject”, and a new painting labelled “create your own art”',
+        caption:
+          'Mental model for the two-pass pipeline, borrowed from childhood art classes: study the technique, study the subject, then put both away and make your own.',
+      },
     },
 
     // 10 -------------------------------------------------------------------
@@ -737,7 +888,7 @@ export default {
       prose: [
         {
           type: 'p',
-          text: 'Four weeks, solo, built during cohort 6 of Patricia Reiners’ AI for Designers. Same timeline as PitchPivot, considerably heavier underneath — most of those hours went into the image pipeline, not the interface.',
+          text: 'Four weeks, solo, built during cohort 6 of Patricia Reiners’ AI for Designers. Same timeline as PitchPivot, considerably heavier underneath — **most of those hours went into the image pipeline, not the interface**.',
         },
         {
           // "5 in-person test sessions", NOT Figma's literal "5 moderated
@@ -749,7 +900,7 @@ export default {
           // wrong here, not either number. Both sections are now true as
           // written and neither number had to move.
           type: 'p',
-          text: '4 weeks end to end. 14 documented prompting phases. 6 process logs kept during the build. 5 artists, after two were cut for technical reasons. 5 in-person test sessions.',
+          text: '**4 weeks end to end**. **14 documented prompting phases**. 6 process logs kept during the build. 5 artists, after two were cut for technical reasons. 5 in-person test sessions.',
         },
         {
           type: 'p',
@@ -807,11 +958,23 @@ export default {
         // spans the full content column; only the artwork inside it shrinks, so
         // the tinted surround reads as a mount rather than a thin border.
         // MediaStage centres it (`items-center`), so the margin is even.
+        //
+        // RE-EXPORTED 2026-08-31 (node 5064:3097). The composition is the same
+        // four screens, now shot in a browser chrome and slightly wider
+        // (2531x1240 against 2000x1054), and the fourth screen changed: it is
+        // the artist bio, not the share view. The alt text moved with it.
+        //
+        // Converted from PNG to WebP in the same pass: 1.5 MB -> 350 KB, which
+        // is also less than half the asset it replaced despite the higher
+        // resolution. Lossy q90 — checked against the PNG at the size a retina
+        // screen actually rasterises (880 CSS px, so 1760 device px, a 1.4x
+        // downscale from source), including the artist-bio body copy, which is
+        // the smallest type in the picture. No visible difference.
         maxWidth: 880,
         src: `${M}/final-product.webp`,
-        label: '[ final-product.webp — 2000x1054 four-screen gallery ]',
-        placeholderAspect: '2000 / 1054',
-        alt: 'Four Artifakt screens side by side: the traced scaffold, the artist picker, the finished artwork, and the share view',
+        label: '[ final-product.webp — 2531x1240 four-screen gallery ]',
+        placeholderAspect: '2531 / 1240',
+        alt: 'Four Artifakt screens side by side: sketching over the guide, choosing an artist style, the finished “The Optimist” artwork in Kara Walker’s style, and the About Kara Walker bio',
         caption: 'Final product',
       },
     },
