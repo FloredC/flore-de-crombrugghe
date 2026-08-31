@@ -130,6 +130,15 @@ function ApproachSubsection({ subsection }) {
         subsection={subsection.subsection}
         bubbleCopy={subsection.bubbleCopy}
         breadcrumbHidden={subsection.breadcrumbHidden}
+        // Keyed on zone AND subsection for the same reason Rega is: "Plaza"
+        // appears twice in Approach (Design Principles, Selected talks &
+        // writing), so zone alone would light up a row that wasn't asked for.
+        avatarVariant={
+          subsection.zone === "Plaza" &&
+          subsection.subsection === "Design Principles"
+            ? "principles"
+            : undefined
+        }
       />
       {subsection.layout === "value-cards" && (
         <div className={VALUE_CARD_GRID} data-reveal-cards>

@@ -700,6 +700,29 @@ tailwind.config.js       # custom spacing/radius keys are prefixed space-N/radiu
 - ~~NDA project content home~~ → real `.mdx` files, no route.
 
 **Still open:**
+- **Avatar line weight — one number for the whole set, deferred until every
+  avatar is drawn** (Flore, 2026-08-31). All three avatars are drawn with the
+  same stroke: Figma exports 1.36–1.45 across them, and measured on a 600px
+  render the principles avatar and a raw Rega export are both 9.00px — the same
+  line to the pixel. They do not *look* the same because `AvatarRega` and
+  `AvatarPresentingIdle` each override their stroke to **1.05** in code (7.00px,
+  27% thinner), and `AvatarPrinciples` cannot take that override: its lines are
+  outlined into filled shapes, so thickness is geometry rather than a property.
+  Three ways out — drop the two overrides and let Figma's ~1.44 win; re-export
+  principles with live strokes and set 1.05; or pick a value in between. It is a
+  visual call, so it is Flore's, and she wants to make it **once, looking at all
+  the avatars together**, rather than per-avatar as each one lands. Until then
+  the principles avatar stays visibly heavier than the other two — that is known
+  and accepted, not a bug to fix in passing.
+  Whatever is chosen, the endpoint is the same: the number goes into **Figma on
+  every avatar** and both `STROKE_WIDTH` constants come out, since each is
+  already commented as a deliberate temporary divergence.
+- **Scaling a layer cannot change apparent line weight** — worth knowing before
+  anyone tries it again. Once strokes are outlined, the line thickness scales
+  with the figure, so the thickness-to-figure ratio is invariant; and the
+  avatars render at a fixed width regardless of artboard content, so the
+  apparent weight is unchanged at any scale. Only a live `stroke-width` is an
+  independent property.
 - **Type scale compression across mobile breakpoints** — not yet audited as a dedicated pass (see Build Order stage 4).
 - **Nav breakpoint (768px)** — my judgment call, not a Figma sample (the file only has the `402-mobile` and `bp-1622-desktop` frames). No objection raised, but not explicitly confirmed either — revisit if it feels wrong on a real device.
 - **Laptop/large-desktop boundary (1600px)** — same situation as the nav

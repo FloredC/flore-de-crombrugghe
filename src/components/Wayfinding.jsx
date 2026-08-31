@@ -1,5 +1,6 @@
 import AvatarPresentingIdle from './AvatarPresentingIdle'
 import AvatarRega from './AvatarRega'
+import AvatarPrinciples from './AvatarPrinciples'
 import SpeechBubble from './SpeechBubble'
 import DistrictBreadcrumb from './DistrictBreadcrumb'
 
@@ -69,7 +70,13 @@ export default function Wayfinding({
               <img>. Rega keeps its own because it is the other row that already
               has a real animation; each new one lands the same way, as another
               branch here, until the fallback has nothing left to catch. */}
-          {avatarVariant === 'rega-wind' ? <AvatarRega /> : <AvatarPresentingIdle />}
+          {avatarVariant === 'rega-wind' ? (
+            <AvatarRega />
+          ) : avatarVariant === 'principles' ? (
+            <AvatarPrinciples />
+          ) : (
+            <AvatarPresentingIdle />
+          )}
           <SpeechBubble variant={bubbleVariant}>{bubbleCopy}</SpeechBubble>
         </div>
       )}
