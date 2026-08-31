@@ -55,7 +55,10 @@ export default function Wayfinding({
         // starts at the left, which put the bubble on the left at narrow
         // widths. Flore's note 2026-08-12: these are right-aligned in the
         // design, everywhere.
-        <div data-component="guide" className="ml-auto flex items-center gap-2">
+        // `data-reveal-guide` is the only motion hook in this file: the CSS
+        // reads it to give the avatar and the bubble their own sequenced
+        // reveal (see the REVEAL block in globals.css). No timings here.
+        <div data-component="guide" data-reveal-guide className="ml-auto flex items-center gap-2">
           {/* THE PRESENTING AVATAR IS NOW THE DEFAULT -- Flore, 2026-08-31:
               "the idea is to create new animations over time, but right now I
               have to fill that space with one example avatar."

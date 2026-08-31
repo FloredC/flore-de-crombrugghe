@@ -36,6 +36,11 @@ export default function AvatarNote({ body, align = 'end' }) {
   return (
     <div
       data-component="avatar-note"
+      // Same reveal treatment as the homepage Guide, and deliberately so: this
+      // renders the same avatar and the same SpeechBubble, and one component
+      // carries identical behaviour wherever it appears -- the rule already
+      // settled for ButtonLink. See globals.css.
+      data-reveal-guide
       className={`flex items-center gap-space-8 ${align === 'end' ? 'justify-end' : 'justify-start'}`}
     >
       {/* `shrink-0` because the avatar is now wider than its natural size:
