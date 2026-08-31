@@ -1,4 +1,3 @@
-import Avatar from './Avatar'
 import AvatarPresentingIdle from './AvatarPresentingIdle'
 import AvatarRega from './AvatarRega'
 import SpeechBubble from './SpeechBubble'
@@ -15,7 +14,10 @@ export default function Wayfinding({
   zone,
   subsection,
   bubbleCopy,
-  avatarVariant = 'sections-left',
+  // Undefined means "the default avatar", which is now the presenting one --
+  // this used to default to the static 'sections-left' illustration. Only rows
+  // with an animation of their own pass a value; see the branch below.
+  avatarVariant,
   bubbleVariant = 'right',
   hidden = false,
   // HIDE THE BREADCRUMB HALF, KEEP THE GUIDE -- Flore, 2026-08-28, for the
@@ -54,16 +56,17 @@ export default function Wayfinding({
         // widths. Flore's note 2026-08-12: these are right-aligned in the
         // design, everywhere.
         <div data-component="guide" className="ml-auto flex items-center gap-2">
-          {/* One opt-in variant, currently used by the Lab — Own products row
-              only (see HomePage). Every other row keeps the existing static
-              <img> avatar untouched. */}
-          {avatarVariant === 'presenting-idle' ? (
-            <AvatarPresentingIdle />
-          ) : avatarVariant === 'rega-wind' ? (
-            <AvatarRega />
-          ) : (
-            <Avatar variant={avatarVariant} />
-          )}
+          {/* THE PRESENTING AVATAR IS NOW THE DEFAULT -- Flore, 2026-08-31:
+              "the idea is to create new animations over time, but right now I
+              have to fill that space with one example avatar."
+
+              So this is a PLACEHOLDER, not a decision that every row shares one
+              drawing. It used to be the reverse -- `presenting-idle` was a
+              single opt-in row and everything else fell through to a static
+              <img>. Rega keeps its own because it is the other row that already
+              has a real animation; each new one lands the same way, as another
+              branch here, until the fallback has nothing left to catch. */}
+          {avatarVariant === 'rega-wind' ? <AvatarRega /> : <AvatarPresentingIdle />}
           <SpeechBubble variant={bubbleVariant}>{bubbleCopy}</SpeechBubble>
         </div>
       )}

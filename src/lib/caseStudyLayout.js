@@ -184,17 +184,19 @@ export const MEASURE = {
 // wide. This was briefly 112, a judgment call made before the Figma MCP was
 // available in the session.
 //
-// KNOWN DISCREPANCY, flagged. Figma draws that avatar 106 x 78.5 -- ratio
-// 1.35 -- while `avatar-sections-left.svg` is 80 x 75, ratio 1.07. Same width
-// therefore does NOT give the same height: at 106 wide this renders ~99 tall
-// against the mock's 78.5. Either the mock uses a different illustration, or
-// it was scaled non-proportionally when it was detached. Width is matched
-// here because squashing the SVG to hit both numbers would distort the
-// drawing, which is never the right trade. Worth Flore confirming which
-// avatar the mock is using.
+// KNOWN DISCREPANCY, flagged, and it MOVED on 2026-08-31 rather than going
+// away. Figma draws that avatar 106 x 78.5 -- ratio 1.35. The illustration this
+// width was applied to then, `avatar-sections-left.svg`, was 80 x 75 (ratio
+// 1.07) and rendered ~99 tall here; the presenting avatar that replaced it is
+// 107 x 93 (ratio 1.15) and renders ~92. Closer to the mock, still not it.
 //
-// Homepage avatars are untouched: they pass no `width` at all and keep
-// rendering at their natural 80 (see Avatar.jsx).
+// Width stays the matched dimension either way, because squashing an SVG to hit
+// both numbers would distort the drawing. The open question is unchanged: worth
+// Flore confirming which illustration the mock was drawn from, since neither of
+// ours has its proportions.
+//
+// Homepage avatars are untouched: they pass no `width` at all and keep their own
+// responsive sizing (see AVATAR_WIDTH in AvatarPresentingIdle.jsx).
 export const GUIDE_AVATAR_WIDTH = 106
 
 // --- Media display widths ---------------------------------------------------

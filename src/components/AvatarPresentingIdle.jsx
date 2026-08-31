@@ -29,6 +29,11 @@ import { useEffect, useRef, useState } from 'react'
  */
 // Wayfinding rows and the hero want different sizes: the hero avatar has always
 // been the larger one (it was 70/108 before this replaced it).
+//
+// A third case takes no key: the case-study Guide passes an explicit `width`
+// instead, because its number is sampled per-page and already lives in
+// caseStudyLayout.js. Same escape hatch, and same reason, as the one `Avatar`
+// grew for that call site -- see the note on the `width` prop below.
 const AVATAR_WIDTH = {
   wayfinding: 'w-[80px] lg:w-[96px]',
   hero: 'w-[80px] lg:w-[108px]',
@@ -58,8 +63,35 @@ const STROKE_WIDTH = 1.05
  * SVG's own coordinate space and the flip is applied on top, so a head that
  * tilts toward the arm keeps tilting toward the arm. Transform origins are
  * unaffected — they're resolved inside that same inner space.
+ *
+ * `width` overrides the `size` key with an explicit px value, for the one
+ * caller whose width is sampled per-page rather than chosen from this map (the
+ * case-study Guide). It mirrors `Avatar`'s prop of the same name exactly,
+ * including `height: 'auto'` so the drawing scales on its own ratio instead of
+ * keeping the intrinsic height against a wider box. Undefined by default, so it
+ * emits no style attribute and every existing call site renders unchanged.
+ *
+ * THIS IS NOW THE SITE'S ONLY WAYFINDING AVATAR (Flore, 2026-08-31). It used to
+ * be one opt-in row; the static `Avatar` illustrations it replaced are held in
+ * `Avatar.jsx`, unreferenced but not deleted, because the plan is to animate the
+ * others over time rather than to keep this one everywhere. Nothing imports that
+ * module now, so neither it nor its two SVGs reach the bundle.
+ *
+ * A consequence worth knowing before this component grows: the page now renders
+ * SEVERAL of these, so its internal element ids (`#hair`, `#arm-presenting`, …)
+ * are no longer unique in the document. Harmless as drawn -- the animation is
+ * driven by CSS id selectors, which match every instance, and nothing in the
+ * markup resolves an id through `url(#…)`. It stops being harmless the moment a
+ * re-export brings in a gradient, mask or clipPath, since every copy would then
+ * point at the first one in the document. If that happens, move these parts to
+ * `data-part` attributes and update the selectors in globals.css to match.
  */
-export default function AvatarPresentingIdle({ size = 'wayfinding', flipped = false }) {
+export default function AvatarPresentingIdle({
+  size = 'wayfinding',
+  flipped = false,
+  width,
+  className = '',
+}) {
   const ref = useRef(null)
   // Paused until the row is actually on screen. Starting paused rather than
   // running-then-pausing avoids a frame of motion for a row far below the fold.
@@ -91,7 +123,8 @@ export default function AvatarPresentingIdle({ size = 'wayfinding', flipped = fa
       aria-hidden="true"
       // h-auto + the viewBox keeps the aspect ratio exact, so nothing stretches
       // and the box is reserved before paint -- no layout shift.
-      className={`${AVATAR_WIDTH[size]} h-auto shrink-0 ${flipped ? '-scale-x-100' : ''}`}
+      className={`${width ? '' : AVATAR_WIDTH[size]} h-auto shrink-0 ${flipped ? '-scale-x-100' : ''} ${className}`}
+      style={width ? { width, height: 'auto' } : undefined}
     >
       {/* From the asset, deliberately not animated. */}
       <circle id="avatar-halo" cx="66.1035" cy="43.9736" r="39.4959" stroke="#D2D2D2" strokeWidth="1.00824" />
