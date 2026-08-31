@@ -102,16 +102,24 @@
 // across all four boundaries.
 export const PAGE_STACK = 'flex flex-col gap-space-140 2xl:gap-space-200'
 
-// Work opens with 80px of top padding inside its 1280 frame; Approach and
-// About have none; Contact is padded 120 top and bottom.
-// This padding is the *whole* visible gap between the map and the Work
-// heading -- the hero no longer carries bottom padding and the nav no longer
-// reserves flow space, so nothing else contributes to it. Flore asked for
-// ~78/38; 80 and 40 are the token-scale values either side and 80 is the
-// Figma frame's own number, so the gap is one token rather than two magic
-// numbers. Deliberately below the ~0.7 mobile ratio the rest of the page
-// uses: this is a boundary against the map, not between two text sections.
-export const SECTION_PAD_WORK = 'pt-space-40 xl:pt-space-60 2xl:pt-space-80'
+// Approach and About open with no top padding; Contact is padded 120 top and
+// bottom. Work is the special case: its top padding is the *whole* visible gap
+// between the map and the Work heading -- the hero carries no bottom padding
+// and the nav reserves no flow space, so nothing else contributes to it.
+//
+// That gap is therefore not free. The map is height-bound across the laptop
+// band, so its size is `viewport - reserve` and the reserve counts this padding
+// in full: every pixel spent here is a pixel off the map. It started at the
+// Figma frame's own 80 (60 at `xl`) and was cut to 32/40 on 2026-08-31 for
+// exactly that reason -- see the HERO FOLD CHAIN block in globals.css for the
+// values and the reasoning, and note the gap the reader actually SEES is
+// larger than this number, because the map SVG carries an empty bottom margin.
+//
+// Reads the shared `--work-top-pad` rather than restating the values here: the
+// hero's map-size reserve is computed from this same variable, so the two
+// cannot drift. The token values themselves still live on the scale -- see the
+// HERO FOLD CHAIN block in globals.css, which is where they are set.
+export const SECTION_PAD_WORK = 'pt-[var(--work-top-pad)]'
 export const SECTION_PAD_CONTACT = 'py-space-64 xl:py-space-80 2xl:py-space-120'
 
 // Section header -> first content block, and Wayfinding row -> the content
