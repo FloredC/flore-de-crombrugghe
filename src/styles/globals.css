@@ -547,7 +547,10 @@ body {
    rescale. This has already bitten once: the 2026-08-31 re-export that closed
    the shirt neckline also nudged the whole drawing down ~0.9 units and shrank
    it ~1.3, moving every part, so the origin had to be re-derived even though
-   the change Flore made was only to the torso.
+   the change Flore made was only to the torso. It moved AGAIN on the 22:13
+   re-export, which restored the original size after a scaling experiment — so
+   the origin has now been re-derived three times for three exports of the same
+   drawing. Budget for that on any re-export, however small the edit sounds.
 --------------------------------------------------------------------------- */
 [data-component='avatar-principles'] #arm-rest,
 [data-component='avatar-principles'] #eyes-open {
@@ -573,7 +576,7 @@ body {
 
 /* left shoulder — where the gesturing arm joins the torso */
 [data-component='avatar-principles'] #arm-lift {
-  transform-origin: 50.4px 51.9px;
+  transform-origin: 49.9px 51.6px;
 }
 
 [data-component='avatar-principles'] #arm-rest,
@@ -594,8 +597,8 @@ body {
 
 [data-component='avatar-principles'][data-animate='true'] #arm-rest { animation-name: principles-arm-rest; }
 [data-component='avatar-principles'][data-animate='true'] #arm-lift { animation-name: principles-arm-lift; }
-[data-component='avatar-principles'][data-animate='true'] #eyes-open { animation-name: principles-eyes-open; }
-[data-component='avatar-principles'][data-animate='true'] #eyes-closed { animation-name: principles-eyes-closed; }
+[data-component='avatar-principles'][data-animate='true'] #eyes-open { animation-name: avatar-blink-open; }
+[data-component='avatar-principles'][data-animate='true'] #eyes-closed { animation-name: avatar-blink-closed; }
 
 /* The default pose. Out for the middle of the loop, back for the rest. */
 @keyframes principles-arm-rest {
@@ -617,15 +620,23 @@ body {
   86%, 100% { opacity: 0; transform: rotate(0deg); }
 }
 
-/* A blink is a hard cut, not a fade — the 0.1% gap between the held value and
+/* SHARED BY EVERY BLINKING AVATAR — named avatar-* rather than principles-*
+   because the pair is pure opacity and carries no geometry, so any avatar with
+   an eyes-open/eyes-closed pair can use it. Each avatar sets its own
+   animation-duration, which is what keeps two on-screen avatars from blinking
+   in unison; the window is a PERCENTAGE, so a longer period gives a
+   proportionally longer blink (3% of 5.4s = 162ms, of 6.3s = 189ms — both
+   inside the 100–400ms a real blink takes).
+
+   A blink is a hard cut, not a fade — the 0.1% gap between the held value and
    the switch is ~5ms, which is under a frame, so ease-in-out never gets a
    chance to ramp. Keep the pairs 0.1% apart if these are retimed. */
-@keyframes principles-eyes-open {
+@keyframes avatar-blink-open {
   0%, 91.9% { opacity: 1; }
   92%, 94.9% { opacity: 0; }
   95%, 100% { opacity: 1; }
 }
-@keyframes principles-eyes-closed {
+@keyframes avatar-blink-closed {
   0%, 91.9% { opacity: 0; }
   92%, 94.9% { opacity: 1; }
   95%, 100% { opacity: 0; }
@@ -639,6 +650,113 @@ body {
   [data-component='avatar-principles'] #arm-lift,
   [data-component='avatar-principles'] #eyes-open,
   [data-component='avatar-principles'] #eyes-closed {
+    animation: none;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Plaza / Selected talks & writing wayfinding avatar — open palm + blink
+   ---------------------------------------------------------------------------
+   RESTING STATE IS THE DEFAULT: eyes-open at opacity 1, eyes-closed at 0, arm
+   unrotated. With JavaScript disabled, prefers-reduced-motion on, or before the
+   row scrolls into view, the avatar is already correct.
+
+   TWO LOOPS, AND THEY ARE DELIBERATELY OUT OF STEP WITH THE PRINCIPLES AVATAR:
+
+     gesture   8s     arm-motion rotates about the elbow
+     blink     6.3s   eyes-open <-> eyes-closed (shared avatar-blink-* keyframes)
+
+   Principles uses 7s / 5.4s. BOTH AVATARS SIT IN THE APPROACH SECTION AND CAN
+   BE ON SCREEN TOGETHER, so equal periods would have them gesturing and
+   blinking in unison, which reads as one puppet driving two bodies rather than
+   two characters. Four periods that share no useful factor keep them apart.
+   If a third blinking avatar joins Approach, give it its own pair of periods —
+   do not reuse 7/5.4 or 8/6.3.
+
+   ROTATION, NOT A POSE SWAP. This drawing has one arm layer, so the movement
+   tweens; there is no crossfade to tune and no double image to avoid. That is
+   why this block is so much shorter than the principles one.
+
+   TO TUNE:
+     how OFTEN it gestures     animation-duration on #arm-motion
+     how far the hand travels  the -7deg / -4deg pair in talks-arm
+     blink rate                animation-duration on the eye rules
+
+   DEGREES ARE NOT WHAT YOU SEE — see the lever-arm table in the Lab avatar
+   block above. The pivot is the elbow at (46.5, 80) and the hand sits ~40.7
+   viewBox units away, so at the 96px render 1deg buys ~0.64px of hand travel
+   and the -7deg peak moves it ~4.5px. That is a gentle gesture, not a wave.
+   The Lab avatar's ~1.5px floor applies here too: anything under ~2.5deg on
+   this arm is invisible.
+
+   Direction is NEGATIVE so the palm opens away from the body; positive swings
+   the forearm into the torso and across the sleeve hem. Both were rendered
+   before choosing.
+
+   Origin is the elbow in viewBox units (viewBox 0 0 107 93) via
+   transform-box: view-box, derived by rendering #arm-motion in isolation to
+   see where the limb actually starts — the layer is the FOREARM only, with the
+   upper arm living in #torso, so the shoulder would have been the wrong joint.
+   A re-export invalidates it — re-derive, never rescale.
+--------------------------------------------------------------------------- */
+[data-component='avatar-talks'] #eyes-open {
+  opacity: 1;
+}
+[data-component='avatar-talks'] #eyes-closed {
+  opacity: 0;
+}
+
+[data-component='avatar-talks'] #arm-motion,
+[data-component='avatar-talks'] #eyes-open,
+[data-component='avatar-talks'] #eyes-closed {
+  transform-box: view-box;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  /* Paused until the row scrolls into view; the component flips this attribute
+     from an IntersectionObserver. Pausing (rather than removing the animation)
+     means it resumes mid-gesture instead of snapping back to frame zero. */
+  animation-play-state: paused;
+}
+
+/* the elbow — where the forearm leaves the sleeve */
+[data-component='avatar-talks'] #arm-motion {
+  transform-origin: 46.5px 80px;
+  animation-duration: 8s;
+}
+[data-component='avatar-talks'] #eyes-open,
+[data-component='avatar-talks'] #eyes-closed {
+  animation-duration: 6.3s;
+}
+
+[data-component='avatar-talks'][data-animate='true'] #arm-motion,
+[data-component='avatar-talks'][data-animate='true'] #eyes-open,
+[data-component='avatar-talks'][data-animate='true'] #eyes-closed {
+  animation-play-state: running;
+}
+
+[data-component='avatar-talks'][data-animate='true'] #arm-motion { animation-name: talks-arm; }
+[data-component='avatar-talks'][data-animate='true'] #eyes-open { animation-name: avatar-blink-open; }
+[data-component='avatar-talks'][data-animate='true'] #eyes-closed { animation-name: avatar-blink-closed; }
+
+/* Still for the first half, then TWO beats rather than one swing — open, ease
+   back part way, open again, settle. One swing reads as the arm being nudged;
+   two read as someone making a point, which is what the row is about. First and
+   last keyframes are both 0deg so the loop never snaps. */
+@keyframes talks-arm {
+  0%, 52% { transform: rotate(0deg); }
+  62% { transform: rotate(-7deg); }
+  70% { transform: rotate(-4deg); }
+  78% { transform: rotate(-6.5deg); }
+  88%, 100% { transform: rotate(0deg); }
+}
+
+/* Reduced motion: no gesture, no blink. The resting rules at the top already
+   show the static avatar, so this needs to suppress, not restate. */
+@media (prefers-reduced-motion: reduce) {
+  [data-component='avatar-talks'] #arm-motion,
+  [data-component='avatar-talks'] #eyes-open,
+  [data-component='avatar-talks'] #eyes-closed {
     animation: none;
     transform: none;
   }

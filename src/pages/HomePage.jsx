@@ -119,6 +119,14 @@ function WorkSubsection({ subsection }) {
   );
 }
 
+// Both Approach rows sit in the Plaza zone, so the subsection name is what
+// distinguishes them. An undefined value is the "no variant" case Wayfinding
+// already falls through on, so a row that isn't listed needs nothing here.
+const APPROACH_AVATAR = {
+  "Design Principles": "principles",
+  "Selected talks & writing": "talks",
+}
+
 function ApproachSubsection({ subsection }) {
   return (
     <Reveal
@@ -131,14 +139,9 @@ function ApproachSubsection({ subsection }) {
         bubbleCopy={subsection.bubbleCopy}
         breadcrumbHidden={subsection.breadcrumbHidden}
         // Keyed on zone AND subsection for the same reason Rega is: "Plaza"
-        // appears twice in Approach (Design Principles, Selected talks &
-        // writing), so zone alone would light up a row that wasn't asked for.
-        avatarVariant={
-          subsection.zone === "Plaza" &&
-          subsection.subsection === "Design Principles"
-            ? "principles"
-            : undefined
-        }
+        // appears twice in Approach, and both of its rows now have their own
+        // avatar, so zone alone would resolve to whichever came first.
+        avatarVariant={APPROACH_AVATAR[subsection.subsection]}
       />
       {subsection.layout === "value-cards" && (
         <div className={VALUE_CARD_GRID} data-reveal-cards>
