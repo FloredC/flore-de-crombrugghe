@@ -69,9 +69,16 @@ import { WAYFINDING_AVATAR_WIDTH } from '../lib/layout'
 //
 // This still differs from Figma, which draws ~1.44. If that ever gets set to
 // 1.05 in the design file, these five constants can all come out.
-const STROKE_WIDTH = 1.05
+const STROKE_WIDTH = 0.95
 
-export default function AvatarAbout({ className = '' }) {
+// `width` overrides the responsive class with an explicit px value, for the one
+// caller whose width is sampled per-page rather than shared: the case-study
+// Guide (see GUIDE_AVATAR_WIDTH in caseStudyLayout.js). It mirrors the prop
+// AvatarPresentingIdle already had, including `height: auto` so the drawing
+// scales on its own ratio instead of keeping the intrinsic height against a
+// wider box. Undefined by default, so it emits no style attribute and every
+// homepage call site renders byte-identically.
+export default function AvatarAbout({ width, className = '' }) {
   const ref = useRef(null)
   // Paused until the row is actually on screen. Starting paused rather than
   // running-then-pausing avoids a frame of motion for a row far below the fold.
@@ -99,9 +106,16 @@ export default function AvatarAbout({ className = '' }) {
       aria-hidden="true"
       // h-auto + the viewBox keeps the aspect ratio exact, so nothing stretches
       // and the box is reserved before paint -- no layout shift.
-      className={`${WAYFINDING_AVATAR_WIDTH} h-auto shrink-0 ${className}`}
+      className={`${width ? '' : WAYFINDING_AVATAR_WIDTH} h-auto shrink-0 ${className}`}
+      style={width ? { width, height: 'auto' } : undefined}
     >
       <circle id="halo" cx="66.1035" cy="43.9736" r="39.4959" stroke="#D2D2D2" strokeWidth="1.00824" />
+      {/* Torso motion. Three nested wrappers so each axis composes independently
+          AND so none of them collides with the gesture transforms on the parts
+          inside -- two animations on one element both writing `transform` would
+          fight, and the later one would win outright. See the shared block in
+          globals.css. */}
+      <g className="avatar-sway"><g className="avatar-bob"><g className="avatar-breath">
       <g id="head-motion">
         <path id="nose" d="M63.1273 37.7409C63.1022 37.7346 63.077 37.7283 63.0547 37.7975C62.8182 38.5286 63.035 39.5331 63.1108 39.8188C63.1472 39.9557 63.2119 40.0666 63.3007 40.1612C63.3895 40.2558 63.5089 40.3283 63.6191 40.3671C63.7293 40.406 63.8268 40.4092 63.9555 40.384C64.0842 40.3589 64.2413 40.3054 64.3647 40.251C64.488 40.1967 64.5728 40.1432 64.6602 40.088" stroke="#1E1E1E" strokeWidth={STROKE_WIDTH} strokeLinecap="round" strokeLinejoin="round" />
         <path id="mouth-open" d="M64.0176 42.9288C64.0586 42.9288 64.2214 42.9269 64.4865 42.9045C64.9823 42.8625 65.5345 42.361 65.9906 41.9895C66.7154 41.3993 67.0042 40.9438 67.1365 40.8646C67.2756 40.7813 67.4784 40.8112 67.6599 40.8205C67.7429 40.8248 67.8059 40.8485 67.8712 40.8815C67.9364 40.9145 68.0017 40.9612 68.0586 41.0189C68.1156 41.0766 68.1622 41.1439 68.1946 41.2196C68.227 41.2954 68.2438 41.3776 68.245 41.4704C68.2461 41.5632 68.2312 41.6641 68.2012 41.7703C68.1711 41.8764 68.1264 41.9848 68.0802 42.0965" stroke="#1E1E1E" strokeWidth={STROKE_WIDTH} strokeLinecap="round" strokeLinejoin="round" />
@@ -172,6 +186,7 @@ export default function AvatarAbout({ className = '' }) {
           <path id="Vector 3526" d="M69.6699 44.8193C69.6699 44.8535 69.6699 44.8878 69.6699 44.9921C69.6699 45.0963 69.6699 45.2697 69.6961 45.5357C69.7223 45.8018 69.7746 46.1553 69.8286 46.5195" stroke="#1E1E1E" strokeWidth={STROKE_WIDTH} strokeLinecap="round" strokeLinejoin="round" />
         </g>
       </g>
+      </g></g></g>
     </svg>
   )
 }

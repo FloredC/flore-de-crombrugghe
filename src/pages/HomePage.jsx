@@ -45,6 +45,21 @@ import {
   getProjectsFor,
 } from "../lib/content";
 
+// Keyed on zone AND subsection: "Harbour" appears twice in Work (Client work at
+// scale, Feature cases), so zone alone would light up a row that wasn't asked
+// for. An unlisted row gets undefined, which is the fallback Wayfinding already
+// handles.
+//
+// Own products borrows the TALKS avatar rather than having one of its own
+// (Flore, 2026-09-01: "a bit more variety in the beginning"). Before this, the
+// first Guide a visitor met in Work was the same drawing as the hero's. Reusing
+// talks is deliberate reuse, not a placeholder -- it stops being right only if
+// Own products ever gets a drawing of its own.
+const WORK_AVATAR = {
+  "Lab/Own products": "talks",
+  "Harbour/Client work at scale": "rega-wind",
+}
+
 function WorkSubsection({ subsection }) {
   const projects = getProjectsFor(subsection.zone, subsection.subsection);
   const [featured, ...rest] = projects;
@@ -62,20 +77,7 @@ function WorkSubsection({ subsection }) {
         zone={subsection.zone}
         subsection={subsection.subsection}
         bubbleCopy={subsection.bubbleCopy}
-        // ONE ROW STILL NAMES ITS AVATAR. The Lab -- Own products row used to
-        // name one too ('presenting-idle'); that drawing is now Wayfinding's
-        // default for every row, so asking for it by name would be a value
-        // nothing reads. Rega is the exception because it has its own animation.
-        //
-        // Keyed on zone AND subsection: "Harbour" appears twice in Work (Client
-        // work at scale, Feature cases), so zone alone would light up a row that
-        // wasn't asked for. Rega lives in "Client work at scale".
-        avatarVariant={
-          subsection.zone === "Harbour" &&
-          subsection.subsection === "Client work at scale"
-            ? "rega-wind"
-            : undefined
-        }
+        avatarVariant={WORK_AVATAR[`${subsection.zone}/${subsection.subsection}`]}
       />
       {subsection.layout === "featured" && (
         <div className={WORK_FEATURED_STACK}>

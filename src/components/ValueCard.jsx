@@ -17,30 +17,42 @@ export default function ValueCard({ item }) {
           own border with it. The border path and its mask are stripped from all
           four files and the frame lives here now.
 
-          THE FOUR ASSETS SHARE ONE 200x130 CANVAS, which is the thing that
+          THE FOUR ASSETS SHARE ONE 247x160 CANVAS, which is the thing that
           makes "evenly scaled and never cropped" work. Each drawing sits
           centred on that canvas at a single shared scale, so the browser has
           nothing to decide: the four render at their true relative sizes with
           no per-file fitting, and nothing is cropped because the canvas was
           sized to contain the largest of them.
 
-          That is why the <img> needs no `object-fit` at all. The box and the
-          file are the same 200/130 ratio, so contain, cover and fill would all
-          produce the same pixels -- and the previous version, which had no
-          object-fit against a MISMATCHED ratio, was silently stretching the
-          artwork (the browser default is `fill`).
+          Re-exported larger 2026-09-01 (was 200x130). The three numbers below
+          all come off that canvas and only agree by being changed together:
+          the aspect ratio, the max-w cap, and the frame's own padding. Changing
+          the canvas again means changing all three -- a stale ratio against a
+          new file silently stretches the artwork, which is what the previous
+          version did before it carried an aspect-ratio at all.
 
-          `max-w-[200px]` caps it at the canvas's own size so it never scales UP
+          That is why the <img> needs no `object-fit` at all. The box and the
+          file are the same 247/160 ratio, so contain, cover and fill would all
+          produce the same pixels.
+
+          `max-w-[247px]` caps it at the canvas's own size so it never scales UP
           past its design size on a wide card; below that it scales down with
           the card and the frame's height follows, so the four cards stay equal
           without being told to.
+
+          Padding is 0 horizontal / 8 vertical, bound in Figma to Spaces/0 and
+          Spaces/8. The horizontal 0 is not a missing value: the image is
+          centred at its own fixed width inside the full content box, which is
+          what leaves the ~15px of visual side margin the frame appears to have.
+          Card 278 = 247 image + 2 border + 29 of centring slack; height
+          178 = 160 + 8 + 8 + 2 border.
 
           alt is empty because the illustration repeats the title sitting
           directly beneath it; captioning it would make a screen reader
           announce "Editing" twice. */}
       <div
         data-component="value-card-media"
-        className="flex w-full items-center justify-center rounded-radius-32 border border-border-grey px-space-14 py-space-16"
+        className="flex w-full items-center justify-center rounded-radius-32 border border-border-grey py-space-8"
       >
         {item.image ? (
           <img
@@ -48,10 +60,10 @@ export default function ValueCard({ item }) {
             alt=""
             loading="lazy"
             decoding="async"
-            className="aspect-[200/130] w-full max-w-[200px]"
+            className="aspect-[247/160] w-full max-w-[247px]"
           />
         ) : (
-          <ImagePlaceholder className="aspect-[200/130] w-full max-w-[200px]" />
+          <ImagePlaceholder className="aspect-[247/160] w-full max-w-[247px]" />
         )}
       </div>
       <div className="flex w-full flex-col gap-space-12">

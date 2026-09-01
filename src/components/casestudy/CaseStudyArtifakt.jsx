@@ -9,6 +9,12 @@ import Prose from './Prose'
 import Media from './Media'
 import MediaStage from './MediaStage'
 import AvatarNote from './AvatarNote'
+
+// Fallback only. Every section that has a note now names its own `avatar` (they
+// alternate down the page -- see AvatarNote), so this is what a NEW section with
+// a note but no avatar would get. Kept so adding a note can never render a
+// Guide-less bubble.
+const ARTIFAKT_GUIDE = 'talks'
 import ProcessLogCards from './ProcessLogCards'
 import PipelineDiagram from './PipelineDiagram'
 import CaseStudyChapters from './CaseStudyChapters'
@@ -191,7 +197,7 @@ const SPLIT_ROW = 'grid grid-cols-1 items-center gap-space-40 lg:grid-cols-2'
 const CHAPTER_ANCHOR_IDS = new Set(ARTIFAKT_CHAPTERS.chapters.map((chapter) => chapter.id))
 
 function Section({ section, isChapterAnchor }) {
-  const { title, note, prose, link, media, extraMedia, pipeline, logs, cta } = section
+  const { title, note, avatar, prose, link, media, extraMedia, pipeline, logs, cta } = section
   const split = media?.layout === 'split'
 
   // WHERE THE TITLE SITS, derived rather than declared per section.
@@ -274,7 +280,11 @@ function Section({ section, isChapterAnchor }) {
             Reuses the PitchPivot component unchanged -- Flore asked for "the
             avatar idea that is present on pitchpivot as well", so this is
             deliberately the same component and not a lookalike. */}
-        {note && <AvatarNote body={note} />}
+        {/* Each section names its Guide in the content file, because which
+            drawing tells which part of the story is an editorial call, not a
+            layout one. They alternate down the page, except the representation
+            section, which carries the personal avatar. */}
+        {note && <AvatarNote body={note} avatar={avatar ?? ARTIFAKT_GUIDE} />}
 
         {split ? (
           <div className={SPLIT_ROW}>

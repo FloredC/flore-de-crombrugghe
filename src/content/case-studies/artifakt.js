@@ -316,6 +316,7 @@ export default {
       // Figma has a stray closing quote mark on this line ("It wasn't."");
       // dropped here. Fix the frame so a re-pull doesn't restore it.
       note: 'I went in assuming the barrier was emotional. It wasn’t.',
+      avatar: 'presenting-idle',
       prose: [
         {
           // The opening question is BACK in the prose, which is what makes the
@@ -377,6 +378,7 @@ export default {
       id: 'reveal',
       title: 'The reveal: separating structure from style',
       note: 'With the reveal as the main design focus, finding the right balance between the trace and the artist’s style proved more challenging than expected.',
+      avatar: 'talks',
       // OPENS ON THE OTHER HALF OF THE STAKES — added 2026-08-24. "Made by
       // you" establishes that digital gifting has an effort problem; this is
       // the consequence that makes the reveal necessary, and it was the one
@@ -630,6 +632,7 @@ export default {
       // draft of mine; it keeps the same contract as the other Guides — react
       // to the prose rather than set it up.
       note: 'I built the scaffold to guide users, but testers felt it was telling them what to draw.',
+      avatar: 'presenting-idle',
       prose: [
         { type: 'p', text: 'Testing raised the project’s sharpest question:' },
         {
@@ -698,6 +701,14 @@ export default {
       id: 'defaults',
       title: 'Designing against the model’s defaults',
       note: 'Showcasing female and queer artists made representation a key design consideration, from how source images were selected to how they were reinterpreted.',
+      // THE ONLY SECTION ON ANY CASE STUDY THAT NAMES ITS OWN GUIDE (Flore,
+      // 2026-09-01). Every other note on this page uses ARTIFAKT_GUIDE; this
+      // one switches to the About avatar because it is the most personal of the
+      // drawings and this is the most personal claim in the case study. The
+      // switch only reads as meaningful because the rest of the page holds one
+      // Guide -- if the avatar ever starts rotating per note, this loses its
+      // point and should be removed rather than left as decoration.
+      avatar: 'about',
       prose: [
         {
           // "strong", not "swimmer" — changed in the frame on 2026-08-24, and
@@ -776,6 +787,7 @@ export default {
       // reader was not about to be told. Reacts instead. Needs Flore's sign-off
       // and a sync back into the frame.
       note: 'I expected the tracing to be the fun part. It was the part people dreaded.',
+      avatar: 'talks',
       prose: [
         { type: 'p', text: 'Four moderated in-person sessions.' },
         {

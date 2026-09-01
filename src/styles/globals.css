@@ -524,6 +524,106 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
+   Shared torso motion — every avatar, always running
+   ---------------------------------------------------------------------------
+   LIKE THE SHARED BLINK ABOVE, THIS LIVES IN ITS OWN BLOCK ON PURPOSE. It is
+   referenced by all five avatars, and the last thing that was shared but filed
+   under one avatar's section got deleted by a rewrite of that section without a
+   single error anywhere.
+
+   Values chosen by Flore on 2026-09-01 from the Avatar Motion Bench, an
+   interactive page that ran all four candidate treatments live on the real
+   drawings at their real size. These are read off that tool, not estimated:
+
+     breath   scaleY(1.008)      4.1s    chest rises from the base
+     bob      translateY(-0.9)   5.4s    whole figure lifts and settles
+     sway     rotate(+/-1.3deg)  7.3s    weight shifts about the hips
+
+   THE THREE PERIODS SHARE NO USEFUL FACTOR, which is the entire point: they
+   drift against each other so the figure never repeats the same combined pose,
+   and they drift against each avatar's own gesture and blink too. Rounding
+   these to 4/5/7 would relock them.
+
+   WHY THREE NESTED WRAPPERS RATHER THAN ONE ELEMENT. Each axis needs its own
+   `transform`, and two animations on one element both writing `transform`
+   fight -- the later simply wins. Nesting composes them instead. The wrappers
+   also sit OUTSIDE the per-part gesture transforms (#arm-motion, #head-motion
+   and friends), so torso motion and gesture never contend for the same
+   property.
+
+   WHY THE WHOLE FIGURE MOVES, NOT THE TORSO ALONE. Moving a torso while the
+   arms and head stayed put would pull the drawing apart at the shoulders --
+   there is no white fill anywhere in these exports to hide a seam. Moving
+   everything together cannot separate. It also means this is the ONLY transform
+   in the avatar system with no measured anatomical origin: `50% 100%` is the
+   base of the viewBox, so unlike every transform-origin in the per-avatar
+   blocks, a re-export cannot invalidate it.
+
+   HEADROOM BEFORE IT CLIPS. An SVG clips to its viewport, and sway pushes the
+   figure sideways past where it was drawn. Measured at full sway plus full bob,
+   the closest any avatar comes to its own edge:
+
+     presenting-idle   2px      the reaching arm -- the tight one
+     principles / talks / about / rega   9-10px
+
+   All inside, so no overflow:visible is needed. But presenting-idle is what
+   fails first if sway is ever raised: check that one before assuming a bigger
+   number is safe.
+
+   EVERY KEYFRAME SET RESTS AT NEUTRAL at 0%/100%. That matters more than it
+   looks: these are paused off-screen and disabled under reduced-motion, and a
+   paused animation sits on its 0% frame. Sway therefore runs 0 -> +1.3 -> 0 ->
+   -1.3 -> 0 across the period rather than starting at one extreme -- same
+   amplitude and frequency, but a resting avatar stands up straight instead of
+   leaning 1.3deg to one side forever.
+--------------------------------------------------------------------------- */
+[data-component^='avatar-'] .avatar-sway,
+[data-component^='avatar-'] .avatar-bob,
+[data-component^='avatar-'] .avatar-breath {
+  transform-box: view-box;
+  transform-origin: 50% 100%;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  /* Paused until the row scrolls into view, same as every other avatar
+     animation; the components flip data-animate from an IntersectionObserver. */
+  animation-play-state: paused;
+}
+
+[data-component^='avatar-'] .avatar-breath { animation-name: avatar-breath; animation-duration: 4.1s; }
+[data-component^='avatar-'] .avatar-bob { animation-name: avatar-bob; animation-duration: 5.4s; }
+[data-component^='avatar-'] .avatar-sway { animation-name: avatar-sway; animation-duration: 7.3s; }
+
+[data-component^='avatar-'][data-animate='true'] .avatar-sway,
+[data-component^='avatar-'][data-animate='true'] .avatar-bob,
+[data-component^='avatar-'][data-animate='true'] .avatar-breath {
+  animation-play-state: running;
+}
+
+@keyframes avatar-breath {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.008); }
+}
+@keyframes avatar-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-0.9px); }
+}
+/* Full cycle through neutral, not extreme-to-extreme -- see the note above. */
+@keyframes avatar-sway {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(1.3deg); }
+  75% { transform: rotate(-1.3deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-component^='avatar-'] .avatar-sway,
+  [data-component^='avatar-'] .avatar-bob,
+  [data-component^='avatar-'] .avatar-breath {
+    animation: none;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
    Shared blink — used by EVERY avatar with an eyes-open/eyes-closed pair
    ---------------------------------------------------------------------------
    THIS BLOCK IS DELIBERATELY NOT INSIDE ANY ONE AVATAR'S SECTION. It used to

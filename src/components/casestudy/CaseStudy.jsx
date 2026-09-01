@@ -154,7 +154,7 @@ export default function CaseStudy({ data }) {
           right-aligned to the wrong thing. `wide` is the full content column,
           so its right edge and the page's right margin are the same line. */}
         <Block width="wide" as="div">
-          <AvatarNote body={data.turningPoint.note} />
+          <AvatarNote body={data.turningPoint.note} avatar={data.turningPoint.avatar} />
         </Block>
         {/* The "User Interview Quotes" label above these was cut 2026-08-14: the
           section's opening paragraph now says "five interviews", so a heading
@@ -225,7 +225,7 @@ export default function CaseStudy({ data }) {
         </Block>
         {data.takeaways.note && (
           <Block width="wide" as="div">
-            <AvatarNote body={data.takeaways.note} />
+            <AvatarNote body={data.takeaways.note} avatar={data.takeaways.avatar} />
           </Block>
         )}
         <Block width="narrow" as="div" className="flex flex-col gap-space-64">
@@ -284,7 +284,7 @@ export default function CaseStudy({ data }) {
           needs the room, whereas Onward is a single card and a CTA that never
           filled 1184. */}
         <Block width="wide" as="div" className={`flex flex-col ${SPACE.chapter}`}>
-          <AvatarNote body={data.process.note} />
+          <AvatarNote body={data.process.note} avatar={data.process.avatar} />
           {/* ONE notebook panel holding BOTH assets, not two panels: the chart
             and its legend are a single figure, and Figma composes them that way
             (node 4787:7879, 1282 wide overall).

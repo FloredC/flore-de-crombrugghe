@@ -45,7 +45,25 @@ import { WAYFINDING_AVATAR_WIDTH } from '../lib/layout'
  */
 // Line weight of the figure, overriding the ~1.37-1.42 in the exported asset.
 //
-// 1.05 everywhere is now a DECISION, not a divergence (Flore, 2026-09-01): all
+// 0.95 everywhere. 1.05 was chosen on 2026-09-01 from a rendered comparison of
+// the whole set at 1.05 / 1.25 / 1.44; Flore asked for "a bit thinner" once the
+// avatars were rendering larger too, and 0.95 is that.
+//
+// WHAT THE NUMBER MEANS IN REAL PIXELS, since a viewBox unit is not a pixel and
+// these now render at three sizes:
+//
+//     render    1 unit     0.95 units
+//      96px     0.897px     0.85px
+//     106px     0.991px     0.94px
+//     118px     1.103px     1.05px
+//
+// The floor note in AvatarPresentingIdle -- "below one device-independent pixel
+// the stroke anti-aliases to grey and the drawing goes soft" -- was written when
+// these rendered at 96px. At 118 there is more headroom than it implies, but at
+// the 106 and 96 steps 0.95 does sit just under 1px. Fine on any 2x display;
+// the 1x case is what to look at before going thinner again.
+//
+// It is a DECISION, not a divergence (Flore, 2026-09-01): all
 // five avatars were re-exported with live strokes, the whole set was rendered
 // at 1.05 / 1.25 / 1.44 side by side, and 1.05 -- the weight AvatarRega and
 // AvatarPresentingIdle already shipped at -- was chosen. It is the same
@@ -56,9 +74,16 @@ import { WAYFINDING_AVATAR_WIDTH } from '../lib/layout'
 //
 // This still differs from Figma, which draws ~1.44. If that ever gets set to
 // 1.05 in the design file, these five constants can all come out.
-const STROKE_WIDTH = 1.05
+const STROKE_WIDTH = 0.95
 
-export default function AvatarPrinciples({ className = '' }) {
+// `width` overrides the responsive class with an explicit px value, for the one
+// caller whose width is sampled per-page rather than shared: the case-study
+// Guide (see GUIDE_AVATAR_WIDTH in caseStudyLayout.js). It mirrors the prop
+// AvatarPresentingIdle already had, including `height: auto` so the drawing
+// scales on its own ratio instead of keeping the intrinsic height against a
+// wider box. Undefined by default, so it emits no style attribute and every
+// homepage call site renders byte-identically.
+export default function AvatarPrinciples({ width, className = '' }) {
   const ref = useRef(null)
   // Paused until the row is actually on screen. Starting paused rather than
   // running-then-pausing avoids a frame of motion for a row far below the fold.
@@ -86,9 +111,16 @@ export default function AvatarPrinciples({ className = '' }) {
       aria-hidden="true"
       // h-auto + the viewBox keeps the aspect ratio exact, so nothing stretches
       // and the box is reserved before paint -- no layout shift.
-      className={`${WAYFINDING_AVATAR_WIDTH} h-auto shrink-0 ${className}`}
+      className={`${width ? '' : WAYFINDING_AVATAR_WIDTH} h-auto shrink-0 ${className}`}
+      style={width ? { width, height: 'auto' } : undefined}
     >
       <circle id="halo" cx="66.1035" cy="43.9736" r="39.4959" stroke="#D2D2D2" strokeWidth="1.00824" />
+      {/* Torso motion. Three nested wrappers so each axis composes independently
+          AND so none of them collides with the gesture transforms on the parts
+          inside -- two animations on one element both writing `transform` would
+          fight, and the later one would win outright. See the shared block in
+          globals.css. */}
+      <g className="avatar-sway"><g className="avatar-bob"><g className="avatar-breath">
       <g id="head">
         <path id="Vector 3287" d="M56.2604 22.1887C56.2343 22.1887 56.2081 22.1887 56.1537 22.2477C56.0024 22.412 55.8122 23.3266 55.6272 24.74C55.4847 25.8281 55.5696 26.4591 55.6909 27.2105C55.7886 27.8161 56.0019 28.87 56.2356 29.8072C56.6694 31.5469 57.0759 32.778 57.2129 33.4894C57.3613 34.2601 58.0571 35.763 58.8557 37.1264C59.5965 38.3912 60.4066 39.1855 60.6736 39.4368C61.1697 39.9037 62.7035 40.2465 63.809 40.47C65.1421 40.7394 66.8472 39.6084 67.1261 39.4283C67.6275 39.1044 68.7141 37.8245 69.6213 36.679C70.6434 35.3886 71.1437 34.024 71.4074 33.303C71.5574 32.8928 71.6711 32.3689 71.8432 31.5103C72.0153 30.6517 72.2247 29.4682 72.3358 28.6635C72.447 27.8587 72.4535 27.4686 72.4095 26.666C72.3654 25.8634 72.2705 24.6602 72.1382 23.5224C72.0059 22.3846 71.839 21.3486 71.6671 20.2812" stroke="#1E1E1E" strokeWidth={STROKE_WIDTH} strokeLinecap="round" strokeLinejoin="round" />
         <path id="Vector 3290" d="M62.209 31.4579C62.1828 31.4513 62.1566 31.4448 62.1333 31.5168C61.8871 32.2781 62.1128 33.324 62.1918 33.6215C62.2297 33.764 62.297 33.8796 62.3895 33.9781C62.482 34.0766 62.6063 34.152 62.7211 34.1925C62.8358 34.2329 62.9373 34.2362 63.0713 34.21C63.2053 34.1839 63.3689 34.1281 63.4974 34.0715C63.6258 34.015 63.7141 33.9592 63.8052 33.9018" stroke="#1E1E1E" strokeWidth={STROKE_WIDTH} strokeLinecap="round" strokeLinejoin="round" />
@@ -156,6 +188,7 @@ export default function AvatarPrinciples({ className = '' }) {
         <path id="Vector 3292" d="M66.2273 26.6192C66.2227 26.6192 66.1697 26.6837 66.0987 26.8207C66.0641 26.8875 66.0899 26.9716 66.1165 27.0604C66.1432 27.1492 66.1846 27.246 66.2312 27.2694C66.2779 27.2927 66.3285 27.2397 66.3569 27.0695C66.4321 26.6183 66.3808 26.238 66.33 26.1434C66.3112 26.1086 66.2331 26.1849 66.1965 26.2629C66.16 26.341 66.1485 26.4402 66.1426 26.5431C66.1366 26.6461 66.1366 26.7498 66.1506 26.8916" stroke="#1E1E1E" strokeWidth={STROKE_WIDTH} strokeLinecap="round" strokeLinejoin="round" />
         <path id="Vector 3293" d="M59.9102 27.4551C59.8228 27.7963 59.7732 28.0666 59.7765 28.1534C59.7933 28.584 59.8684 27.2211 59.8454 27.0797C59.8224 27.0606 59.7764 27.1482 59.7492 27.3178C59.7221 27.4875 59.7151 27.7365 59.8823 27.8882" stroke="#1E1E1E" strokeWidth={STROKE_WIDTH} strokeLinecap="round" strokeLinejoin="round" />
       </g>
+      </g></g></g>
     </svg>
   )
 }

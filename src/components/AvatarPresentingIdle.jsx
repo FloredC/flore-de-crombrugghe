@@ -61,7 +61,7 @@ const AVATAR_WIDTH = {
 // Floor is about 1.1 units (~0.99px) -- below one device-independent pixel the
 // stroke anti-aliases to grey and the drawing goes soft rather than fine.
 // The halo keeps its own lighter weight from the asset and is unaffected.
-const STROKE_WIDTH = 1.05
+const STROKE_WIDTH = 0.95
 
 /**
  * `flipped` mirrors the whole drawing so the presenting arm points RIGHT
@@ -139,6 +139,12 @@ export default function AvatarPresentingIdle({
       {/* From the asset, deliberately not animated. */}
       <circle id="avatar-halo" cx="66.1035" cy="43.9736" r="39.4959" stroke="#D2D2D2" strokeWidth="1.00824" />
 
+      {/* Torso motion. Three nested wrappers so each axis composes independently
+          AND so none of them collides with the gesture transforms on the parts
+          inside -- two animations on one element both writing `transform` would
+          fight, and the later one would win outright. See the shared block in
+          globals.css. */}
+      <g className="avatar-sway"><g className="avatar-bob"><g className="avatar-breath">
       {/* hair + head are wrapped so the hair INHERITS the head tilt. As flat
           siblings they rotate independently and the hair slides against the
           skull; nested, the group carries the tilt and #hair adds only a small
@@ -186,6 +192,7 @@ export default function AvatarPresentingIdle({
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+      </g></g></g>
     </svg>
   )
 }

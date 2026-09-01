@@ -73,9 +73,16 @@ import { WAYFINDING_AVATAR_WIDTH } from '../lib/layout'
 //
 // This still differs from Figma, which draws ~1.44. If that ever gets set to
 // 1.05 in the design file, these five constants can all come out.
-const STROKE_WIDTH = 1.05
+const STROKE_WIDTH = 0.95
 
-export default function AvatarTalks({ className = '' }) {
+// `width` overrides the responsive class with an explicit px value, for the one
+// caller whose width is sampled per-page rather than shared: the case-study
+// Guide (see GUIDE_AVATAR_WIDTH in caseStudyLayout.js). It mirrors the prop
+// AvatarPresentingIdle already had, including `height: auto` so the drawing
+// scales on its own ratio instead of keeping the intrinsic height against a
+// wider box. Undefined by default, so it emits no style attribute and every
+// homepage call site renders byte-identically.
+export default function AvatarTalks({ width, className = '' }) {
   const ref = useRef(null)
   // Paused until the row is actually on screen. Starting paused rather than
   // running-then-pausing avoids a frame of motion for a row far below the fold.
@@ -103,9 +110,16 @@ export default function AvatarTalks({ className = '' }) {
       aria-hidden="true"
       // h-auto + the viewBox keeps the aspect ratio exact, so nothing stretches
       // and the box is reserved before paint -- no layout shift.
-      className={`${WAYFINDING_AVATAR_WIDTH} h-auto shrink-0 ${className}`}
+      className={`${width ? '' : WAYFINDING_AVATAR_WIDTH} h-auto shrink-0 ${className}`}
+      style={width ? { width, height: 'auto' } : undefined}
     >
       <circle id="halo" cx="66.1035" cy="43.9736" r="39.4959" stroke="#D2D2D2" strokeWidth="1.00824" />
+      {/* Torso motion. Three nested wrappers so each axis composes independently
+          AND so none of them collides with the gesture transforms on the parts
+          inside -- two animations on one element both writing `transform` would
+          fight, and the later one would win outright. See the shared block in
+          globals.css. */}
+      <g className="avatar-sway"><g className="avatar-bob"><g className="avatar-breath">
       <g id="head">
         <path id="head_2" d="M57.0703 23.676C57.0451 23.676 57.0199 23.676 56.9675 23.7329C56.8217 23.8911 56.6386 24.772 56.4604 26.1333C56.3231 27.1814 56.4049 27.7891 56.5217 28.5128C56.6158 29.0961 56.8213 30.1112 57.0464 31.0139C57.4642 32.6895 57.8557 33.8752 57.9877 34.5605C58.1306 35.3027 58.8008 36.7503 59.5699 38.0635C60.2835 39.2816 61.0637 40.0467 61.3208 40.2887C61.7988 40.7384 63.276 41.0686 64.3408 41.2838C65.6247 41.5433 67.2671 40.454 67.5356 40.2806C68.0186 39.9686 69.0652 38.7358 69.9389 37.6326C70.9234 36.3896 71.4052 35.0753 71.6592 34.3809C71.8037 33.9858 71.9132 33.4813 72.079 32.6543C72.2448 31.8273 72.4465 30.6874 72.5535 29.9123C72.6605 29.1372 72.6668 28.7614 72.6244 27.9884C72.582 27.2154 72.4906 26.0565 72.3631 24.9606C72.2357 23.8647 72.075 22.8669 71.9094 21.8389" stroke="#1E1E1E" strokeWidth={STROKE_WIDTH} strokeLinecap="round" strokeLinejoin="round" />
         <g id="eyes-closed">
@@ -166,6 +180,7 @@ export default function AvatarTalks({ className = '' }) {
         <path id="Vector 3469" d="M71.0226 25.4863C70.9983 25.5857 70.934 25.8921 70.8944 27.0007C70.8643 27.8438 70.7359 28.539 70.6679 29.0148C70.5564 29.7959 70.7346 30.4162 70.868 30.9508C71.094 31.857 71.3167 32.2097 71.3588 32.9688C71.3719 33.1909 71.3815 33.3277 71.3796 33.4796C71.3759 33.5585 71.3666 33.641 71.3569 33.7259" stroke="#1E1E1E" strokeWidth={STROKE_WIDTH} strokeLinecap="round" strokeLinejoin="round" />
         <path id="Vector 3465" d="M65.5625 53.4365V53.6588" stroke="#1E1E1E" strokeWidth={STROKE_WIDTH} strokeLinecap="round" strokeLinejoin="round" />
       </g>
+      </g></g></g>
     </svg>
   )
 }
