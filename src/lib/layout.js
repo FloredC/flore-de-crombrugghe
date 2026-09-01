@@ -383,19 +383,40 @@ const NUDGE_IN = 'sm:justify-self-start'
 
 // At 2-up the zigzag runs: row one apart (left card left, right card right),
 // row two together (left card right, right card left).
+// Tightened 2026-09-01 to Flore's revised talks section (node 2928:73798),
+// which pulls all four cards up into each other.
+//
+// THE OFFSETS ARE OVERLAPS, NOT POSITIONS, and that is why they are readable
+// against a design file whose cards are a different size. Figma draws these at
+// 400 wide; the code holds them at 320 (see EDITORIAL_CARD above -- deliberate,
+// don't restore). So no absolute y in the file transfers. What does transfer is
+// the gap from one card's BOTTOM to the next card's TOP, which is the interlock
+// a reader actually sees, and which the grid computes for free: a row's top is
+// the previous row's bottom, so `row gap + margin-top` IS that number. Sampled
+// from Figma: -228, -57, -206. Negative means the cards overlap vertically --
+// they never collide because each pair is in a different column range.
+//
+// The lg/2xl split on Swisscovid is gone. It existed because a 300 drop read as
+// a hole in the narrower tablet container; at 100 there is no hole to avoid.
+// Card widths and heights are fixed from lg, so one set of numbers is correct
+// across the whole band -- and this now changes the tablet band too, which is
+// the one part of this Flore didn't explicitly ask for.
 export const MEDIA_COLLAGE = [
   // Podcast (embed): right-aligned inside a span-10 frame -> x = 582.67.
   `${NUDGE_IN} lg:col-start-1 lg:col-span-10 lg:row-start-1 lg:justify-self-end ${EDITORIAL_CARD}`,
-  // Friends of Figma: flush left. Right-hand column at 2-up, so it carries the
-  // stagger -- cleared at lg, which sets no mt of its own here.
-  `${STAGGER_RIGHT} ${NUDGE_OUT} lg:mt-0 lg:col-start-1 lg:col-span-6 lg:row-start-2 lg:justify-self-start ${EDITORIAL_CARD}`,
-  // Swisscovid: right half, inset 100, and dropped below its row-mate -- 200 at
-  // tablet against 300 at desktop, since the same drop against a shorter
-  // container reads as a hole rather than a stagger.
-  `${NUDGE_OUT} lg:col-start-7 lg:col-span-6 lg:row-start-2 lg:justify-self-start lg:ml-space-100 lg:mt-space-200 2xl:mt-space-300 ${EDITORIAL_CARD}`,
-  // 10-year quiz: back to the left half, same 100 inset. Right-hand column at
-  // 2-up; lg:mt-space-32 below already overrides the stagger, no reset needed.
-  `${STAGGER_RIGHT} ${NUDGE_IN} lg:col-start-1 lg:col-span-6 lg:row-start-3 lg:justify-self-start lg:ml-space-100 lg:mt-space-32 ${EDITORIAL_CARD}`,
+  // Friends of Figma: flush left, pulled up hard alongside the podcast rather
+  // than under it -- Flore raised it again on 2026-09-01. Row gap 64 - 300 =
+  // -236 against Figma's -228. Right-hand column at 2-up, so it carries the
+  // stagger -- overridden here rather than cleared to 0.
+  `${STAGGER_RIGHT} ${NUDGE_OUT} lg:-mt-space-300 lg:col-start-1 lg:col-span-6 lg:row-start-2 lg:justify-self-start ${EDITORIAL_CARD}`,
+  // Swisscovid: right half, inset 100, dropped below its row-mate. Both sit in
+  // row 2, so what sets their relationship is the DIFFERENCE of the two margins
+  // (80 - -300 = 380) against a 437-tall card -> -57, matching Figma's -57.
+  `${NUDGE_OUT} lg:col-start-7 lg:col-span-6 lg:row-start-2 lg:justify-self-start lg:ml-space-100 lg:mt-space-80 ${EDITORIAL_CARD}`,
+  // 10-year quiz: back to the left half, same 100 inset, pulled up under
+  // Swisscovid -> -216 against Figma's -206. Right-hand column at 2-up; the lg
+  // margin below already overrides the stagger, no reset needed.
+  `${STAGGER_RIGHT} ${NUDGE_IN} lg:-mt-space-280 lg:col-start-1 lg:col-span-6 lg:row-start-3 lg:justify-self-start lg:ml-space-100 ${EDITORIAL_CARD}`,
 ]
 
 // Same zigzag, three cards: row one apart, then Papayas pulled in on row two.
@@ -411,3 +432,63 @@ export const ASIDE_COLLAGE = [
   // Papayas: right-aligned to the full 12-column width -> x = 784.
   `${NUDGE_OUT} lg:col-start-1 lg:col-span-12 lg:row-start-3 lg:justify-self-end ${EDITORIAL_CARD}`,
 ]
+
+// The wayfinding Guide avatar's width, as Tailwind classes.
+//
+// ONE DEFINITION FOR ALL FIVE ANIMATED AVATARS. This string used to be
+// copy-pasted into AvatarPresentingIdle, AvatarRega, AvatarPrinciples,
+// AvatarTalks and AvatarAbout — five copies of one number, which is exactly the
+// shape of bug this file exists to prevent. Changing the size meant editing
+// five files and hoping none was missed; now it is one import.
+//
+// 96 -> 106 (matching the case-study Guide) -> 118, all on 2026-09-01, because
+// the animations were too small to judge. 130 was built and rejected on sight:
+// Flore chose 118 from a rendered comparison of 106/118/130/142 against the
+// real speech bubble. Don't re-propose 130 for the wayfinding rows -- it has
+// been seen. (The HERO went to 130 in the same pass; see AvatarPresentingIdle.) THE NUMBER IS NOT THE DRAWING:
+// roughly a quarter of the 107-unit viewBox is empty on the left — four of the
+// five avatars have no ink until x=26.6, and only AvatarPresentingIdle uses
+// that band, because its arm reaches left. So the ink is ~74% of whatever is
+// set here:
+//
+//     box 106px -> 78px of drawing      box 118px -> 87px of drawing
+//
+// So 118 puts the DRAWING at ~87px -- still under the 96px box the avatars had
+// before any of this, which is worth knowing before anyone calls 118 generous.
+//
+// THE REAL FIX IS THE ARTBOARD, not this number. Cropping the shared artboard
+// to the artwork would make every avatar ~35% bigger at the same footprint —
+// the same lever the hero map already uses (see MAP_ART in Hero.jsx). It is
+// blocked only by AvatarPresentingIdle, which needs that left band and is still
+// the fallback for the two rows without their own avatar. Once those land, it
+// becomes hero-only and the shared box can be tightened. Do that before
+// pushing this number any higher.
+//
+// WHY IT STEPS AT xl RATHER THAN GOING STRAIGHT TO 130. The Wayfinding row is
+// breadcrumb + Guide on one line, and the breadcrumb is ~490 wide (the map card
+// AND the "You are here" text -- measuring only the 106px card is what made an
+// earlier pass think there were 453px spare; there were 37). Measured at a 1024
+// viewport, by row height, since 125px is one line and 260px+ is two:
+//
+//     106px -> 125  one line, 7px of slack. Effectively the ceiling.
+//     118px -> 260  WRAPS
+//     130px -> 270  WRAPS
+//
+// So even 118 across the whole lg band would push the Guide onto its own line
+// between 1024 and ~1150 -- the step exists for 118, not just for the 130 that
+// was rejected. From xl up the Container caps at 1184 while the row needs ~950,
+// leaving ~230px, so 118 is nowhere near a wrap there. (Rega's row wraps at 1024 even at 106 -- its subsection label is the
+// longest. That predates this and is not a regression.)
+//
+// Wrapping is a supported state, not a break: flex-wrap and the Guide's
+// ml-auto exist for it. It just doubles the row height, which is not what was
+// wanted from making the avatar bigger.
+//
+// The mobile step is deliberately NOT scaled in proportion (that would be 108).
+// The phone row has no slack: at 375px the Guide already fills 343 of it, so
+// every px on the avatar comes straight out of the speech bubble.
+//
+// NOT the hero. AvatarPresentingIdle keeps a separate `hero` size, which was
+// deliberately the larger one — and at 108 it is now SMALLER than this. That
+// needs resolving; see the note there.
+export const WAYFINDING_AVATAR_WIDTH = 'w-[96px] lg:w-[106px] xl:w-[118px]'

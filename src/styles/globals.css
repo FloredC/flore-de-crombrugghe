@@ -244,10 +244,10 @@ body {
    decrease the degrees; leave the 0deg start/end keyframes alone or the loop
    will visibly snap.
 
-     #head-group     -9deg     head tilt toward the "Lab" breadcrumb
-     #hair           -4deg     secondary follow-through, lags the head by ~2%
-     #arm-presenting -9deg     the emphasis on "Lab"
-     #arm-resting    +3deg     counterweight
+     #head-group     -5deg     head tilt toward the "Lab" breadcrumb
+     #hair         -2.5deg     secondary follow-through, lags the head by ~2%
+     #arm-presenting -5deg     the emphasis on "Lab"
+     #arm-resting    +2deg     counterweight
 
    DEGREES ARE NOT WHAT YOU SEE. What reads is how far the far end of a part
    travels, and that depends on its distance from the pivot -- so the same
@@ -255,10 +255,14 @@ body {
    lever arms for THIS avatar at its current 96px render:
 
      part             1 degree buys    current value    travel
-     #head-group        0.45 px          9 deg          4.0 px
-     #hair              0.36 px          4 deg          1.4 px
-     #arm-presenting    0.82 px          9 deg          7.4 px
-     #arm-resting       0.69 px          3 deg          2.1 px
+     #head-group        0.55 px          5 deg          2.8 px
+     #hair              0.44 px        2.5 deg          1.1 px
+     #arm-presenting    1.01 px          5 deg          5.0 px
+     #arm-resting       0.85 px          2 deg          1.7 px
+
+   RECOMPUTED FOR 118px, not 96 — the avatar grew on 2026-09-01 and every
+   "1 degree buys" number scales with render width. That is exactly how the old
+   values drifted into feeling too extreme without anyone changing a degree.
 
    So: to move something by N pixels, divide N by the "1 degree buys" column.
    Anything under ~1.5px of travel is effectively invisible at this size --
@@ -341,25 +345,44 @@ body {
    ~1.3s instead of ~3s, and the avatar is still motionless for the first ~4.5s.
    To make the gesture itself faster, narrow these windows. To make it happen
    more OFTEN, lower animation-duration above. Those are two different knobs. */
+/* SOFTENED 2026-09-01 (Flore: "too extreme and not soft enough"). Two separate
+   changes, and it is worth keeping them apart because they fix different
+   complaints:
+
+   AMPLITUDE, for "too extreme" — every value roughly halved. Part of this was
+   drift rather than taste: these degrees were tuned when the avatar rendered at
+   96px and it now renders at 118, so the same angle was already buying 23% more
+   pixels of travel than when it was chosen.
+
+   SHAPE, for "not soft enough" — the old curve was a 420ms ramp, a flat 420ms
+   plateau, then a 420ms ramp back. A hold that short reads as a snap-and-stick.
+   These are now a single smooth arc: ~840ms up, no plateau, ~840ms down, with
+   ease-in-out applying across each half. Slower overall, but the Lab block's
+   own warning still applies — spread it much past this and it becomes drift the
+   eye ignores. */
 @keyframes lab-avatar-head {
-  0%, 64% { transform: rotate(0deg); }
-  70%, 76% { transform: rotate(-9deg); }
-  82%, 100% { transform: rotate(0deg); }
+  0%, 62% { transform: rotate(0deg); }
+  74% { transform: rotate(-5deg); }
+  86%, 100% { transform: rotate(0deg); }
 }
+/* Lags the head by 2% so it reads as follow-through rather than a second
+   independent movement. At 2.5deg this is ~1.1px of travel, just under the
+   ~1.5px floor the block above describes — deliberate: hair that is clearly
+   visible moving is hair that has come loose from the skull. */
 @keyframes lab-avatar-hair {
-  0%, 66% { transform: rotate(0deg); }
-  72%, 78% { transform: rotate(-4deg); }
-  84%, 100% { transform: rotate(0deg); }
+  0%, 64% { transform: rotate(0deg); }
+  76% { transform: rotate(-2.5deg); }
+  88%, 100% { transform: rotate(0deg); }
 }
 @keyframes lab-avatar-arm-presenting {
-  0%, 65% { transform: rotate(0deg); }
-  71%, 77% { transform: rotate(-9deg); }
-  83%, 100% { transform: rotate(0deg); }
+  0%, 63% { transform: rotate(0deg); }
+  75% { transform: rotate(-5deg); }
+  87%, 100% { transform: rotate(0deg); }
 }
 @keyframes lab-avatar-arm-resting {
-  0%, 65% { transform: rotate(0deg); }
-  71%, 77% { transform: rotate(3deg); }
-  83%, 100% { transform: rotate(0deg); }
+  0%, 63% { transform: rotate(0deg); }
+  75% { transform: rotate(2deg); }
+  87%, 100% { transform: rotate(0deg); }
 }
 
 /* Static avatar for anyone who asked not to see motion. */
@@ -501,6 +524,484 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
+   Shared torso motion — every avatar, always running
+   ---------------------------------------------------------------------------
+   LIKE THE SHARED BLINK ABOVE, THIS LIVES IN ITS OWN BLOCK ON PURPOSE. It is
+   referenced by all five avatars, and the last thing that was shared but filed
+   under one avatar's section got deleted by a rewrite of that section without a
+   single error anywhere.
+
+   Values chosen by Flore on 2026-09-01 from the Avatar Motion Bench, an
+   interactive page that ran all four candidate treatments live on the real
+   drawings at their real size. These are read off that tool, not estimated:
+
+     breath   scaleY(1.008)      4.1s    chest rises from the base
+     bob      translateY(-0.9)   5.4s    whole figure lifts and settles
+     sway     rotate(+/-1.3deg)  7.3s    weight shifts about the hips
+
+   THE THREE PERIODS SHARE NO USEFUL FACTOR, which is the entire point: they
+   drift against each other so the figure never repeats the same combined pose,
+   and they drift against each avatar's own gesture and blink too. Rounding
+   these to 4/5/7 would relock them.
+
+   WHY THREE NESTED WRAPPERS RATHER THAN ONE ELEMENT. Each axis needs its own
+   `transform`, and two animations on one element both writing `transform`
+   fight -- the later simply wins. Nesting composes them instead. The wrappers
+   also sit OUTSIDE the per-part gesture transforms (#arm-motion, #head-motion
+   and friends), so torso motion and gesture never contend for the same
+   property.
+
+   WHY THE WHOLE FIGURE MOVES, NOT THE TORSO ALONE. Moving a torso while the
+   arms and head stayed put would pull the drawing apart at the shoulders --
+   there is no white fill anywhere in these exports to hide a seam. Moving
+   everything together cannot separate. It also means this is the ONLY transform
+   in the avatar system with no measured anatomical origin: `50% 100%` is the
+   base of the viewBox, so unlike every transform-origin in the per-avatar
+   blocks, a re-export cannot invalidate it.
+
+   HEADROOM BEFORE IT CLIPS. An SVG clips to its viewport, and sway pushes the
+   figure sideways past where it was drawn. Measured at full sway plus full bob,
+   the closest any avatar comes to its own edge:
+
+     presenting-idle   2px      the reaching arm -- the tight one
+     principles / talks / about / rega   9-10px
+
+   All inside, so no overflow:visible is needed. But presenting-idle is what
+   fails first if sway is ever raised: check that one before assuming a bigger
+   number is safe.
+
+   EVERY KEYFRAME SET RESTS AT NEUTRAL at 0%/100%. That matters more than it
+   looks: these are paused off-screen and disabled under reduced-motion, and a
+   paused animation sits on its 0% frame. Sway therefore runs 0 -> +1.3 -> 0 ->
+   -1.3 -> 0 across the period rather than starting at one extreme -- same
+   amplitude and frequency, but a resting avatar stands up straight instead of
+   leaning 1.3deg to one side forever.
+--------------------------------------------------------------------------- */
+[data-component^='avatar-'] .avatar-sway,
+[data-component^='avatar-'] .avatar-bob,
+[data-component^='avatar-'] .avatar-breath {
+  transform-box: view-box;
+  transform-origin: 50% 100%;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  /* Paused until the row scrolls into view, same as every other avatar
+     animation; the components flip data-animate from an IntersectionObserver. */
+  animation-play-state: paused;
+}
+
+[data-component^='avatar-'] .avatar-breath { animation-name: avatar-breath; animation-duration: 4.1s; }
+[data-component^='avatar-'] .avatar-bob { animation-name: avatar-bob; animation-duration: 5.4s; }
+[data-component^='avatar-'] .avatar-sway { animation-name: avatar-sway; animation-duration: 7.3s; }
+
+[data-component^='avatar-'][data-animate='true'] .avatar-sway,
+[data-component^='avatar-'][data-animate='true'] .avatar-bob,
+[data-component^='avatar-'][data-animate='true'] .avatar-breath {
+  animation-play-state: running;
+}
+
+@keyframes avatar-breath {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.008); }
+}
+@keyframes avatar-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-0.9px); }
+}
+/* Full cycle through neutral, not extreme-to-extreme -- see the note above. */
+@keyframes avatar-sway {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(1.3deg); }
+  75% { transform: rotate(-1.3deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-component^='avatar-'] .avatar-sway,
+  [data-component^='avatar-'] .avatar-bob,
+  [data-component^='avatar-'] .avatar-breath {
+    animation: none;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Shared blink — used by EVERY avatar with an eyes-open/eyes-closed pair
+   ---------------------------------------------------------------------------
+   THIS BLOCK IS DELIBERATELY NOT INSIDE ANY ONE AVATAR'S SECTION. It used to
+   sit inside the Design Principles block, and on 2026-09-01 rewriting that
+   block for the new rotation mechanism silently deleted it — taking the blink
+   out of principles, talks AND about at once, with no error anywhere. The
+   avatars kept their correct resting eyes, so it looked fine in a screenshot;
+   it only surfaced because getAnimations() was checked in the browser and came
+   back three animations short. Shared things live in their own block.
+
+   The pair carries no geometry, only opacity, so any avatar can use it. Each
+   avatar sets its OWN animation-duration, and those are deliberately all
+   different (principles 5.4s, talks 6.3s, about 5.9s) so two avatars on one
+   screen never blink in unison. A new avatar needs its own value, not a reuse.
+
+   The window is a PERCENTAGE, so a longer period gives a proportionally longer
+   blink: 3% of 5.4s = 162ms, of 6.3s = 189ms — both inside the 100-400ms a real
+   blink takes.
+
+   A blink is a hard cut, not a fade — the 0.1% gap between the held value and
+   the switch is ~5ms, under one frame, so ease-in-out never gets a chance to
+   ramp. Keep the pairs 0.1% apart if these are ever retimed.
+--------------------------------------------------------------------------- */
+@keyframes avatar-blink-open {
+  0%, 91.9% { opacity: 1; }
+  92%, 94.9% { opacity: 0; }
+  95%, 100% { opacity: 1; }
+}
+@keyframes avatar-blink-closed {
+  0%, 91.9% { opacity: 0; }
+  92%, 94.9% { opacity: 1; }
+  95%, 100% { opacity: 0; }
+}
+
+/* ---------------------------------------------------------------------------
+   Plaza / Design Principles wayfinding avatar — hand on heart
+   ---------------------------------------------------------------------------
+   REWRITTEN 2026-09-01: this used to swap between two drawn arm poses
+   (#arm-rest / #arm-lift) with a crossfade. Flore re-exported the drawing with
+   a single #arm-motion layer instead, to be rotated — the same shape as the
+   talks avatar. That is the better mechanism where the movement is a rigid
+   swing: it tweens instead of cutting, needs no crossfade, and cannot show a
+   double image. The old two-pose keyframes are gone; do not reintroduce them.
+
+   The re-export is also 100% live strokes (52 paths, 0 filled) rather than the
+   expanded outlines of the previous one, and 23KB rather than 60KB.
+
+     gesture   7s     #arm-motion rotates about the shoulder
+     blink     5.4s   shared avatar-blink-* keyframes
+
+   7 and 5.4 share no useful factor, so the blink drifts against the gesture
+   instead of locking to it; and both differ from talks (8 / 6.3) and about
+   (9 / 5.9) so no two avatars on one screen ever fall into step.
+
+   DEGREES ARE NOT WHAT YOU SEE — see the lever-arm table in the Lab avatar
+   block above. The pivot is the shoulder at (49.9, 52.1) and the hand sits
+   ~23.6 viewBox units away, so at the 96px render 1deg buys ~0.37px of hand
+   travel and the -12deg peak moves it ~4.4px. Negative lifts the hand toward
+   the collarbone, which is where the old second pose put it.
+
+   Origin is anatomical, in viewBox units (viewBox 0 0 107 93), via
+   transform-box: view-box. A re-export invalidates it — re-derive, never
+   rescale. This drawing has now needed re-deriving on four separate exports.
+--------------------------------------------------------------------------- */
+[data-component='avatar-principles'] #eyes-open {
+  opacity: 1;
+}
+[data-component='avatar-principles'] #eyes-closed {
+  opacity: 0;
+}
+
+[data-component='avatar-principles'] #eyes-open,
+[data-component='avatar-principles'] #eyes-closed {
+  animation-duration: 5.4s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-play-state: paused;
+}
+
+[data-component='avatar-principles'] #arm-motion {
+  transform-box: view-box;
+  transform-origin: 49.9px 52.1px;
+  animation-duration: 7s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  /* Paused until the row scrolls into view; the component flips this attribute
+     from an IntersectionObserver. Pausing (rather than removing the animation)
+     means it resumes mid-gesture instead of snapping back to frame zero. */
+  animation-play-state: paused;
+}
+
+[data-component='avatar-principles'][data-animate='true'] #arm-motion,
+[data-component='avatar-principles'][data-animate='true'] #eyes-open,
+[data-component='avatar-principles'][data-animate='true'] #eyes-closed {
+  animation-play-state: running;
+}
+
+[data-component='avatar-principles'][data-animate='true'] #arm-motion { animation-name: principles-arm; }
+[data-component='avatar-principles'][data-animate='true'] #eyes-open { animation-name: avatar-blink-open; }
+[data-component='avatar-principles'][data-animate='true'] #eyes-closed { animation-name: avatar-blink-closed; }
+
+/* Still for the first half, then lift, ease off, press again, release. The
+   second beat is what makes it read as a hand pressing against the chest
+   rather than an arm being raised once. First and last keyframes are both 0deg
+   so the loop never snaps. */
+@keyframes principles-arm {
+  0%, 54% { transform: rotate(0deg); }
+  64% { transform: rotate(-12deg); }
+  72% { transform: rotate(-9.5deg); }
+  80% { transform: rotate(-11.5deg); }
+  88%, 100% { transform: rotate(0deg); }
+}
+
+/* Reduced motion: no gesture, no blink. The resting rules at the top already
+   show the static avatar, so this only has to suppress. */
+@media (prefers-reduced-motion: reduce) {
+  [data-component='avatar-principles'] #arm-motion,
+  [data-component='avatar-principles'] #eyes-open,
+  [data-component='avatar-principles'] #eyes-closed {
+    animation: none;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Plaza / Selected talks & writing wayfinding avatar — open palm + blink
+   ---------------------------------------------------------------------------
+   RESTING STATE IS THE DEFAULT: eyes-open at opacity 1, eyes-closed at 0, arm
+   unrotated. With JavaScript disabled, prefers-reduced-motion on, or before the
+   row scrolls into view, the avatar is already correct.
+
+   TWO LOOPS, AND THEY ARE DELIBERATELY OUT OF STEP WITH THE PRINCIPLES AVATAR:
+
+     gesture   8s     arm-motion rotates about the elbow
+     blink     6.3s   eyes-open <-> eyes-closed (shared avatar-blink-* keyframes)
+
+   Principles uses 7s / 5.4s. BOTH AVATARS SIT IN THE APPROACH SECTION AND CAN
+   BE ON SCREEN TOGETHER, so equal periods would have them gesturing and
+   blinking in unison, which reads as one puppet driving two bodies rather than
+   two characters. Four periods that share no useful factor keep them apart.
+   If a third blinking avatar joins Approach, give it its own pair of periods —
+   do not reuse 7/5.4 or 8/6.3.
+
+   ROTATION, NOT A POSE SWAP. This drawing has one arm layer, so the movement
+   tweens; there is no crossfade to tune and no double image to avoid.
+   (The principles avatar was rebuilt the same way on 2026-09-01, so the two
+   blocks now match in shape.)
+
+   TO TUNE:
+     how OFTEN it gestures     animation-duration on #arm-motion
+     how far the hand travels  the -7deg / -4deg pair in talks-arm
+     blink rate                animation-duration on the eye rules
+
+   DEGREES ARE NOT WHAT YOU SEE — see the lever-arm table in the Lab avatar
+   block above. The pivot is the elbow at (46.5, 80) and the hand sits ~40.7
+   viewBox units away, so at the 96px render 1deg buys ~0.64px of hand travel
+   and the -7deg peak moves it ~4.5px. That is a gentle gesture, not a wave.
+   The Lab avatar's ~1.5px floor applies here too: anything under ~2.5deg on
+   this arm is invisible.
+
+   Direction is NEGATIVE so the palm opens away from the body; positive swings
+   the forearm into the torso and across the sleeve hem. Both were rendered
+   before choosing.
+
+   Origin is the elbow in viewBox units (viewBox 0 0 107 93) via
+   transform-box: view-box, derived by rendering #arm-motion in isolation to
+   see where the limb actually starts — the layer is the FOREARM only, with the
+   upper arm living in #torso, so the shoulder would have been the wrong joint.
+   A re-export invalidates it — re-derive, never rescale.
+--------------------------------------------------------------------------- */
+[data-component='avatar-talks'] #eyes-open {
+  opacity: 1;
+}
+[data-component='avatar-talks'] #eyes-closed {
+  opacity: 0;
+}
+
+[data-component='avatar-talks'] #arm-motion,
+[data-component='avatar-talks'] #eyes-open,
+[data-component='avatar-talks'] #eyes-closed {
+  transform-box: view-box;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  /* Paused until the row scrolls into view; the component flips this attribute
+     from an IntersectionObserver. Pausing (rather than removing the animation)
+     means it resumes mid-gesture instead of snapping back to frame zero. */
+  animation-play-state: paused;
+}
+
+/* the elbow — where the forearm leaves the sleeve */
+[data-component='avatar-talks'] #arm-motion {
+  transform-origin: 46.5px 80px;
+  animation-duration: 8s;
+}
+[data-component='avatar-talks'] #eyes-open,
+[data-component='avatar-talks'] #eyes-closed {
+  animation-duration: 6.3s;
+}
+
+[data-component='avatar-talks'][data-animate='true'] #arm-motion,
+[data-component='avatar-talks'][data-animate='true'] #eyes-open,
+[data-component='avatar-talks'][data-animate='true'] #eyes-closed {
+  animation-play-state: running;
+}
+
+[data-component='avatar-talks'][data-animate='true'] #arm-motion { animation-name: talks-arm; }
+[data-component='avatar-talks'][data-animate='true'] #eyes-open { animation-name: avatar-blink-open; }
+[data-component='avatar-talks'][data-animate='true'] #eyes-closed { animation-name: avatar-blink-closed; }
+
+/* Still for the first half, then TWO beats rather than one swing — open, ease
+   back part way, open again, settle. One swing reads as the arm being nudged;
+   two read as someone making a point, which is what the row is about. First and
+   last keyframes are both 0deg so the loop never snaps. */
+@keyframes talks-arm {
+  0%, 52% { transform: rotate(0deg); }
+  62% { transform: rotate(-7deg); }
+  70% { transform: rotate(-4deg); }
+  78% { transform: rotate(-6.5deg); }
+  88%, 100% { transform: rotate(0deg); }
+}
+
+/* Reduced motion: no gesture, no blink. The resting rules at the top already
+   show the static avatar, so this needs to suppress, not restate. */
+@media (prefers-reduced-motion: reduce) {
+  [data-component='avatar-talks'] #arm-motion,
+  [data-component='avatar-talks'] #eyes-open,
+  [data-component='avatar-talks'] #eyes-closed {
+    animation: none;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   House / Outside of work wayfinding avatar — breath + blink
+   ---------------------------------------------------------------------------
+   RESTING STATE IS THE DEFAULT: eyes-open and mouth-closed at opacity 1, their
+   partners at 0, head unrotated. With JavaScript disabled, prefers-reduced-
+   motion on, or before the row scrolls into view, the avatar is already right.
+
+   THE BREATH IS ONE ACTION ON TWO ELEMENTS. #head-motion and the mouth pair all
+   run at 9s with the same phase, so the mouth opens as the head tilts and closes
+   as it settles. KEEP THEIR DURATIONS EQUAL — the moment they differ the mouth
+   drifts against the head and it stops reading as breathing and starts reading
+   as two independent twitches.
+
+   The blink is the opposite case and runs at 5.9s precisely so it does NOT line
+   up. People do not blink on the beat of their own breathing.
+
+     head tilt + mouth   9s     one breath per loop
+     blink               5.9s   independent
+
+   Distinct from principles (7 / 5.4) and talks (8 / 6.3) so no two avatars ever
+   fall into step. A fourth avatar needs its own pair.
+
+   THE TILT CEILING IS DIRECTION-DEPENDENT, which is not obvious and cost one
+   wrong assumption. The neck is drawn into #torso while the head is in
+   #head-motion, so the pivot is all that joins them — but the tank top's collar
+   is a closed scoop with the neck sitting inside it, and that changes the two
+   directions completely:
+
+     CLOCKWISE (positive)      the neck slides INTO the collar, which covers the
+                               join. Rendered at +12deg with no gap at all.
+     ANTICLOCKWISE (negative)  the neck slides OUT of the collar and a gap opens
+                               at the jaw by about -3deg.
+
+   So the ~3deg figure that AvatarRega quotes, and that this block used to
+   quote, applies only to the negative direction here. Positive has no practical
+   ceiling in this drawing. If the tilt is ever flipped back to negative, the
+   3deg cap comes back with it.
+
+   Flore chose clockwise (2026-09-01) so the chin lifts, and 2.5 was too subtle;
+   it is 5 now, double the original and still well inside what the collar hides.
+
+   TO TUNE:
+     how often it breathes    animation-duration on the head + mouth rules (all three together)
+     how deep the tilt        the 5deg in about-head-breath (see the ceiling note)
+     how long the mouth is open   the 53%-78% window
+     blink rate               animation-duration on the eye rules
+
+   The mouth crossfade is ~270ms (3% of 9s), deliberately slower than the arm
+   swaps on the other avatars (~140ms). A breath should not cut.
+
+   Origin is the base of the skull in viewBox units (viewBox 0 0 107 93) via
+   transform-box: view-box. A re-export invalidates it — re-derive, never
+   rescale.
+--------------------------------------------------------------------------- */
+[data-component='avatar-about'] #eyes-open,
+[data-component='avatar-about'] #mouth-closed {
+  opacity: 1;
+}
+[data-component='avatar-about'] #eyes-closed,
+[data-component='avatar-about'] #mouth-open {
+  opacity: 0;
+}
+
+[data-component='avatar-about'] #head-motion,
+[data-component='avatar-about'] #mouth-open,
+[data-component='avatar-about'] #mouth-closed,
+[data-component='avatar-about'] #eyes-open,
+[data-component='avatar-about'] #eyes-closed {
+  transform-box: view-box;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  /* Paused until the row scrolls into view; the component flips this attribute
+     from an IntersectionObserver. Pausing (rather than removing the animation)
+     means it resumes mid-breath instead of snapping back to frame zero. */
+  animation-play-state: paused;
+}
+
+/* base of the skull, where the head meets the neck */
+[data-component='avatar-about'] #head-motion {
+  transform-origin: 65.2px 48px;
+}
+
+/* EQUAL DURATIONS — this is what makes it one breath. See the note above. */
+[data-component='avatar-about'] #head-motion,
+[data-component='avatar-about'] #mouth-open,
+[data-component='avatar-about'] #mouth-closed {
+  animation-duration: 9s;
+}
+[data-component='avatar-about'] #eyes-open,
+[data-component='avatar-about'] #eyes-closed {
+  animation-duration: 5.9s;
+}
+
+[data-component='avatar-about'][data-animate='true'] #head-motion,
+[data-component='avatar-about'][data-animate='true'] #mouth-open,
+[data-component='avatar-about'][data-animate='true'] #mouth-closed,
+[data-component='avatar-about'][data-animate='true'] #eyes-open,
+[data-component='avatar-about'][data-animate='true'] #eyes-closed {
+  animation-play-state: running;
+}
+
+[data-component='avatar-about'][data-animate='true'] #head-motion { animation-name: about-head-breath; }
+[data-component='avatar-about'][data-animate='true'] #mouth-open { animation-name: about-mouth-open; }
+[data-component='avatar-about'][data-animate='true'] #mouth-closed { animation-name: about-mouth-closed; }
+[data-component='avatar-about'][data-animate='true'] #eyes-open { animation-name: avatar-blink-open; }
+[data-component='avatar-about'][data-animate='true'] #eyes-closed { animation-name: avatar-blink-closed; }
+
+/* Still for the first half, then a slow lean and a slower return — the return
+   takes longer than the lean because an exhale is longer than an inhale.
+   POSITIVE = clockwise, lifting the chin (Flore's call). Note this leans AWAY
+   from the breadcrumb, unlike the Lab avatar which leans toward it — that was
+   my default and it was overruled, so don't "restore" it. */
+@keyframes about-head-breath {
+  0%, 50% { transform: rotate(0deg); }
+  62% { transform: rotate(5deg); }
+  78% { transform: rotate(5deg); }
+  90%, 100% { transform: rotate(0deg); }
+}
+
+/* Opens slightly ahead of the head reaching its lean (fully open by 53%, head
+   peaks at 62%) — the mouth leads a breath, it doesn't trail it. */
+@keyframes about-mouth-closed {
+  0%, 50% { opacity: 1; }
+  53%, 78% { opacity: 0; }
+  81%, 100% { opacity: 1; }
+}
+@keyframes about-mouth-open {
+  0%, 50% { opacity: 0; }
+  53%, 78% { opacity: 1; }
+  81%, 100% { opacity: 0; }
+}
+
+/* Reduced motion: no breath, no blink. The resting rules at the top already
+   show the static avatar, so this needs to suppress, not restate. */
+@media (prefers-reduced-motion: reduce) {
+  [data-component='avatar-about'] #head-motion,
+  [data-component='avatar-about'] #mouth-open,
+  [data-component='avatar-about'] #mouth-closed,
+  [data-component='avatar-about'] #eyes-open,
+  [data-component='avatar-about'] #eyes-closed {
+    animation: none;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
    Hero avatar — arm lifts instead of dips
    ---------------------------------------------------------------------------
    The hero renders the SAME drawing as the Lab wayfinding avatar, mirrored
@@ -524,10 +1025,13 @@ body {
   animation-name: hero-avatar-arm-lift;
 }
 
+/* Softened alongside the shared gesture, same two reasons: 12deg -> 7deg, and
+   the plateau replaced by one smooth arc. Kept larger than the wayfinding arm's
+   5deg because the hero's is the gesture a cold visitor sees first. */
 @keyframes hero-avatar-arm-lift {
-  0%, 65% { transform: rotate(0deg); }
-  71%, 77% { transform: rotate(12deg); }
-  83%, 100% { transform: rotate(0deg); }
+  0%, 63% { transform: rotate(0deg); }
+  75% { transform: rotate(7deg); }
+  87%, 100% { transform: rotate(0deg); }
 }
 
 /* ---------------------------------------------------------------------------

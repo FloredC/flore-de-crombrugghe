@@ -1,7 +1,21 @@
 import AvatarPresentingIdle from './AvatarPresentingIdle'
 import AvatarRega from './AvatarRega'
+import AvatarPrinciples from './AvatarPrinciples'
+import AvatarTalks from './AvatarTalks'
+import AvatarAbout from './AvatarAbout'
 import SpeechBubble from './SpeechBubble'
 import DistrictBreadcrumb from './DistrictBreadcrumb'
+
+// Rows that have an animation of their own name it via `avatarVariant`;
+// everything else falls through to AvatarPresentingIdle. A map rather than a
+// chain of ternaries, which stopped being readable at the third avatar — adding
+// the next one is a single line here plus a key in HomePage.
+const AVATAR_BY_VARIANT = {
+  'rega-wind': AvatarRega,
+  principles: AvatarPrinciples,
+  talks: AvatarTalks,
+  about: AvatarAbout,
+}
 
 // Sampled from Figma's "Wayfinding" component: Breadcrumb (district card +
 // text) on the left, Guide (avatar + bubble) on the right. Figma's own gap
@@ -40,6 +54,13 @@ export default function Wayfinding({
 }) {
   if (hidden) return null
 
+  // Resolved to a component and rendered as <Avatar />, never called as
+  // AVATAR_BY_VARIANT[...](). Each avatar owns useState/useEffect/useRef for its
+  // own IntersectionObserver, so calling it as a plain function would run those
+  // hooks in Wayfinding's fiber — and because the lookup is conditional, the
+  // hook order would change the moment a row switched variant.
+  const Avatar = AVATAR_BY_VARIANT[avatarVariant] ?? AvatarPresentingIdle
+
   return (
     <div data-component="wayfinding" className="flex flex-wrap items-center justify-between gap-8">
       {!breadcrumbHidden && <DistrictBreadcrumb zone={zone} subsection={subsection} />}
@@ -69,7 +90,7 @@ export default function Wayfinding({
               <img>. Rega keeps its own because it is the other row that already
               has a real animation; each new one lands the same way, as another
               branch here, until the fallback has nothing left to catch. */}
-          {avatarVariant === 'rega-wind' ? <AvatarRega /> : <AvatarPresentingIdle />}
+          <Avatar />
           <SpeechBubble variant={bubbleVariant}>{bubbleCopy}</SpeechBubble>
         </div>
       )}

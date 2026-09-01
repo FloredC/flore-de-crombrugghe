@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { WAYFINDING_AVATAR_WIDTH } from '../lib/layout'
+
 /**
  * The Harbour — Client work at scale wayfinding avatar (the row containing the
  * Rega project). Inline SVG rather than <img> so the named parts can be
@@ -31,15 +33,11 @@ import { useCallback, useEffect, useRef, useState } from 'react'
  * Passing the `windActive` prop takes over completely and disables both.
  */
 
-// Same footprint as the other wayfinding avatars — this export shares the Lab
-// avatar's 107x93 viewBox, so the identical width gives an identical size.
-const AVATAR_WIDTH = 'w-[80px] lg:w-[96px]'
-
 // Matches the Lab avatar's overridden weight rather than this asset's exported
 // 1.43942, so the two animated avatars don't read as different line weights on
 // the same page. Same temporary divergence: once Flore settles on a stroke it
 // belongs in Figma, applied to BOTH avatars, and these overrides come out.
-const STROKE_WIDTH = 1.05
+const STROKE_WIDTH = 0.95
 
 // How long the whole reaction lasts. Must match the animation-duration on
 // [data-wind='true'] in globals.css -- this is the timer that clears the state
@@ -145,11 +143,17 @@ export default function AvatarRega({ windActive }) {
       // h-auto + viewBox keeps the ratio exact and reserves the box before
       // paint, so nothing shifts. The windblown scarf reaches x=92.5 of 107,
       // so it has room inside the viewBox and is never clipped.
-      className={`${AVATAR_WIDTH} h-auto shrink-0 ${DEV_CLICK_TO_REPLAY ? 'cursor-pointer' : ''}`}
+      className={`${WAYFINDING_AVATAR_WIDTH} h-auto shrink-0 ${DEV_CLICK_TO_REPLAY ? 'cursor-pointer' : ''}`}
     >
       {/* From the asset, deliberately not animated. */}
       <circle id="halo" cx="66.1035" cy="43.9736" r="39.4959" stroke="#D2D2D2" strokeWidth="1.00824"/>
 
+      {/* Torso motion. Three nested wrappers so each axis composes independently
+          AND so none of them collides with the gesture transforms on the parts
+          inside -- two animations on one element both writing `transform` would
+          fight, and the later one would win outright. See the shared block in
+          globals.css. */}
+      <g className="avatar-sway"><g className="avatar-bob"><g className="avatar-breath">
       {/* Rotates as one unit about the neck, so the face and both hair
           drawings stay welded to the skull during the dip. */}
       <g id="head-motion">
@@ -239,6 +243,7 @@ export default function AvatarRega({ windActive }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+      </g></g></g>
     </svg>
   )
 }

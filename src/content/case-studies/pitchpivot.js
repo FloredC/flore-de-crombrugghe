@@ -229,6 +229,10 @@ export default {
       'Five interviews, three with senior product designers and two with junior designers, moved the problem somewhere else. **The difficulty wasn’t presenting**: it was framing a decision so that it answered a business question in the first place, and holding that framing when a non-designer pushed back.',
     ],
     note: 'I went in convinced this was a presentation problem. It wasn’t.',
+      // Guides alternate across this page (Flore, 2026-09-01) -- see the note
+      // in AvatarNote. PitchPivot starts on `talks` and Artifakt starts on
+      // `presenting-idle`, so the two case studies don't open identically.
+    avatar: 'talks',
     // "Design lead, SaaS" was Figma placeholder text -- Flore interviewed no
     // design leads. Corrected to "Senior product designer, SaaS", her wording,
     // 2026-08-14. The other two she did not flag, so they stand.
@@ -326,6 +330,7 @@ export default {
     // "seven months" — corrected from six by Flore, and it matches the dates:
     // Oct 2025 build, 20 May 2026 event.
     note: 'I tested twice: think-aloud sessions with four designers right after building it, then these numbers at a Friends of Figma event seven months on. The AI landscape had changed, and expectations with it.',
+    avatar: 'presenting-idle',
     // REORDERED per BUILD v3, and the order is the argument: what the product
     // must become (01), why good UX wasn't enough (02), then the part a tool
     // can't fix and where the next version aims (03). Figma still has these in
@@ -692,6 +697,7 @@ export default {
     // paragraph below now says. Same duplication problem takeaways 01 and 02
     // had. What is left here is the only thing that has to be first person.
     note: 'The real experiment was treating AI as a partner, not a tool: something that challenged assumptions instead of just executing them.',
+    avatar: 'talks',
     // Week names, dates and the curve's actual shape are read off the graphic
     // itself (momentum-curve.webp), not from the old alt text -- which claimed
     // it dipped "during testing". It does not: the dip is at the end of week 1,

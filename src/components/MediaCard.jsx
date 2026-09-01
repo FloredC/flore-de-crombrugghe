@@ -22,15 +22,24 @@ export default function MediaCard({ item }) {
       className="flex flex-col gap-4"
     >
       {item.variant === 'embed' ? (
-        // The embed gets the same 4:3 media slot the image variants use, with
-        // the player bottom-aligned inside it. The player is only 110px tall
-        // against their 300, so on its own it left the card short and started
-        // its text block higher than every neighbour's. Matching the slot puts
-        // all the media bottom edges -- and so all the artwork-to-title gaps --
-        // on the same line.
+        // REVERSED 2026-09-01, Flore: the slot hugs the player, no 4:3 box.
+        //
+        // It used to reserve the same 4:3 slot the image variants use, with the
+        // player bottom-aligned in it, so that every card's media bottom edge --
+        // and so every artwork-to-title gap -- landed on one line. That reasoning
+        // was sound when these cards sat in a row. They don't: this is a collage,
+        // every card starts at a different y, and there is no shared line left for
+        // the alignment to serve. What it produced instead was 88px of dead space
+        // between the wayfinding bubble and the visible top of the player, which
+        // is what Flore was seeing as "too much vertical space".
+        //
+        // Figma agrees and always did: the podcast card (node 4522:18869) draws
+        // its Media at 400x109.93 -- the player's own height, not a ratio -- and
+        // the card comes out 445.93 tall against 505 for its neighbours. The
+        // shorter card IS the design.
         <div
           data-component="media-embed-slot"
-          className="flex aspect-[4/3] w-full items-end"
+          className="flex w-full items-end"
         >
           {/* 152 is Spotify's compact player -- its real height, not a ratio.
               The player is a fixed-height component that only flexes in width,

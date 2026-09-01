@@ -700,6 +700,33 @@ tailwind.config.js       # custom spacing/radius keys are prefixed space-N/radiu
 - ~~NDA project content home~~ → real `.mdx` files, no route.
 
 **Still open:**
+- ~~**Avatar line weight**~~ → **RESOLVED 2026-09-01: 1.05 across all five
+  avatars.** Flore chose it from a rendered comparison of the whole set at
+  1.05 / 1.25 / 1.44, at the real 96px size. Verified with `getComputedStyle`:
+  every figure path on the page computes to 1.05px, halos untouched at 1.00824.
+
+  It is now a `STROKE_WIDTH` constant in all five avatar components — the same
+  name in each, so changing one alone breaks the set. **It is still a divergence
+  from Figma, which draws ~1.44.** If that ever gets set to 1.05 in the design
+  file, all five constants can come out; until then this is the one place the
+  code deliberately leads the design file on a value, and it is recorded in
+  each component.
+
+  How it got unblocked, since the sequence is the useful part: the decision was
+  impossible while three avatars had their strokes *expanded* into filled
+  outlines — a filled shape has no stroke property to override, so no code
+  change could reach it. Flore re-exported all three with live strokes
+  (principles 60KB→23KB, about 53KB→25KB, talks 47KB→22KB; outlining roughly
+  triples a stroke's point count), and the decision became one constant per
+  file. **Do not expand strokes when exporting an avatar.**
+
+  A corollary worth keeping: **scaling a layer cannot change apparent line
+  weight.** Once strokes are outlined the thickness scales with the figure, so
+  the thickness-to-figure ratio is invariant; and the avatars render at a fixed
+  width regardless of artboard content, so apparent weight is unchanged at any
+  scale. Only a live `stroke-width` is an independent property. This was tried
+  before the cause was understood.
+
 - **Type scale compression across mobile breakpoints** — not yet audited as a dedicated pass (see Build Order stage 4).
 - **Nav breakpoint (768px)** — my judgment call, not a Figma sample (the file only has the `402-mobile` and `bp-1622-desktop` frames). No objection raised, but not explicitly confirmed either — revisit if it feels wrong on a real device.
 - **Laptop/large-desktop boundary (1600px)** — same situation as the nav

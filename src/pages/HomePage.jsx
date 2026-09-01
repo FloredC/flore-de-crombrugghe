@@ -45,6 +45,21 @@ import {
   getProjectsFor,
 } from "../lib/content";
 
+// Keyed on zone AND subsection: "Harbour" appears twice in Work (Client work at
+// scale, Feature cases), so zone alone would light up a row that wasn't asked
+// for. An unlisted row gets undefined, which is the fallback Wayfinding already
+// handles.
+//
+// Own products borrows the TALKS avatar rather than having one of its own
+// (Flore, 2026-09-01: "a bit more variety in the beginning"). Before this, the
+// first Guide a visitor met in Work was the same drawing as the hero's. Reusing
+// talks is deliberate reuse, not a placeholder -- it stops being right only if
+// Own products ever gets a drawing of its own.
+const WORK_AVATAR = {
+  "Lab/Own products": "talks",
+  "Harbour/Client work at scale": "rega-wind",
+}
+
 function WorkSubsection({ subsection }) {
   const projects = getProjectsFor(subsection.zone, subsection.subsection);
   const [featured, ...rest] = projects;
@@ -62,20 +77,7 @@ function WorkSubsection({ subsection }) {
         zone={subsection.zone}
         subsection={subsection.subsection}
         bubbleCopy={subsection.bubbleCopy}
-        // ONE ROW STILL NAMES ITS AVATAR. The Lab -- Own products row used to
-        // name one too ('presenting-idle'); that drawing is now Wayfinding's
-        // default for every row, so asking for it by name would be a value
-        // nothing reads. Rega is the exception because it has its own animation.
-        //
-        // Keyed on zone AND subsection: "Harbour" appears twice in Work (Client
-        // work at scale, Feature cases), so zone alone would light up a row that
-        // wasn't asked for. Rega lives in "Client work at scale".
-        avatarVariant={
-          subsection.zone === "Harbour" &&
-          subsection.subsection === "Client work at scale"
-            ? "rega-wind"
-            : undefined
-        }
+        avatarVariant={WORK_AVATAR[`${subsection.zone}/${subsection.subsection}`]}
       />
       {subsection.layout === "featured" && (
         <div className={WORK_FEATURED_STACK}>
@@ -119,6 +121,14 @@ function WorkSubsection({ subsection }) {
   );
 }
 
+// Both Approach rows sit in the Plaza zone, so the subsection name is what
+// distinguishes them. An undefined value is the "no variant" case Wayfinding
+// already falls through on, so a row that isn't listed needs nothing here.
+const APPROACH_AVATAR = {
+  "Design Principles": "principles",
+  "Selected talks & writing": "talks",
+}
+
 function ApproachSubsection({ subsection }) {
   return (
     <Reveal
@@ -130,6 +140,10 @@ function ApproachSubsection({ subsection }) {
         subsection={subsection.subsection}
         bubbleCopy={subsection.bubbleCopy}
         breadcrumbHidden={subsection.breadcrumbHidden}
+        // Keyed on zone AND subsection for the same reason Rega is: "Plaza"
+        // appears twice in Approach, and both of its rows now have their own
+        // avatar, so zone alone would resolve to whichever came first.
+        avatarVariant={APPROACH_AVATAR[subsection.subsection]}
       />
       {subsection.layout === "value-cards" && (
         <div className={VALUE_CARD_GRID} data-reveal-cards>
@@ -204,6 +218,9 @@ export default function HomePage() {
                 zone={aboutSection.zone}
                 subsection={aboutSection.subsection}
                 bubbleCopy={aboutSection.bubbleCopy}
+                // About is a single row, not a list of subsections, so this is
+                // a literal rather than a lookup like APPROACH_AVATAR above.
+                avatarVariant="about"
               />
               <div className={ABOUT_CONTENT_GAP}>
                 {/* The river is one block on the beat after the Guide; the

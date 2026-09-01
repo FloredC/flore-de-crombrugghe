@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scroll reveal motion</title>
+<style>
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk'), local('HKGrotesk-Regular');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk SemiBold'), local('HKGrotesk-SemiBold');
+    font-weight: 600;
+  }
+
+  :root {
+    --accent: #fd6d2b;
+    --accent-tint: #fff1e9;
+    --ink: #1a1a1a;
+    --paper: #f5f4f0;
+    --muted: #666;
+    --line: #e0ddd8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'HK Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 48px 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .subtitle { font-size: 14px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; max-width: 720px; }
+  .date-range { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 32px; }
+
+  .toc {
+    background: #fff;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 56px;
+  }
+  .toc-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; margin-bottom: 12px; }
+  .toc ol { list-style: none; }
+  .toc li { margin-bottom: 6px; font-size: 13px; }
+  .toc a { color: var(--ink); text-decoration: none; }
+  .toc a:hover { color: var(--accent); text-decoration: underline; }
+  .toc .toc-phase { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-left: 8px; }
+
+  .section {
+    margin-bottom: 80px;
+    border-top: 2px solid var(--ink);
+    padding-top: 24px;
+    scroll-margin-top: 24px;
+  }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 4px; flex-wrap: wrap; }
+  .section-date { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #999; }
+  .section-title { font-size: 20px; font-weight: 600; }
+  .phase-tag {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    padding: 3px 10px; border-radius: 20px; background: var(--accent-tint); color: var(--accent);
+  }
+  .section-desc { font-size: 14px; line-height: 1.7; color: #444; margin: 12px 0 24px; max-width: 720px; }
+  h3.sub { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #999; margin: 36px 0 4px; }
+
+  .status {
+    display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; padding: 3px 10px; border-radius: 20px; margin-left: 12px;
+  }
+  .status.working { background: #e8f5e9; color: #27ae60; }
+  .status.needs-work { background: #fff8e1; color: #f39c12; }
+  .status.abandoned { background: #fbe9e7; color: #c0392b; }
+
+  .concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+  .concept-block { background: #fff; border-radius: 10px; padding: 16px; border: 1.5px solid var(--line); }
+  .concept-block h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .concept-block p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  .decision-log { margin-top: 24px; }
+  .decision {
+    display: grid; grid-template-columns: 130px 1fr 1fr; gap: 16px;
+    padding: 16px 0; border-bottom: 1px solid #e8e5e0; font-size: 13px;
+  }
+  .decision:last-child { border-bottom: none; }
+  .decision-date { color: #999; font-size: 12px; padding-top: 2px; }
+  .decision-what { line-height: 1.5; }
+  .decision-why { color: var(--muted); line-height: 1.5; }
+  .decision.key-decision { box-shadow: -3px 0 0 0 var(--accent); background: var(--accent-tint); padding-left: 12px; }
+  .decision.key-decision .decision-what { color: var(--accent); font-weight: 600; }
+
+  blockquote {
+    margin: 12px 0; padding: 10px 16px; border-left: 3px solid var(--accent);
+    color: #444; font-style: italic; background: #fff; border-radius: 0 8px 8px 0; font-size: 13px;
+  }
+  blockquote cite { display: block; font-style: normal; font-size: 12px; color: #999; margin-top: 4px; }
+
+  .note {
+    font-size: 13px; background: #fff8e1; border-left: 3px solid #f39c12; padding: 10px 14px;
+    border-radius: 0 6px 6px 0; color: #555; line-height: 1.6; margin-top: 12px;
+  }
+
+  .hook {
+    margin-top: 24px; padding: 18px 20px; background: var(--ink); color: #fff;
+    border-radius: 12px; font-size: 14px; line-height: 1.6;
+  }
+  .hook-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-tint); margin-bottom: 6px; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+  th { text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #999; padding: 8px 12px; border-bottom: 2px solid var(--line); }
+  td { padding: 10px 12px; border-bottom: 1px solid #f0ede8; vertical-align: top; line-height: 1.5; }
+  tr:last-child td { border-bottom: none; }
+
+  code.inline { background: #f0ede8; padding: 1px 6px; border-radius: 5px; font-size: 12px; font-family: 'SF Mono', Menlo, monospace; }
+  pre.code { background: var(--ink); color: #e6e6e6; padding: 16px 18px; border-radius: 10px; font-size: 12px; line-height: 1.6; overflow-x: auto; font-family: 'SF Mono', Menlo, monospace; margin-top: 16px; }
+  p.body { font-size: 14px; line-height: 1.7; color: #444; margin-top: 12px; max-width: 720px; }
+  ul.body { font-size: 14px; line-height: 1.7; color: #444; margin: 12px 0 0 20px; max-width: 720px; }
+  ul.body li { margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<h1>Scroll reveal motion</h1>
+<p class="subtitle">Adding scroll-triggered reveals to the homepage and the case studies — choosing the treatment from a live sandbox rather than from a description, and the architecture that keeps the page readable when the animation never runs.</p>
+<p class="date-range">Sessions: 31 Aug 2026</p>
+
+<div class="toc">
+  <div class="toc-title">Sessions in this doc</div>
+  <ol>
+    <li><a href="#sec-2026-08-31">Six experiments, one architecture decision, and a measurement that reversed my instinct</a><span class="toc-phase">Building with Claude</span></li>
+  </ol>
+</div>
+
+<div class="section" id="sec-2026-08-31">
+  <div class="section-header">
+    <span class="section-date">31 Aug 2026</span>
+    <span class="section-title">Six experiments, one architecture decision, and a measurement that reversed my instinct</span>
+    <span class="phase-tag">Building with Claude</span>
+  </div>
+  <p class="section-desc">
+    The brief was loose on purpose: <em>“modern, increases curiosity, but shouldn’t move too much.”</em> I wanted ideas
+    before implementation so I could work structurally instead of approving one effect at a time. What came back was a
+    sandbox of six live experiments running on the site’s own tokens and typeface — and the useful part turned out not
+    to be picking a favourite, but discovering that “shouldn’t move too much” is a number, and that the riskiest part of
+    a scroll reveal has nothing to do with how it looks.
+  </p>
+
+  <h3 class="sub">Deciding structurally: three questions, in order</h3>
+  <div class="concept-grid">
+    <div class="concept-block">
+      <h4>1 · The unit</h4>
+      <p>What counts as one thing arriving — a whole section, the blocks inside it, or the items inside those. This decides how the page feels; everything else is tuning.</p>
+    </div>
+    <div class="concept-block">
+      <h4>2 · The gesture</h4>
+      <p>How it moves. “Shouldn’t move too much” resolved to a dial: 12px of travel reads as arrival, 20px starts to read as performance.</p>
+    </div>
+    <div class="concept-block">
+      <h4>3 · The trigger</h4>
+      <p>One-shot on entry, or mapped continuously to scroll position so it has no moment at all. These feel genuinely different.</p>
+    </div>
+  </div>
+
+  <h3 class="sub">The experiments</h3>
+  <p class="body">
+    Six lanes, scrolled the way a visitor would, with live dials for distance / duration / stagger / easing that printed
+    the resulting CSS. Building it rather than describing it was the right call — I can’t judge 12px of movement from a
+    sentence, and the two lanes I ended up rejecting were ones that sounded fine written down.
+  </p>
+  <table>
+    <thead><tr><th>Lane</th><th>What it tested</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td><b>E1</b> Section as one unit</td><td>Everything arrives together. The honest control.</td><td>Kept — the baseline for long-form</td></tr>
+      <tr><td><b>E2</b> Blocks in reading order</td><td>Heading → Guide → grid, 80ms apart. Same total movement as E1; only the order changed.</td><td><b>Chosen</b> for homepage sections</td></tr>
+      <tr><td><b>E3</b> The Guide speaks</td><td>Avatar rises, then the bubble scales up <em>from its tail</em> a beat later.</td><td><b>Chosen</b> as the signature</td></tr>
+      <tr><td><b>E4</b> Card stagger</td><td>Cards in sequence. Compared 40ms and 120ms.</td><td>Chosen at 50ms</td></tr>
+      <tr><td><b>E5</b> Scroll-linked</td><td>Not a trigger but a mapping — opacity follows scroll position, reverses on scroll up.</td><td>Deferred, see below</td></tr>
+      <tr><td><b>E6</b> Deliberately too much</td><td>42px, 820ms, 190ms stagger — included so the line was visible rather than theoretical.</td><td>Rejected by design</td></tr>
+    </tbody>
+  </table>
+
+  <p class="body">
+    E3 is the one worth keeping hold of. It’s the only lane whose motion is specific to this site rather than
+    borrowable from any other — and it adds no new animation at all. The avatar already lifts its arm once per 7-second
+    idle loop; that gesture just sits at ~70% of the loop, so left alone it happens about five seconds after the reader
+    has moved on. A negative <code class="inline">animation-delay</code> starts the loop shortly before its own gesture,
+    so the avatar performs a movement it already had at the moment the bubble arrives. Nothing to keep in sync, and no
+    conflict with the loop it’s borrowing from.
+  </p>
+
+  <h3 class="sub">Decisions</h3>
+  <div class="decision-log">
+
+    <div class="decision key-decision">
+      <div class="decision-date">Architecture</div>
+      <div class="decision-what">The resting state is the finished state. JS <em>arms</em> the hidden state; the stylesheet never hides anything on its own.</div>
+      <div class="decision-why">The standard recipe puts <code class="inline">opacity: 0</code> in the CSS and has JavaScript remove it — so a failed observer, a JS error or a 404’d bundle leaves a blank page. Inverted: <code class="inline">index.html</code> sets <code class="inline">data-reveal-armed</code> on <code class="inline">&lt;html&gt;</code> before first paint, and every hidden rule is nested under it. This is the same principle the Rega avatar already states in its own comment — <em>nothing has to run for it to look right</em> — applied to the one feature that breaks it by default. Chosen first because retrofitting it means touching every reveal.</div>
+    </div>
+
+    <div class="decision key-decision">
+      <div class="decision-date">Coverage</div>
+      <div class="decision-what">E3 on <em>every</em> Guide — case studies included, not just the homepage.</div>
+      <div class="decision-why">I hedged on this initially, on the theory that long-form reading makes repeated motion a tic. Wrong twice: the count was wrong (Artifakt has five Guides, not three), and the density is the opposite of what I assumed — see the measurement below. There was also a precedent I should have led with: <code class="inline">AvatarNote</code> renders the same avatar and the same <code class="inline">SpeechBubble</code> as the homepage, and I’d already ruled once, on buttons, that one component carries identical states wherever it appears.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Observers</div>
+      <div class="decision-what">One observer per <em>group</em>, not per element.</div>
+      <div class="decision-why">A homepage section reveals its wayfinding row, its Guide and six cards — nine observers for what is, in the design, one event. It’s also what makes the stagger possible at all: the items have to share one start time and separate themselves with <code class="inline">transition-delay</code>, which can’t work if each waits for its own intersection.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Threshold</div>
+      <div class="decision-what">IntersectionObserver threshold <code class="inline">0</code>, not a fraction.</div>
+      <div class="decision-why">The obvious <code class="inline">0.2</code> means “one fifth visible”, which a block <em>taller than the viewport</em> can never satisfy — a 5000px case-study section peaks at 0.18 in a 900px window and would stay at opacity 0 permanently. Case-study sections are exactly that tall. Threshold 0 plus a bottom margin means “the top edge has come up past this line”, which is true regardless of height.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Markup</div>
+      <div class="decision-what">Nothing gets wrapped. <code class="inline">Reveal</code> marks a container that already exists.</div>
+      <div class="decision-why">The obvious shape is one <code class="inline">&lt;Reveal&gt;</code> per animated thing, which doesn’t survive this codebase: the items are already grid children, flex children and section headings, so wrapping each one puts a div between a grid and its item and breaks the layout it was meant to decorate. Cards index themselves via CSS <code class="inline">nth-child</code>, so <code class="inline">ProjectCard</code> needed no motion props at all.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Long-form</div>
+      <div class="decision-what">Case-study prose moves 8px with no stagger; homepage moves 12px with an 80ms stagger.</div>
+      <div class="decision-why">Browsing benefits from sequence — it says what to look at first. Reading doesn’t. A side effect worth noting: with the stagger at zero, blocks share a start time anyway, so case-study sections need <em>no per-block markup</em> — adding a section to a case study requires no motion code.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Deferred</div>
+      <div class="decision-what">E5 (scroll-linked) not shipped, despite scoring best on “modern, barely moves”.</div>
+      <div class="decision-why">Case-study pages already run a rAF scroll pass for the chapter nav and progress line; adding a second continuous loop to a long, image-heavy page is real cost, and reversibility could fight the chapter nav’s own scroll behaviour. Worth revisiting via native <code class="inline">animation-timeline: view()</code>, which is one CSS line and no JS at all.</div>
+    </div>
+
+  </div>
+
+  <h3 class="sub">The measurement that reversed my instinct</h3>
+  <p class="body">
+    I nearly left the Guide animation off the case studies because long pages “would feel repetitive”. Measured against
+    a 900px viewport, the gap between neighbouring Guides is:
+  </p>
+  <table>
+    <thead><tr><th>Page</th><th>Guides</th><th>Tightest gap</th></tr></thead>
+    <tbody>
+      <tr><td>Homepage</td><td>7 (incl. hero)</td><td><b>569px</b></td></tr>
+      <tr><td>Artifakt case study</td><td>5</td><td>808px</td></tr>
+      <tr><td>PitchPivot case study</td><td>3</td><td>2 108px</td></tr>
+    </tbody>
+  </table>
+  <p class="body">
+    The long-form pages are where the Guides are most spread out. The homepage is the only place a pair sits
+    comfortably inside one screen — so if the effect ever reads as repetitive it will be there, in exactly the spot I
+    was most confident about. The intuition was not just wrong, it was pointed at the wrong page.
+  </p>
+
+  <h3 class="sub">Technical difficulties</h3>
+
+  <p class="body"><b>A cascade collision, caught in the sandbox before it shipped.</b> One lane faded in correctly but
+  stayed stuck 42px below where it belonged, permanently. Its variant override sat at specificity (0,5,0) while the
+  “visible” rule sat at (0,3,0), so the hidden state kept winning after reveal. Invisible in the source; obvious the
+  moment computed styles were measured. The fix became the rule for the whole system: key the hidden state on the
+  <em>absence</em> of the revealed attribute (<code class="inline">:not([data-reveal-in])</code>) and write no matching
+  “visible” rule at all — then a variant can be as specific as it likes and still stop applying the moment the group
+  reveals.</p>
+
+  <p class="body"><b>A component that silently swallows refs.</b> Using <code class="inline">Reveal as={Container}</code>
+  looked clean and would have left the Contact section invisible forever — <code class="inline">Container</code> takes
+  only <code class="inline">children</code>, <code class="inline">className</code> and <code class="inline">id</code> by
+  design and forwards no ref, so the observer would never have attached. React warned about it; the fix was to nest
+  rather than substitute. A good argument for the arming inversion above: even this failure mode degrades to a visible
+  page rather than a blank one.</p>
+
+  <p class="body"><b>Reduced motion only works if it lands later in the stylesheet.</b> The override has the same
+  specificity as the rule it’s overriding, so it wins purely on source order. Verified by byte offset in the built CSS
+  rather than assumed. Had Tailwind emitted them the other way round, reduced-motion users would have got the full
+  animation and nothing would have looked wrong in the code.</p>
+
+  <div class="note">
+    <b>Verification meta-lesson, worth more than the fixes.</b> The preview browser was throttled — transitions didn’t
+    advance, screenshots came back blank, scrolling timed out — so “watch it animate” wasn’t available. Two probes gave
+    confidently wrong answers before this was noticed: <code class="inline">getComputedStyle</code> returns a <em>live</em>
+    object, so a “before” and an “after” snapshot were reading the same current values; and Tailwind escapes its
+    selectors, so searching the CSSOM for <code class="inline">1.04</code> can never match <code class="inline">1\.04</code>.
+    What worked: inject <code class="inline">* { transition: none !important }</code>, toggle the state, and read the
+    <em>resolved cascade</em> instead of trying to catch a frame. When the environment can’t animate, verify the cascade,
+    not the animation.
+  </div>
+
+  <h3 class="sub">Working-process note: two dev servers on one port</h3>
+  <p class="body">
+    The session ended with the site apparently missing every change — which turned out to be two Vite instances both
+    claiming port 5173 (one bound to IPv4, one to IPv6), plus a new branch accidentally cut from the commit the day
+    <em>started</em> at rather than from <code class="inline">main</code>. Nothing was lost. But the honest lesson is
+    that <code class="inline">[vite] Failed to reload</code> errors had been appearing in the console for hours and were
+    repeatedly written off as a stale buffer, because the code kept verifying as correct by other means. Being right
+    about the symptom is not the same as being right about the cause.
+  </p>
+
+  <h3 class="sub">What I’d do differently</h3>
+  <ul class="body">
+    <li>Measure before forming the design opinion, not after being challenged on it. The Guide-density numbers took two minutes and reversed the recommendation.</li>
+    <li>Check for a stray dev server before debugging anything that “isn’t updating” — one <code class="inline">lsof</code> would have saved an hour of misattributed console noise.</li>
+    <li>When branching for new work, branch from <code class="inline">main</code> explicitly rather than from whatever is checked out.</li>
+  </ul>
+
+  <div class="note">
+    <b>Visuals to add.</b> No screenshots were captured this session (the preview environment couldn’t produce them).
+    Worth grabbing for this doc when convenient: the six-lane sandbox mid-scroll, a Guide bubble caught mid-scale, and
+    a before/after of a homepage section arriving. The sandbox itself is the best artefact —
+    <code class="inline">~/Desktop/scroll-reveal-sandbox.html</code>, self-contained and openable offline.
+  </div>
+
+  <div class="hook">
+    <div class="hook-label">Shareable hook</div>
+    I almost skipped the scroll animation on my case studies, on the instinct that long pages would make repeated motion
+    feel like a tic. Then I measured the actual spacing: on the case studies those moments sit 800–2,100px apart, while
+    on the homepage — the page I was most confident about — two of them fit inside a single screen. The instinct wasn’t
+    just wrong, it was aimed at the wrong page.
+  </div>
+</div>
+
+</body>
+</html>
