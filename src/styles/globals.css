@@ -1318,3 +1318,204 @@ html[data-reveal-armed]
     transform: none;
   }
 }
+
+
+/* ---------------------------------------------------------------------------
+   REGA HELICOPTER FLYPAST
+   ---------------------------------------------------------------------------
+   The flight itself is NOT here -- it is generated per-render in
+   RegaFlypast.jsx, because its keyframes depend on the measured position of the
+   Rega card. What lives here is everything that is fixed: the overlay's
+   stacking and clipping, and the rotors.
+
+   IT MUST FLY IN FRONT OF THE CONTENT (Flore, 2026-09-01), so the overlay sits
+   above the row and the card grid. `pointer-events: none` is therefore
+   load-bearing rather than tidiness -- without it this transparent sheet would
+   swallow every click meant for a project card underneath it.
+
+   THE HORIZONTAL CLIP IS WHY THERE IS NO SCROLLBAR. The aircraft starts beyond
+   the right edge of the VIEWPORT, and an absolutely positioned element out
+   there would otherwise widen the document and give the whole page a horizontal
+   scrollbar. `overflow-x: clip` on the section stops that. Deliberately `clip`
+   and not `hidden`: `hidden` creates a scroll container, and on the x axis it
+   forces `overflow-y` to compute to `auto` as well, which would cut the
+   aircraft off vertically at the top of the section -- exactly where it enters.
+--------------------------------------------------------------------------- */
+[data-component='section-work'] {
+  overflow-x: clip;
+}
+
+.heli-flypast-host {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.heli-flypast-craft {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* Scale and rotation both act about the aircraft's own centre, which is what
+     the translate in the generated keyframes assumes. */
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+  /* Hidden until the flight's first frame lands, so it cannot flash at the
+     origin on mount before the observer fires. */
+  opacity: 0;
+}
+
+.heli-flypast-svg {
+  display: block;
+  width: var(--heli-width, 160px);
+  height: auto;
+}
+
+/* Rotors. One period, shared by both bars of the main rotor -- the second bar
+   is the same keyframes at a negative delay of half a period, so four blades
+   cost one animation definition and the two can never drift apart. */
+[data-component='helicopter'] {
+  --heli-rotor: 0.4s;
+  --heli-tail-rotor: 0.22s;
+}
+
+[data-component='helicopter'] [data-heli-blade],
+[data-component='helicopter'] #tail-rotor-blades {
+  transform-box: view-box;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+/* Origins are the rotor hubs in viewBox units, read off the exported geometry:
+   main mast 280, 84.5   tail hub 487.4, 236.7 */
+[data-component='helicopter'] [data-heli-blade] {
+  transform-origin: 280px 84.5px;
+  animation-name: heli-main-rotor;
+  animation-duration: var(--heli-rotor);
+}
+[data-component='helicopter'] [data-heli-blade-b] {
+  animation-delay: calc(var(--heli-rotor) / -2);
+}
+[data-component='helicopter'] #tail-rotor-blades {
+  transform-origin: 487.4px 236.7px;
+  animation-name: heli-tail-rotor;
+  animation-duration: var(--heli-tail-rotor);
+}
+
+/* --- ROTOR KEYFRAMES: generated, do not hand-edit -------------------------
+   Regenerate with `node scripts/rotor-keyframes.mjs` and paste over this
+   block. The stops are a projection, not a shape someone chose. */
+@keyframes heli-main-rotor {
+  0% { transform: rotate(0.00deg) scaleX(1.0000); }
+  2.0833% { transform: rotate(1.44deg) scaleX(0.9918); }
+  4.1667% { transform: rotate(2.93deg) scaleX(0.9672); }
+  6.25% { transform: rotate(4.52deg) scaleX(0.9268); }
+  8.3333% { transform: rotate(6.28deg) scaleX(0.8713); }
+  10.4167% { transform: rotate(8.33deg) scaleX(0.8018); }
+  12.5% { transform: rotate(10.80deg) scaleX(0.7199); }
+  14.5833% { transform: rotate(13.96deg) scaleX(0.6273); }
+  16.6667% { transform: rotate(18.28deg) scaleX(0.5266); }
+  18.75% { transform: rotate(24.72deg) scaleX(0.4213); }
+  20.8333% { transform: rotate(35.44deg) scaleX(0.3177); }
+  22.9167% { transform: rotate(55.38deg) scaleX(0.2298); }
+  25% { transform: rotate(90.00deg) scaleX(0.1907); }
+  27.0833% { transform: rotate(124.62deg) scaleX(0.2298); }
+  29.1667% { transform: rotate(144.56deg) scaleX(0.3177); }
+  31.25% { transform: rotate(155.28deg) scaleX(0.4213); }
+  33.3333% { transform: rotate(161.72deg) scaleX(0.5266); }
+  35.4167% { transform: rotate(166.04deg) scaleX(0.6273); }
+  37.5% { transform: rotate(169.20deg) scaleX(0.7199); }
+  39.5833% { transform: rotate(171.67deg) scaleX(0.8018); }
+  41.6667% { transform: rotate(173.72deg) scaleX(0.8713); }
+  43.75% { transform: rotate(175.48deg) scaleX(0.9268); }
+  45.8333% { transform: rotate(177.07deg) scaleX(0.9672); }
+  47.9167% { transform: rotate(178.56deg) scaleX(0.9918); }
+  50% { transform: rotate(180.00deg) scaleX(1.0000); }
+  52.0833% { transform: rotate(-178.56deg) scaleX(0.9918); }
+  54.1667% { transform: rotate(-177.07deg) scaleX(0.9672); }
+  56.25% { transform: rotate(-175.48deg) scaleX(0.9268); }
+  58.3333% { transform: rotate(-173.72deg) scaleX(0.8713); }
+  60.4167% { transform: rotate(-171.67deg) scaleX(0.8018); }
+  62.5% { transform: rotate(-169.20deg) scaleX(0.7199); }
+  64.5833% { transform: rotate(-166.04deg) scaleX(0.6273); }
+  66.6667% { transform: rotate(-161.72deg) scaleX(0.5266); }
+  68.75% { transform: rotate(-155.28deg) scaleX(0.4213); }
+  70.8333% { transform: rotate(-144.56deg) scaleX(0.3177); }
+  72.9167% { transform: rotate(-124.62deg) scaleX(0.2298); }
+  75% { transform: rotate(-90.00deg) scaleX(0.1907); }
+  77.0833% { transform: rotate(-55.38deg) scaleX(0.2298); }
+  79.1667% { transform: rotate(-35.44deg) scaleX(0.3177); }
+  81.25% { transform: rotate(-24.72deg) scaleX(0.4213); }
+  83.3333% { transform: rotate(-18.28deg) scaleX(0.5266); }
+  85.4167% { transform: rotate(-13.96deg) scaleX(0.6273); }
+  87.5% { transform: rotate(-10.80deg) scaleX(0.7199); }
+  89.5833% { transform: rotate(-8.33deg) scaleX(0.8018); }
+  91.6667% { transform: rotate(-6.28deg) scaleX(0.8713); }
+  93.75% { transform: rotate(-4.52deg) scaleX(0.9268); }
+  95.8333% { transform: rotate(-2.93deg) scaleX(0.9672); }
+  97.9167% { transform: rotate(-1.44deg) scaleX(0.9918); }
+  100% { transform: rotate(-0.00deg) scaleX(1.0000); }
+}
+
+@keyframes heli-tail-rotor {
+  0% { transform: rotate(-90.00deg) scaleY(0.4970); }
+  2.0833% { transform: rotate(-75.16deg) scaleY(0.5098); }
+  4.1667% { transform: rotate(-61.67deg) scaleY(0.5454); }
+  6.25% { transform: rotate(-50.19deg) scaleY(0.5978); }
+  8.3333% { transform: rotate(-40.73deg) scaleY(0.6598); }
+  10.4167% { transform: rotate(-32.93deg) scaleY(0.7253); }
+  12.5% { transform: rotate(-26.43deg) scaleY(0.7896); }
+  14.5833% { transform: rotate(-20.88deg) scaleY(0.8491); }
+  16.6667% { transform: rotate(-16.01deg) scaleY(0.9010); }
+  18.75% { transform: rotate(-11.63deg) scaleY(0.9433); }
+  20.8333% { transform: rotate(-7.59deg) scaleY(0.9745); }
+  22.9167% { transform: rotate(-3.74deg) scaleY(0.9936); }
+  25% { transform: rotate(-0.00deg) scaleY(1.0000); }
+  27.0833% { transform: rotate(3.74deg) scaleY(0.9936); }
+  29.1667% { transform: rotate(7.59deg) scaleY(0.9745); }
+  31.25% { transform: rotate(11.63deg) scaleY(0.9433); }
+  33.3333% { transform: rotate(16.01deg) scaleY(0.9010); }
+  35.4167% { transform: rotate(20.88deg) scaleY(0.8491); }
+  37.5% { transform: rotate(26.43deg) scaleY(0.7896); }
+  39.5833% { transform: rotate(32.93deg) scaleY(0.7253); }
+  41.6667% { transform: rotate(40.73deg) scaleY(0.6598); }
+  43.75% { transform: rotate(50.19deg) scaleY(0.5978); }
+  45.8333% { transform: rotate(61.67deg) scaleY(0.5454); }
+  47.9167% { transform: rotate(75.16deg) scaleY(0.5098); }
+  50% { transform: rotate(90.00deg) scaleY(0.4970); }
+  52.0833% { transform: rotate(104.84deg) scaleY(0.5098); }
+  54.1667% { transform: rotate(118.33deg) scaleY(0.5454); }
+  56.25% { transform: rotate(129.81deg) scaleY(0.5978); }
+  58.3333% { transform: rotate(139.27deg) scaleY(0.6598); }
+  60.4167% { transform: rotate(147.07deg) scaleY(0.7253); }
+  62.5% { transform: rotate(153.57deg) scaleY(0.7896); }
+  64.5833% { transform: rotate(159.12deg) scaleY(0.8491); }
+  66.6667% { transform: rotate(163.99deg) scaleY(0.9010); }
+  68.75% { transform: rotate(168.37deg) scaleY(0.9433); }
+  70.8333% { transform: rotate(172.41deg) scaleY(0.9745); }
+  72.9167% { transform: rotate(176.26deg) scaleY(0.9936); }
+  75% { transform: rotate(180.00deg) scaleY(1.0000); }
+  77.0833% { transform: rotate(-176.26deg) scaleY(0.9936); }
+  79.1667% { transform: rotate(-172.41deg) scaleY(0.9745); }
+  81.25% { transform: rotate(-168.37deg) scaleY(0.9433); }
+  83.3333% { transform: rotate(-163.99deg) scaleY(0.9010); }
+  85.4167% { transform: rotate(-159.12deg) scaleY(0.8491); }
+  87.5% { transform: rotate(-153.57deg) scaleY(0.7896); }
+  89.5833% { transform: rotate(-147.07deg) scaleY(0.7253); }
+  91.6667% { transform: rotate(-139.27deg) scaleY(0.6598); }
+  93.75% { transform: rotate(-129.81deg) scaleY(0.5978); }
+  95.8333% { transform: rotate(-118.33deg) scaleY(0.5454); }
+  97.9167% { transform: rotate(-104.84deg) scaleY(0.5098); }
+  100% { transform: rotate(-90.00deg) scaleY(0.4970); }
+}
+/* --- end generated -------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  /* The component does not render the aircraft at all under reduced motion, so
+     this is a belt-and-braces stop for the rotors rather than the real
+     suppression. */
+  [data-component='helicopter'] [data-heli-blade],
+  [data-component='helicopter'] #tail-rotor-blades {
+    animation: none;
+  }
+}

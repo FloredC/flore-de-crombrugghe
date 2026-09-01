@@ -59,7 +59,7 @@ const DEV_CLICK_TO_REPLAY = import.meta.env.DEV
 //
 // Dev-gated as well as flag-gated, so even left on it cannot reach production.
 // It also stops when the row scrolls out of view, so it never runs unseen.
-const DEV_LOOP_FOR_REVIEW = import.meta.env.DEV && true
+const DEV_LOOP_FOR_REVIEW = import.meta.env.DEV && false
 
 // Quiet pause between repeats. The reaction itself is WIND_MS; this is the gap
 // after it settles, so one cycle is WIND_MS + this.

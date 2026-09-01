@@ -32,6 +32,14 @@ export default function Wayfinding({
   // this used to default to the static 'sections-left' illustration. Only rows
   // with an animation of their own pass a value; see the branch below.
   avatarVariant,
+  // Drives AvatarRega's wind reaction from outside. Only the Harbour row passes
+  // it, and it is the helicopter's flypast that sets it (see RegaFlypast).
+  //
+  // Passing it at all -- even as `false` -- takes AvatarRega off its own
+  // once-on-entry trigger, which is what we want: with the helicopter present,
+  // the gust must belong to the aircraft passing her, not to a scroll position.
+  // Leaving it undefined restores the self-triggering avatar exactly.
+  avatarWind,
   bubbleVariant = 'right',
   hidden = false,
   // HIDE THE BREADCRUMB HALF, KEEP THE GUIDE -- Flore, 2026-08-28, for the
@@ -90,7 +98,12 @@ export default function Wayfinding({
               <img>. Rega keeps its own because it is the other row that already
               has a real animation; each new one lands the same way, as another
               branch here, until the fallback has nothing left to catch. */}
-          <Avatar />
+          {/* `windActive` is undefined for every row but Rega's, and the other
+              avatars do not declare it, so it costs them nothing. Keeping the
+              map lookup rather than special-casing Rega here is what stops this
+              going back to a chain of ternaries the moment the next avatar
+              needs a prop of its own. */}
+          <Avatar windActive={avatarWind} />
           <SpeechBubble variant={bubbleVariant}>{bubbleCopy}</SpeechBubble>
         </div>
       )}
