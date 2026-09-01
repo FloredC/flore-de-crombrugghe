@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "dev:plain": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/prerender.mjs",
     "preview": "vite preview",
     "preview:pages": "npm run build && node scripts/preview-pages.mjs",
     "shoot": "node scripts/shoot.mjs"

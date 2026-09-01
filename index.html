@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Flore de Crombrugghe — Senior Product Designer</title>
     <!-- SVG favicon: scales to every size a browser asks for, so there's no
-         separate 16/32/180 set to keep in sync. Referenced with BASE_URL's
-         literal path rather than a root-relative "/favicon.svg", which would
-         resolve to the domain root and 404 on a project site. -->
-    <link rel="icon" type="image/svg+xml" href="/flore-de-crombrugghe/favicon.svg" />
+         separate 16/32/180 set to keep in sync. Root-relative is correct now
+         that the site is served from a custom domain root; it was written out
+         as /flore-de-crombrugghe/favicon.svg while this was a project site,
+         where a root-relative path would have resolved off-site. -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <meta
       name="description"
@@ -26,10 +27,16 @@
          twitter:image is separate because X does not read og:image when a
          twitter:card is declared.
 
-         The URL is absolute because crawlers do not resolve relative paths, and
-         it hardcodes the project-site path for the same reason -- if a custom
-         domain is ever added, this is a third place that changes alongside
-         BASE in vite.config.js. -->
+         The URLs are absolute because crawlers do not resolve relative paths,
+         so they name the custom domain literally. That makes this a third place
+         that moves alongside BASE in vite.config.js and public/CNAME whenever
+         the site's origin changes -- it did on 2026-09-01, from the github.io
+         project-site path to floredecrombrugghe.com.
+
+         THESE ARE THE HOMEPAGE'S TAGS ONLY. Every other route gets its own
+         title/description/image written into its own static HTML file at build
+         time by scripts/prerender.mjs, because a crawler does not run the JS
+         that would otherwise set them. See that file before editing these. -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Flore de Crombrugghe" />
     <meta property="og:title" content="Flore de Crombrugghe — Senior Product Designer" />
@@ -37,12 +44,12 @@
       property="og:description"
       content="An illustrated map of my work: consumer apps and internal tools for high-stakes, large-scale services."
     />
-    <meta property="og:url" content="https://floredc.github.io/flore-de-crombrugghe/" />
-    <meta property="og:image" content="https://floredc.github.io/flore-de-crombrugghe/images/home/og-preview.png" />
+    <meta property="og:url" content="https://floredecrombrugghe.com/" />
+    <meta property="og:image" content="https://floredecrombrugghe.com/images/link-previews/home.png" />
     <meta property="og:image:alt" content="An illustrated island map of Flore de Crombrugghe's design work." />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta name="twitter:image" content="https://floredc.github.io/flore-de-crombrugghe/images/home/og-preview.png" />
+    <meta name="twitter:image" content="https://floredecrombrugghe.com/images/link-previews/home.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Flore de Crombrugghe — Senior Product Designer" />
     <meta
@@ -92,6 +99,43 @@
           window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash)
         }
       })(window.location)
+    </script>
+
+    <!-- Google Analytics 4.
+
+         The Measurement ID is not a secret: it ships in the HTML of every page
+         that uses it, and names a destination rather than granting access. The
+         credentials that WOULD grant access to the property -- a service-account
+         key, a Measurement Protocol api_secret -- are not here and must not be.
+
+         DELIBERATELY PLACED AFTER the history-restore script above. That script
+         rewrites /?/work/artifakt back into /work/artifakt, and gtag reads
+         location at load time. Loading the tag any earlier would record the
+         encoded form as the page path and split one page's traffic across two
+         unreadable URLs. Prerendering means most deep links no longer take that
+         route at all, but process logs and mistyped URLs still do.
+
+         Client-side route changes are counted by GA4's Enhanced Measurement
+         ("page changes based on browser history events", on by default), which
+         is why there is no manual page_view call here. Known limitation, worth
+         writing down rather than rediscovering: that fires on the history
+         change, which is before React has rendered and set the new
+         document.title, so an in-app navigation can be logged under the
+         PREVIOUS page's title. The page path is always correct. Direct loads
+         are unaffected -- prerendering gives each route its real title in the
+         served HTML.
+
+         Not consent-gated. Analytics cookies plus Swiss/EU visitors is a real
+         question; the deliberate v1 answer is "ship, then decide". Flagged
+         2026-09-01, not overlooked. -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZBHGLT0FQ1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-ZBHGLT0FQ1')
     </script>
   </head>
   <body>

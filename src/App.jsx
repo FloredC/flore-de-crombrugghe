@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation, useNavigationType } from 'react-r
 import HomePage from './pages/HomePage'
 import ProjectPage from './pages/ProjectPage'
 import ProcessLogPage from './pages/ProcessLogPage'
+import { getProjectBySlug } from './lib/content'
 
 // Scrolls to `#some-id` when arriving at a route that carries a hash.
 //
@@ -144,9 +145,40 @@ function ScrollToHash() {
   return null
 }
 
+// Keeps the browser tab -- and the back-button history entry -- in step with
+// the route.
+//
+// Only client-side navigations need this. A DIRECT load of /work/artifakt now
+// arrives as its own prerendered HTML file with the right <title> already in it
+// (scripts/prerender.mjs). But React Router changing the URL in place does not
+// touch the document, so without this every case study opened under the
+// homepage's title and left "Senior Product Designer" as the history entry for
+// all eleven pages.
+//
+// Reads the same frontmatter, and builds the same "<title> · name" shape, as the
+// prerender script does -- so the title a crawler is served and the title a
+// visitor navigates to cannot disagree.
+const SITE_TITLE = 'Flore de Crombrugghe — Senior Product Designer'
+
+function DocumentTitle() {
+  const { pathname } = useLocation()
+
+  useEffect(() => {
+    // Matches /work/:slug and also /work/:slug/process/:log, which is intended:
+    // a process log is a document belonging to that project, so the project's
+    // name is the right thing in the tab.
+    const match = pathname.match(/^\/work\/([^/]+)/)
+    const project = match ? getProjectBySlug(match[1]) : null
+    document.title = project ? `${project.title} · Flore de Crombrugghe` : SITE_TITLE
+  }, [pathname])
+
+  return null
+}
+
 export default function App() {
   return (
     <>
+      <DocumentTitle />
       <ScrollToTop />
       <ScrollToHash />
       <Routes>

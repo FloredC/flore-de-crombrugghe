@@ -122,42 +122,100 @@ Six of the 29 spacing primitives are used nowhere in `src/`: **2, 128, 144, 176,
 
 ---
 
-## Deployment (added 2026-08-05)
+## Deployment (added 2026-08-05; custom domain 2026-09-01)
 
 Pushes to `main` build and publish via `.github/workflows/deploy.yml`, using the
 Pages **"GitHub Actions"** source — no `gh-pages` branch, no build output in the
 repo.
 
-**One-time setup, still outstanding:** Settings → Pages → Source → "GitHub
-Actions". Until that's set the workflow runs and then fails at the deploy step.
+**The site is served from `floredecrombrugghe.com`**, a custom domain at the
+domain root. It was a project site at `floredc.github.io/flore-de-crombrugghe/`
+until 2026-09-01.
 
-Three things have to agree, and all derive from `BASE` in `vite.config.js`:
+Four things have to agree. Three derive from `BASE` in `vite.config.js`:
 
-1. `base` — this is a **project** site (`floredc.github.io/flore-de-crombrugghe/`),
-   not a user site, so built asset URLs need that prefix.
+1. `base` — `'/'`, because a custom domain serves from the root.
 2. `BrowserRouter basename` — reads it back via `import.meta.env.BASE_URL`.
-3. `public/404.html`'s `pathSegmentsToKeep` — `1`, matching the one path segment
-   that is site root rather than route.
+3. `public/404.html`'s `pathSegmentsToKeep` — `0`: no path segment is site root.
 
-**On a custom domain** all three change together: `BASE` → `'/'` and
-`pathSegmentsToKeep` → `0`.
+The fourth does not, and cannot:
+
+4. `public/CNAME` — the domain itself. Pages reads it out of the deployed
+   artifact on every deploy. **Delete it and the custom domain silently
+   detaches** while the other three still say root, which is the worst version
+   of this bug: every asset URL stays rooted at a domain the site is no longer
+   served from.
+
+The absolute URLs in `index.html`'s `og:*` tags and `ORIGIN` in
+`scripts/prerender.mjs` also name the domain literally, because crawlers do not
+resolve relative paths. So an origin change is several edits, not one — each
+site carries a comment pointing at the others.
+
+**DNS lives at Squarespace** (nameservers `ns01`–`ns04.squarespacedns.com`), not
+at GitHub: apex `A` records to GitHub Pages' four IPs, `www` `CNAME` to
+`floredc.github.io`. It pointed at a Framer site before the move.
 
 **Why `404.html` exists:** Pages only serves files that exist, and every
 `/work/:slug` route lives only in the JS router — so opening or refreshing a
 case-study URL, or following one Flore shared, would 404. `404.html` re-encodes
 the path into a query and the inline snippet in `index.html` restores it with
-`history.replaceState` before React Router boots.
+`history.replaceState` before React Router boots. Prerendering (below) has since
+given the ten project routes real files, so the shim now catches only what is
+left: process logs, the renamed-slug redirect, and typos.
 
 **`base` applies to the build only**, so `npm run dev` stays at the root and
 daily work is unchanged. The tradeoff: **a base-path bug cannot appear in dev.**
 That is exactly how five project thumbnails shipped broken — paths that arrive
 as strings from MDX frontmatter are invisible to Vite, so they never get the
 prefix. `src/lib/assetUrl.js` resolves those at render time; any *new* asset path
-coming from content must go through it.
+coming from content must go through it. (Since the custom-domain move the build
+base is `'/'`, the same as dev, so this particular gap is closed for now — but it
+reopens the moment the site is ever served from a subpath again.)
 
 Use `npm run preview:pages` to exercise the real thing — it builds and serves
-`dist` under the base path with the 404 fallback, which is the only local setup
-that can catch this class of bug.
+`dist` exactly as Pages does, including the 404 fallback and the directory-index
+`301`. It is the only local setup that can catch this class of bug, and the only
+one where the prerendered route files are served the way production serves them.
+
+### Link previews are prerendered, not set in React (added 2026-09-01)
+
+`scripts/prerender.mjs` runs after `vite build` and writes one real
+`dist/work/<slug>/index.html` per project, each with its own title, description
+and `og:image`. **This is not an optimisation — it is the only thing that makes
+per-page link previews work at all.** Crawlers do not run JS, so `og:*` tags set
+from inside React are never seen by the only readers those tags exist for; every
+shared case-study link unfurled with the homepage's map and title before this.
+
+Titles and descriptions are read from the project `.mdx` frontmatter, so adding a
+project needs no edit to the script: drop in the `.mdx` and a
+`public/images/link-previews/<slug>.png` at 1200×630. A missing image falls back
+to the homepage's and the build logs a warning naming the slug.
+
+Side effect worth knowing: those ten routes no longer go through
+`public/404.html`. Pages answers `301` for `/work/artifakt` → `/work/artifakt/`
+and serves the real file. The shim still covers process logs, the renamed-slug
+redirect and typos, so it stays. `npm run preview:pages` now models that `301` —
+it did not, and reported ten false 404s on routes that were fine in production,
+which is the exact inversion of the signal that script exists to give.
+
+### Analytics (added 2026-09-01)
+
+GA4, property `G-ZBHGLT0FQ1`, plain gtag in `index.html`. Placed **after** the
+history-restore script, deliberately: gtag reads `location` at load, so any
+earlier and it would record the `/?/work/...` encoded form as the page path and
+split one page's traffic across two unreadable URLs.
+
+Client-side route changes are counted by GA4's Enhanced Measurement rather than a
+manual `page_view` call. Known cost, written down rather than rediscovered: that
+fires on the history change, before React has set the new `document.title`, so an
+in-app navigation can be logged under the *previous* page's title. The path is
+always correct, and direct loads are unaffected because prerendering puts the
+real title in the served HTML. `DocumentTitle` in `App.jsx` keeps the browser tab
+in step on those navigations.
+
+**Not consent-gated.** Analytics cookies plus Swiss/EU visitors is a real
+question; the deliberate v1 answer is "ship, then decide" (Flore, 2026-09-01),
+recorded here so it reads as a decision rather than an oversight.
 
 ## Content Model
 
@@ -626,7 +684,6 @@ Revised estimate — original 6-hour estimate below was written before the Popov
 **Not in scope for v1 (deferred until post-validation):**
 - Figma library reorg (primitives/semantic folder structure)
 - Full WCAG accessibility audit (keyboard/focus support built in; full audit separate)
-- OG/social preview image
 - Dark mode
 
 ---
