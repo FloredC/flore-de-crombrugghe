@@ -356,26 +356,29 @@ export function buildFlightPath({ width, card, leadTo, flyby }) {
   if (flyby) {
     const nx = (flyby.x - endX) / (A[1][0] - A[4][0])
     const ny = (flyby.y - endY) / (A[1][1] - A[4][1])
-    // NO ROOM MEANS NO FLIGHT -- returning null rather than falling back.
+    // WHEN IT CANNOT REACH HER, IT STILL FLIES -- on the fixed geometry above.
     //
     // As the viewport narrows the Guide wraps and Rega slides left, while the
-    // card goes full-width and drags its landing point left too. The horizontal
-    // gap between them closes continuously, so there is no breakpoint to pick:
+    // card goes full-width and drags its landing point left with it. The
+    // horizontal gap between them closes continuously, so there is no
+    // breakpoint to pick:
     //
     //     600px   gap  58px    520px   gap   3px
     //     560px   gap  30px    375px   gap -38px   (she is PAST the landing)
     //
-    // At 375 the usable gap is 41px, so the entire flight would be shorter than
-    // the 137px aircraft flying it. There is nothing to tune. Falling back to
-    // the fixed geometry is worse than not flying: it produced a helicopter
-    // that passed 2.6 avatar-widths away and never reacted with her, which
-    // reads as broken rather than as absent. The caller treats null as "leave
-    // this to the avatar's own reaction".
-    if (!(nx > MIN_SOLVED_SCALE && ny > MIN_SOLVED_SCALE) || !Number.isFinite(nx) || !Number.isFinite(ny)) {
-      return null
+    // At 375 the usable travel is ~48px for a 137px aircraft, so a curve that
+    // passes her AND lands on the card cannot exist -- it would move less than
+    // half its own length. This briefly returned null instead, grounding the
+    // helicopter entirely below about 640px. That was the wrong trade (Flore,
+    // 2026-09-01: "the helicopter is not visible on mobile"): losing the
+    // choreography is a smaller loss than losing the aircraft. So narrow
+    // viewports keep the fixed SPAN x glide path -- it enters, descends and
+    // lands on the card correctly, it simply passes Rega at a distance
+    // (measured 2.7 avatar-widths at 375) rather than buzzing her.
+    if (nx > MIN_SOLVED_SCALE && ny > MIN_SOLVED_SCALE && Number.isFinite(nx) && Number.isFinite(ny)) {
+      sx = nx
+      sy = ny
     }
-    sx = nx
-    sy = ny
   }
   const map = (p) => [endX + (p[0] - A[4][0]) * sx, endY + (p[1] - A[4][1]) * sy]
 

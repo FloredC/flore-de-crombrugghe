@@ -57,7 +57,7 @@ const geometryKey = (hostBox, cardRel) =>
     .map((n) => Math.round(n))
     .join('/')
 
-export default function RegaFlypast({ onPassAvatar, onActiveChange }) {
+export default function RegaFlypast({ onPassAvatar }) {
   const hostRef = useRef(null)
   const heliRef = useRef(null)
   const flight = useRef(null)
@@ -130,22 +130,14 @@ export default function RegaFlypast({ onPassAvatar, onActiveChange }) {
       flyby = { x: avatarRel.x + FLYBY_X * avatarRel.w, y: avatarRel.y + FLYBY_Y * avatarRel.w }
     }
 
-    // null means there is no room to reach her at this width -- see the note in
-    // lib/flightPath.js. Hand the reaction back to the avatar and stay grounded.
+    // Always a path: where the curve cannot be solved through Rega -- narrow
+    // viewports, see lib/flightPath.js -- it falls back to the fixed geometry
+    // and flies past her at a distance rather than not flying at all.
     const d = buildFlightPath({ width: hostBox.width, card: cardRel, leadTo, flyby })
-    if (!d) {
-      heli.style.opacity = '0'
-      onActiveChange?.(false)
-      return
-    }
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
     path.setAttribute('d', d)
     const len = path.getTotalLength()
-    if (!len) {
-      onActiveChange?.(false)
-      return
-    }
-    onActiveChange?.(true)
+    if (!len) return
 
     // Still measured rather than assumed: the solve puts her on the curve, but
     // WHERE on the clock that falls depends on the lead-in length and easing.
@@ -229,7 +221,7 @@ export default function RegaFlypast({ onPassAvatar, onActiveChange }) {
       }
       raf.current = requestAnimationFrame(watch)
     }
-  }, [onPassAvatar, onActiveChange, stop])
+  }, [onPassAvatar, stop])
 
   useEffect(() => {
     const host = hostRef.current
