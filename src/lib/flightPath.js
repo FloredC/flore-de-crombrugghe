@@ -63,11 +63,44 @@ export const CURVE_GLIDE = CURVE_DROP_Y / CURVE_SPAN_X // 0.2549 -> 14.3deg
 // All proportional, none in pixels: the section is fluid and the helicopter has
 // to hold its relationship to the card at every width.
 
-/** Horizontal span of the curve, as a fraction of the subsection's width. */
+/** Horizontal span of the curve, as a fraction of the subsection's width.
+ *  Only used as the FALLBACK now -- see FLYBY below. */
 export const SPAN = 0.75
 
-/** Multiplier on her glide angle. 1 is exactly what she drew. */
+/** Multiplier on her glide angle. 1 is exactly what she drew. Fallback only. */
 export const DESCENT = 1
+
+/**
+ * WHERE IT PASSES REGA, as a multiple of the avatar's own width, measured from
+ * her centre. Positive y is below her.
+ *
+ * THIS EXISTS BECAUSE THE AVATAR WAS NEVER AN ANCHOR. Sizing the curve from
+ * SPAN x glide made its height a function of the section's width, and the
+ * avatar's position is not: below 1024 the wayfinding row wraps and she moves
+ * up and left while the curve gets shorter. Measured closest approach was
+ *
+ *     1440   70px   0.59 avatar-widths   at 40% along
+ *     1024   47px   0.44                 at 50%
+ *      900  169px   1.76                 at 67%
+ *      768  324px   3.38                 at  0%   <- the FIRST frame
+ *
+ * At 768 the aircraft's nearest point to her was where it started: it flew away
+ * from her for the whole flight, and the gust therefore fired before she had
+ * been approached at all.
+ *
+ * 0.6 reproduces what desktop already did (0.59), so the widths that were right
+ * do not move.
+ */
+export const FLYBY_X = 0
+export const FLYBY_Y = 0.6
+
+/**
+ * Below this the solved curve is too compressed to read as flight at all -- the
+ * horizontal span would be `MIN_SOLVED_SCALE * 1106` px. 0.15 puts the floor at
+ * about 166px of travel, which is already less than the aircraft is wide; the
+ * point is to reject the degenerate cases, not to find a pleasing minimum.
+ */
+const MIN_SOLVED_SCALE = 0.15
 
 /** Where the aircraft ends up, as a fraction of the Rega card's own box. This
  *  is where she placed the LAST pose's centre, not where the sketch line stops
@@ -83,6 +116,68 @@ export const SIZE_END = 0.4
 
 /** 1 = nose exactly along the path, which is what the pose table above says. */
 export const TILT = 1
+
+/**
+ * THE FLARE. Fraction of the duration at which the aircraft stops following the
+ * path angle and levels out, reaching horizontal by FADE_START.
+ *
+ * Following the tangent all the way to the end left it nose-down about 27deg at
+ * the moment it settled on the card, which reads as an aircraft about to crash
+ * rather than one arriving (Flore, 2026-09-01). A real helicopter does the same
+ * thing for the same reason: it flares out of the descent before touching down.
+ *
+ * It levels by the time the fade begins rather than by the end of the flight,
+ * so the last thing you see clearly is a level aircraft -- finishing the flare
+ * during the fade would hide the very moment being corrected.
+ *
+ * Smoothstepped, not linear: the tangent is still steepening when the flare
+ * starts, so a linear blend puts a visible kink in the rotation exactly where
+ * the eye is already following it.
+ */
+export const FLARE_START = 0.5
+
+/**
+ * CEILING ON THE DIVE, in degrees.
+ *
+ * The flare fixed the ending; measuring it showed the MIDDLE had the same
+ * problem at narrow widths. The two-anchor solve stretches the curve vertically
+ * when there is little horizontal room but Rega still sits well above the card,
+ * so the steepest tangent ran away with the viewport:
+ *
+ *     1440   -36deg      768   -60deg      640   -72deg
+ *
+ * At -72deg the aircraft is essentially vertical. Clamping the ANGLE rather
+ * than flattening the path keeps it arriving where it should while still
+ * looking like an aircraft -- and a helicopter really can descend steeply
+ * without pitching to match, which is not true of a fixed-wing.
+ *
+ * 40 is above the -36 that desktop already reached, so the widths Flore has
+ * already signed off do not move; this only bites where the solve went extreme.
+ */
+export const MAX_PITCH_DEG = 40
+
+/**
+ * The aircraft's CSS rotation for a path pitch at wall-clock `t`: clamped, then
+ * flared out to level, then negated.
+ *
+ * The negation lives here rather than at the call site because it is the one
+ * piece of this that is easy to get backwards -- nose-left means CSS rotate()
+ * lifts the nose, so a dive is a NEGATIVE rotation. An earlier version had the
+ * aircraft climbing while it descended for exactly this reason.
+ */
+export function craftRotation(pitch, t) {
+  const clamped = Math.max(-MAX_PITCH_DEG, Math.min(MAX_PITCH_DEG, pitch))
+  return -clamped * flare(t)
+}
+
+/** 1 while it follows the path, easing to 0 (level) between the two marks. */
+function flare(t) {
+  const span = FADE_START - FLARE_START
+  if (t <= FLARE_START) return TILT
+  if (span <= 0) return 0
+  const k = Math.min(1, (t - FLARE_START) / span)
+  return TILT * (1 - k * k * (3 - 2 * k)) // smoothstep
+}
 
 /**
  * 6000, up from 4200 (Flore, 2026-09-01: "a bit slower"). The aircraft covers
@@ -234,11 +329,54 @@ export const growth = monotone(POSE_T, POSE_S)
  * backwards is tangent-continuous only if it stays straight, and a level
  * cruise-in is what reads as an approach anyway.
  */
-export function buildFlightPath({ width, card, leadTo }) {
-  const sx = (width * SPAN) / CURVE_SPAN_X
-  const sy = sx * DESCENT
+export function buildFlightPath({ width, card, leadTo, flyby }) {
   const endX = card.x + card.width * LAND_X
   const endY = card.y + card.height * LAND_Y
+
+  // TWO ANCHORS, SOLVED -- not one anchor and a guessed length.
+  //
+  // The end is pinned to the card. Pinning A[1] as well (the interior anchor
+  // where Flore drew the aircraft beside Rega) leaves exactly two unknowns, the
+  // horizontal and vertical scales, and two equations. So it is solved, not
+  // fitted:
+  //
+  //     X = endX + (A1x - A4x) * sx   ->   sx = (flyby.x - endX) / (A1x - A4x)
+  //     Y = endY + (A1y - A4y) * sy   ->   sy = (flyby.y - endY) / (A1y - A4y)
+  //
+  // The curve then reaches her AND lands on the card at every width, instead of
+  // reaching her only where the section happened to be wide enough.
+  //
+  // The cost is that the glide angle is no longer exactly the 14.3deg she drew
+  // -- it now stretches to connect two real points. That is the right trade:
+  // passing her and landing on the card are the things the animation is ABOUT,
+  // and the angle is how it gets between them.
+  let sx = (width * SPAN) / CURVE_SPAN_X
+  let sy = sx * DESCENT
+
+  if (flyby) {
+    const nx = (flyby.x - endX) / (A[1][0] - A[4][0])
+    const ny = (flyby.y - endY) / (A[1][1] - A[4][1])
+    // NO ROOM MEANS NO FLIGHT -- returning null rather than falling back.
+    //
+    // As the viewport narrows the Guide wraps and Rega slides left, while the
+    // card goes full-width and drags its landing point left too. The horizontal
+    // gap between them closes continuously, so there is no breakpoint to pick:
+    //
+    //     600px   gap  58px    520px   gap   3px
+    //     560px   gap  30px    375px   gap -38px   (she is PAST the landing)
+    //
+    // At 375 the usable gap is 41px, so the entire flight would be shorter than
+    // the 137px aircraft flying it. There is nothing to tune. Falling back to
+    // the fixed geometry is worse than not flying: it produced a helicopter
+    // that passed 2.6 avatar-widths away and never reacted with her, which
+    // reads as broken rather than as absent. The caller treats null as "leave
+    // this to the avatar's own reaction".
+    if (!(nx > MIN_SOLVED_SCALE && ny > MIN_SOLVED_SCALE) || !Number.isFinite(nx) || !Number.isFinite(ny)) {
+      return null
+    }
+    sx = nx
+    sy = ny
+  }
   const map = (p) => [endX + (p[0] - A[4][0]) * sx, endY + (p[1] - A[4][1]) * sy]
 
   const start = map(A[0])

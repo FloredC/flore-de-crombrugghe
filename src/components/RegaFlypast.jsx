@@ -5,7 +5,9 @@ import {
   growth,
   SIZE_START,
   SIZE_END,
-  TILT,
+  craftRotation,
+  FLYBY_X,
+  FLYBY_Y,
   FADE_START,
   DURATION_MS,
   SAMPLES,
@@ -55,7 +57,7 @@ const geometryKey = (hostBox, cardRel) =>
     .map((n) => Math.round(n))
     .join('/')
 
-export default function RegaFlypast({ onPassAvatar }) {
+export default function RegaFlypast({ onPassAvatar, onActiveChange }) {
   const hostRef = useRef(null)
   const heliRef = useRef(null)
   const flight = useRef(null)
@@ -113,14 +115,40 @@ export default function RegaFlypast({ onPassAvatar }) {
     // starting off-screen cannot add a horizontal scrollbar.
     const leadTo = window.innerWidth - hostBox.left + wEnd
 
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-    path.setAttribute('d', buildFlightPath({ width: hostBox.width, card: cardRel, leadTo }))
-    const len = path.getTotalLength()
-    if (!len) return
-
-    // Where along the flight it passes closest to the avatar -- measured, not
-    // guessed at, so the gust stays in step if the row's layout changes.
+    // Measured BEFORE the path is built, because the path is now solved THROUGH
+    // her rather than merely passing near her by luck of the layout.
     const avatar = host.parentElement?.querySelector('[data-component="avatar-rega"]')
+    let flyby = null
+    let avatarRel = null
+    if (avatar) {
+      const ab = avatar.getBoundingClientRect()
+      avatarRel = {
+        x: ab.left - hostBox.left + ab.width / 2,
+        y: ab.top - hostBox.top + ab.height / 2,
+        w: ab.width,
+      }
+      flyby = { x: avatarRel.x + FLYBY_X * avatarRel.w, y: avatarRel.y + FLYBY_Y * avatarRel.w }
+    }
+
+    // null means there is no room to reach her at this width -- see the note in
+    // lib/flightPath.js. Hand the reaction back to the avatar and stay grounded.
+    const d = buildFlightPath({ width: hostBox.width, card: cardRel, leadTo, flyby })
+    if (!d) {
+      heli.style.opacity = '0'
+      onActiveChange?.(false)
+      return
+    }
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+    path.setAttribute('d', d)
+    const len = path.getTotalLength()
+    if (!len) {
+      onActiveChange?.(false)
+      return
+    }
+    onActiveChange?.(true)
+
+    // Still measured rather than assumed: the solve puts her on the curve, but
+    // WHERE on the clock that falls depends on the lead-in length and easing.
     let passAt = null
     let best = Infinity
 
@@ -141,8 +169,8 @@ export default function RegaFlypast({ onPassAvatar }) {
       const next = ahead ? path.getPointAtLength(len * d + 2) : pt
       const prev = ahead ? pt : path.getPointAtLength(Math.max(0, len * d - 2))
 
-      // Nose-left, so forward is -x and CSS rotation is the negative of the
-      // pitch. See the SIGN note in lib/flightPath.js.
+      // Nose-left, so forward is -x: a dive is a small POSITIVE pitch here.
+      // craftRotation() does the clamping, the flare and the sign flip.
       const pitch = (Math.atan2(next.y - prev.y, -(next.x - prev.x)) * 180) / Math.PI
       const w = wStart + (wEnd - wStart) * growth(d)
       const opacity = t < FADE_START ? 1 : Math.max(0, 1 - (t - FADE_START) / (1 - FADE_START))
@@ -153,15 +181,12 @@ export default function RegaFlypast({ onPassAvatar }) {
         // 0.28125 of the width -- this puts the aircraft's CENTRE on the path.
         transform:
           `translate(${(pt.x - wEnd / 2).toFixed(1)}px, ${(pt.y - wEnd * 0.28125).toFixed(1)}px) ` +
-          `scale(${(w / wEnd).toFixed(4)}) rotate(${(-pitch * TILT).toFixed(2)}deg)`,
+          `scale(${(w / wEnd).toFixed(4)}) rotate(${craftRotation(pitch, t).toFixed(2)}deg)`,
         opacity: opacity.toFixed(3),
       })
 
-      if (avatar) {
-        const ab = avatar.getBoundingClientRect()
-        const ax = ab.left - hostBox.left + ab.width / 2
-        const ay = ab.top - hostBox.top + ab.height / 2
-        const dist = Math.hypot(pt.x - ax, pt.y - ay)
+      if (avatarRel) {
+        const dist = Math.hypot(pt.x - avatarRel.x, pt.y - avatarRel.y)
         if (dist < best) {
           best = dist
           passAt = t
@@ -204,7 +229,7 @@ export default function RegaFlypast({ onPassAvatar }) {
       }
       raf.current = requestAnimationFrame(watch)
     }
-  }, [onPassAvatar, stop])
+  }, [onPassAvatar, onActiveChange, stop])
 
   useEffect(() => {
     const host = hostRef.current

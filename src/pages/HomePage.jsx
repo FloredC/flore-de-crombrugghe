@@ -79,6 +79,12 @@ function WorkSubsection({ subsection }) {
   // than inside Wayfinding because the flypast is a sibling of the row, not a
   // child of it, and this is their nearest common owner.
   const [regaWind, setRegaWind] = useState(false);
+  // Whether the helicopter is actually flying at this width. Below roughly
+  // 640px the Guide wraps and Rega ends up level with (or left of) the card's
+  // landing point, so there is no room for a flight that reaches her -- see
+  // lib/flightPath.js. There the aircraft stays grounded and she goes back to
+  // her own once-on-entry reaction, which is what `undefined` restores.
+  const [heliFlies, setHeliFlies] = useState(true);
   const windTimer = useRef(null);
   const gust = useCallback(() => {
     clearTimeout(windTimer.current);
@@ -109,7 +115,7 @@ function WorkSubsection({ subsection }) {
         avatarVariant={WORK_AVATAR[`${subsection.zone}/${subsection.subsection}`]}
         // Undefined on every other row, which leaves each avatar on its own
         // once-on-entry trigger. Here the helicopter owns the reaction.
-        avatarWind={isRegaRow ? regaWind : undefined}
+        avatarWind={isRegaRow && heliFlies ? regaWind : undefined}
       />
       {subsection.layout === "featured" && (
         <div className={WORK_FEATURED_STACK}>
@@ -153,7 +159,9 @@ function WorkSubsection({ subsection }) {
           what puts it over the cards, so nothing here has to out-specify the
           grid. It is `position: absolute` and does not take part in the flex
           column, so it adds no gap. */}
-      {isRegaRow && <RegaFlypast onPassAvatar={gust} />}
+      {isRegaRow && (
+        <RegaFlypast onPassAvatar={gust} onActiveChange={setHeliFlies} />
+      )}
     </Reveal>
   );
 }
