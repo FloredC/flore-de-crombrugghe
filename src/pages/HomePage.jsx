@@ -1,6 +1,8 @@
+import { useCallback, useEffect, useRef, useState } from "react";
 import Nav from "../components/Nav";
 import Hero from "../components/Hero";
 import Wayfinding from "../components/Wayfinding";
+import RegaFlypast from "../components/RegaFlypast";
 import Reveal from "../components/Reveal";
 import ProjectCard from "../components/ProjectCard";
 import ValueCard from "../components/ValueCard";
@@ -64,6 +66,30 @@ function WorkSubsection({ subsection }) {
   const projects = getProjectsFor(subsection.zone, subsection.subsection);
   const [featured, ...rest] = projects;
 
+  // Read off the SAME map entry that gives this row its avatar, rather than
+  // re-testing zone and subsection here: the helicopter and the avatar it blows
+  // at have to be on the same row, and two independent conditions is how they
+  // would quietly stop being. (Zone alone would not do either way -- "Harbour"
+  // appears twice in Work.)
+  const isRegaRow =
+    WORK_AVATAR[`${subsection.zone}/${subsection.subsection}`] === "rega-wind";
+
+  // The gust belongs to the AIRCRAFT PASSING HER, not to a scroll position --
+  // RegaFlypast calls this on the frame of closest approach. Held here rather
+  // than inside Wayfinding because the flypast is a sibling of the row, not a
+  // child of it, and this is their nearest common owner.
+  const [regaWind, setRegaWind] = useState(false);
+  const windTimer = useRef(null);
+  const gust = useCallback(() => {
+    clearTimeout(windTimer.current);
+    setRegaWind(true);
+    // Matches WIND_MS in AvatarRega and the animation-duration on
+    // [data-wind='true'] in globals.css. If these disagree the avatar sticks in
+    // the windblown pose, so the three move together or not at all.
+    windTimer.current = setTimeout(() => setRegaWind(false), 2600);
+  }, []);
+  useEffect(() => () => clearTimeout(windTimer.current), []);
+
   return (
     // THE SUBSECTION IS THE REVEAL GROUP, not the whole Work section: a
     // visitor meets these one zone at a time, and one group per zone is what
@@ -71,13 +97,19 @@ function WorkSubsection({ subsection }) {
     // twenty cards all arriving on the first scroll.
     <Reveal
       data-component="work-subsection"
-      className={`flex flex-col ${WAYFINDING_GAP}`}
+      // `relative` only on the Rega row, and only so the flypast overlay has
+      // something to be absolute against. Every other subsection keeps the
+      // positioning it had.
+      className={`flex flex-col ${WAYFINDING_GAP} ${isRegaRow ? "relative" : ""}`}
     >
       <Wayfinding
         zone={subsection.zone}
         subsection={subsection.subsection}
         bubbleCopy={subsection.bubbleCopy}
         avatarVariant={WORK_AVATAR[`${subsection.zone}/${subsection.subsection}`]}
+        // Undefined on every other row, which leaves each avatar on its own
+        // once-on-entry trigger. Here the helicopter owns the reaction.
+        avatarWind={isRegaRow ? regaWind : undefined}
       />
       {subsection.layout === "featured" && (
         <div className={WORK_FEATURED_STACK}>
@@ -117,6 +149,11 @@ function WorkSubsection({ subsection }) {
           ))}
         </div>
       )}
+      {/* Last child on purpose: later in the DOM at the same stacking level is
+          what puts it over the cards, so nothing here has to out-specify the
+          grid. It is `position: absolute` and does not take part in the flex
+          column, so it adds no gap. */}
+      {isRegaRow && <RegaFlypast onPassAvatar={gust} />}
     </Reveal>
   );
 }
