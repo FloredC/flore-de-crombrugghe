@@ -25,18 +25,26 @@ import { useEffect, useRef, useState } from 'react'
  * tall. Threshold 0 plus a bottom rootMargin says "the top edge has come up
  * past this line", which is true regardless of how tall the block is.
  *
+ * NO TIMEOUT FALLBACK, and this is a scar rather than a preference. One was
+ * added on 2026-09-01 while chasing an unrelated white page -- "reveal anyway
+ * after 1500ms so nothing can stay invisible" -- and it silently deleted the
+ * whole feature. Every block mounts at once, so a timer counted from mount fires
+ * for blocks the reader has not reached: measured on PitchPivot, all six groups
+ * were revealed 1.5s after load with nobody scrolling, leaving nothing to animate
+ * by the time they arrived. Flore noticed the animations were gone well before
+ * anyone noticed the cause.
+ *
+ * The lesson is not that 1500 was too short. A time-based fallback cannot work
+ * here at all, because what it would have to wait for is a scroll that may never
+ * come. If a guarantee is ever wanted it must be POSITIONAL -- reveal a block
+ * already at or above the viewport -- never temporal.
+ *
  * DEGRADES TO VISIBLE, never to blank. If IntersectionObserver is missing the
  * hook reports revealed immediately rather than waiting for an event that will
  * never arrive. The stronger guarantee lives in CSS: the hidden state is armed
  * by a flag this app sets on <html>, so with no JS at all nothing here runs and
  * the page is simply finished. See index.html.
  */
-// Long enough that it never pre-empts a real scroll reveal on a normal page
-// load, short enough that a reader who hit the failure would not sit looking at
-// nothing. Tuned to intent, not measured — there is no measurement to take until
-// the underlying bug reproduces.
-const FALLBACK_MS = 1500
-
 export default function useReveal({ rootMargin = '0px 0px -10% 0px' } = {}) {
   const ref = useRef(null)
   const [revealed, setRevealed] = useState(false)
@@ -61,24 +69,7 @@ export default function useReveal({ rootMargin = '0px 0px -10% 0px' } = {}) {
       { threshold: 0, rootMargin },
     )
     io.observe(el)
-
-    // SAFETY NET, added 2026-09-01. The observer above is the mechanism; this is
-    // the guarantee. If it has not fired within FALLBACK_MS the block reveals
-    // anyway, so no combination of scroll position, client-side navigation or
-    // layout timing can leave content permanently invisible.
-    //
-    // Added while chasing a white page on the Artifakt -> PitchPivot transition
-    // that was never reproduced. This does not explain that bug and may not be
-    // the cause — but "content stays at opacity 0 forever" is the failure mode
-    // with the worst consequences on this site, and it costs one skipped fade to
-    // rule it out entirely. A block that reveals without animating is invisible
-    // to a reader; a block that never reveals is a blank page.
-    const timer = setTimeout(() => setRevealed(true), FALLBACK_MS)
-
-    return () => {
-      clearTimeout(timer)
-      io.disconnect()
-    }
+    return () => io.disconnect()
   }, [revealed, rootMargin])
 
   return { ref, revealed }
