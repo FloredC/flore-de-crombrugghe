@@ -70,24 +70,7 @@ export const contactSection = sectionFrontmatter('contact')
 // that encodes reading order, and it would drift the first time a project's
 // `order` changed -- silently, because both orders would still look plausible.
 export function projectSequence() {
-  return workSection.subsections
-    .flatMap((s) => getProjectsFor(s.zone, s.subsection))
-    // `wip` projects are skipped, and ONLY here -- getProjectsFor still returns
-    // them, so the Work grid is untouched and the card still links through.
-    //
-    // The prev/next rail is the one place the site actively pushes a reader
-    // onward rather than waiting to be clicked, so the bar for a destination is
-    // higher there than anywhere else: landing on a placeholder at the end of a
-    // finished case study reads as the site being unfinished, not that one page
-    // is. Flore, 2026-09-01, on `welcome-to-my-island` sitting between the two
-    // strongest case studies -- it was Artifakt's "next" AND PitchPivot's
-    // "previous", so one flag fixes both directions.
-    //
-    // A flagged project also loses its OWN rail, since it is no longer in the
-    // sequence to have neighbours. That is deliberate and safe: ProjectNavigation
-    // renders nothing when both sides are null, and the subpage nav still offers
-    // "back to Work", so the page is not a dead end.
-    .filter((project) => !project.wip)
+  return workSection.subsections.flatMap((s) => getProjectsFor(s.zone, s.subsection))
 }
 
 // The projects either side of `slug` in that sequence, for ProjectNavigation.
@@ -106,10 +89,36 @@ export function getAdjacentProjects(slug) {
   // -1 for a project that is somehow not in the Work grid: no neighbours rather
   // than the last and first, which is what a naive index-1/index+1 would give.
   if (index === -1) return { prev: null, next: null }
-  return {
-    prev: sequence[index - 1] ?? null,
-    next: sequence[index + 1] ?? null,
+
+  // WHY THIS WALKS INSTEAD OF INDEXING (2026-09-01).
+  //
+  // A `wip` project is one whose page is still a placeholder. The rail is the
+  // one place the site actively pushes a reader onward rather than waiting to be
+  // clicked, so landing them on a placeholder at the end of a finished case
+  // study reads as the whole site being unfinished, not one page. Hence: skip it
+  // as a DESTINATION.
+  //
+  // But only as a destination. The first version of this filtered `wip` out of
+  // the sequence itself, which also removed the flagged project's OWN rail and
+  // left that page a dead end at the bottom -- Flore caught it on the island
+  // page. The two ideas are separate: "don't send readers here" is not "this
+  // project isn't in the reading order".
+  //
+  // So the sequence stays complete, every page keeps its position in it, and
+  // only the step outward skips flagged entries. The island page still offers
+  // Artifakt and PitchPivot; those two just no longer offer the island.
+  //
+  // Walking rather than indexing also means consecutive `wip` projects skip
+  // correctly, and a run of them to the end of the list yields null, which
+  // ProjectNavigation already renders as nothing.
+  const step = (direction) => {
+    for (let i = index + direction; i >= 0 && i < sequence.length; i += direction) {
+      if (!sequence[i].wip) return sequence[i]
+    }
+    return null
   }
+
+  return { prev: step(-1), next: step(1) }
 }
 
 export const hotspots = hotspotsData
