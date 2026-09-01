@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
+import { WAYFINDING_AVATAR_WIDTH } from '../lib/layout'
+
 /**
  * The Lab — Own products wayfinding avatar, as an INLINE svg rather than an
  * <img>, because the individual paths have to be animatable. `<img>` renders
@@ -34,11 +36,19 @@ import { useEffect, useRef, useState } from 'react'
 // instead, because its number is sampled per-page and already lives in
 // caseStudyLayout.js. Same escape hatch, and same reason, as the one `Avatar`
 // grew for that call site -- see the note on the `width` prop below.
+// ONE SIZE FOR EVERY PLACEMENT (Flore, 2026-09-01: "set the hero to the same
+// size as the others"). The hero used to be deliberately larger — 108 against
+// the wayfinding 96 — and that distinction is now gone, so this is no longer a
+// map of sizes.
+//
+// `size` STILL MATTERS, just not for width. It sets data-avatar-size, which the
+// CSS keys on to give the hero its own arm gesture (it lifts instead of dipping
+// — see the hero block in globals.css). Removing the prop would take that with
+// it, which is why it survives a size map that no longer varies.
 const AVATAR_WIDTH = {
-  wayfinding: 'w-[80px] lg:w-[96px]',
-  hero: 'w-[80px] lg:w-[108px]',
+  wayfinding: WAYFINDING_AVATAR_WIDTH,
+  hero: WAYFINDING_AVATAR_WIDTH,
 }
-
 // Line weight of the figure, overriding the 1.45455 in the exported asset.
 //
 // TEMPORARY DIVERGENCE, on purpose: this is a visual value and Figma owns it,

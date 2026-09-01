@@ -216,6 +216,9 @@ export default function HomePage() {
                 zone={aboutSection.zone}
                 subsection={aboutSection.subsection}
                 bubbleCopy={aboutSection.bubbleCopy}
+                // About is a single row, not a list of subsections, so this is
+                // a literal rather than a lookup like APPROACH_AVATAR above.
+                avatarVariant="about"
               />
               <div className={ABOUT_CONTENT_GAP}>
                 {/* The river is one block on the beat after the Guide; the

@@ -411,3 +411,63 @@ export const ASIDE_COLLAGE = [
   // Papayas: right-aligned to the full 12-column width -> x = 784.
   `${NUDGE_OUT} lg:col-start-1 lg:col-span-12 lg:row-start-3 lg:justify-self-end ${EDITORIAL_CARD}`,
 ]
+
+// The wayfinding Guide avatar's width, as Tailwind classes.
+//
+// ONE DEFINITION FOR ALL FIVE ANIMATED AVATARS. This string used to be
+// copy-pasted into AvatarPresentingIdle, AvatarRega, AvatarPrinciples,
+// AvatarTalks and AvatarAbout — five copies of one number, which is exactly the
+// shape of bug this file exists to prevent. Changing the size meant editing
+// five files and hoping none was missed; now it is one import.
+//
+// 96 -> 106 (matching the case-study Guide) -> 118, all on 2026-09-01, because
+// the animations were too small to judge. 130 was built and rejected on sight:
+// Flore chose 118 from a rendered comparison of 106/118/130/142 against the
+// real speech bubble. Don't re-propose 130 for the wayfinding rows -- it has
+// been seen. (The HERO went to 130 in the same pass; see AvatarPresentingIdle.) THE NUMBER IS NOT THE DRAWING:
+// roughly a quarter of the 107-unit viewBox is empty on the left — four of the
+// five avatars have no ink until x=26.6, and only AvatarPresentingIdle uses
+// that band, because its arm reaches left. So the ink is ~74% of whatever is
+// set here:
+//
+//     box 106px -> 78px of drawing      box 118px -> 87px of drawing
+//
+// So 118 puts the DRAWING at ~87px -- still under the 96px box the avatars had
+// before any of this, which is worth knowing before anyone calls 118 generous.
+//
+// THE REAL FIX IS THE ARTBOARD, not this number. Cropping the shared artboard
+// to the artwork would make every avatar ~35% bigger at the same footprint —
+// the same lever the hero map already uses (see MAP_ART in Hero.jsx). It is
+// blocked only by AvatarPresentingIdle, which needs that left band and is still
+// the fallback for the two rows without their own avatar. Once those land, it
+// becomes hero-only and the shared box can be tightened. Do that before
+// pushing this number any higher.
+//
+// WHY IT STEPS AT xl RATHER THAN GOING STRAIGHT TO 130. The Wayfinding row is
+// breadcrumb + Guide on one line, and the breadcrumb is ~490 wide (the map card
+// AND the "You are here" text -- measuring only the 106px card is what made an
+// earlier pass think there were 453px spare; there were 37). Measured at a 1024
+// viewport, by row height, since 125px is one line and 260px+ is two:
+//
+//     106px -> 125  one line, 7px of slack. Effectively the ceiling.
+//     118px -> 260  WRAPS
+//     130px -> 270  WRAPS
+//
+// So even 118 across the whole lg band would push the Guide onto its own line
+// between 1024 and ~1150 -- the step exists for 118, not just for the 130 that
+// was rejected. From xl up the Container caps at 1184 while the row needs ~950,
+// leaving ~230px, so 118 is nowhere near a wrap there. (Rega's row wraps at 1024 even at 106 -- its subsection label is the
+// longest. That predates this and is not a regression.)
+//
+// Wrapping is a supported state, not a break: flex-wrap and the Guide's
+// ml-auto exist for it. It just doubles the row height, which is not what was
+// wanted from making the avatar bigger.
+//
+// The mobile step is deliberately NOT scaled in proportion (that would be 108).
+// The phone row has no slack: at 375px the Guide already fills 343 of it, so
+// every px on the avatar comes straight out of the speech bubble.
+//
+// NOT the hero. AvatarPresentingIdle keeps a separate `hero` size, which was
+// deliberately the larger one — and at 108 it is now SMALLER than this. That
+// needs resolving; see the note there.
+export const WAYFINDING_AVATAR_WIDTH = 'w-[96px] lg:w-[106px] xl:w-[118px]'

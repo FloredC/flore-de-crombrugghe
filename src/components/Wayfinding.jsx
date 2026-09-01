@@ -2,6 +2,7 @@ import AvatarPresentingIdle from './AvatarPresentingIdle'
 import AvatarRega from './AvatarRega'
 import AvatarPrinciples from './AvatarPrinciples'
 import AvatarTalks from './AvatarTalks'
+import AvatarAbout from './AvatarAbout'
 import SpeechBubble from './SpeechBubble'
 import DistrictBreadcrumb from './DistrictBreadcrumb'
 
@@ -13,6 +14,7 @@ const AVATAR_BY_VARIANT = {
   'rega-wind': AvatarRega,
   principles: AvatarPrinciples,
   talks: AvatarTalks,
+  about: AvatarAbout,
 }
 
 // Sampled from Figma's "Wayfinding" component: Breadcrumb (district card +
