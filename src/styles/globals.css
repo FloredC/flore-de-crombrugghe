@@ -1371,6 +1371,19 @@ html[data-reveal-armed]
   height: auto;
 }
 
+/* LINE WEIGHT MATCHED TO THE WAYFINDING AVATAR, measured at run time rather
+   than copied as a number -- RegaFlypast reads what the avatar actually renders
+   and solves for the equivalent here. See the note there for why one constant
+   cannot do it.
+
+   A CSS rule rather than the export's `stroke-width` attribute because a
+   presentation attribute is the weakest thing in the cascade, so this overrides
+   it without touching the generated component. The fallback is the export's own
+   4, which is what it renders at if the script never runs. */
+[data-component='helicopter'] [stroke] {
+  stroke-width: var(--heli-stroke, 4);
+}
+
 /* Rotors. One period, shared by both bars of the main rotor -- the second bar
    is the same keyframes at a negative delay of half a period, so four blades
    cost one animation definition and the two can never drift apart. */

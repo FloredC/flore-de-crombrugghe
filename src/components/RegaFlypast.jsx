@@ -57,6 +57,50 @@ const geometryKey = (hostBox, cardRel) =>
     .map((n) => Math.round(n))
     .join('/')
 
+/**
+ * Give the helicopter the same ON-SCREEN line weight as the wayfinding avatar
+ * (Flore, 2026-09-01). Measured, not copied.
+ *
+ * ONE CONSTANT CANNOT DO THIS. Apparent stroke is the authored width times the
+ * render scale, and the two drawings scale on different rules: the avatar steps
+ * 96 / 106 / 118px at breakpoints while the helicopter is a fraction of a card
+ * that resizes continuously. Matching the avatar's 1.048px at desktop needs
+ * 2.61 viewBox units here; at 768 it needs 3.50. A single number is wrong
+ * somewhere by a third.
+ *
+ * Reading it off the DOM also means this cannot drift from the avatar: the
+ * stroke has already been retuned twice (1.05 -> 0.95), and a copied number
+ * would have silently stopped matching both times. Nothing about the avatar is
+ * hardcoded here -- not its stroke, not its viewBox, not its rendered size.
+ *
+ * Matched at the FINAL size because that is where the aircraft is biggest and
+ * settled; it stays proportionally lighter earlier in the flight, which is
+ * correct for something further away.
+ */
+function matchStrokeToAvatar(heli, host, wEnd) {
+  const avatar = host.parentElement?.querySelector('[data-component="avatar-rega"]')
+  if (!avatar || !wEnd) return
+  const avatarVB = avatar.viewBox?.baseVal?.width
+  const avatarW = avatar.getBoundingClientRect().width
+  if (!avatarVB || !avatarW) return
+
+  // The most common stroke among the avatar's paths -- the halo carries its own
+  // slightly different weight, so picking one element by id would be a coin flip
+  // as to which we got.
+  const counts = new Map()
+  avatar.querySelectorAll('[stroke]').forEach((el) => {
+    const w = parseFloat(getComputedStyle(el).strokeWidth)
+    if (w > 0) counts.set(w, (counts.get(w) || 0) + 1)
+  })
+  if (!counts.size) return
+  const authored = [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0]
+
+  const apparentPx = authored * (avatarW / avatarVB)
+  const heliVB = heli.querySelector('svg')?.viewBox?.baseVal?.width
+  if (!heliVB) return
+  heli.style.setProperty('--heli-stroke', (apparentPx * heliVB) / wEnd)
+}
+
 export default function RegaFlypast({ onPassAvatar }) {
   const hostRef = useRef(null)
   const heliRef = useRef(null)
@@ -107,6 +151,7 @@ export default function RegaFlypast({ onPassAvatar }) {
     const wEnd = cardBox.width * SIZE_END
     const wStart = cardBox.width * SIZE_START
     heli.style.setProperty('--heli-width', `${wEnd}px`)
+    matchStrokeToAvatar(heli, host, wEnd)
 
     // Fly in from beyond the VIEWPORT's right edge, not the subsection's: the
     // section is capped at the container width, so stopping the lead-in there
