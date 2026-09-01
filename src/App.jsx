@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation, useNavigationType } from 'react-r
 import HomePage from './pages/HomePage'
 import ProjectPage from './pages/ProjectPage'
 import ProcessLogPage from './pages/ProcessLogPage'
+import ErrorBoundary from './components/ErrorBoundary'
 import { getProjectBySlug } from './lib/content'
 
 // Scrolls to `#some-id` when arriving at a route that carries a hash.
@@ -176,11 +177,20 @@ function DocumentTitle() {
 }
 
 export default function App() {
+  // Only used as the ErrorBoundary's key — see below.
+  const { pathname } = useLocation()
+
   return (
     <>
       <DocumentTitle />
       <ScrollToTop />
       <ScrollToHash />
+      {/* `key={pathname}` remounts the boundary on every route change, so a
+          caught error does not latch for the rest of the session: the reader can
+          navigate away and carry on. Without the key they would be stuck in the
+          fallback until they reloaded, which is most of what made the original
+          white page so bad. */}
+      <ErrorBoundary key={pathname}>
       <Routes>
         <Route path="/" element={<HomePage />} />
         {/* THE ONE RENAMED SLUG, 2026-08-27. "Welcome to my city" became
@@ -203,6 +213,7 @@ export default function App() {
             `pathSegmentsToKeep` is needed. */}
         <Route path="/work/:slug/process/:log" element={<ProcessLogPage />} />
       </Routes>
+      </ErrorBoundary>
     </>
   )
 }
