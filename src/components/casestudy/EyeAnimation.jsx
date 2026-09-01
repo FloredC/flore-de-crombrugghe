@@ -167,7 +167,32 @@ export default function EyeAnimation({ active, size = 16, className = '' }) {
     anim.loop = false
     anim.playSegments(active ? [OPEN] : [CLOSE], true)
 
-    return () => anim.removeEventListener('complete', onComplete)
+    return () => {
+      // WHY THIS GUARD, and it is a real crash rather than a precaution
+      // (2026-09-01). React runs a component's effect cleanups in DECLARATION
+      // order, so on unmount the loader effect above cleans up first and calls
+      // `destroy()`. lottie-web's destroy sets its internal `_cbs` callback
+      // registry to null, and `removeEventListener` then does `this._cbs[name]`
+      // on it -- throwing `TypeError: null is not an object (evaluating
+      // 'this._cbs[t]')`.
+      //
+      // Thrown from a cleanup during unmount, React 18 tears the whole tree
+      // down: the page went completely white, nav included, recoverable only by
+      // reloading. Flore hit it every time on Artifakt -> PitchPivot.
+      //
+      // It needs the eye to have actually loaded, which needs the reader to have
+      // scrolled it into view -- which is why it reproduces for a person reading
+      // the page and not for a script that jumps to the bottom and clicks: with
+      // `ready` still false this effect never attached a listener to remove.
+      // That asymmetry cost an hour of looking in the wrong place.
+      //
+      // `animRef.current` is nulled by that same cleanup, so this comparison is
+      // exactly "has the animation already been destroyed". On a normal re-run
+      // (`active` changed, still mounted) they match and the listener is removed
+      // as before.
+      if (animRef.current !== anim) return
+      anim.removeEventListener('complete', onComplete)
+    }
   }, [active, ready])
 
   return (
