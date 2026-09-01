@@ -70,7 +70,92 @@ function ScrollToTop() {
   useLayoutEffect(() => {
     if (hash) return
     if (navigationType === 'POP') return
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+
+    let stopped = false
+
+    // TWO THINGS WERE WRONG HERE, both found on 2026-09-01 when Flore reported
+    // Artifakt -> PitchPivot opening at the BOTTOM of the new page. That word is
+    // the whole diagnosis: she was at the bottom of Artifakt (~10782 of 11632),
+    // PitchPivot is shorter (9141), and a PRESERVED offset clamps to its end.
+    // The page was not scrolling somewhere odd, it was not scrolling at all.
+    //
+    // (1) `behavior: 'instant'` is not portable. It is the right keyword and it
+    // works in Chromium -- which is why this never reproduced in automation --
+    // but it is a late addition to the enum and WebKit has been inconsistent
+    // about it, where an unrecognised value means the call is ignored or throws.
+    // Flore's console output was WebKit's. So instead of naming the behaviour,
+    // this overrides `scroll-behavior: smooth` (set on `html` in globals.css)
+    // with an inline style for the duration of the jump and uses the two-argument
+    // scrollTo, which has no enum in it at all and behaves identically
+    // everywhere. Inline style beats the stylesheet, so `smooth` cannot leak back
+    // in -- which was the original reason `instant` was reached for.
+    //
+    // (2) One scroll is not enough, for exactly the reason ScrollToHash below
+    // already documents at length: the page keeps growing as media loads. That
+    // function got a ResizeObserver and this one never did, which is an
+    // asymmetry with no justification -- the top is just as much a target as an
+    // anchor is. So re-assert on real size changes until the reader takes over.
+    const toTop = () => {
+      if (stopped) return
+      const html = document.documentElement
+      const previous = html.style.scrollBehavior
+      html.style.scrollBehavior = 'auto'
+      // Force a style flush so the override above is IN FORCE before the scroll
+      // runs. Without it the browser can still be holding the stylesheet's
+      // `smooth`, which turns this into an animation instead of a jump -- and an
+      // animation is not a slower jump, it is a scroll that something else can
+      // interrupt, or that never progresses at all in a background tab.
+      // Measured: without this flush the call moved the page by nothing.
+      void html.offsetHeight
+      window.scrollTo(0, 0)
+      // Belt and braces for engines that route scrollTo through the animation
+      // path anyway. Assigning scrollTop cannot animate here, because
+      // scroll-behavior is 'auto' for the duration.
+      html.scrollTop = 0
+      if (document.body) document.body.scrollTop = 0
+      html.style.scrollBehavior = previous
+    }
+
+    toTop()
+
+    const observer = new ResizeObserver(toTop)
+    observer.observe(document.body)
+
+    // AND A FRAME LOOP, because the ResizeObserver alone is not enough and this
+    // was measured rather than assumed. Instrumenting window.scrollTo showed the
+    // single call going out with scrollY ALREADY at 8291 -- the shorter new page
+    // had rendered and the browser had clamped the old offset to its end before
+    // this effect ran. Sometimes the correction stuck and sometimes the position
+    // came back, which is the definition of a race: something restores scroll
+    // after we set it, and if that happens without the body changing size the
+    // observer never fires.
+    //
+    // Re-asserting every frame for a short window covers it whatever the source
+    // -- scroll anchoring, restoration, late layout. Bounded at 1200ms and
+    // cancelled by the first real input below, so it can never fight a reader who
+    // starts scrolling.
+    let frame = requestAnimationFrame(function again() {
+      if (stopped) return
+      toTop()
+      frame = requestAnimationFrame(again)
+    })
+
+    // Never fight the reader: the first deliberate scroll ends it, so someone who
+    // starts reading immediately is not yanked back. Same guarantee ScrollToHash
+    // makes, and the shorter window is because the top needs holding only until
+    // the first images settle, not until a target deep in the page does.
+    const events = ['wheel', 'touchstart', 'keydown']
+    const stop = () => {
+      stopped = true
+      observer.disconnect()
+      cancelAnimationFrame(frame)
+      clearTimeout(timer)
+      events.forEach((event) => window.removeEventListener(event, stop))
+    }
+    const timer = setTimeout(stop, 1200)
+    events.forEach((event) => window.addEventListener(event, stop, { passive: true }))
+
+    return stop
   }, [pathname, hash, navigationType])
 
   return null
