@@ -26,19 +26,39 @@ import { Link } from 'react-router-dom'
  * an invisible one, which is worse — the page would look fine and the bug would
  * go unfixed.
  *
- * KEYED ON PATHNAME by the caller (see App.jsx). A boundary latches: once it has
- * caught, it renders the fallback until its state is reset. Remounting it on
- * every route change means a reader who hits this can simply navigate away and
- * carry on, rather than being stuck in the fallback for the rest of the session.
+ * RESET ON ROUTE CHANGE, VIA A PROP AND NOT VIA `key`. A boundary latches: once
+ * it has caught, it renders the fallback until its state is reset, so a reader
+ * who hits this must be able to navigate away and carry on rather than being
+ * stuck in it for the session.
+ *
+ * The first version did that with `key={pathname}`, which works but is far too
+ * blunt: changing the key remounts the boundary AND its whole subtree on every
+ * navigation, so React stopped reconciling ProjectPage -> ProjectPage and began
+ * tearing the DOM down and rebuilding it each time. That is a global change to
+ * how every route transition behaves, shipped to fix a fallback that renders
+ * almost never. Flore reported scroll landing in random places shortly after,
+ * and while that was never pinned on this, a change with that blast radius has
+ * no business being the mechanism.
+ *
+ * `resetKey` clears the latched error only when it actually changes AND an error
+ * is showing. In the normal case — no error — this component renders its
+ * children straight through and nothing remounts.
  */
 export default class ErrorBoundary extends Component {
   constructor(props) {
     super(props)
-    this.state = { error: null, info: null }
+    this.state = { error: null, info: null, resetKey: props.resetKey }
   }
 
   static getDerivedStateFromError(error) {
     return { error }
+  }
+
+  // Clears a latched error when the route changes. Returning null in every other
+  // case is what keeps this from touching the children at all in normal use.
+  static getDerivedStateFromProps(props, state) {
+    if (props.resetKey === state.resetKey) return null
+    return { error: null, info: null, resetKey: props.resetKey }
   }
 
   componentDidCatch(error, info) {

@@ -185,12 +185,11 @@ export default function App() {
       <DocumentTitle />
       <ScrollToTop />
       <ScrollToHash />
-      {/* `key={pathname}` remounts the boundary on every route change, so a
-          caught error does not latch for the rest of the session: the reader can
-          navigate away and carry on. Without the key they would be stuck in the
-          fallback until they reloaded, which is most of what made the original
-          white page so bad. */}
-      <ErrorBoundary key={pathname}>
+      {/* `resetKey`, deliberately NOT `key`. Both clear a latched error on
+          navigation, but `key` would also remount this boundary and everything
+          under it on every route change -- see the note in ErrorBoundary.jsx for
+          why that blast radius was the wrong trade. */}
+      <ErrorBoundary resetKey={pathname}>
       <Routes>
         <Route path="/" element={<HomePage />} />
         {/* THE ONE RENAMED SLUG, 2026-08-27. "Welcome to my city" became
