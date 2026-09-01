@@ -1,6 +1,26 @@
 import ImagePlaceholder from './ImagePlaceholder'
 import assetUrl from '../lib/assetUrl'
 
+// HOW BIG THE DRAWING READS -- one number, all four cards. Dial this alone.
+//
+// Why a scale exists at all: the four assets are drawn on a 247x160 canvas but
+// the INK only fills about half of it (measured 2026-09-01: 109-131 wide and
+// 85-113 tall, centred). So rendering the file at its full 247px still puts a
+// ~122px drawing on screen, and no change to the frame's padding or width can
+// help -- the empty space is inside the file.
+//
+// Figma has the same whitespace: `principles-media` (node 4645:5759) renders
+// its ink at 122x114 in the 278x178 box, which is exactly what the site
+// rendered at 1.0. So this is the ONE place the code deliberately draws these
+// larger than the design file, at Flore's request. Re-exporting all four
+// cropped to a single SHARED tight canvas would remove the need for it -- one
+// shared crop, not four individual ones, or they stop being comparably scaled.
+//
+// The ceiling is ~1.4: `anchoring` is the tallest at 113.5 of the 160 canvas,
+// so past that it clips against the frame. Overflow is hidden on the frame so
+// the surrounding canvas whitespace can never push the box out.
+const ILLUSTRATION_SCALE = 'scale-[1.3]'
+
 // The Figma ValueCard (4533:19717) is image + title + description, not just
 // text: the top block is a dashed 262px container holding an illustration.
 // That slot was missing from this component entirely until now -- it renders
@@ -52,7 +72,7 @@ export default function ValueCard({ item }) {
           announce "Editing" twice. */}
       <div
         data-component="value-card-media"
-        className="flex w-full items-center justify-center rounded-radius-32 border border-border-grey py-space-8"
+        className="flex w-full items-center justify-center overflow-hidden rounded-radius-32 border border-border-grey py-space-8"
       >
         {item.image ? (
           <img
@@ -60,10 +80,10 @@ export default function ValueCard({ item }) {
             alt=""
             loading="lazy"
             decoding="async"
-            className="aspect-[247/160] w-full max-w-[247px]"
+            className={`aspect-[247/160] w-full max-w-[247px] ${ILLUSTRATION_SCALE}`}
           />
         ) : (
-          <ImagePlaceholder className="aspect-[247/160] w-full max-w-[247px]" />
+          <ImagePlaceholder className={`aspect-[247/160] w-full max-w-[247px] ${ILLUSTRATION_SCALE}`} />
         )}
       </div>
       <div className="flex w-full flex-col gap-space-12">

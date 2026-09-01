@@ -393,7 +393,7 @@ const NUDGE_IN = 'sm:justify-self-start'
 // the gap from one card's BOTTOM to the next card's TOP, which is the interlock
 // a reader actually sees, and which the grid computes for free: a row's top is
 // the previous row's bottom, so `row gap + margin-top` IS that number. Sampled
-// from Figma: -78, -206, -57. Negative means the cards overlap vertically --
+// from Figma: -228, -57, -206. Negative means the cards overlap vertically --
 // they never collide because each pair is in a different column range.
 //
 // The lg/2xl split on Swisscovid is gone. It existed because a 300 drop read as
@@ -404,18 +404,19 @@ const NUDGE_IN = 'sm:justify-self-start'
 export const MEDIA_COLLAGE = [
   // Podcast (embed): right-aligned inside a span-10 frame -> x = 582.67.
   `${NUDGE_IN} lg:col-start-1 lg:col-span-10 lg:row-start-1 lg:justify-self-end ${EDITORIAL_CARD}`,
-  // Friends of Figma: flush left, and pulled up under the podcast. Row gap 64
-  // - 140 = -76 against Figma's -78. Right-hand column at 2-up, so it carries
-  // the stagger -- overridden here rather than cleared to 0.
-  `${STAGGER_RIGHT} ${NUDGE_OUT} lg:-mt-space-140 lg:col-start-1 lg:col-span-6 lg:row-start-2 lg:justify-self-start ${EDITORIAL_CARD}`,
+  // Friends of Figma: flush left, pulled up hard alongside the podcast rather
+  // than under it -- Flore raised it again on 2026-09-01. Row gap 64 - 300 =
+  // -236 against Figma's -228. Right-hand column at 2-up, so it carries the
+  // stagger -- overridden here rather than cleared to 0.
+  `${STAGGER_RIGHT} ${NUDGE_OUT} lg:-mt-space-300 lg:col-start-1 lg:col-span-6 lg:row-start-2 lg:justify-self-start ${EDITORIAL_CARD}`,
   // Swisscovid: right half, inset 100, dropped below its row-mate. Both sit in
   // row 2, so what sets their relationship is the DIFFERENCE of the two margins
-  // (100 - -140 = 240) against a 437-tall card -> -197, against Figma's -206.
-  `${NUDGE_OUT} lg:col-start-7 lg:col-span-6 lg:row-start-2 lg:justify-self-start lg:ml-space-100 lg:mt-space-100 ${EDITORIAL_CARD}`,
+  // (80 - -300 = 380) against a 437-tall card -> -57, matching Figma's -57.
+  `${NUDGE_OUT} lg:col-start-7 lg:col-span-6 lg:row-start-2 lg:justify-self-start lg:ml-space-100 lg:mt-space-80 ${EDITORIAL_CARD}`,
   // 10-year quiz: back to the left half, same 100 inset, pulled up under
-  // Swisscovid -> 64 - 120 = -56, against Figma's -57. Right-hand column at
-  // 2-up; the lg margin below already overrides the stagger, no reset needed.
-  `${STAGGER_RIGHT} ${NUDGE_IN} lg:-mt-space-120 lg:col-start-1 lg:col-span-6 lg:row-start-3 lg:justify-self-start lg:ml-space-100 ${EDITORIAL_CARD}`,
+  // Swisscovid -> -216 against Figma's -206. Right-hand column at 2-up; the lg
+  // margin below already overrides the stagger, no reset needed.
+  `${STAGGER_RIGHT} ${NUDGE_IN} lg:-mt-space-280 lg:col-start-1 lg:col-span-6 lg:row-start-3 lg:justify-self-start lg:ml-space-100 ${EDITORIAL_CARD}`,
 ]
 
 // Same zigzag, three cards: row one apart, then Papayas pulled in on row two.
