@@ -70,7 +70,24 @@ export const contactSection = sectionFrontmatter('contact')
 // that encodes reading order, and it would drift the first time a project's
 // `order` changed -- silently, because both orders would still look plausible.
 export function projectSequence() {
-  return workSection.subsections.flatMap((s) => getProjectsFor(s.zone, s.subsection))
+  return workSection.subsections
+    .flatMap((s) => getProjectsFor(s.zone, s.subsection))
+    // `wip` projects are skipped, and ONLY here -- getProjectsFor still returns
+    // them, so the Work grid is untouched and the card still links through.
+    //
+    // The prev/next rail is the one place the site actively pushes a reader
+    // onward rather than waiting to be clicked, so the bar for a destination is
+    // higher there than anywhere else: landing on a placeholder at the end of a
+    // finished case study reads as the site being unfinished, not that one page
+    // is. Flore, 2026-09-01, on `welcome-to-my-island` sitting between the two
+    // strongest case studies -- it was Artifakt's "next" AND PitchPivot's
+    // "previous", so one flag fixes both directions.
+    //
+    // A flagged project also loses its OWN rail, since it is no longer in the
+    // sequence to have neighbours. That is deliberate and safe: ProjectNavigation
+    // renders nothing when both sides are null, and the subpage nav still offers
+    // "back to Work", so the page is not a dead end.
+    .filter((project) => !project.wip)
 }
 
 // The projects either side of `slug` in that sequence, for ProjectNavigation.
