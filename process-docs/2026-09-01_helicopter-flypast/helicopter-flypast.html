@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Helicopter flypast</title>
+<style>
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk'), local('HKGrotesk-Regular');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk SemiBold'), local('HKGrotesk-SemiBold');
+    font-weight: 600;
+  }
+
+  :root {
+    --accent: #fd6d2b;
+    --accent-tint: #fff1e9;
+    --ink: #1a1a1a;
+    --paper: #f5f4f0;
+    --muted: #666;
+    --line: #e0ddd8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'HK Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 48px 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .subtitle { font-size: 14px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; max-width: 720px; }
+  .date-range { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 32px; }
+
+  .toc {
+    background: #fff;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 56px;
+  }
+  .toc-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; margin-bottom: 12px; }
+  .toc ol { list-style: none; }
+  .toc li { margin-bottom: 6px; font-size: 13px; }
+  .toc a { color: var(--ink); text-decoration: none; }
+  .toc a:hover { color: var(--accent); text-decoration: underline; }
+  .toc .toc-phase { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-left: 8px; }
+
+  .section {
+    margin-bottom: 80px;
+    border-top: 2px solid var(--ink);
+    padding-top: 24px;
+    scroll-margin-top: 24px;
+  }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 4px; flex-wrap: wrap; }
+  .section-date { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #999; }
+  .section-title { font-size: 20px; font-weight: 600; }
+  .phase-tag {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    padding: 3px 10px; border-radius: 20px; background: var(--accent-tint); color: var(--accent);
+  }
+  .section-desc { font-size: 14px; line-height: 1.7; color: #444; margin: 12px 0 24px; max-width: 720px; }
+  .sub { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #999; margin: 40px 0 4px; }
+
+  .status {
+    display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; padding: 3px 10px; border-radius: 20px; margin-left: 12px;
+  }
+  .status.working { background: #e8f5e9; color: #27ae60; }
+  .status.needs-work { background: #fff8e1; color: #f39c12; }
+  .status.abandoned { background: #fbe9e7; color: #c0392b; }
+
+  .concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+  .concept-block { background: #fff; border-radius: 10px; padding: 16px; border: 1.5px solid var(--line); }
+  .concept-block h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .concept-block p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  .decision-log { margin-top: 24px; }
+  .decision {
+    display: grid; grid-template-columns: 130px 1fr 1fr; gap: 16px;
+    padding: 16px 0; border-bottom: 1px solid #e8e5e0; font-size: 13px;
+  }
+  .decision:last-child { border-bottom: none; }
+  .decision-date { color: #999; font-size: 12px; padding-top: 2px; }
+  .decision-what { line-height: 1.5; }
+  .decision-why { color: var(--muted); line-height: 1.5; }
+  .decision.key-decision { box-shadow: -3px 0 0 0 var(--accent); background: var(--accent-tint); padding-left: 12px; }
+  .decision.key-decision .decision-what { color: var(--accent); font-weight: 600; }
+
+  blockquote {
+    margin: 12px 0; padding: 10px 16px; border-left: 3px solid var(--accent);
+    color: #444; font-style: italic; background: #fff; border-radius: 0 8px 8px 0; font-size: 13px;
+  }
+  blockquote cite { display: block; font-style: normal; font-size: 12px; color: #999; margin-top: 4px; }
+
+  .fig-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-top: 24px; }
+  .fig-grid.wide { grid-template-columns: 1fr; }
+  .fig-grid.two { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+  .fig { background: #fff; border: 1.5px solid var(--line); border-radius: 12px; padding: 14px; }
+  .fig img { width: 100%; border-radius: 6px; display: block; background: #faf9f6; border: 1px solid #eee; }
+  .fig-cap { font-size: 12px; line-height: 1.5; color: #555; margin-top: 10px; }
+  .fig-cap b { color: var(--ink); }
+  .fig.pick { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-tint); }
+  .fig-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; }
+  .fig-tag.pick { color: var(--accent); }
+
+  .note {
+    font-size: 13px; background: #fff8e1; border-left: 3px solid #f39c12; padding: 10px 14px;
+    border-radius: 0 6px 6px 0; color: #555; line-height: 1.6; margin-top: 12px;
+  }
+
+  .hook {
+    margin-top: 24px; padding: 18px 20px; background: var(--ink); color: #fff;
+    border-radius: 12px; font-size: 14px; line-height: 1.6;
+  }
+  .hook-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-tint); margin-bottom: 6px; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+  th { text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #999; padding: 8px 12px; border-bottom: 2px solid var(--line); }
+  td { padding: 10px 12px; border-bottom: 1px solid #f0ede8; vertical-align: top; line-height: 1.5; }
+  tr:last-child td { border-bottom: none; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  code.inline { background: #f0ede8; padding: 1px 6px; border-radius: 5px; font-size: 12px; font-family: 'SF Mono', Menlo, monospace; }
+  pre.code { background: var(--ink); color: #e6e6e6; padding: 16px 18px; border-radius: 10px; font-size: 12px; line-height: 1.6; overflow-x: auto; font-family: 'SF Mono', Menlo, monospace; margin-top: 16px; }
+</style>
+</head>
+<body>
+
+<h1>Helicopter flypast</h1>
+<p class="subtitle">Building the Rega helicopter: a rotor that turned out to be geometrically impossible as first drawn, a flight path recovered from four poses in Figma, and a long argument with what &ldquo;responsive&rdquo; means when the thing being laid out is motion rather than a box.</p>
+<p class="date-range">Sessions: 1 Sep 2026</p>
+
+<div class="toc">
+  <div class="toc-title">Sessions in this doc</div>
+  <ol>
+    <li><a href="#sec-2026-09-01">Rotors, flight path, and making it survive every breakpoint</a><span class="toc-phase">Building with Claude</span></li>
+  </ol>
+</div>
+
+<div class="section" id="sec-2026-09-01">
+  <div class="section-header">
+    <span class="section-date">1 Sep 2026</span>
+    <span class="section-title">Rotors, flight path, and making it survive every breakpoint</span>
+    <span class="phase-tag">Building with Claude</span>
+  </div>
+  <p class="section-desc">The Rega avatar has had a wind reaction since August, built with a placeholder trigger because the thing that was supposed to cause it didn&rsquo;t exist yet. This session built that thing: a helicopter that flies in over the Harbour row, blows her hair as it passes, and settles on the Rega card. Nearly all the difficulty was in two places &mdash; making a side-on rotor read as spinning, and making one hand-drawn flight path work at every viewport width.</p>
+
+  <div class="sub">Decisions</div>
+  <div class="decision-log">
+
+    <div class="decision key-decision">
+      <div class="decision-date">Rotors</div>
+      <div class="decision-what">Blades foreshorten (<code class="inline">scaleX</code>), they do not rotate</div>
+      <div class="decision-why">A rotor spins about a vertical mast; seen from the side that circle projects to a flat ellipse, so a blade sweeps out to full span at the sides and collapses to nothing pointing at the viewer. Animating <code class="inline">rotate</code> reads as a windmill. Rejected after the first attempt looked wrong and neither of us could say why.</div>
+    </div>
+
+    <div class="decision key-decision">
+      <div class="decision-date">Rotors</div>
+      <div class="decision-what">The disc has to be drawn with real tilt &mdash; a flat line cannot work at any blade count</div>
+      <div class="decision-why">At zero tilt every blade projects onto the same segment, so three blades render <em>pixel-identical</em> to one. This was proven rather than argued (see figure), which is what made it obvious the fix was in the drawing, not the code. Flore redrew the disc as an ellipse with a gradient.</div>
+    </div>
+
+    <div class="decision key-decision">
+      <div class="decision-date">Flight path</div>
+      <div class="decision-what">The path, the scale and the rotation all came out of Figma, not out of code</div>
+      <div class="decision-why">Flore traced the curve and placed four helicopter instances along it at the size and angle she wanted. Solving each instance&rsquo;s bounding box back into (width, angle) recovered widths of exactly <strong>120 / 170 / 200 / 220</strong> and angles matching the curve&rsquo;s own tangent within a few degrees. Round numbers are the tell that the solve is right rather than merely plausible.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Flight path</div>
+      <div class="decision-what">Rotation = path tangent, so there is no &ldquo;bank&rdquo; parameter</div>
+      <div class="decision-why">Falls straight out of the pose table above: the nose points where it is going. An invented bank slider would have been a knob with no source of truth behind it.</div>
+    </div>
+
+    <div class="decision key-decision">
+      <div class="decision-date">Timing</div>
+      <div class="decision-what">Ease the path <em>sampling</em>, run the animation linear</div>
+      <div class="decision-why">Handing WAAPI an easing makes keyframe offsets <em>path</em> progress, so under deceleration the last sliver of path eats most of the clock: measured, the aircraft covered 34% of the route in the first 10% of the time and spent <strong>55% of the duration inside the final 12% of the path</strong> &mdash; over half the animation was a near-stationary helicopter dissolving. Every ease-out tested had the same shape, so it was structural rather than a value to tune.</div>
+    </div>
+
+    <div class="decision key-decision">
+      <div class="decision-date">Responsive</div>
+      <div class="decision-what">Rega became an anchor of the curve, not something it passes near by luck</div>
+      <div class="decision-why">The curve&rsquo;s height came from section width; her position doesn&rsquo;t. They agreed at desktop by coincidence. At 768 the closest approach to her was <strong>the first frame</strong> &mdash; it flew away from her for the whole flight and the gust fired before anything happened. Pinning the curve&rsquo;s first interior anchor to her and the end to the card leaves two unknowns and two equations, so it is solved rather than fitted.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Attitude</div>
+      <div class="decision-what">Flare level before the fade; cap the dive at 40&deg;</div>
+      <div class="decision-why">Flore: <em>&ldquo;it would avoid this feeling that the helicopter is going to crash.&rdquo;</em> Real helicopters flare out of a descent for the same reason. Levelling by the time the fade <em>starts</em>, not by the end, so the corrected moment is the last thing clearly visible. The clamp came from measuring the flare: the peak dive ran &minus;36&deg; at 1440 but <strong>&minus;72&deg; at 640</strong> &mdash; essentially vertical.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Fill</div>
+      <div class="decision-what">Fill the fuselage at 36% white rather than leave it outline-only</div>
+      <div class="decision-why">The rotor disc is drawn before the body, so its grey gradient showed through the cabin. Translucent rather than solid so the card&rsquo;s pink still comes through &mdash; it reads as frosted rather than as a white cut-out, which suits a line drawing.</div>
+    </div>
+
+    <div class="decision">
+      <div class="decision-date">Stroke</div>
+      <div class="decision-what">Derive the helicopter&rsquo;s stroke from the avatar at run time instead of picking a number</div>
+      <div class="decision-why">Measured, the avatar rendered at 1.048px and the helicopter at 1.606px &mdash; 53% heavier. One constant can&rsquo;t fix it: apparent stroke is authored width &times; render scale, and the avatar steps 96/106/118px at breakpoints while the helicopter is a fraction of a continuously-resizing card. Matching desktop needs 2.61 viewBox units; 768 needs 3.50.</div>
+    </div>
+
+  </div>
+
+  <div class="sub">The thing that made the rotor work</div>
+  <div class="fig-grid wide">
+    <div class="fig pick">
+      <div class="fig-tag pick">the proof</div>
+      <img src="assets/rotor-flat-disc-collapse.png" alt="Rotor revolutions sampled every 30 degrees across five disc tilt values, showing blades collapsing onto one line at zero tilt and separating as tilt increases">
+      <div class="fig-cap"><b>Why more blades didn&rsquo;t help</b> &mdash; each row is one revolution sampled every 30&deg;; <em>k</em> is how much the disc is tilted toward the viewer. The top two rows are one blade and three blades at <em>k</em> = 0, and they are identical &mdash; at zero tilt every blade projects onto the same line, so adding blades changes nothing. Only once the disc opens up (<em>k</em> = 0.10 and beyond) do they separate. This is what turned &ldquo;the rotor looks wrong&rdquo; into a specific request to redraw the disc.</div>
+    </div>
+  </div>
+
+  <div class="sub">The flight path, specified as drawing rather than as description</div>
+  <div class="fig-grid wide">
+    <div class="fig pick">
+      <div class="fig-tag pick">the brief</div>
+      <img src="assets/figma-traced-path-and-poses.png" alt="Figma frame showing a dashed red flight path curving from top right down to the Rega card, with four helicopter instances placed along it at increasing sizes and varying angles">
+      <div class="fig-cap"><b>Four poses on a traced curve</b> &mdash; instead of describing the motion, Flore drew it: one path plus four instances placed along it. Because a rotated instance&rsquo;s bounding box encodes both its size and its angle, all of it was recoverable exactly &mdash; widths of 120/170/200/220 and angles tracking the tangent. This turned out to be by far the most efficient way she has specified motion so far.</div>
+    </div>
+  </div>
+
+  <div class="sub">Re-exporting to fix weight, not code</div>
+  <div class="fig-grid wide">
+    <div class="fig">
+      <div class="fig-tag">before / after</div>
+      <img src="assets/tail-rotor-reexport.png" alt="Tail rotor comparison: previous export with sharp blades above, new export with blurred blades and lighter discs below, plus the whole aircraft at 420px">
+      <div class="fig-cap"><b>Tail rotor, previous vs re-exported</b> &mdash; the tail read as heavier and more prominent than the main rotor. The fix was in Figma (blur the blades, lighten the discs), not in the animation. Worth noting the first diagnosis was wrong: it looked like a code problem and two rounds were spent there before the export turned out to be the cause.</div>
+    </div>
+  </div>
+
+  <div class="sub">What broke, and how</div>
+  <table>
+    <tr><th>Problem</th><th>Cause</th><th>Resolution</th></tr>
+    <tr>
+      <td><code class="inline">vector-effect: non-scaling-stroke</code> rendered the tail stroke 3&times; too thick</td>
+      <td>It makes <code class="inline">stroke-width</code> mean <em>screen</em> pixels, ignoring the viewBox scale &mdash; so <code class="inline">4</code> became 4.00px instead of the intended 1.25px.</td>
+      <td>Dropped the whole squash approach for <code class="inline">rotate() scaleY()</code>, which needs no such trick. Measured at 8&times; device scale to confirm.</td>
+    </tr>
+    <tr>
+      <td>The aircraft climbed while descending</td>
+      <td>It is drawn nose-<em>left</em>, so its forward axis is &minus;x. The usual <code class="inline">atan2(dy, dx)</code> reads leftward travel as ~180&deg;, which inverts the sign.</td>
+      <td>Measure from &minus;x, and keep the sign flip in one function rather than at the call site &mdash; it was got backwards once already.</td>
+    </tr>
+    <tr>
+      <td>Landing point drifted 34% &rarr; 28% down the card between runs</td>
+      <td>The card grows when its thumbnail decodes, <em>with no resize event</em>, so the flight stayed anchored to a stale measurement.</td>
+      <td><code class="inline">ResizeObserver</code> on the card rather than a window listener; if the box changes mid-flight it re-parks at the end instead of restarting under the viewer.</td>
+    </tr>
+    <tr>
+      <td class="num">Gust fired 1.4s after the helicopter had passed</td>
+      <td>Triggering on <code class="inline">duration &times; passAt</code> assumes linear time; under ease-out it reached her at 0.8s while the timer said 2.25s.</td>
+      <td>Fire off the animation&rsquo;s own progress, not a timer.</td>
+    </tr>
+    <tr>
+      <td>Rega&rsquo;s gust had never once been visible</td>
+      <td>The test bench set <code class="inline">data-wind="true"</code> correctly, but the real animation is scoped to <code class="inline">[data-component='avatar-rega']</code> and the bench&rsquo;s copy of the avatar lacked that attribute.</td>
+      <td>Bench now uses the shipping CSS verbatim. The lesson generalises: a bench that <em>reimplements</em> what it is testing can quietly disagree with the real thing.</td>
+    </tr>
+  </table>
+
+  <div class="sub">Mistakes worth remembering</div>
+
+  <div class="note">
+    <b>Two full sessions of helicopter work were built on a branch 12 commits behind <code class="inline">main</code>.</b>
+    The branch was cut from a commit that predated the four new avatars, the go-live work (custom domain, link previews, analytics) and several fixes. It only surfaced when Flore noticed localhost looked out of date &mdash; <em>&ldquo;the localhost is an outdated version (e.g. avatars)&rdquo;</em> &mdash; and by then everything had been built and reviewed against a stale page. It resolved cleanly (the branch had no commits of its own, so it fast-forwarded and the work re-applied with two conflicts), but the review time spent looking at the wrong page is gone. <b>Next time: check the branch is current before starting, not after something looks wrong.</b>
+  </div>
+
+  <div class="note">
+    <b>&ldquo;It can&rsquo;t interact with Rega on mobile&rdquo; got over-applied into &ldquo;no helicopter on mobile.&rdquo;</b>
+    On narrow viewports the Guide wraps and Rega ends up <em>left</em> of the card&rsquo;s landing point, so a curve that both passes her and lands on the card cannot exist &mdash; at 375 there is ~48px of usable travel for a 137px aircraft. That part is a real constraint. Grounding the aircraft entirely was the wrong conclusion drawn from it, and Flore caught it: <em>&ldquo;the helicopter is not visible on mobile.&rdquo;</em> Losing the choreography is a much smaller loss than losing the aircraft.
+  </div>
+
+  <div class="sub">What this taught us about the Figma file</div>
+  <div class="concept-grid">
+    <div class="concept-block">
+      <h4>Draw the motion, don&rsquo;t describe it</h4>
+      <p>Placing sample poses along a path is the highest-bandwidth way to specify an animation so far. A rotated instance&rsquo;s bounding box encodes size <em>and</em> angle, both recoverable exactly. Far better than adjectives.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Every re-export moves the geometry</h4>
+      <p>Pivots and hub positions measured from one export are invalidated by the next. Anything measured off the artwork needs re-checking after a re-export &mdash; or deriving at run time instead.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Export hygiene, again</h4>
+      <p>Live paths not expanded strokes; nothing hidden (hidden layers don&rsquo;t export); &ldquo;Include <code class="inline">id</code> attribute&rdquo; on. Same list as the avatar sessions &mdash; it keeps costing time until it&rsquo;s habit.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Background blur has a specific meaning</h4>
+      <p>Figma&rsquo;s background blur exports as a <code class="inline">foreignObject</code> with <code class="inline">backdrop-filter</code> &mdash; blurring what is <em>behind</em> the shape. Not the same as layer blur, and expensive on something animating every frame.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Ratios beat numbers</h4>
+      <p>Sizes and positions expressed as fractions of a real element (the Rega card, the avatar&rsquo;s own width) survive every breakpoint. Anything expressed in pixels was wrong somewhere within an hour.</p>
+    </div>
+    <div class="concept-block">
+      <h4>Verify by measuring, not by looking</h4>
+      <p>Nearly every real bug here was invisible by eye and obvious once measured &mdash; the 55%-of-duration fade, the first-frame closest approach, the 53% stroke mismatch.</p>
+    </div>
+  </div>
+
+  <div class="sub">Where it landed <span class="status working">working</span></div>
+  <table>
+    <tr><th>Viewport</th><th class="num">Passes Rega at</th><th class="num">Peak dive</th><th class="num">Lands</th></tr>
+    <tr><td>1440</td><td class="num">0.56 avatar-widths</td><td class="num">&minus;37.2&deg;</td><td class="num">25% / 34%</td></tr>
+    <tr><td>1024</td><td class="num">0.50</td><td class="num">clamped &minus;40&deg;</td><td class="num">25% / 34%</td></tr>
+    <tr><td>768</td><td class="num">0.46</td><td class="num">clamped &minus;40&deg;</td><td class="num">25% / 34%</td></tr>
+    <tr><td>640</td><td class="num">0.39</td><td class="num">clamped &minus;40&deg;</td><td class="num">25% / 34%</td></tr>
+    <tr><td>375</td><td class="num">2.67 &mdash; flies past at a distance</td><td class="num">&minus;35.8&deg;</td><td class="num">25% / 34%</td></tr>
+  </table>
+  <p class="section-desc" style="margin-top:12px">Level (0&deg;) by 72% of the flight at every width, and the line weight matches the avatar exactly (ratio 1.000) at all five. The open question is the mobile row: the gust still fires when the helicopter is most of a screen away, which will read as unmotivated. Either drop her reaction below ~640, or accept it.</p>
+
+  <div class="hook">
+    <div class="hook-label">Shareable hook</div>
+    I asked for a helicopter animation and got a geometry lesson: a rotor seen from the side doesn&rsquo;t rotate, it foreshortens &mdash; and if you draw its disc as a flat line, three blades render pixel-for-pixel identical to one. The fix wasn&rsquo;t in the code. It was redrawing the disc with a few degrees of tilt.
+  </div>
+</div>
+
+</body>
+</html>
