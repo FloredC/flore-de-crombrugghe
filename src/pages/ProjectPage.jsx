@@ -18,7 +18,9 @@ export default function ProjectPage() {
   return (
     <>
       <Nav />
-      <article data-component="project-page" className="py-12">
+      {/* Nav is `position: fixed`, so it reserves no space in flow -- the top
+          padding is what keeps the pill off the <h1>. */}
+      <article data-component="project-page" className="pb-12 pt-space-120 xl:pt-space-160">
         <Container className="flex flex-col gap-8">
           <header className="flex flex-col gap-4">
             {project.status === 'full-case-study' && <Badge status={project.status} />}
