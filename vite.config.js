@@ -5,19 +5,20 @@ import mdx from '@mdx-js/rollup'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
 
-// GitHub Pages serves this repo as a PROJECT site, at
-// https://floredc.github.io/flore-de-crombrugghe/ -- not at a domain root. So
-// every built asset URL needs that prefix or it 404s in production while
-// working perfectly on localhost, which is the nastiest version of this bug.
+// The site is served from a CUSTOM DOMAIN, floredecrombrugghe.com, which is a
+// domain ROOT -- so built asset URLs need no path prefix.
 //
-// This one constant is also the router's basename (src/index.jsx reads it back
-// via import.meta.env.BASE_URL) and the depth the 404 shim keeps
-// (public/404.html), so all three stay in step from here.
+// It WAS a project site (https://floredc.github.io/flore-de-crombrugghe/) until
+// 2026-09-01, which is why so much hangs off this one constant: it is also the
+// router's basename (src/index.jsx reads it back via import.meta.env.BASE_URL)
+// and the depth the 404 shim keeps (public/404.html, now 0 segments). All three
+// still derive from here, so moving back to a subpath stays a one-line change.
 //
-// IF A CUSTOM DOMAIN IS ADDED LATER: a custom domain serves from the root, so
-// this becomes '/' -- and that's the only change needed, since the other two
-// derive from it. (The 404 shim's pathSegmentsToKeep would go to 0.)
-const BASE = '/flore-de-crombrugghe/'
+// The domain itself is asserted by public/CNAME, which Pages reads out of the
+// deployed artifact on every deploy. Delete that file and the site silently
+// reverts to the github.io URL while this constant still says root -- so the
+// two belong together, and neither is meaningful alone.
+const BASE = '/'
 
 // Applied to the BUILD only, so `npm run dev` keeps serving at
 // http://localhost:5173/ rather than making you remember a subpath every day.

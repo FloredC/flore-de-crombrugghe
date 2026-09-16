@@ -52,7 +52,17 @@ export default function Badge({ status }) {
       // (#ffffff54, read back from Figma), so the copies are gone.
       <span
         data-badge="case-study"
-        className="pointer-events-none absolute right-0 top-0 rounded-bl-radius-12 rounded-tr-radius-12 border-b border-l border-border-grey bg-white-transparent px-space-10 py-space-4 text-body-sm font-semibold text-text-primary"
+        // RESAMPLED THREE TIMES ON 2026-08-28 from node 2928:76329, landing on
+        // PADDING ONLY:
+        //   type     text-body-sm semibold (16)  ->  18 bold  ->  18 regular
+        //                                        ->  back to 16 SEMIBOLD
+        //   padding  px-10 py-4                  ->  px-12 py-14  ->  px-12 py-8
+        // So the type is exactly where it started (Desktop/body-sm-semibold)
+        // and only the padding grew. Worth stating plainly, because a future
+        // reader diffing this against the first version would otherwise see no
+        // type change and assume the sampling was never done.
+        // Fill, bottom+left rule and notched 12 radius unchanged throughout.
+        className="pointer-events-none absolute right-0 top-0 rounded-bl-radius-12 rounded-tr-radius-12 border-b border-l border-border-grey bg-white-transparent px-space-12 py-space-8 text-body-sm font-semibold text-text-primary"
       >
         Case study
       </span>

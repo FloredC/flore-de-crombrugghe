@@ -1,6 +1,26 @@
 import ImagePlaceholder from './ImagePlaceholder'
 import assetUrl from '../lib/assetUrl'
 
+// HOW BIG THE DRAWING READS -- one number, all four cards. Dial this alone.
+//
+// Why a scale exists at all: the four assets are drawn on a 247x160 canvas but
+// the INK only fills about half of it (measured 2026-09-01: 109-131 wide and
+// 85-113 tall, centred). So rendering the file at its full 247px still puts a
+// ~122px drawing on screen, and no change to the frame's padding or width can
+// help -- the empty space is inside the file.
+//
+// Figma has the same whitespace: `principles-media` (node 4645:5759) renders
+// its ink at 122x114 in the 278x178 box, which is exactly what the site
+// rendered at 1.0. So this is the ONE place the code deliberately draws these
+// larger than the design file, at Flore's request. Re-exporting all four
+// cropped to a single SHARED tight canvas would remove the need for it -- one
+// shared crop, not four individual ones, or they stop being comparably scaled.
+//
+// The ceiling is ~1.4: `anchoring` is the tallest at 113.5 of the 160 canvas,
+// so past that it clips against the frame. Overflow is hidden on the frame so
+// the surrounding canvas whitespace can never push the box out.
+const ILLUSTRATION_SCALE = 'scale-[1.3]'
+
 // The Figma ValueCard (4533:19717) is image + title + description, not just
 // text: the top block is a dashed 262px container holding an illustration.
 // That slot was missing from this component entirely until now -- it renders
@@ -8,26 +28,64 @@ import assetUrl from '../lib/assetUrl'
 export default function ValueCard({ item }) {
   return (
     <article data-component="value-card" className="flex flex-col items-center gap-space-24">
-      {/* The exported SVG is the whole Figma slot (node 4645:5770) -- the
-          278x262 bordered, rounded container with the drawing centred inside
-          it -- not just the artwork. So the component adds no border and no
-          radius of its own; both are in the asset.
+      {/* THE FRAME IS CSS, THE ASSET IS JUST THE DRAWING -- Flore, 2026-08-28,
+          restructured as `principles-media` (node 4645:5759).
 
-          Ratio, not a fixed height with object-cover: the card is exactly
-          278 wide only at xl. Anywhere wider, a fixed 262 height made the box
-          wider than the asset's own ratio, and object-cover filled it by
-          scaling up and clipping -- which would have cut the frame's own
-          border off the top and bottom. Scaling the whole thing keeps the
-          frame intact at every width.
+          It used to be baked in: each SVG was the whole 278x262 slot, a rounded
+          border path filled #D2D2D2 followed by the drawing. That made the
+          frame unscaleable -- changing the box would have shrunk the asset's
+          own border with it. The border path and its mask are stripped from all
+          four files and the frame lives here now.
+
+          THE FOUR ASSETS SHARE ONE 247x160 CANVAS, which is the thing that
+          makes "evenly scaled and never cropped" work. Each drawing sits
+          centred on that canvas at a single shared scale, so the browser has
+          nothing to decide: the four render at their true relative sizes with
+          no per-file fitting, and nothing is cropped because the canvas was
+          sized to contain the largest of them.
+
+          Re-exported larger 2026-09-01 (was 200x130). The three numbers below
+          all come off that canvas and only agree by being changed together:
+          the aspect ratio, the max-w cap, and the frame's own padding. Changing
+          the canvas again means changing all three -- a stale ratio against a
+          new file silently stretches the artwork, which is what the previous
+          version did before it carried an aspect-ratio at all.
+
+          That is why the <img> needs no `object-fit` at all. The box and the
+          file are the same 247/160 ratio, so contain, cover and fill would all
+          produce the same pixels.
+
+          `max-w-[247px]` caps it at the canvas's own size so it never scales UP
+          past its design size on a wide card; below that it scales down with
+          the card and the frame's height follows, so the four cards stay equal
+          without being told to.
+
+          Padding is 0 horizontal / 8 vertical, bound in Figma to Spaces/0 and
+          Spaces/8. The horizontal 0 is not a missing value: the image is
+          centred at its own fixed width inside the full content box, which is
+          what leaves the ~15px of visual side margin the frame appears to have.
+          Card 278 = 247 image + 2 border + 29 of centring slack; height
+          178 = 160 + 8 + 8 + 2 border.
 
           alt is empty because the illustration repeats the title sitting
           directly beneath it; captioning it would make a screen reader
           announce "Editing" twice. */}
-      {item.image ? (
-        <img src={assetUrl(item.image)} alt="" loading="lazy" decoding="async" className="aspect-[278/262] w-full" />
-      ) : (
-        <ImagePlaceholder className="aspect-[278/262] w-full rounded-radius-32" />
-      )}
+      <div
+        data-component="value-card-media"
+        className="flex w-full items-center justify-center overflow-hidden rounded-radius-32 border border-border-grey py-space-8"
+      >
+        {item.image ? (
+          <img
+            src={assetUrl(item.image)}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className={`aspect-[247/160] w-full max-w-[247px] ${ILLUSTRATION_SCALE}`}
+          />
+        ) : (
+          <ImagePlaceholder className={`aspect-[247/160] w-full max-w-[247px] ${ILLUSTRATION_SCALE}`} />
+        )}
+      </div>
       <div className="flex w-full flex-col gap-space-12">
         {/* h3, not h4: this sits directly under its section's <h2>, the same
             level as a ProjectCard title. h4 here skipped a level, which

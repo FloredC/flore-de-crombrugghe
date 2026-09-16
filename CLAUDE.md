@@ -31,6 +31,60 @@ Read in this order before writing any code:
 
 If a section here starts listing pixel values, it has drifted out of scope — cut it back to a node reference.
 
+### Node references: cite the instance, never a sublayer inside it (added 2026-08-19)
+
+The no-duplication rule above says to reference the node instead of copying the
+value. That only works while the reference resolves — so **which** node you cite
+matters as much as citing one.
+
+**Figma does not keep node ids for sublayers inside an instance.** It reissues
+them whenever the instance changes, so a citation pointing at a layer *inside*
+an instance breaks on its own, with nobody editing anything. Cite the top-level
+instance or component and name the layer in prose ("the marker dot in
+`ValueCard`"), rather than citing the layer's own id.
+
+Measured on 2026-08-19: of the 41 node ids cited across `src/`, **5 no longer
+resolved** — and the ones we could attribute were exactly this, sublayers of
+marker and card instances. The claims they backed were all still *correct*; it
+was only the pointers that had died, which is the failure mode to expect. Two of
+them sat under a comment boasting it had been "verified on the marker instances
+themselves, not read off a screenshot."
+
+To re-check: grep `src/` for `\d+:\d+`, then probe each id with the Figma MCP's
+`get_variable_defs` — it errors cleanly on a dead node and is small enough to run
+across the whole set in one pass. Worth doing when a page is finished, not
+continuously.
+
+### `[BUILT]` frames: after a page ships, code wins (added 2026-08-19)
+
+Drift runs **both ways**, and one session proved it: Figma was ahead of the code
+on the hero's meta colour and its role/date structure, while the code was ahead
+of Figma on the hero's title and description, which Flore had rewritten on the
+14th and never back-ported. "Figma wins" cannot resolve that, because it is true
+in one direction and false in the other on the same frame.
+
+The rule that does resolve it is temporal:
+
+**Figma leads before a thing is built. Code leads after.**
+
+- Not yet built — a new page, component, or token: Figma is the brief. Sample it.
+- Already built and reviewed in the browser: the running site is the truth.
+  Do not re-pull that frame's copy or re-sync it.
+
+Frames whose page has shipped are marked **`[BUILT]`** in the file name (Flore,
+2026-08-19). Treat a `[BUILT]` frame as a historical record of the design, not a
+spec: its structure and tokens are still worth reading, but **its copy is stale
+by default** and must not be pulled over what the content files say.
+
+This is also why Flore is not expected to keep the file mirrored. Back-porting
+copy edits into shipped frames is maintenance with no payoff — the marker is what
+makes that safe rather than lossy.
+
+**Do not build a registry of Figma values to check automatically.** It was
+proposed and rejected on 2026-08-19: the observed drift is in pointers, not
+values, so a value-checker would automate the problem we don't have. Revisit only
+if a *value* claim is ever found wrong.
+
 **First task:** don't start building yet. Read the above, review the Figma file, and cross-check what this doc and the PRD describe against what's actually in Figma — structure, zone/component naming, hotspot count and roster, anything else load-bearing. Report any inconsistencies you find before starting implementation, rather than silently resolving them in Figma's favor. Then summarize back what you understand the build to be, so we can confirm alignment before Skeleton starts.
 
 ---
@@ -55,51 +109,113 @@ If a section here starts listing pixel values, it has drifted out of scope — c
 
 **Structure:**
 - `primitives.css` — raw values: the colour scales (each with light/mid/dark steps), the spacing scale, the radius scale. Read the actual names and values from the file, not from here.
-- `semantic.css` — role-based tokens referencing primitives: text, border, chart (data-viz colors — used by the Language River / Belonging charts), action (primary/secondary/accent/link, each with hover/pressed/disabled states), surface, focus ring. Re-exports only a subset of the primitive spacing/radius scale — build Tailwind's `theme.extend` from this semantic subset, not the full primitive list, since primitives include scale steps that aren't meant to be used directly.
+- `semantic.css` — role-based tokens referencing primitives: text, border, chart (data-viz colors — used by the Language River / Belonging charts), action (primary/secondary/accent/link, each with hover/pressed/disabled states), surface, focus ring. **Colour only.** An earlier version of this line said it also re-exported a spacing/radius subset that Tailwind should build from; it does not, and never did — corrected 2026-08-19 by reading the file. See the spacing note below.
 - `components.css` — component-specific tokens (button variants × states, navbar) referencing semantic tokens. Note the loose mapping to the Button family naming used elsewhere in this doc: `action-accent` ≈ the Popover/hotspot elements, `action-link` ≈ Tertiary, `action-primary`/`action-secondary` map directly.
 
-**Tailwind integration:** reference the semantic layer in `theme.extend`, not primitives directly, e.g. `colors: { text: { primary: 'var(--colors-text-text-primary)' } }` — component code should never hardcode a primitive.
+**Tailwind integration:** for **colour**, reference the semantic layer in `theme.extend`, not primitives directly, e.g. `colors: { text: { primary: 'var(--colors-text-text-primary)' } }` — component code should never hardcode a colour primitive.
+
+**Spacing and radius are deliberately flat, with no semantic layer** (confirmed 2026-08-19). Tailwind maps `space-N` / `radius-N` straight onto the `--spaces-N` / `--radius-N` primitives, and that is correct, not an oversight. The indirection earns its place for colour because a role can be re-pointed — `text-primary` could become a different grey, or a second theme. Spacing has no equivalent: `24` is 24 under every theme, so a `spacing/card-gap → Spaces/24` alias would add a layer that can only ever forward one value, plus a second name for the same number to keep in sync.
+
+Six of the 29 spacing primitives are used nowhere in `src/`: **2, 128, 144, 176, 192, 240.** Left in place — they're an exported scale, not dead code, and pruning them means re-exporting from Figma for no rendering benefit. Worth knowing before treating the scale's size as meaningful.
 
 **Resolved from Open Decisions:** token structure is semantic + primitives (not flat-primitives-only), and all previously-flagged spacing values (10, 14, 40, 100, 200) are real, defined primitives already in use at the semantic layer — keep them, nothing to merge or drop.
 
 ---
 
-## Deployment (added 2026-08-05)
+## Deployment (added 2026-08-05; custom domain 2026-09-01)
 
 Pushes to `main` build and publish via `.github/workflows/deploy.yml`, using the
 Pages **"GitHub Actions"** source — no `gh-pages` branch, no build output in the
 repo.
 
-**One-time setup, still outstanding:** Settings → Pages → Source → "GitHub
-Actions". Until that's set the workflow runs and then fails at the deploy step.
+**The site is served from `floredecrombrugghe.com`**, a custom domain at the
+domain root. It was a project site at `floredc.github.io/flore-de-crombrugghe/`
+until 2026-09-01.
 
-Three things have to agree, and all derive from `BASE` in `vite.config.js`:
+Four things have to agree. Three derive from `BASE` in `vite.config.js`:
 
-1. `base` — this is a **project** site (`floredc.github.io/flore-de-crombrugghe/`),
-   not a user site, so built asset URLs need that prefix.
+1. `base` — `'/'`, because a custom domain serves from the root.
 2. `BrowserRouter basename` — reads it back via `import.meta.env.BASE_URL`.
-3. `public/404.html`'s `pathSegmentsToKeep` — `1`, matching the one path segment
-   that is site root rather than route.
+3. `public/404.html`'s `pathSegmentsToKeep` — `0`: no path segment is site root.
 
-**On a custom domain** all three change together: `BASE` → `'/'` and
-`pathSegmentsToKeep` → `0`.
+The fourth does not, and cannot:
+
+4. `public/CNAME` — the domain itself. Pages reads it out of the deployed
+   artifact on every deploy. **Delete it and the custom domain silently
+   detaches** while the other three still say root, which is the worst version
+   of this bug: every asset URL stays rooted at a domain the site is no longer
+   served from.
+
+The absolute URLs in `index.html`'s `og:*` tags and `ORIGIN` in
+`scripts/prerender.mjs` also name the domain literally, because crawlers do not
+resolve relative paths. So an origin change is several edits, not one — each
+site carries a comment pointing at the others.
+
+**DNS lives at Squarespace** (nameservers `ns01`–`ns04.squarespacedns.com`), not
+at GitHub: apex `A` records to GitHub Pages' four IPs, `www` `CNAME` to
+`floredc.github.io`. It pointed at a Framer site before the move.
 
 **Why `404.html` exists:** Pages only serves files that exist, and every
 `/work/:slug` route lives only in the JS router — so opening or refreshing a
 case-study URL, or following one Flore shared, would 404. `404.html` re-encodes
 the path into a query and the inline snippet in `index.html` restores it with
-`history.replaceState` before React Router boots.
+`history.replaceState` before React Router boots. Prerendering (below) has since
+given the ten project routes real files, so the shim now catches only what is
+left: process logs, the renamed-slug redirect, and typos.
 
 **`base` applies to the build only**, so `npm run dev` stays at the root and
 daily work is unchanged. The tradeoff: **a base-path bug cannot appear in dev.**
 That is exactly how five project thumbnails shipped broken — paths that arrive
 as strings from MDX frontmatter are invisible to Vite, so they never get the
 prefix. `src/lib/assetUrl.js` resolves those at render time; any *new* asset path
-coming from content must go through it.
+coming from content must go through it. (Since the custom-domain move the build
+base is `'/'`, the same as dev, so this particular gap is closed for now — but it
+reopens the moment the site is ever served from a subpath again.)
 
 Use `npm run preview:pages` to exercise the real thing — it builds and serves
-`dist` under the base path with the 404 fallback, which is the only local setup
-that can catch this class of bug.
+`dist` exactly as Pages does, including the 404 fallback and the directory-index
+`301`. It is the only local setup that can catch this class of bug, and the only
+one where the prerendered route files are served the way production serves them.
+
+### Link previews are prerendered, not set in React (added 2026-09-01)
+
+`scripts/prerender.mjs` runs after `vite build` and writes one real
+`dist/work/<slug>/index.html` per project, each with its own title, description
+and `og:image`. **This is not an optimisation — it is the only thing that makes
+per-page link previews work at all.** Crawlers do not run JS, so `og:*` tags set
+from inside React are never seen by the only readers those tags exist for; every
+shared case-study link unfurled with the homepage's map and title before this.
+
+Titles and descriptions are read from the project `.mdx` frontmatter, so adding a
+project needs no edit to the script: drop in the `.mdx` and a
+`public/images/link-previews/<slug>.png` at 1200×630. A missing image falls back
+to the homepage's and the build logs a warning naming the slug.
+
+Side effect worth knowing: those ten routes no longer go through
+`public/404.html`. Pages answers `301` for `/work/artifakt` → `/work/artifakt/`
+and serves the real file. The shim still covers process logs, the renamed-slug
+redirect and typos, so it stays. `npm run preview:pages` now models that `301` —
+it did not, and reported ten false 404s on routes that were fine in production,
+which is the exact inversion of the signal that script exists to give.
+
+### Analytics (added 2026-09-01)
+
+GA4, property `G-ZBHGLT0FQ1`, plain gtag in `index.html`. Placed **after** the
+history-restore script, deliberately: gtag reads `location` at load, so any
+earlier and it would record the `/?/work/...` encoded form as the page path and
+split one page's traffic across two unreadable URLs.
+
+Client-side route changes are counted by GA4's Enhanced Measurement rather than a
+manual `page_view` call. Known cost, written down rather than rediscovered: that
+fires on the history change, before React has set the new `document.title`, so an
+in-app navigation can be logged under the *previous* page's title. The path is
+always correct, and direct loads are unaffected because prerendering puts the
+real title in the served HTML. `DocumentTitle` in `App.jsx` keeps the browser tab
+in step on those navigations.
+
+**Not consent-gated.** Analytics cookies plus Swiss/EU visitors is a real
+question; the deliberate v1 answer is "ship, then decide" (Flore, 2026-09-01),
+recorded here so it reads as a decision rather than an oversight.
 
 ## Content Model
 
@@ -203,7 +319,7 @@ kind of thing that survives review.
 **Contact Section** — the full-page section (`id="contact"`), distinct from the map's "Say hi" popover above even though both are contact-flavored
 - Real content, not placeholder: heading "Say Hi!", real body copy (both sampled from the Contact Section node — present twice in the Figma file before the duplicate-frame cleanup, now once)
 - Two buttons, not a generic link list: LinkedIn as the filled primary `ButtonLink`, and the email as a **secondary-chrome button that copies to clipboard on click**, not a mailto link — same interaction pattern as the map popover's Contact variant, applied here too. Built as `ContactEmailButton.jsx` (a real `<button>`, per the tag-follows-behavior principle below) rather than a `ButtonLink` instance, but sharing `SECONDARY_BUTTON_CLASS` so it can't drift from the real secondary button. Copy logic lives in `src/lib/useCopyToClipboard.js`, shared with the popover's own `CopyButton`.
-- **Open:** LinkedIn URL is a literal `PLACEHOLDER_LINKEDIN_URL` in `contact.mdx` — Figma's button has no URL attached to it. Needs the real profile URL from Flore.
+- **Resolved 2026-08-19:** the real LinkedIn URL is wired in `contact.mdx`. Figma's button still carries no URL, which is fine — the link is content, and content lives in the content file, not the design file.
 
 **Pan/Zoom Container (Map Illustration)** — resolved, no longer "if enabled"
 - Wraps the SVG illustration (`PanZoomContainer.jsx`)
@@ -219,7 +335,7 @@ kind of thing that survives review.
 - **Breakpoint: 768px (Tailwind `md`).** Not sampled from Figma — the file has only the `402-mobile` and `bp-1622-desktop` frames, with nothing in between — this is a judgment call, flagged to Flore, no objection raised. Revisit if it ever feels wrong on a real device.
 - **Desktop homepage:** home avatar + Work/Approach/About anchor links + Contact button. The link whose section is currently in view gets a persistent underline (`aria-current`, driven by an `IntersectionObserver` over the section elements with a `-20% 0px -70% 0px` root margin band) — this ships in Figma's own default navbar state (`NavbarDesktop placement=Homepage` shows "Work" pre-underlined), not something layered on separately.
 - **Mobile homepage:** closed = home avatar + hamburger in a pill; open = the pill squares off and grows a stacked Work/Approach/About/Contact menu with dividers, hamburger swapped for a close icon. Sample radii/dividers from the NavbarMobile component (node `4494:18117`) — its variants are the spec. Same rows use the same component/states as the desktop links (confirmed with Flore they're ButtonLink instances Figma flattened into loose text on export, not a separate unstyled thing) — including the current-section underline.
-- **Subpage (desktop and mobile, identical):** "← Back to Portfolio" + Contact only. No hamburger, no section anchors — per Flore, "it's on a different page," a deliberate dead end by design, not a state to fill in later.
+- **Subpage (desktop and mobile, identical):** "← Work" + Contact only (relabelled from "Back to Portfolio" on 2026-08-30 — the arrow carries the "back", so the words just name the destination, and it matches the homepage navbar's own word for the same place). No hamburger, no section anchors — per Flore, "it's on a different page," a deliberate dead end by design, not a state to fill in later.
 - Toggle is a real `<button>` (no navigation); every menu row is a real `<a>`.
 
 ### Button Component Architecture (resolved)
@@ -227,7 +343,7 @@ kind of thing that survives review.
 One component, `ButtonLink.jsx`, not one component per variant. A `variant` prop (`primary` / `secondary` / `tertiary` / `menu` / `popover`) selects a class string; every button on the site — ProjectCard CTAs, Nav links, Footer, Popover CTA — renders through this one file. Fixing a state (e.g. a missing focus ring) means fixing it once, here, not per call site.
 
 - `FOCUS_CLASS` — the focus-visible ring, applied to **every** variant (Figma's `state=focus` row shows it on all four ButtonLink variants + ButtonAction).
-- `LINK_CLASS` — the plain-text "menu" link treatment (text colour steps down through the grey scale on hover/pressed, no underline — sample the real steps from the ButtonLink component set). Used for Footer's "View CV", the subpage nav's "Back to Portfolio", and the navbar's Work/Approach/About links — confirmed with Flore these are literally the same Figma component regardless of where they appear, so they must carry identical states. (An earlier pass split this into two classes on the theory that the navbar links had no sampled hover state — wrong; same component, same states.)
+- `LINK_CLASS` — the plain-text "menu" link treatment (text colour steps down through the grey scale on hover/pressed, no underline — sample the real steps from the ButtonLink component set). Used for Footer's "View CV", the subpage nav's back link, and the navbar's Work/Approach/About links — confirmed with Flore these are literally the same Figma component regardless of where they appear, so they must carry identical states. (An earlier pass split this into two classes on the theory that the navbar links had no sampled hover state — wrong; same component, same states.)
 - `LINK_UNDERLINE_CLASS` — the underline, used **only** for the navbar's current-section indicator, never by hover/pressed on `LINK_CLASS`.
 - `SECONDARY_BUTTON_CLASS` — the secondary variant's class, exported standalone so `ContactEmailButton` (a real `<button>`, not an `<a>`) can look identical to the secondary `ButtonLink` without duplicating its styling.
 - **Icons** are imported straight from the exported SVG assets in `src/assets/icons/*.svg` via `vite-plugin-svgr`'s `?react` suffix (see `icons.jsx`, `vite.config.js`) — compiled into real inline `<svg>` components, not hand-copied path data. The plugin rewrites the hardcoded `fill` Figma bakes into the export to `currentColor`, so icons follow hover/pressed/focus colors. The literal it matches lives in `vite.config.js` — if the icon colour ever changes in Figma, that config is what needs updating, and the symptom will be icons that stop responding to state. If a new icon is needed, export the asset from Figma into that folder and re-export it from `icons.jsx` — never paste SVG markup directly into a component.
@@ -244,7 +360,7 @@ One component, `ButtonLink.jsx`, not one component per variant. A `variant` prop
 |---------|------|---------|-----------|-----|
 | Artifakt | `artifakt` | `hotspot-artifakt` | Full case study | "Read case study" |
 | PitchPivot | `pitchpivot` | `hotspot-pitchpivot` | Full case study | "Read case study" |
-| Welcome to my city | `welcome-to-my-city` | none | Full case study | "Read case study" |
+| Welcome to my island | `welcome-to-my-island` | none | Full case study | "Read case study" |
 | Sinomocene | `sinomocene` | none | Feature case | "View Project" |
 | Teamchatviz | `teamchatviz` | none | Feature case | "View Project" |
 | Roche Icon System | `roche` | none | Feature case | "View Project" |
@@ -252,6 +368,12 @@ One component, `ButtonLink.jsx`, not one component per variant. A `variant` prop
 | Redesigning Rega's app | `rega` | `hotspot-rega` | NDA, external link | "Rega App" |
 | Faster trail discovery for 80k users (client: SAC) | `trail-app` | `hotspot-trail-app` | NDA, external link | "SAC App" |
 | SBB | `sbb` | none | NDA, external link | "SBB App" |
+
+**Correction (2026-08-31):** the slug is `welcome-to-my-island`, not `-city`. The
+code has said island since the project was renamed; this table still said city,
+and that is not a harmless doc lag -- a batch of re-exported thumbnails arrived
+named `welcome-to-my-city-thumbnail`, because this table is what someone reads
+when naming an export. Renaming a project means renaming it here too.
 
 **Correction:** "SAC" as a standalone project/slug doesn't exist — resolved earlier in this build. The real project is `trail-app` (title "Faster trail discovery for 80k users"); SAC is the *client name*, "SAC App" is the CTA label. Don't reintroduce a `sac` slug.
 
@@ -324,6 +446,106 @@ tighter than everywhere else (Flore confirmed slips — they're uniform now, and
 spacing constants are deliberately single rather than per-zone so they can't drift apart
 again silently).
 
+### Responsive density regimes (added 2026-08-25)
+
+The site has **three** density regimes, not two. `xl` (1280) is the **laptop**
+breakpoint and a new `2xl` (1600) is **large desktop**; Tailwind's own 2xl of
+1536 was unused anywhere in `src/`, so it was re-pointed rather than a fourth
+name invented. Read `xl:` as "from laptop up" and `2xl:` as "restore the
+generous Figma value"; an `xl:` with no `2xl:` partner means the two regimes
+deliberately agree. Values live in `lib/layout.js` and `lib/caseStudyLayout.js`
+as before — this changed which prefix they sit on, not where they live.
+
+**Why it was needed, and it is worth stating as a measurement rather than a
+judgement:** before this pass the page was pixel-identical from 1280px upward.
+The featured project card measured 977x882 at a 1440 viewport and 977x887 at
+1728, and that 5px was the type clamp. `Container` caps at 1280 so the content
+box is exactly 1184 at every desktop width, and the card media's height is a
+ratio of the card's width — so nothing above `xl` had any width-dependence left.
+The 1622 frame's rhythm was being applied to laptops.
+
+**Typography is piecewise-fluid**, with a laptop plateau: flat from 1280 to
+1500, then ramping to the measured Figma value by 1622. Generated by
+`scripts/type-scale.mjs` — edit the anchors there and paste its output into
+`tailwind.config.js`; the clamp coefficients are derived and a hand-edited
+intercept silently moves an anchor Figma owns. `body-lg`'s line-height is the
+one exception to "sizes live in the token": it reads `--leading-reading` from
+`globals.css`, because Tailwind's `fontSize` tuples take one line-height and
+have no breakpoint form.
+
+**Viewport HEIGHT is the variable the width queries stand in for.** Card height
+was constant across the desktop range while laptop viewport height runs ~670 to
+~870 against 1000-1300 on a monitor, so the same card was 0.74 of one screen and
+1.12 of another. `ProjectMedia` and the case-study `Media` each carry one `svh`
+cap for this — media is the only term big enough to deserve a height query, and
+those caps are set so they cannot bite on a tall window.
+
+**The laptop media ratios were reverted and then restored** (2026-08-25, within
+one session). `ProjectMedia` shortens the 2-up/3-up frame ratios at laptop and
+caps the featured card's frame against viewport height, which means the artwork
+sits smaller inside a wider band of tint than the Figma frame draws. Flore asked
+for the Figma ratios back, looked at the result — every card fits its ratio but
+the featured card is 1.11 of a 1366x670 viewport and the 2-up card 1.03, i.e.
+neither fits that laptop — and asked for the compact version back. So both
+states have been seen on a real screen and the current one is the chosen one.
+Don't "restore the Figma ratios" as a tidy-up; it has already been tried.
+
+**The hero must never claim the whole first screen** (Flore, 2026-08-25). The
+map is sized to fit the viewport height, so with too small a reserve it filled
+the screen and the "Work" heading sat below the fold on every viewport shorter
+than ~1130px — a cold visitor had no evidence the page continued. Because the
+viewport height cancels out of the chain, that offset is a *constant*, not a
+laptop bug.
+
+**The reserve is now derived, not a number** (2026-08-31). Its four terms —
+hero top pad, map→Work gap, Work heading height, clearance — live together in
+the **HERO FOLD CHAIN** block in `globals.css`, and `Hero.jsx` computes
+`reserve = calc(sum of the four)`. `SECTION_PAD_WORK` reads the same
+`--work-top-pad`, so the gap and the reserve cannot drift apart; the heading
+term is measured at runtime because it sits on a fluid clamp. This replaced a
+hand-tuned 155/180 pair under a comment saying to keep them in step manually.
+Clearance holds at 26px everywhere (49 at 1728, where the map caps at native).
+
+**The ~10% the reserve cost has been recovered, and not by re-exporting**
+(Flore chose from a screenshot matrix, 2026-08-31). Two levers, both in:
+the map→Work gap dropped 60→32 at `xl` and 80→40 at `2xl` (tightest where
+viewport height binds hardest; roomier at `2xl`, where the map has hit its
+native cap and the gap is free), and the map is now fitted to the **artwork**
+rather than to the SVG's box — `MAP_ART` in `Hero.jsx`, measured by `getBBox()`
+— with the empty 33.1/32.4px bands hung outside the layout box by negative
+margins. Net **+11 to +13% of map width** across the laptop band. What layout
+still can't reach is the file's 13.6% of wasted *width*; a tighter re-export is
+the only lever there, and it buys nothing today because width is never the
+binding axis in this band.
+
+**The map sits 75% right, not centred** (`MAP_SHIFT_X`). The Guide is
+fixed-size type over a map that scales — 18% of the map's width at native, 26%
+at laptop sizes, where it crowded the island's coastline. Sliding the map into
+the artwork's own 93.5px of empty right margin opens room on the left at no
+cost to map size, and the Guide moved from 3% into the map box to the page's
+left margin. Flush right (100%) was built and rejected: it clears the Guide
+completely but banks the whole gutter on one side, emptying the bottom-left
+quadrant at 1366x670. Don't re-propose either extreme; both were shot and
+compared.
+
+**Below `xl` is deliberately untouched** by that pass. Phones keep the crop
+branch, and the tablet band keeps the 40px gap — it gets the artwork fit (which
+is free) but not the tighter gap.
+
+**`npm run shoot`** re-runs the whole thing: it drives headless Chrome over CDP
+across six desktop viewports, captures each at exactly one viewport-height, and
+writes `screenshots/index.html` plus `metrics.json`. Use it rather than
+resizing a window when a change touches what's above the fold. It must be CDP:
+`chrome --headless --screenshot --window-size` sizes the *window*, so the page
+lays out ~87px shorter than asked while the capture stays full height — every
+shot then includes content the real viewport would have cut off, which inverts
+the exact measurement the harness exists to make.
+
+**Known step at the 1600 boundary:** the featured card spans 4 of 6 Work columns
+at laptop and 5 at `2xl`, so it jumps 769 -> 977 wide when a window crosses 1600.
+Spans are integers, so this cannot be interpolated. Deliberate, and the reason
+the boundary is 1600 rather than lower.
+
 ### Typography
 
 Single typeface, no secondary/display/handwritten fonts: **HK Grotesk**, used across all text roles (headings, prose, UI, breadcrumbs, illustration annotations). Defined in Figma as text styles by weight/size role; imported into code as Tailwind `@layer components` or CSS classes, all referencing the one font-family.
@@ -359,7 +581,7 @@ For projects with substantial content:
 **Full case studies (own route, full prose):**
 - `/work/artifakt`
 - `/work/pitchpivot`
-- `/work/welcome-to-my-city`
+- `/work/welcome-to-my-island`
 
 **Feature cases (own route, lighter content):**
 - `/work/sinomocene`
@@ -451,7 +673,7 @@ Revised estimate — original 6-hour estimate below was written before the Popov
 
    Done: all 10 project cards (meta, title, description, image caption, CTA), Approach ValueCards + MediaCards, About AsideCards, NDA external links, the Language River embed.
 
-   Still outstanding: all six case-study/feature-case **bodies** are scaffolding prose; Contact bubble copy; the Approach "Selected talks & writing" bubble (marked `TO COMPLETE`); the LinkedIn URL; and four cards whose Figma instances still hold unedited component defaults, shipped as visible `REVIEW —` markers (Artifakt caption, PitchPivot caption, Rega meta + caption).
+   Still outstanding, rechecked 2026-08-21: **four** case-study bodies are scaffolding prose — PitchPivot and Artifakt are now real, built case studies on `src/content/case-studies/`; Contact bubble copy; and the Approach "Selected talks & writing" bubble. The LinkedIn URL and every `REVIEW —` marker are done — the markers no longer appear anywhere in `src/content/`.
 9. 🟡 **Styling & layout** — the global layout system is in (see below); card refinements and responsiveness are not.
 10. ⬜ **Polish & QA** — not started.
 
@@ -462,7 +684,6 @@ Revised estimate — original 6-hour estimate below was written before the Popov
 **Not in scope for v1 (deferred until post-validation):**
 - Figma library reorg (primitives/semantic folder structure)
 - Full WCAG accessibility audit (keyboard/focus support built in; full audit separate)
-- OG/social preview image
 - Dark mode
 
 ---
@@ -536,9 +757,44 @@ tailwind.config.js       # custom spacing/radius keys are prefixed space-N/radiu
 - ~~NDA project content home~~ → real `.mdx` files, no route.
 
 **Still open:**
-- **LinkedIn URL** — Contact section's primary button has no URL in Figma. Currently `PLACEHOLDER_LINKEDIN_URL` in `contact.mdx`. Needs Flore's real profile URL.
+- ~~**Avatar line weight**~~ → **RESOLVED 2026-09-01: 1.05 across all five
+  avatars.** Flore chose it from a rendered comparison of the whole set at
+  1.05 / 1.25 / 1.44, at the real 96px size. Verified with `getComputedStyle`:
+  every figure path on the page computes to 1.05px, halos untouched at 1.00824.
+
+  It is now a `STROKE_WIDTH` constant in all five avatar components — the same
+  name in each, so changing one alone breaks the set. **It is still a divergence
+  from Figma, which draws ~1.44.** If that ever gets set to 1.05 in the design
+  file, all five constants can come out; until then this is the one place the
+  code deliberately leads the design file on a value, and it is recorded in
+  each component.
+
+  How it got unblocked, since the sequence is the useful part: the decision was
+  impossible while three avatars had their strokes *expanded* into filled
+  outlines — a filled shape has no stroke property to override, so no code
+  change could reach it. Flore re-exported all three with live strokes
+  (principles 60KB→23KB, about 53KB→25KB, talks 47KB→22KB; outlining roughly
+  triples a stroke's point count), and the decision became one constant per
+  file. **Do not expand strokes when exporting an avatar.**
+
+  A corollary worth keeping: **scaling a layer cannot change apparent line
+  weight.** Once strokes are outlined the thickness scales with the figure, so
+  the thickness-to-figure ratio is invariant; and the avatars render at a fixed
+  width regardless of artboard content, so apparent weight is unchanged at any
+  scale. Only a live `stroke-width` is an independent property. This was tried
+  before the cause was understood.
+
 - **Type scale compression across mobile breakpoints** — not yet audited as a dedicated pass (see Build Order stage 4).
 - **Nav breakpoint (768px)** — my judgment call, not a Figma sample (the file only has the `402-mobile` and `bp-1622-desktop` frames). No objection raised, but not explicitly confirmed either — revisit if it feels wrong on a real device.
+- **Laptop/large-desktop boundary (1600px)** — same situation as the nav
+  breakpoint: Figma has no frame between 402 and 1622, so this is a judgment
+  call. 1600 is the nearest round number below the real frame. Moving it is one
+  line in `tailwind.config.js`'s `screens`, but note the featured card's column
+  span steps there (see Responsive density regimes above).
+- **The tablet band (1024-1279) was left alone** in the 2026-08-25 density pass,
+  per Flore's scope. Measured at 1024x720 the featured card is 1.03 of the
+  viewport and the 2-up "small" cards 1.01 — the same class of problem the
+  laptop band had, one regime down. Not a regression; not yet addressed.
 - **"menu" vs "Tertiary" naming** — same button treatment, two names (Figma vs. this doc). Both map to the same code today; worth collapsing to one in Figma eventually.
 - **Real copy for Approach/About cards** — ValueCards, MediaCards, AsideCards are still placeholder text. Flore's recent Figma instance renames surfaced real titles (e.g. AsideCard "Cold plunge," "Data illustrated") that aren't wired into the content files yet — signal that real copy exists and is coming in the Content Wiring stage.
 - **CV hosting** — footer's "View CV" currently points at a Google Drive share link (works only while shared as "anyone with the link," and Drive may show a scan interstitial for larger files). Self-hosting the PDF in `/public` would remove both risks before launch.

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter navigation &amp; reading progress</title>
+<style>
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk'), local('HKGrotesk-Regular');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'HK Grotesk';
+    src: local('HK Grotesk SemiBold'), local('HKGrotesk-SemiBold');
+    font-weight: 600;
+  }
+
+  :root {
+    --accent: #321366;       /* the accent token introduced during the build session */
+    --accent-tint: #ece9f4;
+    --ink: #1a1a1a;
+    --paper: #f5f4f0;
+    --muted: #666;
+    --line: #e0ddd8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'HK Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 48px 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .subtitle { font-size: 14px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; max-width: 720px; }
+  .date-range { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 32px; }
+
+  .toc {
+    background: #fff;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 56px;
+  }
+  .toc-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; margin-bottom: 12px; }
+  .toc ol { list-style: none; }
+  .toc li { margin-bottom: 6px; font-size: 13px; }
+  .toc a { color: var(--ink); text-decoration: none; }
+  .toc a:hover { color: var(--accent); text-decoration: underline; }
+  .toc .toc-phase { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-left: 8px; }
+
+  .section {
+    margin-bottom: 80px;
+    border-top: 2px solid var(--ink);
+    padding-top: 24px;
+    scroll-margin-top: 24px;
+  }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 4px; flex-wrap: wrap; }
+  .section-date { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #999; }
+  .section-title { font-size: 20px; font-weight: 600; }
+  .phase-tag {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    padding: 3px 10px; border-radius: 20px; background: var(--accent-tint); color: var(--accent);
+  }
+  .section-desc { font-size: 14px; line-height: 1.7; color: #444; margin: 12px 0 24px; max-width: 720px; }
+  h3.sub { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #999; margin: 44px 0 4px; }
+
+  .status {
+    display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; padding: 3px 10px; border-radius: 20px;
+  }
+  .status.working { background: #e8f5e9; color: #27ae60; }
+  .status.needs-work { background: #fff8e1; color: #f39c12; }
+  .status.abandoned { background: #fbe9e7; color: #c0392b; }
+
+  .decision-log { margin-top: 16px; }
+  .decision {
+    display: grid; grid-template-columns: 130px 1fr 1fr; gap: 16px;
+    padding: 16px 0; border-bottom: 1px solid #e8e5e0; font-size: 13px;
+  }
+  .decision:last-child { border-bottom: none; }
+  .decision-date { color: #999; font-size: 12px; padding-top: 2px; }
+  .decision-what { line-height: 1.5; }
+  .decision-why { color: var(--muted); line-height: 1.5; }
+  .decision.key-decision { box-shadow: -3px 0 0 0 var(--accent); background: var(--accent-tint); padding-left: 12px; }
+  .decision.key-decision .decision-what { color: var(--accent); font-weight: 600; }
+
+  blockquote {
+    margin: 12px 0; padding: 10px 16px; border-left: 3px solid var(--accent);
+    color: #444; font-style: italic; background: #fff; border-radius: 0 8px 8px 0; font-size: 13px;
+  }
+  blockquote cite { display: block; font-style: normal; font-size: 12px; color: #999; margin-top: 4px; }
+
+  .fig-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; margin-top: 24px; }
+  .fig-grid.two { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .fig { background: #fff; border: 1.5px solid var(--line); border-radius: 12px; padding: 14px; }
+  .fig img { width: 100%; border-radius: 6px; display: block; background: #faf9f6; border: 1px solid #eee; }
+  .fig-cap { font-size: 12px; line-height: 1.5; color: #555; margin-top: 10px; }
+  .fig-cap b { color: var(--ink); }
+  .fig.pick { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-tint); }
+  .fig-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; margin-bottom: 8px; }
+  .fig-tag.pick { color: var(--accent); }
+
+  .note {
+    font-size: 13px; background: #fff8e1; border-left: 3px solid #f39c12; padding: 10px 14px;
+    border-radius: 0 6px 6px 0; color: #555; line-height: 1.6; margin-top: 16px;
+  }
+
+  .hook {
+    margin-top: 44px; padding: 18px 20px; background: var(--ink); color: #fff;
+    border-radius: 12px; font-size: 14px; line-height: 1.6;
+  }
+  .hook-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-tint); margin-bottom: 6px; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+  th { text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #999; padding: 8px 12px; border-bottom: 2px solid var(--line); }
+  td { padding: 10px 12px; border-bottom: 1px solid #f0ede8; vertical-align: top; line-height: 1.5; }
+  tr:last-child td { border-bottom: none; }
+
+  code.inline { background: #f0ede8; padding: 1px 6px; border-radius: 5px; font-size: 12px; font-family: 'SF Mono', Menlo, monospace; }
+</style>
+</head>
+<body>
+
+<h1>Chapter navigation &amp; reading progress</h1>
+<p class="subtitle">Giving the Artifakt case study a way to orient yourself in it — a thin progress line and a floating chapter navigator — without introducing a second navigation that competes with the global one. Three directions explored in Figma, then built, then reshaped repeatedly by looking at it.</p>
+<p class="date-range">Sessions: 28 Aug – 30 Aug 2026</p>
+
+<div class="toc">
+  <div class="toc-title">Sessions in this doc</div>
+  <ol>
+    <li><a href="#sec-2026-08-28">Three directions for a chapter nav</a><span class="toc-phase">Figma design</span></li>
+    <li><a href="#sec-2026-08-30">Building it — and the four things it dislodged</a><span class="toc-phase">Building + Figma sync</span></li>
+  </ol>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-2026-08-28">
+  <div class="section-header">
+    <span class="section-date">28 Aug 2026</span>
+    <span class="section-title">Three directions for a chapter nav</span>
+    <span class="phase-tag">Figma design</span>
+  </div>
+  <p class="section-desc">
+    The problem: Artifakt is long enough to lose your place in, but it already has a global nav, and a second persistent navigation risks reading as a competing one. Three placements were drawn against the real page content, each annotated with its own sticky behaviour, active-state treatment and collapse point.
+  </p>
+
+  <div class="fig-grid">
+    <div class="fig">
+      <div class="fig-tag">Direction A</div>
+      <img src="assets/direction-a-horizontal-chapter-nav.png" alt="Horizontal chapter nav docked below the global nav">
+      <div class="fig-cap"><b>Horizontal, below the global nav</b> — a full-width band with a subtle divider, sticky once the hero scrolls out. Collapse to Direction C at ~1024px "when labels begin crowding the global nav."</div>
+    </div>
+    <div class="fig">
+      <div class="fig-tag">Direction B</div>
+      <img src="assets/direction-b-side-chapter-nav.png" alt="Side chapter nav in the left gutter">
+      <div class="fig-cap"><b>Side / offset, in the left gutter</b> — completely separate from the global nav. Inactive chapters show a number only at 35% opacity; the active one reveals its full label with an accent mark.</div>
+    </div>
+    <div class="fig">
+      <div class="fig-tag">Direction C</div>
+      <img src="assets/direction-c-collapsed-contextual-nav.png" alt="Collapsed contextual nav showing current chapter and a dropdown">
+      <div class="fig-cap"><b>Collapsed contextual</b> — only the current chapter and a progress fraction, expanding on click. Drawn as the small-screen fallback for both A and B.</div>
+    </div>
+  </div>
+
+  <h3 class="sub">What testing them in situ showed</h3>
+  <p class="section-desc" style="margin-top:12px">
+    A and B were both dropped onto a real screen of the case study rather than judged as isolated components — which is what settled it.
+  </p>
+
+  <div class="fig-grid two">
+    <div class="fig">
+      <div class="fig-tag">Rejected</div>
+      <img src="assets/direction-b-in-situ-overlap.png" alt="Side nav numbers overlapping the body text on a real page">
+      <div class="fig-cap"><b>B, on a real screen</b> — the "empty left gutter" isn't empty at every width. The chapter numbers land straight on top of the body copy. The direction depended on a layout condition the page doesn't reliably meet.</div>
+    </div>
+    <div class="fig">
+      <div class="fig-tag">Rejected</div>
+      <img src="assets/direction-a-in-situ.png" alt="Horizontal chapter nav in situ, competing with the floating global nav">
+      <div class="fig-cap"><b>A, on a real screen</b> — docking a second full-width band directly under a global nav that already floats over the content produces two horizontal bars stacked at the top, both claiming to be the page's navigation.</div>
+    </div>
+  </div>
+
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">Placement</div>
+      <div class="decision-what">Floating capsule, bottom-centre — none of the three as drawn</div>
+      <div class="decision-why">The exploration's real finding was about <em>vertical position</em>, not layout: anything docked at the top competes with the global nav, and anything in the gutter depends on there being one. Moving it to the bottom of the viewport removed both problems at once — it can't be mistaken for the page's primary nav because the primary nav isn't there.</div>
+    </div>
+    <div class="decision key-decision">
+      <div class="decision-date">Labels</div>
+      <div class="decision-what">Chapter numbers dropped — "Overview", not "01 Overview"</div>
+      <div class="decision-why">All three directions numbered the chapters, and C leaned on a "03 / 05" fraction. Numbering implies the chapters are a sequence you're expected to complete, which is the wrong promise for a case study someone might read two sections of. The progress line already carries "how far through am I" without asking anyone to count.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Collapse</div>
+      <div class="decision-what">Direction C survived as the small-screen state</div>
+      <div class="decision-why">The one part of the exploration that shipped intact. The annotated collapse point (~1024px) didn't — see the build session; it turned out to be a function of the type size, not a fixed width.</div>
+    </div>
+  </div>
+
+  <div class="note">
+    This section is reconstructed from the Figma frames and their own annotations rather than written during the session — the quotes above are from the notes drawn under each direction.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-2026-08-30">
+  <div class="section-header">
+    <span class="section-date">30 Aug 2026</span>
+    <span class="section-title">Building it — and the four things it dislodged</span>
+    <span class="phase-tag">Building with Claude + Figma sync</span>
+  </div>
+  <p class="section-desc">
+    The nav and progress line themselves took maybe a third of the session. The rest went on things that only became visible <em>because</em> there was now something on screen to look at — the hero's vertical balance, the global navbar's sizing, a silent anchor-scroll bug, and the fact that only one of ten project pages had a real contact section. That ratio is the honest headline.
+  </p>
+
+  <h3 class="sub">The build decisions that mattered</h3>
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">Structure</div>
+      <div class="decision-what">Chapters are navigation vocabulary only — no new headings on the page</div>
+      <div class="decision-why">Five macro chapters over eleven existing sections. "Making it work" covers four editorial headings and appears nowhere in the writing. The section ids already existed in the content file and were already described there as anchors — they just never reached the DOM. So the nav points at the page's real structure instead of markers added for its benefit.</div>
+    </div>
+    <div class="decision key-decision">
+      <div class="decision-date">Scrollspy</div>
+      <div class="decision-what">Cached offsets in one scroll pass — <em>not</em> IntersectionObserver</div>
+      <div class="decision-why">IO is the obvious tool and doesn't survive contact. A band meaning "a line" has to be zero-height, and a zero-height root margin intersects nothing. Give it real height and any section taller than the band leaves it empty — the callback stops firing mid-chapter and the nav holds a stale answer.</div>
+    </div>
+    <div class="decision key-decision">
+      <div class="decision-date">Landing position</div>
+      <div class="decision-what">Where a chapter lands lives in CSS; the JS reads it back rather than restating it</div>
+      <div class="decision-why"><code class="inline">scroll-margin-top: clamp(120px, 22svh, 240px)</code> on the anchors, and the scrollspy reads it with <code class="inline">getComputedStyle().scrollMarginTop</code> — already resolved to pixels, clamp and <code class="inline">svh</code> gone. One place decides the landing; the "which chapter counts as current" line follows it. Two numbers restating the same intent is how they end up disagreeing after someone edits one.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Craft detail</div>
+      <div class="decision-what">Each label reserves its own semibold width up front</div>
+      <div class="decision-why">The active chapter is heavier than the inactive ones, and heavier is wider — so every scrollspy change would have visibly reflowed the capsule <em>while the reader was scrolling and not touching it</em>. An invisible bold copy of each label sits behind the visible one and holds the width. Measured identical at 458.97px across all five active states.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Progress line</div>
+      <div class="decision-what">Completes at the contact block, not at the bottom of the document</div>
+      <div class="decision-why">Below the article sit the contact block, the prev/next band and the footer — roughly a screen and a half that isn't reading. Counting it would park the bar near 90% for the whole ending, which reads as "you never finish."</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Reveal point</div>
+      <div class="decision-what">Appears as soon as the hero is passed, not at chapter two</div>
+      <div class="decision-why">The first rule meant a reader passed two whole sections with no sign the page had chapters at all — the control announced itself in the middle of the reading rather than at the door.</div>
+    </div>
+  </div>
+
+  <h3 class="sub">The bug worth remembering: a width that changes as you scroll</h3>
+  <p class="section-desc" style="margin-top:12px">
+    "Make the menu the same size as the chapter bar" was solved by tying the menu's width to the trigger. That made them equal — and equal to <em>whichever chapter you happened to be reading</em>.
+  </p>
+  <div class="fig-grid two">
+    <div class="fig">
+      <div class="fig-tag">Broken</div>
+      <img src="assets/mobile-menu-overview-wrapped.png" alt="Mobile chapter menu, narrow, with Back to top wrapped onto two lines">
+      <div class="fig-cap"><b>"Overview" active</b> — a short label makes a narrow trigger, the menu inherits it, and "Back to top" wraps onto two lines. Nothing about the component changed; the reader just scrolled somewhere else.</div>
+    </div>
+    <div class="fig pick">
+      <div class="fig-tag pick">Fixed</div>
+      <img src="assets/mobile-menu-making-it-work.png" alt="Mobile chapter menu at a fixed 250px width">
+      <div class="fig-cap"><b>Fixed 250px on both</b> — the two are the same size because they are the same number, and neither moves as you scroll. A width that depends on content you don't control isn't a width.</div>
+    </div>
+  </div>
+
+  <h3 class="sub">Four things the nav dislodged</h3>
+  <div class="decision-log">
+    <div class="decision key-decision">
+      <div class="decision-date">Anchor scroll</div>
+      <div class="decision-what">Every in-page anchor now scrolls itself instead of relying on the browser's fragment navigation</div>
+      <div class="decision-why">Reported as "the scroll effect is gone." The CSS was intact — the real cause is that <strong>a fragment navigation to where you already are is a no-op</strong>. Click "About" → URL becomes /#about. Scroll away by hand. Click "About" again → the browser compares fragments, finds no change, and does nothing. No scroll, no error. It's reached constantly, because "Back to Portfolio" returns you to <code class="inline">/#project-&lt;slug&gt;</code> — so that project's map popover CTA is dead before you touch it.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Hero spacing</div>
+      <div class="decision-what">Top padding retuned on all ten subpages: <code class="inline">pt ≈ the nav pill's bottom edge + pb</code></div>
+      <div class="decision-why">The diagnosis ("the space between the navbar and hero content is too big") was right, and measuring said why: at 1440×900 the hero drew 200 above and 80 below, but the pill's bottom sits at 85 — so what the eye actually compared was 116px of empty stage against 80. The h1 began at y=426 on a 900px screen, past the halfway line.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Navbar sizing</div>
+      <div class="decision-what">Pill height is <em>declared</em>, not left to the contents</div>
+      <div class="decision-why">"Navbars should be the same size across pages" wasn't achievable by matching padding. The homepage pill is sized by a fixed 53px avatar → 70 everywhere. The subpage pill's tallest child is the Contact button, whose height rides the fluid type → 67 / 68 / 70. Same padding, same components, three heights, and nothing in the code said otherwise.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">Contact</div>
+      <div class="decision-what">One shared contact section on all ten subpages, replacing three different endings</div>
+      <div class="decision-why">Only Artifakt had a real one. PitchPivot and the snapshots ended on a prompt whose CTA navigated <em>to the homepage's</em> contact section; the four NDA pages and the WIP page had nothing. Pointing the nav's Contact button at a signpost would have satisfied the letter of the request and none of it.</div>
+    </div>
+  </div>
+
+  <div class="fig-grid two">
+    <div class="fig">
+      <div class="fig-tag">Before</div>
+      <img src="assets/hero-title-too-low.webp" alt="Artifakt hero with the title starting past the halfway line">
+      <div class="fig-cap"><b>Hero, before</b> — 200px above the content, 80 below. The reader's first impression of the page is empty colour.</div>
+    </div>
+    <div class="fig">
+      <div class="fig-tag">Before</div>
+      <img src="assets/navbar-before-oversized.png" alt="The global navbar at its oversized proportions">
+      <div class="fig-cap"><b>Navbar, before</b> — a 58px avatar and a 61px Contact button in a 75px pill, after the CTAs elsewhere had already been made smaller. The imbalance is what prompted the whole sizing pass.</div>
+    </div>
+  </div>
+
+  <h3 class="sub">What the Figma file taught us</h3>
+  <p class="section-desc" style="margin-top:12px">
+    Five design edits arrived mid-session — invert the nav, add chevrons, change the padding, resize mobile, add an accent token. Each meant a re-pull, and the re-pulls kept surfacing the same class of problem. This is the part that transfers to the next project.
+  </p>
+  <table>
+    <tr>
+      <th style="width:25%">What happened</th>
+      <th style="width:38%">Why it bit</th>
+      <th style="width:37%">What to do next time</th>
+    </tr>
+    <tr>
+      <td><strong>Detached layers don't follow a component swap</strong></td>
+      <td>After inverting the chapter nav, the collapsed trigger's active underline still bound <code class="inline">Colors/Text/text-primary</code> — a black rule on a black pill, invisible. The expanded menu's active label was also still 14px where every sibling had moved to 16.</td>
+      <td>After inverting or restyling a component, check the layers that were detached or overridden — they're the ones that silently keep the old binding. Both were caught by reading the export, not by looking at the frame.</td>
+    </tr>
+    <tr>
+      <td><strong>A value with no variable can't be carried across</strong></td>
+      <td>The menu's rim was a raw <code class="inline">#a8a8a8</code> and the progress track a raw <code class="inline">#f2f2f0</code> — neither matches any primitive, so there was nothing to reference and no honest name to give them.</td>
+      <td>If a colour is meant to persist, name it in the file. An unnamed hex arrives in code as either a hardcoded literal or a wrong-but-close token.</td>
+    </tr>
+    <tr>
+      <td><strong>An unpublished token can't be read by name</strong></td>
+      <td>The new accent was added as a semantic variable but isn't in a published library and no node binds it yet — so the <em>hex</em> was readable and the <em>name</em> wasn't. It's carried under a placeholder name pending confirmation.</td>
+      <td>Publish variables to a library, or apply the token to at least one node, before asking for it to be used. The value alone doesn't tell code what to call it.</td>
+    </tr>
+    <tr>
+      <td><strong>Fixed widths are a mechanism, not a spec</strong></td>
+      <td>The desktop capsule was drawn at a fixed 586px. Our type is fluid (14→16px), so 586 would pin the button right while the labels shrank away from it.</td>
+      <td>Extract what the fixed width <em>buys</em> — here, 60px of air between two groups — rather than the number. Figma later restated it as an explicit <code class="inline">gap-32</code>, which confirmed it.</td>
+    </tr>
+    <tr>
+      <td><strong>Exports carry preview artefacts and off-system icons</strong></td>
+      <td>The Lottie eye shipped with an opaque white 800×800 backdrop layer. Separately, <code class="inline">ic-arrow-up</code> was the only icon painted pure <code class="inline">#000000</code> on <code class="inline">stroke</code> rather than <code class="inline">#0E0E0E</code> on <code class="inline">fill</code> — so alone in the set it couldn't follow its container's colour, and was invisible on the dark pill.</td>
+      <td>Turn preview backdrops off before exporting. Re-exporting the arrow from the same component as the rest of the set deleted a build-config workaround entirely.</td>
+    </tr>
+  </table>
+
+  <h3 class="sub">Two code decisions worth pointing at</h3>
+  <div class="decision-log">
+    <div class="decision">
+      <div class="decision-date">Performance</div>
+      <div class="decision-what">The eye animation's player is lazy-loaded; the progress bar is a transform</div>
+      <div class="decision-why">Lottie is 168KB minified against a 477KB bundle — too much to spend up front on a decorative eye, so it sits behind a dynamic import fired when the pipeline section scrolls into view (48KB gzip chunk; main bundle grew 1.2KB). The progress bar moves with <code class="inline">scaleX</code> rather than width, so it composites instead of laying out the page on every scroll frame.</div>
+    </div>
+    <div class="decision">
+      <div class="decision-date">A trap</div>
+      <div class="decision-what">A bug that passed the build and only broke in dev</div>
+      <div class="decision-why">The Lottie player's default path is a UMD bundle. Rollup's interop gives it a default export at build time — so <code class="inline">vite build</code> succeeded — but the dev server serves it raw, where it exports nothing. Silent failure, clean production build. Worth remembering that "it builds" and "it runs" are different claims.</div>
+    </div>
+  </div>
+
+  <h3 class="sub">Where it stands</h3>
+  <table>
+    <tr><th style="width:38%">Thing</th><th style="width:18%">State</th><th>Note</th></tr>
+    <tr><td>Chapter nav + progress line</td><td><span class="status working">working</span></td><td>Verified at 402 / 768 / 1440 / 1728. Inverted, chevrons, 250px mobile, back-to-top.</td></tr>
+    <tr><td>Hero spacing, navbar sizes, contact sections</td><td><span class="status working">working</span></td><td>All ten subpages: 70px navbar everywhere, a contact block on each.</td></tr>
+    <tr><td>Anchor scrolling</td><td><span class="status working">working</span></td><td>One shared helper; repeat clicks work now.</td></tr>
+    <tr><td>Eye animation on the pass cards</td><td><span class="status working">working</span></td><td>0.6× speed, cropped viewBox, lazy-loaded.</td></tr>
+    <tr><td>Process-doc card borders</td><td><span class="status needs-work">needs work</span></td><td>Hand-edited across 6 generated files — <strong>reverts on any re-export.</strong> The two rules are recorded in that folder's README.</td></tr>
+    <tr><td>Eye on the process pages</td><td><span class="status abandoned">deferred</span></td><td>Would mean a player inside six generated documents. A separate decision.</td></tr>
+    <tr><td>The old violet as <em>text</em></td><td><span class="status needs-work">open</span></td><td>Borders moved to #321366; the previous purple still appears as text in 17 places in the process docs.</td></tr>
+  </table>
+
+  <div class="hook">
+    <div class="hook-label">Shareable hook</div>
+    Spent a while trying to make an animated icon bigger before thinking to measure it. The eye was fine — 94% of its canvas was empty space, so it rendered at 2.6 pixels inside a 20-pixel box. Scaling the box just scaled the emptiness. The fix was cropping the frame, not resizing anything.
+  </div>
+</div>
+
+</body>
+</html>

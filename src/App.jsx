@@ -1,14 +1,18 @@
-import { useEffect } from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { useEffect, useLayoutEffect } from 'react'
+import { Routes, Route, Navigate, useLocation, useNavigationType } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import ProjectPage from './pages/ProjectPage'
+import ProcessLogPage from './pages/ProcessLogPage'
+import ErrorBoundary from './components/ErrorBoundary'
+import { getProjectBySlug } from './lib/content'
 
 // Scrolls to `#some-id` when arriving at a route that carries a hash.
 //
 // The browser only honours a hash on a real document load. React Router
 // navigations don't reload the document, so `/#project-pitchpivot` and
 // `/#contact` rendered the homepage at the top and silently ignored the
-// anchor -- which is what made "Back to Portfolio" always land on the map.
+// anchor -- which is what made the subpage nav's back link always land on
+// the map.
 //
 // Deliberately has no "only on a new route" guard. An earlier version tracked
 // the previous pathname in a ref and bailed out when it hadn't changed, to
@@ -22,6 +26,141 @@ import ProjectPage from './pages/ProjectPage'
 //
 // Running on every hash change is idempotent anyway -- scrolling to where the
 // browser is already going costs nothing.
+// Puts a NEW page at the top. React Router does not reload the document, so
+// the window keeps whatever scroll offset the previous page had -- click a
+// project card two thirds of the way down the homepage and the case study
+// opens two thirds of the way down too. Reported by Flore on both Artifakt
+// (2026-08-25) and PitchPivot, which opened on "Why This Matters".
+//
+// Three conditions, and each one is load-bearing:
+//
+//  - Skip when there IS a hash. That is ScrollToHash's job below, and racing it
+//    would mean scrolling to the top and then to the anchor, i.e. a visible
+//    jump on every subpage back link and every map popover link.
+//
+//  - Skip on POP. That is the browser Back/Forward button, where the reader
+//    expects to land where they left, and the browser's own scroll restoration
+//    is already doing it. Forcing the top here would break returning to the
+//    homepage mid-scroll -- which is the exact complaint this fixes, just in
+//    the other direction. `useNavigationType` is how React Router exposes it;
+//    it also reports POP on first load, where the window is at the top anyway.
+//
+//  - `behavior: 'instant'`, and the keyword matters: in the CSSOM enum `auto`
+//    does NOT mean "jump", it means "use the element's computed
+//    scroll-behavior" -- which `globals.css` sets to `smooth` on `html`. So
+//    `auto` here animates the scroll back up through the whole length of the
+//    old page, and where a smooth scroll can't run the request is simply
+//    dropped and the page never moves at all. That is exactly what happened on
+//    the first attempt at this fix: the effect fired, `scrollTo` was called
+//    with the right arguments, and scrollY stayed put. Only `instant` is
+//    unconditional.
+//
+// useLayoutEffect, not useEffect: this runs after the new page is in the DOM
+// but before paint, so nobody sees a frame of the case study rendered at the
+// old offset.
+//
+// No "did the pathname actually change?" ref-guard, deliberately -- see the
+// long note in ScrollToHash about how exactly that pattern broke under
+// StrictMode. The dependency array is the change detector, and scrolling to
+// the top of a page that is already at the top costs nothing.
+function ScrollToTop() {
+  const { pathname, hash } = useLocation()
+  const navigationType = useNavigationType()
+
+  useLayoutEffect(() => {
+    if (hash) return
+    if (navigationType === 'POP') return
+
+    let stopped = false
+
+    // TWO THINGS WERE WRONG HERE, both found on 2026-09-01 when Flore reported
+    // Artifakt -> PitchPivot opening at the BOTTOM of the new page. That word is
+    // the whole diagnosis: she was at the bottom of Artifakt (~10782 of 11632),
+    // PitchPivot is shorter (9141), and a PRESERVED offset clamps to its end.
+    // The page was not scrolling somewhere odd, it was not scrolling at all.
+    //
+    // (1) `behavior: 'instant'` is not portable. It is the right keyword and it
+    // works in Chromium -- which is why this never reproduced in automation --
+    // but it is a late addition to the enum and WebKit has been inconsistent
+    // about it, where an unrecognised value means the call is ignored or throws.
+    // Flore's console output was WebKit's. So instead of naming the behaviour,
+    // this overrides `scroll-behavior: smooth` (set on `html` in globals.css)
+    // with an inline style for the duration of the jump and uses the two-argument
+    // scrollTo, which has no enum in it at all and behaves identically
+    // everywhere. Inline style beats the stylesheet, so `smooth` cannot leak back
+    // in -- which was the original reason `instant` was reached for.
+    //
+    // (2) One scroll is not enough, for exactly the reason ScrollToHash below
+    // already documents at length: the page keeps growing as media loads. That
+    // function got a ResizeObserver and this one never did, which is an
+    // asymmetry with no justification -- the top is just as much a target as an
+    // anchor is. So re-assert on real size changes until the reader takes over.
+    const toTop = () => {
+      if (stopped) return
+      const html = document.documentElement
+      const previous = html.style.scrollBehavior
+      html.style.scrollBehavior = 'auto'
+      // Force a style flush so the override above is IN FORCE before the scroll
+      // runs. Without it the browser can still be holding the stylesheet's
+      // `smooth`, which turns this into an animation instead of a jump -- and an
+      // animation is not a slower jump, it is a scroll that something else can
+      // interrupt, or that never progresses at all in a background tab.
+      // Measured: without this flush the call moved the page by nothing.
+      void html.offsetHeight
+      window.scrollTo(0, 0)
+      // Belt and braces for engines that route scrollTo through the animation
+      // path anyway. Assigning scrollTop cannot animate here, because
+      // scroll-behavior is 'auto' for the duration.
+      html.scrollTop = 0
+      if (document.body) document.body.scrollTop = 0
+      html.style.scrollBehavior = previous
+    }
+
+    toTop()
+
+    const observer = new ResizeObserver(toTop)
+    observer.observe(document.body)
+
+    // AND A FRAME LOOP, because the ResizeObserver alone is not enough and this
+    // was measured rather than assumed. Instrumenting window.scrollTo showed the
+    // single call going out with scrollY ALREADY at 8291 -- the shorter new page
+    // had rendered and the browser had clamped the old offset to its end before
+    // this effect ran. Sometimes the correction stuck and sometimes the position
+    // came back, which is the definition of a race: something restores scroll
+    // after we set it, and if that happens without the body changing size the
+    // observer never fires.
+    //
+    // Re-asserting every frame for a short window covers it whatever the source
+    // -- scroll anchoring, restoration, late layout. Bounded at 1200ms and
+    // cancelled by the first real input below, so it can never fight a reader who
+    // starts scrolling.
+    let frame = requestAnimationFrame(function again() {
+      if (stopped) return
+      toTop()
+      frame = requestAnimationFrame(again)
+    })
+
+    // Never fight the reader: the first deliberate scroll ends it, so someone who
+    // starts reading immediately is not yanked back. Same guarantee ScrollToHash
+    // makes, and the shorter window is because the top needs holding only until
+    // the first images settle, not until a target deep in the page does.
+    const events = ['wheel', 'touchstart', 'keydown']
+    const stop = () => {
+      stopped = true
+      observer.disconnect()
+      cancelAnimationFrame(frame)
+      clearTimeout(timer)
+      events.forEach((event) => window.removeEventListener(event, stop))
+    }
+    const timer = setTimeout(stop, 1200)
+    events.forEach((event) => window.addEventListener(event, stop, { passive: true }))
+
+    return stop
+  }, [pathname, hash, navigationType])
+
+  return null
+}
+
 function ScrollToHash() {
   const { pathname, hash } = useLocation()
 
@@ -43,12 +182,23 @@ function ScrollToHash() {
     // #contact settled during a lull while its iframes were still loading.
     // ResizeObserver fires on the real event instead of sampling for it.
     //
-    // `auto`, not smooth: arriving from another page would otherwise animate
-    // the whole length of the homepage. The offset that keeps the target clear
-    // of the fixed nav is the target's own scroll-margin.
+    // `instant`, not `auto`. Both were meant to mean "don't animate"; only one
+    // does. `auto` means "use the computed scroll-behavior", and `globals.css`
+    // sets `scroll-behavior: smooth` on `html`, so `auto` was animating the
+    // whole length of the homepage on arrival -- the thing this line's previous
+    // comment said it was preventing. Corrected 2026-08-25, after the same
+    // mistake made ScrollToTop above silently do nothing.
+    //
+    // It matters more here than it looks: this callback fires repeatedly from a
+    // ResizeObserver as the page settles, and re-issuing a SMOOTH scroll on
+    // every resize restarts the animation from wherever it got to, so the page
+    // creeps toward the target instead of arriving at it.
+    //
+    // The offset that keeps the target clear of the fixed nav is the target's
+    // own scroll-margin.
     const scrollToTarget = () => {
       if (stopped) return
-      document.getElementById(id)?.scrollIntoView({ behavior: 'auto', block: 'start' })
+      document.getElementById(id)?.scrollIntoView({ behavior: 'instant', block: 'start' })
     }
     scrollToTarget()
 
@@ -81,14 +231,73 @@ function ScrollToHash() {
   return null
 }
 
+// Keeps the browser tab -- and the back-button history entry -- in step with
+// the route.
+//
+// Only client-side navigations need this. A DIRECT load of /work/artifakt now
+// arrives as its own prerendered HTML file with the right <title> already in it
+// (scripts/prerender.mjs). But React Router changing the URL in place does not
+// touch the document, so without this every case study opened under the
+// homepage's title and left "Senior Product Designer" as the history entry for
+// all eleven pages.
+//
+// Reads the same frontmatter, and builds the same "<title> · name" shape, as the
+// prerender script does -- so the title a crawler is served and the title a
+// visitor navigates to cannot disagree.
+const SITE_TITLE = 'Flore de Crombrugghe — Senior Product Designer'
+
+function DocumentTitle() {
+  const { pathname } = useLocation()
+
+  useEffect(() => {
+    // Matches /work/:slug and also /work/:slug/process/:log, which is intended:
+    // a process log is a document belonging to that project, so the project's
+    // name is the right thing in the tab.
+    const match = pathname.match(/^\/work\/([^/]+)/)
+    const project = match ? getProjectBySlug(match[1]) : null
+    document.title = project ? `${project.title} · Flore de Crombrugghe` : SITE_TITLE
+  }, [pathname])
+
+  return null
+}
+
 export default function App() {
+  // Only used as the ErrorBoundary's key — see below.
+  const { pathname } = useLocation()
+
   return (
     <>
+      <DocumentTitle />
+      <ScrollToTop />
       <ScrollToHash />
+      {/* `resetKey`, deliberately NOT `key`. Both clear a latched error on
+          navigation, but `key` would also remount this boundary and everything
+          under it on every route change -- see the note in ErrorBoundary.jsx for
+          why that blast radius was the wrong trade. */}
+      <ErrorBoundary resetKey={pathname}>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        {/* THE ONE RENAMED SLUG, 2026-08-27. "Welcome to my city" became
+            "Welcome to my island" (Flore's call), which moved its route.
+            That URL was live and shareable, so it forwards instead of 404ing
+            -- `replace` so the old address doesn't sit in the back button.
+            This is the only redirect on the site; if a second slug is ever
+            renamed, these want collecting into a map rather than growing a
+            list of one-off routes. */}
+        <Route
+          path="/work/welcome-to-my-city"
+          element={<Navigate to="/work/welcome-to-my-island" replace />}
+        />
         <Route path="/work/:slug" element={<ProjectPage />} />
+        {/* One level below a case study: a generated process-log document,
+            framed with the site's nav. See ProcessLogPage on why the documents
+            themselves are left untouched.
+            Two path segments deep, which `public/404.html` already handles --
+            it re-encodes the whole path regardless of depth, so no change to
+            `pathSegmentsToKeep` is needed. */}
+        <Route path="/work/:slug/process/:log" element={<ProcessLogPage />} />
       </Routes>
+      </ErrorBoundary>
     </>
   )
 }

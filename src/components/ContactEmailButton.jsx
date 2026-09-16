@@ -3,7 +3,7 @@ import { SECONDARY_BUTTON_CLASS } from './ButtonLink'
 import useCopyToClipboard from '../lib/useCopyToClipboard'
 
 // Sampled from the Contact section's own ButtonLink instance (node
-// 2928:73875 / 4533:27939): secondary chrome, the email as its label, a copy
+// 2928:73875): secondary chrome, the email as its label, a copy
 // icon as the right icon -- the whole pill is one control, not label text
 // next to a separate small icon button.
 //

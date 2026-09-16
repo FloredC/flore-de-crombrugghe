@@ -23,9 +23,15 @@
 // a 1279 viewport, then 1184px at 1280, because the padding jumped 32->48
 // faster than the viewport grew. Content getting narrower as the window
 // widens is visible and looks like a bug. A clamp can't do that.
-export default function Container({ children, className = '' }) {
+// `id` is passed through rather than spread: a container is sometimes the only
+// element wrapping a page landmark (the case studies' closing contact block),
+// and that block needs to be addressable. One named prop rather than {...rest}
+// keeps the element's surface deliberate -- Container is a layout primitive, not
+// a div with extra steps.
+export default function Container({ children, className = '', id }) {
   return (
     <div
+      id={id}
       className={`mx-auto w-full max-w-[1280px] px-[clamp(16px,4vw,48px)] ${className}`}
     >
       {children}

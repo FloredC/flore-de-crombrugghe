@@ -21,12 +21,11 @@
       // React Router boots. Net effect: the deep link loads the right page and
       // the address bar never visibly shows the encoded form.
       //
-      // pathSegmentsToKeep is 1 because this is a PROJECT site served from
-      // /flore-de-crombrugghe/ -- that first segment is part of the site root,
-      // not part of the route, so it must survive the rewrite. On a custom
-      // domain (served from the root) this becomes 0. It has to agree with
-      // `base` in vite.config.js.
-      var pathSegmentsToKeep = 1
+      // pathSegmentsToKeep is 0 because the site is served from a custom
+      // domain root (floredecrombrugghe.com), so every path segment is route
+      // and none of it is site root. It was 1 while this was a project site at
+      // /flore-de-crombrugghe/. It has to agree with `base` in vite.config.js.
+      var pathSegmentsToKeep = 0
 
       var l = window.location
       l.replace(

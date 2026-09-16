@@ -43,8 +43,10 @@ visible focus ring. Verified 2026-08-06 by hovering a real marker and watching
 
 **Flore's, and blocking nothing else**
 
-- The six case-study bodies are still scaffolding prose. Deliberate — the subpages
-  haven't been designed yet. `/work/:slug` routes work; the pages are stubs.
+- **Four** of the six case-study bodies are still scaffolding prose, as of
+  2026-08-21: Welcome to my city, Sinomocene, Teamchatviz and Roche. PitchPivot
+  and Artifakt are built pages. `/work/:slug` routes work for all six; the other
+  four render the stub template.
 - Lab avatar wants re-exporting with Figma's **Include "id" attribute** ticked, from
   the **107×93 frame that contains the halo** (an attempt on 2026-08-06 came from the
   older 275×218 frame and had no halo, so it wasn't used). Until then that component
@@ -53,6 +55,15 @@ visible focus ring. Verified 2026-08-06 by hovering a real marker and watching
 - The Approach "Selected talks & writing" bubble copy is the one string where the
   **code is ahead of Figma** — a re-pull of node 4494:6497 would reintroduce a typo.
 - Map scale floor is unset, so the dev-only readout stays in `Hero.jsx`.
+
+- **Vertical density on a laptop** — text, cards and media may be too large at
+  ~1500x850. Measured and planned on 2026-08-21, then parked by Flore in favour
+  of content editing; it felt less urgent on a second look. Do not start this
+  from the original framing — two of its premises are wrong (the type scale is
+  already fluid, and the real variable is viewport HEIGHT, not width). Findings,
+  baseline tables, the token dependency map and a phased plan are in
+  `process-docs/vertical-density/vertical-density.md`. Re-measure with
+  `scripts/measure-density.js` before and after any change.
 
 **Code, small**
 

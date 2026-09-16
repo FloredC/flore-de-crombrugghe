@@ -31,9 +31,14 @@ export default function DistrictBreadcrumb({ zone, subsection }) {
           body-lg takes on mobile -- Flore's ask. The two prose tokens converge
           at the small end, so "same as body-lg on mobile" and "18 on desktop"
           are the same token, not a conflict needing its own scale entry. */}
+      {/* `font-bold` (700), not semibold (600): the breadcrumb instance samples
+          as Desktop/body for the "You are here:" prefix and Desktop/body-bold
+          for the two names (node 4774:7665). This was 600 — a real drift from
+          the file, small enough to have gone unnoticed. Corrected 2026-08-12
+          while Flore is reviewing this component. */}
       <p className="text-body font-normal text-text-primary">
-        You are here: <span className="font-semibold">{zone}</span> —{' '}
-        <span className="font-semibold">{subsection}</span>
+        You are here: <span className="font-bold">{zone}</span> —{' '}
+        <span className="font-bold">{subsection}</span>
       </p>
     </div>
   )
