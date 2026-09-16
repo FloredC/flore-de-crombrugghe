@@ -4,3 +4,6 @@ dist
 *.local
 .vite
 screenshots/
+MEMORY.md
+01_Input/
+02_Output/
