@@ -6,5 +6,6 @@ dist
 screenshots/
 MEMORY.md
 01_Input/
-02_Output/
+02_Work/
 Claude outputs/
+00_Resources/
