@@ -1,7 +1,7 @@
 # ARCHITECTURE.md
 
 How the site works. Changes only when the code changes. Behaviour lives in
-CLAUDE.md, facts that change in MEMORY.md, history in process-docs/.
+CLAUDE.md, facts that change in MEMORY.md, history in docs/process-logs/.
 
 What belongs here: only what you would get wrong by reading the code alone.
 Things that must agree across files, traps, and the reason behind choices that
@@ -9,9 +9,7 @@ look wrong but aren't. Never copy values (colours, sizes, spacing): point to the
 file or Figma node. If this file and the code disagree, the code wins: fix this
 file in the same change.
 
-Checked against the code on 2026-09-16. Stack and scripts: see README.md.
-Longer version with field lists: 01_Input/making-of/ARCHITECTURE-full-2026-09-16.md
-(history only, not maintained).
+Checked against the code on 2026-09-16. Stack and scripts: see README.md. 
 
 ---
 

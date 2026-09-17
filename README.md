@@ -55,7 +55,7 @@ src/
   pages/             HomePage, ProjectPage, ProcessLogPage
   styles/tokens/     primitives -> semantic -> components, exported from Figma
 scripts/             build, preview, measurement and image tooling
-process-docs/        session-by-session design and build logs
+docs/                how the site works (ARCHITECTURE.md) and session-by-session build logs
 ```
 
 **Adding a project** is one `.mdx` in `src/content/projects/` plus a 1200×630
@@ -102,8 +102,8 @@ in CSS rather than hand-tuned, so the gap and the reserve can't drift apart.
 real `<a>`s, and hit areas meet the 44×44px minimum by growing invisible padding
 rather than scaling the dot — so the target survives at any map size.
 
-Full rationale, including the bugs that produced these, lives in
-[`CLAUDE.md`](CLAUDE.md).
+Full rationale lives in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md); the bugs
+that produced these are in [`docs/process-logs/`](docs/process-logs).
 
 ---
 
@@ -117,14 +117,13 @@ The site is served from a custom domain at the root, which means four things
 have to agree: `base` in `vite.config.js`, the router's `basename` (which reads
 it back), `pathSegmentsToKeep` in `public/404.html`, and `public/CNAME`. The
 first three derive from one constant; `CNAME` does not, and deleting it silently
-detaches the domain. The deployment section of [`CLAUDE.md`](CLAUDE.md) has the
+detaches the domain. The deployment section of [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) has the
 detail.
 
 ## Docs
 
 | File | What's in it |
 |---|---|
-| [`CLAUDE.md`](CLAUDE.md) | Architecture, content model, and the running decision log — including what was tried and rejected |
-| [`PRD-Map-Layout-v1.md`](PRD-Map-Layout-v1.md) | The hotspot/popover interaction spec |
-| [`process-docs/`](process-docs) | Per-session design and build logs |
-| [`HANDOFF.md`](HANDOFF.md) | A point-in-time snapshot from 6 Aug 2026. Kept as a record; `CLAUDE.md` is the current source of truth |
+| [`CLAUDE.md`](CLAUDE.md) | Working rules for Claude on this project |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | How the site works: deploy, tokens, content, layout, and the traps worth knowing |
+| [`docs/process-logs/`](docs/process-logs) | Per-session design and build logs |
