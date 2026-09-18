@@ -189,7 +189,7 @@ export default {
       prose: [
         {
           type: 'p',
-          text: 'You type a word, **trace a loose scaffold by hand**, and your line comes back transformed through the style of a real artist. **The AI does the finishing — it never touches the making.**',
+          text: 'You type a word, trace a loose line drawing by hand, and it comes back in the style of a real artist. The app inspires you and helps you finishing your traced idea with help of real artists.',
         },
         {
           // THE STAKES, added by Flore in the frame 2026-08-24 after the
@@ -252,7 +252,7 @@ export default {
         },
         {
           type: 'p',
-          text: '**Bring an artist in.** A fixed, curated roster — Louise Bourgeois, Kara Walker, Niki de Saint Phalle, Naoko Takeuchi, Keith Haring. Most people will meet at least one of them here for the first time. It’s also the part that would make this work in a museum: the exhibition already supplies the artist — Artifakt gives visitors something to make with them.',
+          text: 'A fixed, curated group of artists help elevate your drawing: Louise Bourgeois, Kara Walker, Niki de Saint Phalle, Naoko Takeuchi, Keith Haring. Ideally, this group of artists would grow over time: more female, queer, "invisible" artists that would diversify the present collective imagery on the internet.',
         },
       ],
       media: {
@@ -791,7 +791,7 @@ export default {
         { type: 'p', text: 'Four moderated in-person sessions.' },
         {
           type: 'p',
-          text: '**Every single person hesitated before tracing. Every single person lit up at the result.** All said they’d send it — and wanted to make another straight away.',
+          text: '**Every single person hesitated before tracing. Every single person lit up at the result.** All said they were inspired and would send it — and wanted to make another straight away.',
         },
         {
           // The full stop sits OUTSIDE the bold, matching the frame. Small, and
