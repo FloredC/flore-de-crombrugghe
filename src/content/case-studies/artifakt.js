@@ -202,7 +202,7 @@ export default {
           // deliberately does NOT live here: it motivates the reveal, so it
           // opens that section instead.
           type: 'p',
-          text: 'Digital gifting has an effort problem. When sending costs nothing, it reads as nothing — and the obvious fix is to make something by hand, except **most adults stopped drawing at eleven** and have no intention of starting again in front of someone they love.',
+          text: 'What if an AI image generation tool could inspire and teach people about drawing and art? How could this tool increase personality and authenticity in drawing in order to feel "less generic"? And when do people decide where that authenticity breaks down? When do they trust their own sense of taste or imperfection against something that is more perfect but clearly machine-generated? This tool prompts users to seek originality in drawing generation by starting with an intention that is true to the person creating it.',
         },
       ],
       // FULL CONTENT WIDTH, matching Figma's 1282 stage (node 4897:4533).
@@ -244,11 +244,11 @@ export default {
         },
         {
           type: 'p',
-          text: '**Lower the barrier.** A scaffold to trace, so "I can’t draw" doesn’t end the gesture before it starts.',
+          text: 'An example to trace, so "I can’t draw" doesn’t end the gesture before it starts.',
         },
         {
           type: 'p',
-          text: '**Keep it yours.** Style is applied *after* tracing, never during. Your line stays the structure of the final piece — even the loading screen shows your sketch turning, not the artist’s photo.',
+          text: 'Style is applied *after* tracing, never during. The intent of the tool is that your line stays the structure of the final piece. This works most of the time, though not perfectly.',
         },
         {
           type: 'p',
@@ -404,9 +404,9 @@ export default {
       prose: [
         {
           type: 'p',
-          text: 'Effort counts only if visible. The wobble in a traced line proves it, **shown in the reveal** — so I built transformation before drawing.',
+          text: 'The traced line is what shows the effort, and the reveal is where it shows. That is why I built the transformation before the drawing tool.',
         },
-        { type: 'p', text: '**Wanted**:' },
+        { type: 'p', text: '**Wished result**:' },
         {
           type: 'list',
           items: [
@@ -415,18 +415,17 @@ export default {
             'surprise so it feels like a gift, not a filter.',
           ],
         },
-        { type: 'p', text: '**Got**:' },
+        { type: 'p', text: '**The result I got**:' },
         {
           type: 'list',
           items: [
             // "leads the model to", not the frame's "leads model to" — a
             // dropped article rather than the clipped register the rest of
             // this pass is written in. Fix the frame so a re-pull keeps it.
-            'asking for L. Bourgeois leads the model to draw spiders, her famous motif, not your lines in her style.',
-            'Artists **reach for icons, not technique**.',
+            'The model used the most iconic subject or visual of the artists (which makes sense because this is what is the most available in our collective imagery on the internet.)',
           ],
         },
-        { type: 'p', text: '**Dead ends**:' },
+        { type: 'p', text: '**What didn’t work**:' },
         {
           type: 'list',
           items: [
@@ -436,16 +435,16 @@ export default {
         },
         {
           type: 'p',
-          text: '**Fix 1**: **describe material, not artist** — thread, tension, stitched surface.',
+          text: '**Solution 1**: Describe the material, gesture, technique first (thread, tension, stitched surface) instead of naming the artist.',
         },
-        { type: 'p', text: '**Fix 2**:' },
+        { type: 'p', text: '**Solution 2**:' },
         {
           type: 'list',
           items: [
             // "colour", not the frame's "color" — this page is British
             // throughout ("colour", "behaviour", "grey") and a single American
             // spelling inside one bullet reads as a slip, not a choice.
-            '**Split pipeline** — Pass 1 builds structure without artist, Pass 2 adds artist and colour.',
+            '**Split pipeline**: Pass 1 builds structure without artist, Pass 2 adds artist and colour.',
             'Eight phases tested strength values; low kept the sketch, high gave beautiful but not mine.',
           ],
         },
@@ -507,7 +506,7 @@ export default {
         label: '[ the-reveal.webp — 882x766 trace in, spider out ]',
         placeholderAspect: '882 / 766',
         alt: 'Two Artifakt screens with an arrow between them: on the left the trace screen with the word “water” and a loose hand-drawn line, on the right the reveal showing a Louise Bourgeois spider in which none of the traced line survives',
-        caption: 'Traced line not legible. Artists reach for icons, not technique.',
+        caption: 'Traced line not legible and lack of originality in visual representations.',
       },
       // TWO EMBEDS, NOT YET BUILT. Figma draws both as empty dashed
       // placeholders (nodes 4897:4571 / 4897:4577) and Flore confirmed
@@ -554,7 +553,7 @@ export default {
           {
             kicker: 'Pre-process',
             name: 'Sketch config',
-            detail: 'Line width, invert, flood fill — per artist',
+            detail: 'Line width, invert, flood fill per artist',
             accent: true,
             preview: {
               src: `${M}/pipeline/pre-process.webp`,
