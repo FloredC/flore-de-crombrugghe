@@ -167,9 +167,11 @@ This folder is one project: my website, floredecrombrugghe.com.
 
 ## References
 
-Files in 00_Resources. Only open them when the trigger applies.
+Shared across all my projects, in Dropbox:
+`~/Dropbox (Personal)/01_Flore UX/🦾 Resources/voice/`
+Only open them when the trigger applies.
 
 | Resource | Read when... |
 |---|---|
 | voice-principles.md | Writing anything on my behalf |
-| review-questions.md | Critiquing work, mine or somebody else's |
+| review-questions.md | Critiquing work, mine or somebody else's (not written yet) |
