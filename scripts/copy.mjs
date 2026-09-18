@@ -41,6 +41,10 @@
 //   npm run copy all               every page
 //   npm run copy artifakt --stdout print instead of writing
 //   npm run copy artifakt --alt    include image alt text
+//   npm run copy artifakt -- --dashes   every em dash with its block (rule 8)
+//
+// Flags need the bare `--` separator when run through npm, which otherwise
+// eats them before the script sees them.
 //
 // Output lands in `copy/` and IS COMMITTED, which looks wrong for generated
 // files and is the point. It is still a view -- `artifakt.js` remains the
@@ -91,6 +95,7 @@ const flags = new Set(args.filter((a) => a.startsWith('--')))
 const targets = args.filter((a) => !a.startsWith('--'))
 const withAlt = flags.has('--alt')
 const toStdout = flags.has('--stdout')
+const listDashes = flags.has('--dashes')
 
 async function loadModule(slug) {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'copy-'))
@@ -183,7 +188,21 @@ function toMarkdown(slug, data) {
 
   const words = out.reduce((n, b) => n + b.md.split(/\s+/).length, 0)
   lines.push('---', '', `<!-- ${out.length} blocks, ~${words} words -->`)
-  return lines.join('\n')
+
+  // RULE 8 IS A BUDGET, NOT A BAN. "Em dashes only exceptionally, when a comma,
+  // period, colon or conjunction cannot do the job" -- Flore's own wording, and
+  // she has said explicitly it is not a hard no. The trouble with
+  // "exceptionally" is that it is invisible: nobody notices the fifteenth one,
+  // because each was reasonable on its own and no one ever counts.
+  //
+  // So this counts them every run. It does not fail, rewrite or nag -- a
+  // number next to the filename is enough to notice a drift, and `--dashes`
+  // prints each one with the block it sits in when the number looks wrong.
+  const dashes = out
+    .filter((b) => b.md.includes('\u2014'))
+    .map((b) => ({ path: b.path, md: b.md, n: (b.md.match(/\u2014/g) || []).length }))
+
+  return { md: lines.join('\n'), dashes, blocks: out.length, words }
 }
 
 const slugs = targets.length === 0 || targets[0] === 'all'
@@ -194,12 +213,17 @@ if (!toStdout) await mkdir(outDir, { recursive: true })
 
 for (const slug of slugs) {
   const data = await loadModule(slug)
-  const md = toMarkdown(slug, data)
+  const { md, dashes } = toMarkdown(slug, data)
+  const dashCount = dashes.reduce((n, d) => n + d.n, 0)
   if (toStdout) {
     process.stdout.write(md + '\n')
   } else {
     const dest = path.join(outDir, `${slug}.md`)
     await writeFile(dest, md + '\n')
-    console.log(`copy/${slug}.md  ${md.split('\n').length} lines`)
+    const flag = dashCount ? `  ${dashCount} em dash${dashCount === 1 ? '' : 'es'} (rule 8)` : ''
+    console.log(`copy/${slug}.md  ${md.split('\n').length} lines${flag}`)
+  }
+  if (listDashes && dashes.length) {
+    for (const d of dashes) console.log(`    ${d.path}\n      ${d.md.replace(/\n/g, ' ').slice(0, 120)}`)
   }
 }

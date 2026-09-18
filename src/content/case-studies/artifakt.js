@@ -807,7 +807,7 @@ export default {
           // changed. Flore raised it; this is the only block that says so.
           type: 'p',
           text:
-            'Four moderated in-person sessions and one informal one, spread through the build rather than saved for the end. The testing behind the outline chapter above is partly the same, and some of it came after the outline changed.',
+            'Four moderated in-person sessions after the reveal and one informal one after the outline was edited.',
         },
         {
           type: 'p',
@@ -875,7 +875,7 @@ export default {
         {
           type: 'p',
           text:
-            '**Testing ran through the build** rather than waiting for something finished to test. It is what kept deciding where the effort went next: the reveal before the drawing tool, the outline after that.',
+            '**Testing ran through the build** rather than waiting for something finished to test. It is what kept deciding where the effort went next: the reveal before the drawing tool, the outline after that. It also taught me how complex onboarding, or "the first hook", is before seeing what the product would do. This remains the main open challenge the product doesn’t cover.',
         },
         {
           type: 'p',

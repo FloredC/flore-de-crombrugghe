@@ -206,7 +206,7 @@ The per-artist prompt table
 > **Guide:** I expected the tracing to be the fun part. Everyone hesitated before starting it.
 
 <!-- body[6].prose[0] -->
-Four moderated in-person sessions and one informal one, spread through the build rather than saved for the end. The testing behind the outline chapter above is partly the same, and some of it came after the outline changed.
+Four moderated in-person sessions after the reveal and one informal one after the outline was edited.
 
 <!-- body[6].prose[1] -->
 **Every single person hesitated before tracing. Every single person lit up at the result.** All said they were inspired and would send it — and wanted to make another straight away.
@@ -234,7 +234,7 @@ It also answered the question I started with. **Ownership is partial: it’s my 
 Everything that moved this project forward came from **changing the question rather than the setting**. **Two passes instead of a better strength value. Subtraction instead of a better prompt.** Each time I got there after two or three rounds of tuning that felt productive and weren’t.
 
 <!-- body[7].prose[1] -->
-**Testing ran through the build** rather than waiting for something finished to test. It is what kept deciding where the effort went next: the reveal before the drawing tool, the outline after that.
+**Testing ran through the build** rather than waiting for something finished to test. It is what kept deciding where the effort went next: the reveal before the drawing tool, the outline after that. It also taught me how complex onboarding, or "the first hook", is before seeing what the product would do. This remains the main open challenge the product doesn’t cover.
 
 <!-- body[7].prose[2] -->
 **AI output arrives looking finished**, which makes it easy to accept as a given and tune around the edges. The design work is in **refusing that** — knowing what the model is actually doing, and noticing where its convenience is quietly making a decision that should have been yours.
@@ -289,4 +289,4 @@ Always happy to connect, whether remotely or in person.
 
 ---
 
-<!-- 91 blocks, ~1792 words -->
+<!-- 91 blocks, ~1799 words -->
