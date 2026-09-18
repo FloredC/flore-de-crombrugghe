@@ -797,10 +797,18 @@ export default {
       // below already counts the sessions, so the bubble was saying nothing the
       // reader was not about to be told. Reacts instead. Needs Flore's sign-off
       // and a sync back into the frame.
-      note: 'I expected the tracing to be the fun part. It was the part people dreaded.',
+      note: 'I expected the tracing to be the fun part. Everyone hesitated before starting it.',
       avatar: 'talks',
       prose: [
-        { type: 'p', text: 'Four moderated in-person sessions.' },
+        {
+          // WHERE THE TESTING SITS IN TIME — added 2026-09-18. The page read
+          // as two separate studies: the sessions behind "The outline" and
+          // these. They overlap, and some of this ran after the outline
+          // changed. Flore raised it; this is the only block that says so.
+          type: 'p',
+          text:
+            'Four moderated in-person sessions and one informal one, spread through the build rather than saved for the end. The testing behind the outline chapter above is partly the same, and some of it came after the outline changed.',
+        },
         {
           type: 'p',
           text: '**Every single person hesitated before tracing. Every single person lit up at the result.** All said they were inspired and would send it — and wanted to make another straight away.',
@@ -824,6 +832,7 @@ export default {
           type: 'list',
           items: [
             '**Killed.** The onboarding animation confused three testers in a row. Removed rather than redesigned a fourth time.',
+            '**Still open.** The first hook. People have to commit to tracing before they know what it becomes, and nothing in the product covers that yet. It is the main thing still missing.',
             '**Still open.** The artist bio — the most culturally meaningful moment in the product — was the least discovered thing in it.',
             '**Still open.** Erase clears everything; testers expected stroke-by-stroke undo.',
             '**Next test.** Promise the reveal before the trace, and see whether the hesitation drops.',
@@ -862,6 +871,11 @@ export default {
         {
           type: 'p',
           text: 'Everything that moved this project forward came from **changing the question rather than the setting**. **Two passes instead of a better strength value. Subtraction instead of a better prompt.** Each time I got there after two or three rounds of tuning that felt productive and weren’t.',
+        },
+        {
+          type: 'p',
+          text:
+            '**Testing ran through the build** rather than waiting for something finished to test. It is what kept deciding where the effort went next: the reveal before the drawing tool, the outline after that.',
         },
         {
           type: 'p',
