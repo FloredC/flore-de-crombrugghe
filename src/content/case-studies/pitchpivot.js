@@ -49,7 +49,7 @@ export default {
     // the case study is deliberately a per-page opt-in (see ProjectPage.jsx)
     // and not every project has one — but that does mean this pair can drift
     // again silently.
-    title: 'PitchPivot — Design Reasoning for Business Impact',
+    title: 'PitchPivot: Design Reasoning for Business Impact',
     // REWRITTEN 2026-08-14 from Flore's own definition of the product:
     //   - "helps you rethink and reframe your design decisions so that they
     //      answer to real business needs"
@@ -153,7 +153,7 @@ export default {
       label: '[ what-is-pitchpivot.webp — 2000x635 explanatory banner ]',
       placeholderAspect: '2000 / 635',
       maxWidth: MEDIA_WIDTH.banner,
-      alt: 'A design idea, “Added micro-interactions for a smoother, more responsive feel”, reframed into business-focused outcomes — higher user satisfaction and lower perceived wait time — with a coaching note to quantify outcomes and link design effects to measurable impact',
+      alt: 'A design idea, “Added micro-interactions for a smoother, more responsive feel”, reframed into business-focused outcomes: higher user satisfaction and lower perceived wait time, with a coaching note to quantify outcomes and link design effects to measurable impact',
     },
   },
 

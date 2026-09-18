@@ -60,7 +60,7 @@ export default function MediaCard({ item }) {
             ref={embedRef}
             data-component="media-embed"
             src={assetUrl(item.embedSrc)}
-            title={`${item.title} — audio player`}
+            title={`${item.title}, audio player`}
             className={`h-[152px] w-full ${embedFocused ? IFRAME_FOCUS_RING : ''}`}
             frameBorder="0"
             allowFullScreen

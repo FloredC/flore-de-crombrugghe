@@ -20,7 +20,7 @@ export default {
   frame: {
     category: 'Platform UX · Pricing Models · Cross-Functional Alignment',
     title: 'A pricing pilot tested with 3,000+ people',
-    facts: ['2024 — UX Designer, multi-platform. Ubique for SBB and Swisspass.'],
+    facts: ['2024: UX Designer, multi-platform. Ubique for SBB and Swisspass.'],
     liveUrl: 'https://www.myride.ch/de/index.html',
     // Capital W, from the frame. The homepage card's `cta` in myride.mdx reads
     // "myRIDE website" — the two are separate strings in separate files and

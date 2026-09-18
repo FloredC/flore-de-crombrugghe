@@ -1,4 +1,4 @@
-# Artifakt — Tracing your way past the blank canvas
+# Artifakt: Tracing your way past the blank canvas
 
 <!-- Extracted from src/content/case-studies/artifakt.js by scripts/copy.mjs.
      A VIEW, not a source: edit the .js, then re-run `npm run copy artifakt`.
@@ -150,7 +150,7 @@ The 14 phases behind this pipeline
 Testing raised the project’s sharpest question:
 
 <!-- body[4].prose[1] -->
-> "Why trace something that’s already there?" — Jules
+> Jules: "Why trace something that’s already there?"
 
 <!-- body[4].prose[2] -->
 The outline was too complete, so tracing felt pointless rather than like making something. All testers noticed this.
@@ -289,4 +289,4 @@ Always happy to connect, whether remotely or in person.
 
 ---
 
-<!-- 91 blocks, ~1784 words -->
+<!-- 91 blocks, ~1782 words -->

@@ -1,4 +1,4 @@
-# PitchPivot — Design Reasoning for Business Impact
+# PitchPivot: Design Reasoning for Business Impact
 
 <!-- Extracted from src/content/case-studies/pitchpivot.js by scripts/copy.mjs.
      A VIEW, not a source: edit the .js, then re-run `npm run copy pitchpivot`.
@@ -150,4 +150,4 @@ The project ran over five weeks on Patricia Reiners’ “AI for Designers” co
 
 ---
 
-<!-- 49 blocks, ~834 words -->
+<!-- 49 blocks, ~833 words -->

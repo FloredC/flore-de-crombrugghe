@@ -117,7 +117,7 @@ export default {
       items: [
         {
           src: `${M}/Roche-icons-overview.webp`,
-          alt: 'A grid of more than fifty finished icons — organs, lab equipment, trial states and disease areas — all drawn in the same two-colour line style.',
+          alt: 'A grid of more than fifty finished icons (organs, lab equipment, trial states and disease areas), all drawn in the same two-colour line style.',
           caption: 'The system today. Over 350 icons, most drawn after we left.',
         },
       ],

@@ -42,7 +42,7 @@ export default {
     category: 'Data visualization • Editorial',
     title: "Sinomocene, China's reach in nine datasets",
     facts: [
-      'Data visualization — Interactive Things for Davide Monteleone, 2019–2020',
+      'Data visualization: Interactive Things for Davide Monteleone, 2019–2020',
       'With Peter Gassner',
       "Prix Pictet · National Geographic · Rencontres d'Arles",
     ],

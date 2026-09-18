@@ -43,9 +43,9 @@ export default {
     // ("Map-Based UX  •  Search & Filter Design"); normalised to single, which
     // is what the other three frames use.
     category: 'Map-Based UX • Search & Filter Design',
-    title: 'Swiss Alpine Club — Trail discovery',
+    title: 'Swiss Alpine Club: Trail discovery',
     // CORRECTED FROM THE FRAME — see the header note above.
-    facts: ['2022 — UX Designer, multi-platform. Ubique for SAC.'],
+    facts: ['2022: UX Designer, multi-platform. Ubique for SAC.'],
     liveUrl: 'https://www.sac-cas.ch/en/sac-cas-app/',
     liveLabel: 'SAC App',
     buttonVariant: 'secondary',

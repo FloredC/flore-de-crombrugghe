@@ -19,7 +19,7 @@ export default function LearningBlock({ index, title, body = [], evidence }) {
           see CASE-STUDY-SYSTEM.md -- which is why they get a real heading size
           rather than a small label treatment. */}
       <h3 className="m-0 text-h2 font-semibold text-text-primary">
-        {index} — {title}
+        {index}. {title}
       </h3>
       {body.map((paragraph) => (
         <p key={paragraph} className="m-0 text-body-lg font-normal text-text-primary">

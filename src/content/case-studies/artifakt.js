@@ -90,7 +90,7 @@ export const processLogs = [
     file: 'reveal-ai-integration.html',
     title: 'Reveal & AI integration',
     thumb: 'card-reveal.webp',
-    alt: 'First page of the “Reveal — AI Integration Visual Process” log',
+    alt: 'First page of the “Reveal: AI Integration Visual Process” log',
   },
   {
     slug: 'prompting-process',
@@ -147,7 +147,7 @@ export default {
     // reader clicks one promise and lands on the same one. The two files are
     // not wired together — changing this means changing both. Same known
     // fragility as PitchPivot; see the note there.
-    title: 'Artifakt — Tracing your way past the blank canvas',
+    title: 'Artifakt: Tracing your way past the blank canvas',
     oneLiner: 'Guided DIY: a trace, an artist, an artifact',
     role: '0→1 designer, from research to final product',
     date: 'Jun 2026',
@@ -655,7 +655,7 @@ export default {
           // `*...*` — the semantics are worth more than the attribution's
           // slant. Say the word and it flips.
           type: 'quote',
-          text: '"Why trace something that’s already there?" — Jules',
+          text: 'Jules: "Why trace something that’s already there?"',
         },
         {
           type: 'p',

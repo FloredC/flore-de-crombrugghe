@@ -43,7 +43,7 @@ export default {
     // has to be changed in both places and can drift silently.
     title: "Redesigning Rega's app for 1.1M+ users",
     // No `oneLiner`: the frame goes straight from title to credits.
-    facts: ['2021 — Lead UX & Visual Designer. Ubique for Rega.'],
+    facts: ['2021: Lead UX & Visual Designer. Ubique for Rega.'],
     liveUrl: 'https://www.rega.ch/en/our-missions/this-is-how-we-help-you/rega-app',
     liveLabel: 'Rega App',
     // Secondary with the white-fill override, sampled from the real instance

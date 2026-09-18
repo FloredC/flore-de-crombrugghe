@@ -1,4 +1,4 @@
-# Swiss Alpine Club — Trail discovery
+# Swiss Alpine Club: Trail discovery
 
 <!-- Extracted from src/content/case-studies/trail-app.js by scripts/copy.mjs.
      A VIEW, not a source: edit the .js, then re-run `npm run copy trail-app`.
@@ -30,4 +30,4 @@ A good route isn't a property of the trail. It depends on who's walking, what th
 
 ---
 
-<!-- 8 blocks, ~170 words -->
+<!-- 8 blocks, ~169 words -->

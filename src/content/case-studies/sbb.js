@@ -27,7 +27,7 @@ export default {
   frame: {
     category: 'Motion Design · Microinteractions · Perceived Performance',
     title: 'Branded motion for a 3M+ user booking flow',
-    facts: ['2024 — Motion & UX Designer, solo. Ubique for SBB.'],
+    facts: ['2024: Motion & UX Designer, solo. Ubique for SBB.'],
     liveUrl: 'https://www.sbb.ch/en/travel-information/apps/sbb-mobile.html',
     liveLabel: 'SBB App',
     buttonVariant: 'secondary',

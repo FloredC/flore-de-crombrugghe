@@ -59,7 +59,7 @@ export default {
     // the brief's framing line ("Six ways of reading a year of team chat.")
     // opens the What section instead, where the frame puts it.
     facts: [
-      'Concept & visual design — moovel lab, 2016',
+      'Concept & visual design: moovel lab, 2016',
       'With Benedikt Groß and Oleksii Rudenko',
       'Fast Company Design · PAGE Online',
     ],
