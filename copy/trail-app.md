@@ -14,13 +14,13 @@ SAC App
 ## What was essential
 
 <!-- columns[0].body[0] -->
-A good route isn't a property of the trail. It depends on who's walking, what they packed, and what the sky is doing. Trail discovery fails when it treats route data as the answer instead of the input — and it gets used one-handed, mid-hike, in conditions the office never simulates.
+A good route isn't a property of the trail. It depends on who's walking, what they packed, and what the sky is doing. Trail discovery fails when it treats route data as the answer instead of the input, and it gets used one-handed, mid-hike, in conditions the office never simulates.
 
 <!-- columns[1].title -->
 ## What I did
 
 <!-- columns[1].body[0] -->
-- **Search and filter:** two versions, one per platform, each using patterns its users already know. Built around what makes an outing possible — activity, conditions, time — not the route database's own structure.
+- **Search and filter:** two versions, one per platform, each using patterns its users already know. Built around what makes an outing possible (activity, conditions, time), not the route database's own structure.
 - **Map navigation:** search couldn't filter the map, so the sheet had to carry the link between list and map.
 - **Design system:** component patterns across devices, built with dev so decisions held in code rather than per screen.
 - **Visual design:** an icon set that holds from filter size to full-screen map, and an animated chamois.
@@ -30,4 +30,4 @@ A good route isn't a property of the trail. It depends on who's walking, what th
 
 ---
 
-<!-- 8 blocks, ~173 words -->
+<!-- 8 blocks, ~170 words -->

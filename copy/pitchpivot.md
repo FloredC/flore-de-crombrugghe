@@ -23,19 +23,19 @@ Try it out
 ## What is PitchPivot
 
 <!-- what.body[0] -->
-Designers are often judged not just by what they create — but by **how convincingly they present it**. This project began with a simple question: why do designers — despite strong storytelling skills — still struggle to gain influence in strategic conversations? And how might AI help them frame ideas in business terms and respond with confidence when challenged?
+Designers are often judged not just by what they create, but by **how convincingly they present it**. This project began with a simple question: why do designers, despite strong storytelling skills, still struggle to gain influence in strategic conversations? And how might AI help them frame ideas in business terms and respond with confidence when challenged?
 
 <!-- what.body[1] -->
-PitchPivot helps designers rethink and reframe design decisions so that they **answer real business needs** — not just by rewording them, but by connecting them to what the business is actually trying to solve. It then helps them anticipate the questions those decisions will attract, and **rehearse the answers against the audience they will be facing**: an executive, a PM, whoever is in the room.
+PitchPivot helps designers rethink and reframe design decisions so that they **answer real business needs**, not just by rewording them, but by connecting them to what the business is actually trying to solve. It then helps them anticipate the questions those decisions will attract, and **rehearse the answers against the audience they will be facing**: an executive, a PM, whoever is in the room.
 
 <!-- why.title -->
 ## Why This Matters
 
 <!-- why.body[0] -->
-Product design is a proven growth driver — yet it **still struggles to gain influence in strategic decisions**. Despite a $200 billion market, only 13 % of companies have a UX leader at the executive level. Design-led businesses grow 32 % faster, while poor UX contributes to 65 % of failed digital products.
+Product design is a proven growth driver, yet it **still struggles to gain influence in strategic decisions**. Despite a $200 billion market, only 13 % of companies have a UX leader at the executive level. Design-led businesses grow 32 % faster, while poor UX contributes to 65 % of failed digital products.
 
 <!-- why.body[1] -->
-These numbers reveal a persistent gap between **design impact and design influence**. Designers create measurable value but often lack the visibility and vocabulary to express it. That’s the gap PitchPivot aims to close — helping designers communicate their impact with the clarity and confidence needed to earn that seat at the table.
+These numbers reveal a persistent gap between **design impact and design influence**. Designers create measurable value but often lack the visibility and vocabulary to express it. That’s the gap PitchPivot aims to close: helping designers communicate their impact with the clarity and confidence needed to earn that seat at the table.
 
 <!-- why.stats[0].value -->
 +32 %
@@ -59,7 +59,7 @@ Five interviews, three with senior product designers and two with junior designe
 > **Guide:** I went in convinced this was a presentation problem. It wasn’t.
 
 <!-- turningPoint.quotes[0].quote -->
-I get nervous when I'm presenting to non-designers — they start asking business questions I can't always answer.
+I get nervous when I'm presenting to non-designers. They start asking business questions I can't always answer.
 
 <!-- turningPoint.quotes[0].attribution -->
 Product designer, fintech
@@ -83,7 +83,7 @@ Senior designer, agency
 ## Impact Framing
 
 <!-- features.items[0].body -->
-Detect UX jargon and translate your design reasoning into clear, outcome-focused business language — before the meeting.
+Detect UX jargon and translate your design reasoning into clear, outcome-focused business language, before the meeting.
 
 <!-- features.items[0].media.caption -->
 *Caption: 'Impact Framing' state 28.10.25*
@@ -92,7 +92,7 @@ Detect UX jargon and translate your design reasoning into clear, outcome-focused
 ## Pushback Pivot
 
 <!-- features.items[1].body -->
-Practice responding to challenging questions from specific stakeholder types — so you’re never caught off guard.
+Practice responding to challenging questions from specific stakeholder types, so you’re never caught off guard.
 
 <!-- features.items[1].media.caption -->
 *Caption: 'Pushback Pivot' state 28.10.25*
@@ -137,7 +137,7 @@ That answer came from 27 people before any of them had seen it: 19 UX/UI designe
 *Caption: Blockers to design influence*
 
 <!-- process.title -->
-## The Process — Exploring AI in the Design Workflow
+## The Process: Exploring AI in the Design Workflow
 
 <!-- process.note -->
 > **Guide:** The real experiment was treating AI as a partner, not a tool: something that challenged assumptions instead of just executing them.
@@ -150,4 +150,4 @@ The project ran over five weeks on Patricia Reiners’ “AI for Designers” co
 
 ---
 
-<!-- 49 blocks, ~844 words -->
+<!-- 49 blocks, ~834 words -->

@@ -14,7 +14,7 @@ Roche icons
 **An icon system for people who aren't designers.**
 
 <!-- what.body[1] -->
-Roche employees needed to explain scientifically complex topics — visually, quickly, and without breaking brand guidelines. Buying stock icons broke the brand. Commissioning new ones every time didn't scale. Neither option survives contact with someone building a deck the night before.
+Roche employees needed to explain scientifically complex topics: visually, quickly, and without breaking brand guidelines. Buying stock icons broke the brand. Commissioning new ones every time didn't scale. Neither option survives contact with someone building a deck the night before.
 
 <!-- what.body[2] -->
 So the deliverable was **a construction logic rather than a library**: **a modular, layered grammar where parts combine into terms that didn't exist when the system was drawn**. Combined further, they build whole infographics.
@@ -45,4 +45,4 @@ It has since **grown past 350 icons, extended and maintained by the employees th
 
 ---
 
-<!-- 14 blocks, ~185 words -->
+<!-- 14 blocks, ~184 words -->

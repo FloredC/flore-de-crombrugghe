@@ -137,11 +137,11 @@ export default {
       // question the project STARTED from, and the case study goes on to show
       // that question was narrower than the real skill. Don't "fix" it for
       // consistency — that erases the arc.
-      'Designers are often judged not just by what they create — but by **how convincingly they present it**. This project began with a simple question: why do designers — despite strong storytelling skills — still struggle to gain influence in strategic conversations? And how might AI help them frame ideas in business terms and respond with confidence when challenged?',
+      'Designers are often judged not just by what they create, but by **how convincingly they present it**. This project began with a simple question: why do designers, despite strong storytelling skills, still struggle to gain influence in strategic conversations? And how might AI help them frame ideas in business terms and respond with confidence when challenged?',
       // P2 EXPANDS the hero one-liner rather than repeating it, carrying what
       // the hook has no room for: the substance-not-vocabulary point, and the
       // two exercises, which set up the `features` section.
-      'PitchPivot helps designers rethink and reframe design decisions so that they **answer real business needs** — not just by rewording them, but by connecting them to what the business is actually trying to solve. It then helps them anticipate the questions those decisions will attract, and **rehearse the answers against the audience they will be facing**: an executive, a PM, whoever is in the room.',
+      'PitchPivot helps designers rethink and reframe design decisions so that they **answer real business needs**, not just by rewording them, but by connecting them to what the business is actually trying to solve. It then helps them anticipate the questions those decisions will attract, and **rehearse the answers against the audience they will be facing**: an executive, a PM, whoever is in the room.',
     ],
     // PNG, not SVG — Flore's correction, 2026-08-12. With this one all five
     // page graphics are raster, so none of them can inherit a design token;
@@ -160,8 +160,8 @@ export default {
   why: {
     title: 'Why This Matters',
     body: [
-      'Product design is a proven growth driver — yet it **still struggles to gain influence in strategic decisions**. Despite a $200 billion market, only 13 % of companies have a UX leader at the executive level. Design-led businesses grow 32 % faster, while poor UX contributes to 65 % of failed digital products.',
-      'These numbers reveal a persistent gap between **design impact and design influence**. Designers create measurable value but often lack the visibility and vocabulary to express it. That’s the gap PitchPivot aims to close — helping designers communicate their impact with the clarity and confidence needed to earn that seat at the table.',
+      'Product design is a proven growth driver, yet it **still struggles to gain influence in strategic decisions**. Despite a $200 billion market, only 13 % of companies have a UX leader at the executive level. Design-led businesses grow 32 % faster, while poor UX contributes to 65 % of failed digital products.',
+      'These numbers reveal a persistent gap between **design impact and design influence**. Designers create measurable value but often lack the visibility and vocabulary to express it. That’s the gap PitchPivot aims to close: helping designers communicate their impact with the clarity and confidence needed to earn that seat at the table.',
     ],
     // Was the plain string 'Sources: DesignRush, Flynn, McKinsey'. Real URLs
     // from Flore, 2026-08-14 — the three figures in the paragraph above are
@@ -241,7 +241,7 @@ export default {
     quotes: [
       {
         quote:
-          "I get nervous when I'm presenting to non-designers — they start asking business questions I can't always answer.",
+          "I get nervous when I'm presenting to non-designers. They start asking business questions I can't always answer.",
         attribution: 'Product designer, fintech',
       },
       {
@@ -264,7 +264,7 @@ export default {
         title: 'Impact Framing',
         // Flore's own copy, 2026-08-14, verbatim apart from a closing full stop
         // to match the second feature.
-        body: 'Detect UX jargon and translate your design reasoning into clear, outcome-focused business language — before the meeting.',
+        body: 'Detect UX jargon and translate your design reasoning into clear, outcome-focused business language, before the meeting.',
         media: {
           kind: 'video',
           src: `${M}/impact-framing.mp4`,
@@ -279,7 +279,7 @@ export default {
       {
         title: 'Pushback Pivot',
         // Flore's own copy, 2026-08-14, verbatim.
-        body: 'Practice responding to challenging questions from specific stakeholder types — so you’re never caught off guard.',
+        body: 'Practice responding to challenging questions from specific stakeholder types, so you’re never caught off guard.',
         media: {
           kind: 'video',
           src: `${M}/pushback-pivot.mp4`,
@@ -676,7 +676,7 @@ export default {
   },
 
   process: {
-    title: 'The Process — Exploring AI in the Design Workflow',
+    title: 'The Process: Exploring AI in the Design Workflow',
     // SHORTENED 2026-08-14, 57 words to 41. This is the longer of the two
     // Guide notes and so the one that sets how tall the bubble gets — see the
     // note on MEASURE.guideBubble in caseStudyLayout.js, which flags exactly

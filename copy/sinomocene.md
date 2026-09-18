@@ -14,10 +14,10 @@ Sinomocene
 **Nine incompatible datasets, one photographic argument.**
 
 <!-- what.body[1] -->
-Davide Monteleone spent seven years documenting China's Belt and Road Initiative. The data behind it came from nine sources that don't share a unit: infrastructure finance, diplomatic missions, Confucius Institutes, trade flows, tourism, corruption indices. **Chinese influence isn't measurable in one currency**, which is precisely the point — and precisely what makes it hard to draw.
+Davide Monteleone spent seven years documenting China's Belt and Road Initiative. The data behind it came from nine sources that don't share a unit: infrastructure finance, diplomatic missions, Confucius Institutes, trade flows, tourism, corruption indices. **Chinese influence isn't measurable in one currency**, which is precisely the point, and precisely what makes it hard to draw.
 
 <!-- what.body[2] -->
-So each country is drawn as **a shape cut from the initiative’s own name**. 一带一路 — "One Belt, One Road" — dissected tangram-style, one piece per indicator, sized to the scale of Chinese presence. **Measures that can’t be added together sit side by side in a single form**.
+So each country is drawn as **a shape cut from the initiative’s own name**. 一带一路 ("One Belt, One Road") dissected tangram-style, one piece per indicator, sized to the scale of Chinese presence. **Measures that can’t be added together sit side by side in a single form**.
 
 <!-- what.body[3] -->
 It runs alongside large-format documentary photography and satellite analysis, in books and exhibitions where people are standing up.
@@ -32,7 +32,7 @@ It runs alongside large-format documentary photography and satellite analysis, i
 ## Sinomocene Data
 
 <!-- views[0].items[0].caption -->
-*Caption: Data Sinomocene, 2020 — an excerpt from the 42-minute two-channel video tracing money flow from China and the resulting footprint in each country.*
+*Caption: Data Sinomocene, 2020: an excerpt from the 42-minute two-channel video tracing money flow from China and the resulting footprint in each country.*
 
 <!-- views[1].items[0].caption -->
 *Caption: Chinese worldwide economic, sociocultural, political, and technological footprint, 2010-2017*
@@ -51,4 +51,4 @@ It runs alongside large-format documentary photography and satellite analysis, i
 
 ---
 
-<!-- 16 blocks, ~226 words -->
+<!-- 16 blocks, ~222 words -->

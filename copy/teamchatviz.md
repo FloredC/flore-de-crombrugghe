@@ -17,10 +17,10 @@ Github Teamchatviz
 **Six ways of reading a year of team chat.**
 
 <!-- what.body[1] -->
-**Slack is where a company's culture actually happens**, and it's almost entirely unreadable — a year of it is just scroll. Connect the tool to a workspace and it builds **six views of every public channel automatically**. New joiners get an overview that would otherwise take months to absorb. People who've been there for years find out what's been going on two channels over.
+**Slack is where a company's culture actually happens**, and it's almost entirely unreadable: a year of it is just scroll. Connect the tool to a workspace and it builds **six views of every public channel automatically**. New joiners get an overview that would otherwise take months to absorb. People who've been there for years find out what's been going on two channels over.
 
 <!-- what.body[2] -->
-The hard part was formal. Six visualization types with **genuinely different grammars** — network clusters, time series, rankings — that **still had to read as one product**, for someone who had never looked at a cluster analysis before.
+The hard part was formal. Six visualization types with **genuinely different grammars** (network clusters, time series, rankings) that **still had to read as one product**, for someone who had never looked at a cluster analysis before.
 
 <!-- what.body[3] -->
 The tool doesn't tell you what your team is like. **It shows you the shape and leaves the reading to you.**
@@ -57,4 +57,4 @@ The tool doesn't tell you what your team is like. **It shows you the shape and l
 
 ---
 
-<!-- 18 blocks, ~271 words -->
+<!-- 18 blocks, ~268 words -->

@@ -96,8 +96,8 @@ export default {
     mediaInset: '13.71%',
     body: [
       '**Nine incompatible datasets, one photographic argument.**',
-      "Davide Monteleone spent seven years documenting China's Belt and Road Initiative. The data behind it came from nine sources that don't share a unit: infrastructure finance, diplomatic missions, Confucius Institutes, trade flows, tourism, corruption indices. **Chinese influence isn't measurable in one currency**, which is precisely the point — and precisely what makes it hard to draw.",
-      'So each country is drawn as **a shape cut from the initiative’s own name**. 一带一路 — "One Belt, One Road" — dissected tangram-style, one piece per indicator, sized to the scale of Chinese presence. **Measures that can’t be added together sit side by side in a single form**.',
+      "Davide Monteleone spent seven years documenting China's Belt and Road Initiative. The data behind it came from nine sources that don't share a unit: infrastructure finance, diplomatic missions, Confucius Institutes, trade flows, tourism, corruption indices. **Chinese influence isn't measurable in one currency**, which is precisely the point, and precisely what makes it hard to draw.",
+      'So each country is drawn as **a shape cut from the initiative’s own name**. 一带一路 ("One Belt, One Road") dissected tangram-style, one piece per indicator, sized to the scale of Chinese presence. **Measures that can’t be added together sit side by side in a single form**.',
       'It runs alongside large-format documentary photography and satellite analysis, in books and exhibitions where people are standing up.',
       "**The photography makes the argument. The data had to be the part you couldn't dismiss.**",
     ],
@@ -137,7 +137,7 @@ export default {
           // and dropping it would lose the scale of the piece. Only the
           // relationship between the two is now stated.
           caption:
-            'Data Sinomocene, 2020 — an excerpt from the 42-minute two-channel video tracing money flow from China and the resulting footprint in each country.',
+            'Data Sinomocene, 2020: an excerpt from the 42-minute two-channel video tracing money flow from China and the resulting footprint in each country.',
         },
       ],
     },
