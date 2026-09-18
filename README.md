@@ -34,9 +34,17 @@ npm install
 npm run dev
 ```
 
+Then open **<http://localhost:5173>** in a browser — a case study is at
+`/work/artifakt`. Two things that are easy to trip over: the URL goes in the
+browser, not the terminal, and the dev server only runs while that terminal
+window is open (`Ctrl+C` stops it). If `localhost` refuses to connect but
+`http://127.0.0.1:5173` works, the browser is forcing HTTPS on the `localhost`
+hostname — clear it at `chrome://net-internals/#hsts`.
+
 | Script | What it does |
 |---|---|
 | `npm run dev` | Dev server. Wraps Vite to restart it when `tailwind.config.js` changes — Tailwind 3 caches its ESM config for the life of the process, so an in-process restart silently keeps serving the old CSS. See [`scripts/dev.mjs`](scripts/dev.mjs). |
+| `npm run copy <slug>` | Writes `copy/<slug>.md` — everything a visitor reads on that case study, and nothing else. For reviewing writing without scrolling a 1000-line module that is half provenance comments. `all` does every page; `--stdout` prints instead. See [`scripts/copy.mjs`](scripts/copy.mjs). |
 | `npm run build` | Production build, then the prerender pass (below). |
 | `npm run preview:pages` | Builds and serves `dist` exactly as GitHub Pages does — including the 404 fallback and directory-index redirects. The only local setup that catches deploy-shaped bugs. |
 | `npm run shoot` | Drives headless Chrome over CDP across six desktop viewports and writes a screenshot contact sheet plus measured metrics. Used for above-the-fold work. |
