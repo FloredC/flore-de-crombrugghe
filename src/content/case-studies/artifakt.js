@@ -189,7 +189,7 @@ export default {
       prose: [
         {
           type: 'p',
-          text: 'You type a word, trace a loose line drawing by hand, and it comes back in the style of a real artist. The app inspires you and helps you finishing your traced idea with help of real artists.',
+          text: 'You type a word, trace a loose line drawing by hand, and it comes back in the style of a real artist. The tool **inspires you and helps you finish your traced idea with the help of real artists**.',
         },
         {
           // THE STAKES, added by Flore in the frame 2026-08-24 after the
@@ -202,7 +202,7 @@ export default {
           // deliberately does NOT live here: it motivates the reveal, so it
           // opens that section instead.
           type: 'p',
-          text: 'What if an AI image generation tool could inspire and teach people about drawing and art? How could this tool increase personality and authenticity in drawing in order to feel "less generic"? And when do people decide where that authenticity breaks down? When do they trust their own sense of taste or imperfection against something that is more perfect but clearly machine-generated? This tool prompts users to seek originality in drawing generation by starting with an intention that is true to the person creating it.',
+          text: 'What if an AI image generation tool could inspire and teach users about drawing and art? How could this tool increase personality and authenticity in drawing in order to feel "less generic"? And when do people decide where that authenticity breaks down? When do they trust their own sense of taste or imperfection against something that is more perfect but clearly machine-generated? This tool prompts users to **seek originality in drawing generation by starting with an intention that is true to the person creating it**.',
         },
       ],
       // FULL CONTENT WIDTH, matching Figma's 1282 stage (node 4897:4533).
@@ -240,7 +240,7 @@ export default {
       prose: [
         {
           type: 'p',
-          text: 'Artifakt is a mobile tool that turns a typed intention into a hand-drawn artwork in the style of a real artist. It’s built to spark creativity rather than stand in for it: every result is unique to the person who traced it, and every result arrives with an artist worth being curious about.',
+          text: 'Artifakt is a mobile tool that turns a typed intention into a hand-drawn artwork in the style of a real artist. It’s built to **spark creativity rather than stand in for it: every result is unique to the person who traced it, and every result arrives with an artist worth being curious about**.',
         },
         {
           type: 'p',
@@ -418,7 +418,7 @@ export default {
           items: [
             'traced line legible,',
             'artist’s hand clear,',
-            'surprise so it feels like a gift, not a filter.',
+            'surprise so it feels like a new artwork, not a filter.',
           ],
         },
         { type: 'p', text: '**The result I got**:' },
@@ -428,7 +428,7 @@ export default {
             // "leads the model to", not the frame's "leads model to" — a
             // dropped article rather than the clipped register the rest of
             // this pass is written in. Fix the frame so a re-pull keeps it.
-            'The model used the most iconic subject or visual of the artists (which makes sense because this is what is the most available in our collective imagery on the internet.)',
+            'The model used the most iconic subject or visual of each artist (which makes sense, because those are the images most present online).',
           ],
         },
         { type: 'p', text: '**What didn’t work**:' },
@@ -456,7 +456,7 @@ export default {
         },
         {
           type: 'aside',
-          text: '**Lesson**: if the trade-off persists, change the pipeline shape, not the dial.',
+          text: '**Lesson**: If the same trade-off keeps coming back after a few adjustments, stop adjusting and rethink how the pipeline is built.',
         },
       ],
 
@@ -653,7 +653,7 @@ export default {
         },
         {
           type: 'p',
-          text: 'The outline was too complete, making tracing feel like busywork, not creation. All testers noticed this.',
+          text: 'The outline was too complete, so tracing felt pointless rather than like making something. All testers noticed this.',
         },
         {
           type: 'list',
