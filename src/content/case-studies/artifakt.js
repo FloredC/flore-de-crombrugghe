@@ -396,17 +396,23 @@ export default {
       // sync back into the frame.
       //
       // REWRITTEN 2026-08-31 from the frame. The five long bullets became four
-      // short LISTS, each introduced by its own bold lead-in paragraph — so
-      // "Wanted", "Got", "Dead ends" and "Fix 2" are now headings over their
-      // items rather than the first words of one. That is why the block count
-      // jumped from three to eleven for copy that got shorter.
+      // short LISTS, each introduced by its own bold lead-in paragraph — so the
+      // lead-ins are headings over their items rather than the first words of
+      // one. That is why the block count jumped from three to eleven for copy
+      // that got shorter.
       //
-      // Each lead-in is written `**Wanted**:` with the colon OUTSIDE the bold,
-      // not `**Wanted:**`. Two reasons, and both matter: the frame itself puts
-      // the colon outside the bold run on four of the five, and Prose's
-      // tight-spacing rule reads the RAW string for a trailing `:` — with the
-      // colon inside the markers the string ends in `**` and the lead-in would
-      // float 32px above the list it introduces.
+      // THE LEAD-INS WERE RENAMED BY FLORE, 2026-09-18: "Wanted", "Got", "Dead
+      // ends" and "Fix 1/2" are now "Wished result", "The result I got", "What
+      // didn't work" and "Solution 1/2" (rule 15 — say it the way she would say
+      // it out loud). This comment named the old four until the same pass; if
+      // you are searching for them, that is why they are not here.
+      //
+      // Each lead-in is written `**Wished result**:` with the colon OUTSIDE the
+      // bold, not `**Wished result:**`. Two reasons, and both matter: the frame
+      // puts the colon outside the bold run, and Prose's tight-spacing rule
+      // reads the RAW string for a trailing `:` — with the colon inside the
+      // markers the string ends in `**` and the lead-in would float 32px above
+      // the list it introduces.
       prose: [
         {
           type: 'p',
@@ -916,8 +922,17 @@ export default {
           // moderated plus one informal — so the word "moderated" is what was
           // wrong here, not either number. Both sections are now true as
           // written and neither number had to move.
+          //
+          // THERE IS NOW A THIRD NUMBER ON THE PAGE, and it belongs to a
+          // different study: "Three of five picked the coloured one" in "The
+          // question" is the early cake test, five people on the *concept*,
+          // months before anything was built. It is not these five sessions,
+          // and the match is a coincidence. "testing the prototype" was added
+          // below on 2026-09-18 so a reader meeting both cannot read one as
+          // the other — do not "reconcile" 3/4/5, they are three true numbers
+          // about two studies.
           type: 'p',
-          text: '**4 weeks end to end**. **14 documented prompting phases**. 6 process logs kept during the build. 5 artists, after two were cut for technical reasons. 5 in-person test sessions.',
+          text: '**4 weeks end to end**. **14 documented prompting phases**. 6 process logs kept during the build. 5 artists, after two were cut for technical reasons. 5 in-person sessions testing the prototype.',
         },
         {
           type: 'p',
