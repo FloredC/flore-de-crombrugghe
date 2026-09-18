@@ -57,8 +57,23 @@ warning about — if you find one, point it here rather than editing it.
 > "Something about her was kind and soft. Comforting. Like the smell of a hot, fresh mint tea on a Sunday coffee table."
 > "That's when something happened."
 
-**8. Em dashes only exceptionally, when a comma, period, colon or conjunction cannot do the job.**
-> "its not a hard no but it should be used only exceptionally."
+**8. No em dashes. A comma, period, colon or conjunction always does the job.**
+> "i think we should change the rules... say hard no to dashes, it used way to frequently" (2026-09-18)
+
+HARDENED on 2026-09-18. The rule used to read "only exceptionally, when a comma,
+period, colon or conjunction cannot do the job", and Flore's own line on it was
+"its not a hard no but it should be used only exceptionally". That version
+lasted exactly as long as nobody counted: the Artifakt page carried 17, and
+every one of them was defensible on its own. "Exceptionally" is not a rule a
+writer can check, so it became a hard no.
+
+`npm run copy` reports the count per page and `-- --dashes` lists each one with
+its block, so this is now measurable rather than a matter of impression.
+
+Two uses are still open rather than settled, and Flore decides them:
+a quote's attribution ("Why trace something that's already there?" ... Jules),
+and the em dash inside the Artifakt page title, which also appears in
+`projects/artifakt.mdx`, the prerendered link previews and the homepage card.
 
 **9. When she disagrees: concede the cost, name the risk, state the position, ask. She lets the other side's words speak and turns a lost argument into her own lesson.**
 > "So they proposed to use 222 words instead of 333, which we refused because the concept of our book was actually to step out of the binary system."
@@ -138,6 +153,7 @@ without her.
 
 Words she never uses. This list grows: add one whenever it annoys her.
 - gamechanger
+- the em dash, in any sentence she writes (rule 8)
 
 Also absent from everything she wrote herself:
 - leverage, passionate, seamless, empower, delve, thrilled

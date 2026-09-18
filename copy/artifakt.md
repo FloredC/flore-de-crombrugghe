@@ -8,7 +8,7 @@
 AI Prompt Engineering / Gen Design / UX Research
 
 <!-- frame.oneLiner -->
-Guided DIY — a trace, an artist, an artifact
+Guided DIY: a trace, an artist, an artifact
 
 <!-- frame.role -->
 0→1 designer, from research to final product
@@ -50,7 +50,7 @@ A fixed, curated group of artists help elevate your drawing: Louise Bourgeois, K
 *Caption: Five artists, a fixed curated roster*
 
 <!-- body[2].title -->
-## The question: made by me — but make it good
+## The question: made by me, but make it good
 
 <!-- body[2].note -->
 > **Guide:** My test was flawed. The finding wasn’t.
@@ -126,16 +126,16 @@ The traced line is what shows the effort, and **the reveal is where it shows**. 
 The 14 phases behind this pipeline
 
 <!-- body[3].pipeline.steps[0].preview.caption -->
-*Caption: Raw user sketch on the canvas — loose pencil lines, no colour.*
+*Caption: Raw user sketch on the canvas: loose pencil lines, no colour.*
 
 <!-- body[3].pipeline.steps[1].preview.caption -->
-*Caption: Sketch cleaned and line weight adjusted per artist before the model sees it. Think of it as defining brushes in a drawing tool — but to support the unique gesture of each artist.*
+*Caption: Sketch cleaned and line weight adjusted per artist before the model sees it. Think of it as defining brushes in a drawing tool, but to support the unique gesture of each artist.*
 
 <!-- body[3].pipeline.steps[2].preview.caption -->
-*Caption: Gesture and material established — strong form, no artist colour yet.*
+*Caption: Gesture and material established: strong form, no artist colour yet.*
 
 <!-- body[3].pipeline.steps[3].preview.caption -->
-*Caption: Artist identity applied — colour, motifs and full style on top.*
+*Caption: Artist identity applied: colour, motifs and full style on top.*
 
 <!-- body[3].pipeline.steps[4].preview.caption -->
 *Caption: Final artwork shown on Screen 2.*
@@ -156,10 +156,10 @@ Testing raised the project’s sharpest question:
 The outline was too complete, so tracing felt pointless rather than like making something. All testers noticed this.
 
 <!-- body[4].prose[3] -->
-- **First idea** — UX tweaks: softer copy, looser prompts, art-school style (think volumes first). The model didn’t get it.
+- **First idea**: UX tweaks. Softer copy, looser prompts, art-school style (think volumes first). The model didn’t get it.
 - **Costly detour**: generating the outline via img2img on an SVG motif. Biggest credit chunk, but it made a more finished illustration.
 - **Reframe**: "Make this less detailed" is subtraction, not generation. Image-to-image changes style, not structure.
-- **Fix** in code, not prompts: generate a sketch, then subtract — grayscale → blur → Canny → flood-fill → keep outer contours. Prototyped in Python, ported to browser Canvas for static hosting.
+- **Fix** in code, not prompts: generate a sketch, then subtract: grayscale → blur → Canny → flood-fill → keep outer contours. Prototyped in Python, ported to browser Canvas for static hosting.
 - **Still a problem**: flood-fill assumes closed contours. Give it a bike, it fills the canvas black.
 
 <!-- body[4].prose[4] -->
@@ -209,18 +209,18 @@ The per-artist prompt table
 Four moderated in-person sessions after the reveal and one informal one after the outline was edited.
 
 <!-- body[6].prose[1] -->
-**Every single person hesitated before tracing. Every single person lit up at the result.** All said they were inspired and would send it — and wanted to make another straight away.
+**Every single person hesitated before tracing. Every single person lit up at the result.** All said they were inspired and would send it, and wanted to make another straight away.
 
 <!-- body[6].prose[2] -->
 **That gap is the finding**. People don’t understand why they’re drawing until they see what it becomes. The doubt comes first, the reward comes last. A good ending doesn’t validate the path to it.
 
 <!-- body[6].prose[3] -->
-It also answered the question I started with. **Ownership is partial: it’s my idea but not my drawing.** That’s the honest ceiling for a tool that hands you something to trace — and enough to make them want to send it.
+It also answered the question I started with. **Ownership is partial: it’s my idea but not my drawing.** That’s the honest ceiling for a tool that hands you something to trace, and enough to make them want to send it.
 
 <!-- body[6].prose[4] -->
 - **Killed.** The onboarding animation confused three testers in a row. Removed rather than redesigned a fourth time.
 - **Still open.** The first hook. People have to commit to tracing before they know what it becomes, and nothing in the product covers that yet. It is the main thing still missing.
-- **Still open.** The artist bio — the most culturally meaningful moment in the product — was the least discovered thing in it.
+- **Still open.** The artist bio, the most culturally meaningful moment in the product, was the least discovered thing in it.
 - **Still open.** Erase clears everything; testers expected stroke-by-stroke undo.
 - **Next test.** Promise the reveal before the trace, and see whether the hesitation drops.
 
@@ -237,16 +237,16 @@ Everything that moved this project forward came from **changing the question rat
 **Testing ran through the build** rather than waiting for something finished to test. It is what kept deciding where the effort went next: the reveal before the drawing tool, the outline after that. It also taught me how complex onboarding, or "the first hook", is before seeing what the product would do. This remains the main open challenge the product doesn’t cover.
 
 <!-- body[7].prose[2] -->
-**AI output arrives looking finished**, which makes it easy to accept as a given and tune around the edges. The design work is in **refusing that** — knowing what the model is actually doing, and noticing where its convenience is quietly making a decision that should have been yours.
+**AI output arrives looking finished**, which makes it easy to accept as a given and tune around the edges. The design work is in **refusing that**: knowing what the model is actually doing, and noticing where its convenience is quietly making a decision that should have been yours.
 
 <!-- body[7].media.caption -->
 *Caption: Mental model for the two-pass pipeline, borrowed from childhood art classes: study the technique, study the subject, then put both away and make your own.*
 
 <!-- body[8].title -->
-## The Process — 14 phases, documented
+## The Process: 14 phases, documented
 
 <!-- body[8].prose[0] -->
-Four weeks, solo, built during cohort 6 of Patricia Reiners’ AI for Designers. Same timeline as PitchPivot, considerably heavier underneath — **most of those hours went into the image pipeline, not the interface**.
+Four weeks, solo, built during cohort 6 of Patricia Reiners’ AI for Designers. Same timeline as PitchPivot, considerably heavier underneath: **most of those hours went into the image pipeline, not the interface**.
 
 <!-- body[8].prose[1] -->
 **4 weeks end to end**. **14 documented prompting phases**. 6 process logs kept during the build. 5 artists, after two were cut for technical reasons. 5 in-person sessions testing the prototype.
@@ -289,4 +289,4 @@ Always happy to connect, whether remotely or in person.
 
 ---
 
-<!-- 91 blocks, ~1799 words -->
+<!-- 91 blocks, ~1784 words -->

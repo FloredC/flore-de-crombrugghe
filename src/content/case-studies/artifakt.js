@@ -148,7 +148,7 @@ export default {
     // not wired together — changing this means changing both. Same known
     // fragility as PitchPivot; see the note there.
     title: 'Artifakt — Tracing your way past the blank canvas',
-    oneLiner: 'Guided DIY — a trace, an artist, an artifact',
+    oneLiner: 'Guided DIY: a trace, an artist, an artifact',
     role: '0→1 designer, from research to final product',
     date: 'Jun 2026',
     liveUrl: LIVE_URL,
@@ -302,7 +302,7 @@ export default {
     // 4 --------------------------------------------------------------------
     {
       id: 'question',
-      title: 'The question: made by me — but make it good',
+      title: 'The question: made by me, but make it good',
       // THE GUIDE IS AN ASIDE AGAIN, not narration — Flore, 2026-08-24, after
       // the narration review. It briefly carried this section's opening
       // question, which left the prose starting on "sharpened *it*" with the
@@ -559,7 +559,7 @@ export default {
               src: `${M}/pipeline/input.webp`,
               aspect: '1704 / 1800',
               alt: 'A loose pencil sketch on the Artifakt canvas',
-              caption: 'Raw user sketch on the canvas — loose pencil lines, no colour.',
+              caption: 'Raw user sketch on the canvas: loose pencil lines, no colour.',
             },
           },
           {
@@ -572,7 +572,7 @@ export default {
               aspect: '1704 / 1800',
               alt: 'The sketch after cleaning and per-artist line-weight adjustment',
               caption:
-                'Sketch cleaned and line weight adjusted per artist before the model sees it. Think of it as defining brushes in a drawing tool — but to support the unique gesture of each artist.',
+                'Sketch cleaned and line weight adjusted per artist before the model sees it. Think of it as defining brushes in a drawing tool, but to support the unique gesture of each artist.',
             },
           },
           {
@@ -584,7 +584,7 @@ export default {
               src: `${M}/pipeline/pass-1.webp`,
               aspect: '1704 / 1800',
               alt: 'Output of pass one: strong form and material, no artist colour yet',
-              caption: 'Gesture and material established — strong form, no artist colour yet.',
+              caption: 'Gesture and material established: strong form, no artist colour yet.',
             },
           },
           {
@@ -596,7 +596,7 @@ export default {
               src: `${M}/pipeline/pass-2.webp`,
               aspect: '1704 / 1800',
               alt: 'Output of pass two: the artist’s colour, motifs and full style applied',
-              caption: 'Artist identity applied — colour, motifs and full style on top.',
+              caption: 'Artist identity applied: colour, motifs and full style on top.',
             },
           },
           {
@@ -664,13 +664,13 @@ export default {
         {
           type: 'list',
           items: [
-            '**First idea** — UX tweaks: softer copy, looser prompts, art-school style (think volumes first). The model didn’t get it.',
+            '**First idea**: UX tweaks. Softer copy, looser prompts, art-school style (think volumes first). The model didn’t get it.',
             '**Costly detour**: generating the outline via img2img on an SVG motif. Biggest credit chunk, but it made a more finished illustration.',
             '**Reframe**: "Make this less detailed" is subtraction, not generation. Image-to-image changes style, not structure.',
             // "Canny" capitalised, against the frame's "canny" — it is a
             // person's name (the Canny edge detector), the same class of fix
             // as "Six interviews" above.
-            '**Fix** in code, not prompts: generate a sketch, then subtract — grayscale → blur → Canny → flood-fill → keep outer contours. Prototyped in Python, ported to browser Canvas for static hosting.',
+            '**Fix** in code, not prompts: generate a sketch, then subtract: grayscale → blur → Canny → flood-fill → keep outer contours. Prototyped in Python, ported to browser Canvas for static hosting.',
             '**Still a problem**: flood-fill assumes closed contours. Give it a bike, it fills the canvas black.',
           ],
         },
@@ -811,7 +811,7 @@ export default {
         },
         {
           type: 'p',
-          text: '**Every single person hesitated before tracing. Every single person lit up at the result.** All said they were inspired and would send it — and wanted to make another straight away.',
+          text: '**Every single person hesitated before tracing. Every single person lit up at the result.** All said they were inspired and would send it, and wanted to make another straight away.',
         },
         {
           // The full stop sits OUTSIDE the bold, matching the frame. Small, and
@@ -821,7 +821,7 @@ export default {
         },
         {
           type: 'p',
-          text: 'It also answered the question I started with. **Ownership is partial: it’s my idea but not my drawing.** That’s the honest ceiling for a tool that hands you something to trace — and enough to make them want to send it.',
+          text: 'It also answered the question I started with. **Ownership is partial: it’s my idea but not my drawing.** That’s the honest ceiling for a tool that hands you something to trace, and enough to make them want to send it.',
         },
         {
           // THE LAST FOUR PARAGRAPHS ARE NOW ONE LIST — Flore, 2026-08-31. The
@@ -833,7 +833,7 @@ export default {
           items: [
             '**Killed.** The onboarding animation confused three testers in a row. Removed rather than redesigned a fourth time.',
             '**Still open.** The first hook. People have to commit to tracing before they know what it becomes, and nothing in the product covers that yet. It is the main thing still missing.',
-            '**Still open.** The artist bio — the most culturally meaningful moment in the product — was the least discovered thing in it.',
+            '**Still open.** The artist bio, the most culturally meaningful moment in the product, was the least discovered thing in it.',
             '**Still open.** Erase clears everything; testers expected stroke-by-stroke undo.',
             '**Next test.** Promise the reveal before the trace, and see whether the hesitation drops.',
           ],
@@ -879,7 +879,7 @@ export default {
         },
         {
           type: 'p',
-          text: '**AI output arrives looking finished**, which makes it easy to accept as a given and tune around the edges. The design work is in **refusing that** — knowing what the model is actually doing, and noticing where its convenience is quietly making a decision that should have been yours.',
+          text: '**AI output arrives looking finished**, which makes it easy to accept as a given and tune around the edges. The design work is in **refusing that**: knowing what the model is actually doing, and noticing where its convenience is quietly making a decision that should have been yours.',
         },
       ],
       // MOVED HERE FROM THE REVEAL SECTION, 2026-08-31 (Flore, node 5063:3080),
@@ -920,12 +920,12 @@ export default {
       //
       // The `id` stays `how-i-worked`: it is a stable anchor, not a label, and
       // renaming it would break any link already pointing at it.
-      title: 'The Process — 14 phases, documented',
+      title: 'The Process: 14 phases, documented',
       measure: 'narrow',
       prose: [
         {
           type: 'p',
-          text: 'Four weeks, solo, built during cohort 6 of Patricia Reiners’ AI for Designers. Same timeline as PitchPivot, considerably heavier underneath — **most of those hours went into the image pipeline, not the interface**.',
+          text: 'Four weeks, solo, built during cohort 6 of Patricia Reiners’ AI for Designers. Same timeline as PitchPivot, considerably heavier underneath: **most of those hours went into the image pipeline, not the interface**.',
         },
         {
           // "5 in-person test sessions", NOT Figma's literal "5 moderated
