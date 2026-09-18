@@ -315,43 +315,48 @@ export default {
       //
       // Figma has a stray closing quote mark on this line ("It wasn't."");
       // dropped here. Fix the frame so a re-pull doesn't restore it.
-      note: 'I went in assuming the barrier was emotional. It wasn’t.',
+      // REWRITTEN BY FLORE, 2026-09-18, in `copy/artifakt.md` and applied here
+      // verbatim. This is her text, not a pull from the frame -- the frame is
+      // now behind the page on this section, and per CLAUDE.md's [BUILT] rule
+      // the code leads once a page has shipped. Do not re-sync this section
+      // from Figma.
+      //
+      // The shape of her edit: the abstract summary of the cake test became the
+      // test itself -- the birthday cake, three of five, the tester who called
+      // her own pick "too regular to feel human", the one who said "fastly
+      // done". The flawed stimulus is now stated in her own sentence rather
+      // than a parenthetical, which is rule 4 rather than a hedge.
+      //
+      // TWO BLOCKS WENT WITH IT, and both were deliberate on her part: the
+      // section's opening question ("How do you help someone make a visual for
+      // another person...") and its closing one ("When AI helps you make
+      // something, at what point does it stop being yours?"). Flagged to her
+      // before applying; she confirmed by asking for the .md as written.
+      note: 'My test was flawed. The finding wasn’t.',
       avatar: 'presenting-idle',
       prose: [
         {
-          // The opening question is BACK in the prose, which is what makes the
-          // next sentence's "it" resolve without reading the bubble.
           type: 'p',
-          text: 'How do you help someone make a visual for another person, when most people freeze the moment they’re asked to create something?',
-        },
-        {
-          // The age range and the *what*/*how* italics both went in Flore's
-          // 2026-08-31 tightening pass; the frame now draws this line plain
-          // apart from the bold lead-in.
-          type: 'p',
-          text: '**Six interviews** sharpened it — people aren’t reluctant, they’re blocked by what to make, not how.',
+          text: 'An early test contradicted me. I showed three versions of the same birthday cake, from a rough doodle to a coloured illustration.',
         },
         {
           type: 'p',
-          text: 'Then an early test contradicted me. Three versions of one drawing — rough, refined, finished — which felt like it came from someone who cared? The finished one won, from people who had just told me they valued imperfection. My stimulus was flawed (only one version had colour), but the contradiction held in every session after:',
+          text: 'Three of five picked the coloured one. One had just told me she preferred things that look handmade, then called her pick too regular to feel human.',
         },
         {
           type: 'p',
-          text: '**People want to have made it, and they want it to look good. They don’t want to choose.**',
+          text: 'Nobody agreed on what looks machine-made, either. Some pointed at the smoothest lines, one at the roughest sketch because it looked "fastly done". The test was a bit flawed: I realised too late that colour was what drove most of those picks. But the contradiction in the answers was what stayed with me:',
+        },
+        {
+          // PLAIN, NOT BOLD -- she typed it unbolded in the markdown, and rule
+          // 16 makes emphasis her call. It was bold before this pass, so if it
+          // should go back that is a one-word change, not a re-litigation.
+          type: 'p',
+          text: 'People want to have made it, and they want it to look good. They don’t want to choose.',
         },
         {
           type: 'p',
-          text: 'That’s why the reveal became my first design focus, ahead of the drawing tool:',
-        },
-        {
-          // A BOLD PARAGRAPH, NOT AN `aside` — Flore took the italic off this
-          // line in the 2026-08-31 pass (node 4897:4563 draws it upright HK
-          // Grotesk Bold). It now matches "People want to have made it" four
-          // blocks above, which is the same move: the section's conclusion in
-          // the page's own voice, where italic is reserved for the "Lesson:"
-          // asides and participant speech.
-          type: 'p',
-          text: '**When AI helps you make something, at what point does it stop being yours?**',
+          text: 'That’s why the reveal became my first design focus, ahead of the drawing tool. It had to land first for the tool to work.',
         },
       ],
       // THE CAKE TEST, new asset 2026-08-24. Three drawings of the same cake at
@@ -369,7 +374,8 @@ export default {
         label: '[ the-cakes.webp — 987x342 three-cake stimulus ]',
         placeholderAspect: '987 / 342',
         alt: 'Three drawings of the same birthday cake at increasing levels of finish: a rough outline, a more detailed line drawing, and a coloured illustration',
-        caption: 'Testing question “Which one feels like it came from someone who cares and why?”',
+        caption:
+          'Testing question “Which one feels like it came from someone who cares?” / “Where does it start to feel machine-made?”',
       },
     },
 
