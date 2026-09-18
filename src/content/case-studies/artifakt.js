@@ -267,7 +267,7 @@ export default {
         poster: `${M}/artifakt-poster.webp`,
         label: '[ artifakt.mp4 — portrait UI screencast ]',
         placeholderAspect: '920 / 2000',
-        alt: 'A screen recording of Artifakt: typing an intention, tracing the scaffold, and the finished artwork appearing',
+        alt: 'A screen recording of Artifakt: typing an intention, tracing the outline, and the finished artwork appearing',
         caption: 'state 21.08.26',
       },
       // THE ARTIST ROSTER, added 2026-08-24. The narration review's biggest
@@ -626,11 +626,11 @@ export default {
     // 6 --------------------------------------------------------------------
     {
       id: 'scaffold',
-      title: 'The scaffold: leaving room to make it yours',
+      title: 'The outline: leaving room to make it yours',
       // Flore's wording, 2026-08-25, and synced into the frame. Replaced a
       // draft of mine; it keeps the same contract as the other Guides — react
       // to the prose rather than set it up.
-      note: 'I built the scaffold to guide users, but testers felt it was telling them what to draw.',
+      note: 'I built the outline to guide users, but testers felt it was telling them what to draw.',
       avatar: 'presenting-idle',
       prose: [
         { type: 'p', text: 'Testing raised the project’s sharpest question:' },
@@ -647,13 +647,13 @@ export default {
         },
         {
           type: 'p',
-          text: 'The scaffold was too complete, making tracing feel like busywork, not creation. All testers noticed this.',
+          text: 'The outline was too complete, making tracing feel like busywork, not creation. All testers noticed this.',
         },
         {
           type: 'list',
           items: [
             '**First idea** — UX tweaks: softer copy, looser prompts, art-school style (think volumes first). The model didn’t get it.',
-            '**Costly detour**: generating the scaffold via img2img on an SVG motif. Biggest credit chunk, but it made a more finished illustration.',
+            '**Costly detour**: generating the outline via img2img on an SVG motif. Biggest credit chunk, but it made a more finished illustration.',
             '**Reframe**: "Make this less detailed" is subtraction, not generation. Image-to-image changes style, not structure.',
             // "Canny" capitalised, against the frame's "canny" — it is a
             // person's name (the Canny edge detector), the same class of fix
@@ -666,7 +666,7 @@ export default {
           // "behaviour", not the frame's "behavior" — British throughout, same
           // call as "colour" in the reveal section.
           type: 'p',
-          text: 'With a simpler scaffold, tracing felt like a choice. Wording mattered: "trace the image" implied precision. Softer wording changed behaviour more than the interface.',
+          text: 'With a simpler outline, tracing felt like a choice. Wording mattered: "trace the image" implied precision. Softer wording changed behaviour more than the interface.',
         },
         {
           type: 'aside',
@@ -685,13 +685,13 @@ export default {
         src: `${M}/the-scaffold.webp`,
         label: '[ the-scaffold.webp — 835x1365 scaffold + contour experiments ]',
         placeholderAspect: '835 / 1365',
-        alt: 'The Artifakt scaffold screen above a sheet of contour-reduction experiments showing a horse sketch reduced to progressively simpler outlines',
+        alt: 'The Artifakt outline screen above a sheet of contour-reduction experiments showing a horse sketch reduced to progressively simpler outlines',
         // FIGMA'S CAPTION HERE IS WRONG and is deliberately not carried over:
         // node 4928:2867 reads "Representation biases", which belongs to the
         // NEXT section's image — a paste that landed on the wrong stage. This
         // panel shows contour reduction, not representation. Written to match
         // what is pictured; confirm the wording and fix the frame.
-        caption: 'Reducing the scaffold to its outer contours',
+        caption: 'Reducing it to its outer contours',
       },
     },
 
@@ -801,7 +801,7 @@ export default {
         },
         {
           type: 'p',
-          text: 'It also answered the question I started with. **Ownership is partial: it’s my idea but not my drawing.** For a scaffold model that’s the honest ceiling — and enough to make them want to send it.',
+          text: 'It also answered the question I started with. **Ownership is partial: it’s my idea but not my drawing.** That’s the honest ceiling for a tool that hands you something to trace — and enough to make them want to send it.',
         },
         {
           // THE LAST FOUR PARAGRAPHS ARE NOW ONE LIST — Flore, 2026-08-31. The
