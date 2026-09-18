@@ -27,7 +27,7 @@
 // which plain Node will not resolve, so esbuild bundles it to a temp file
 // first. esbuild is already present as a Vite dependency; this adds nothing.
 //
-// THE PATH COMMENTS ARE LOad-BEARING
+// THE PATH COMMENTS ARE LOAD-BEARING
 //
 // Every block is emitted under an HTML comment naming its location in the
 // module, e.g. `<!-- body[4].prose[2] -->`. Two reasons, and the second is the
@@ -42,7 +42,15 @@
 //   npm run copy artifakt --stdout print instead of writing
 //   npm run copy artifakt --alt    include image alt text
 //
-// Output lands in `copy/` (gitignored) -- it is a view, not a source.
+// Output lands in `copy/` and IS COMMITTED, which looks wrong for generated
+// files and is the point. It is still a view -- `artifakt.js` remains the
+// source and an edit to the .md changes nothing -- but committing it means a
+// copy change shows up in a diff as prose, red and green, with no JavaScript
+// around it. That is the only form of this work Flore can actually review, and
+// a file nobody can see is worth less than a little redundancy.
+//
+// So: after changing copy, run `npm run copy all` and commit the result in the
+// same commit. If the two disagree, the .js wins and the .md is stale.
 
 import { spawnSync } from 'node:child_process'
 import { mkdir, mkdtemp, readdir, rm, writeFile } from 'node:fs/promises'
