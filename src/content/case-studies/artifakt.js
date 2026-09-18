@@ -202,7 +202,7 @@ export default {
           // deliberately does NOT live here: it motivates the reveal, so it
           // opens that section instead.
           type: 'p',
-          text: 'What if an AI image generation tool could inspire and teach users about drawing and art? How could this tool increase personality and authenticity in drawing in order to feel "less generic"? And when do people decide where that authenticity breaks down? When do they trust their own sense of taste or imperfection against something that is more perfect but clearly machine-generated? This tool prompts users to **seek originality in drawing generation by starting with an intention that is true to the person creating it**.',
+          text: 'What if an AI image generation tool could inspire and teach people about drawing and art? How could this tool increase personality and authenticity in drawing in order to feel "less generic"? And when do people decide where that authenticity breaks down? When do they trust their own sense of taste or imperfection against something that is more perfect but clearly machine-generated? This tool prompts users to **seek originality in drawing generation by starting with an intention that is true to the person creating it**.',
         },
       ],
       // FULL CONTENT WIDTH, matching Figma's 1282 stage (node 4897:4533).
@@ -720,13 +720,13 @@ export default {
           // the new asset shows a footballer, so the keyword and the picture
           // now agree. They did not before.
           type: 'p',
-          text: 'Type "strong" and Flux gives you a white man. Ask Naoko Takeuchi for a character and you get a blonde, blue-eyed one regardless of the keyword. The defaults are thin, white and European, and they hold until you actively displace them.',
+          text: 'Type "strong" and Flux gives you a white man. Ask Naoko Takeuchi for a character and you get a blonde, blue-eyed one, whatever the keyword. The bodies the model draws by default are thin, white and European, and they stay that way unless you describe something else.',
         },
         {
           type: 'list',
           items: [
             '**Doesn’t work:** negation. "Not white" or "diverse" collapses straight back to the average.',
-            '**Works:** **explicit attribute language** — skin tone, hair, body type — plus foreground anchoring and a rotating subject pool so one default can’t dominate.',
+            '**Works:** naming skin tone, hair and body type in the prompt. I also placed the figure in the foreground and rotated the subjects, so the same default body doesn’t come back every time.',
           ],
         },
         {
@@ -803,7 +803,7 @@ export default {
           // The full stop sits OUTSIDE the bold, matching the frame. Small, and
           // the kind of thing a re-pull would otherwise keep re-flagging.
           type: 'p',
-          text: '**That gap is the finding**. People don’t understand why they’re drawing until they see what it becomes — the product front-loads uncertainty and back-loads the payoff. A good ending doesn’t validate the path to it.',
+          text: '**That gap is the finding**. People don’t understand why they’re drawing until they see what it becomes. The doubt comes first, the reward comes last. A good ending doesn’t validate the path to it.',
         },
         {
           type: 'p',
