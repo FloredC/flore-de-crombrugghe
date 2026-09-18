@@ -44,6 +44,7 @@ hostname — clear it at `chrome://net-internals/#hsts`.
 | Script | What it does |
 |---|---|
 | `npm run dev` | Dev server. Wraps Vite to restart it when `tailwind.config.js` changes — Tailwind 3 caches its ESM config for the life of the process, so an in-process restart silently keeps serving the old CSS. See [`scripts/dev.mjs`](scripts/dev.mjs). |
+| `npm run dev:live` | The dev server, plus a check on the remote every 15s that fast-forwards when new commits land. For reviewing someone else's changes without running `git pull` between each one — the browser reloads on its own. Never pulls over uncommitted work, and only fast-forwards. See [`scripts/dev-live.mjs`](scripts/dev-live.mjs). |
 | `npm run copy <slug>` | Writes `copy/<slug>.md` — everything a visitor reads on that case study, and nothing else. For reviewing writing without scrolling a 1000-line module that is half provenance comments. `all` does every page; `--stdout` prints instead. See [`scripts/copy.mjs`](scripts/copy.mjs). |
 | `npm run build` | Production build, then the prerender pass (below). |
 | `npm run preview:pages` | Builds and serves `dist` exactly as GitHub Pages does — including the 404 fallback and directory-index redirects. The only local setup that catches deploy-shaped bugs. |
