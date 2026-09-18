@@ -244,15 +244,15 @@ export default {
         },
         {
           type: 'p',
-          text: 'An example to trace, so "I can’t draw" doesn’t end the gesture before it starts.',
+          text: '**An example to trace**, so "I can’t draw" doesn’t end the gesture before it starts.',
         },
         {
           type: 'p',
-          text: 'Style is applied *after* tracing, never during. The intent of the tool is that your line stays the structure of the final piece. This works most of the time, though not perfectly.',
+          text: 'Style is applied *after* tracing, never during. The intent of the tool is that **your line stays the structure of the final piece**. This works most of the time, though not perfectly.',
         },
         {
           type: 'p',
-          text: 'A fixed, curated group of artists help elevate your drawing: Louise Bourgeois, Kara Walker, Niki de Saint Phalle, Naoko Takeuchi, Keith Haring. Ideally, this group of artists would grow over time: more female, queer, "invisible" artists that would diversify the present collective imagery on the internet.',
+          text: 'A fixed, curated group of artists help elevate your drawing: Louise Bourgeois, Kara Walker, Niki de Saint Phalle, Naoko Takeuchi, Keith Haring. Ideally, this group of artists would grow over time: **more female, queer, "invisible" artists that would diversify the present collective imagery on the internet**.',
         },
       ],
       media: {
@@ -345,14 +345,14 @@ export default {
         },
         {
           type: 'p',
-          text: 'Nobody agreed on what looks machine-made, either. Some pointed at the smoothest lines, one at the roughest sketch because it looked "fastly done". The test was a bit flawed: I realised too late that colour was what drove most of those picks. But the contradiction in the answers was what stayed with me:',
+          text: '**Nobody agreed on what looks machine-made, either.** Some pointed at the smoothest lines, one at the roughest sketch because it looked "fastly done". The test was a bit flawed: I realised too late that colour was what drove most of those picks. But the contradiction in the answers was what stayed with me:',
         },
         {
           // PLAIN, NOT BOLD -- she typed it unbolded in the markdown, and rule
           // 16 makes emphasis her call. It was bold before this pass, so if it
           // should go back that is a one-word change, not a re-litigation.
           type: 'p',
-          text: 'People want to have made it, and they want it to look good. They don’t want to choose.',
+          text: '**People want to have made it, and they want it to look good. They don’t want to choose.**',
         },
         {
           type: 'p',
@@ -416,7 +416,7 @@ export default {
       prose: [
         {
           type: 'p',
-          text: 'The traced line is what shows the effort, and the reveal is where it shows. That is why I built the transformation before the drawing tool.',
+          text: 'The traced line is what shows the effort, and **the reveal is where it shows**. That is why I built the transformation before the drawing tool.',
         },
         { type: 'p', text: '**Wished result**:' },
         {
@@ -434,7 +434,7 @@ export default {
             // "leads the model to", not the frame's "leads model to" — a
             // dropped article rather than the clipped register the rest of
             // this pass is written in. Fix the frame so a re-pull keeps it.
-            'The model used the most iconic subject or visual of each artist (which makes sense, because those are the images most present online).',
+            'The model used **the most iconic subject or visual of each artist** (which makes sense, because those are the images most present online).',
           ],
         },
         { type: 'p', text: '**What didn’t work**:' },

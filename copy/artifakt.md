@@ -35,13 +35,13 @@ What if an AI image generation tool could inspire and teach people about drawing
 Artifakt is a mobile tool that turns a typed intention into a hand-drawn artwork in the style of a real artist. It’s built to **spark creativity rather than stand in for it: every result is unique to the person who traced it, and every result arrives with an artist worth being curious about**.
 
 <!-- body[1].prose[1] -->
-An example to trace, so "I can’t draw" doesn’t end the gesture before it starts.
+**An example to trace**, so "I can’t draw" doesn’t end the gesture before it starts.
 
 <!-- body[1].prose[2] -->
-Style is applied *after* tracing, never during. The intent of the tool is that your line stays the structure of the final piece. This works most of the time, though not perfectly.
+Style is applied *after* tracing, never during. The intent of the tool is that **your line stays the structure of the final piece**. This works most of the time, though not perfectly.
 
 <!-- body[1].prose[3] -->
-A fixed, curated group of artists help elevate your drawing: Louise Bourgeois, Kara Walker, Niki de Saint Phalle, Naoko Takeuchi, Keith Haring. Ideally, this group of artists would grow over time: more female, queer, "invisible" artists that would diversify the present collective imagery on the internet.
+A fixed, curated group of artists help elevate your drawing: Louise Bourgeois, Kara Walker, Niki de Saint Phalle, Naoko Takeuchi, Keith Haring. Ideally, this group of artists would grow over time: **more female, queer, "invisible" artists that would diversify the present collective imagery on the internet**.
 
 <!-- body[1].media.caption -->
 *Caption: state 21.08.26*
@@ -62,10 +62,10 @@ An early test contradicted me. I showed three versions of the same birthday cake
 Three of five picked the coloured one. One had just told me she preferred things that look handmade, then called her pick too regular to feel human.
 
 <!-- body[2].prose[2] -->
-Nobody agreed on what looks machine-made, either. Some pointed at the smoothest lines, one at the roughest sketch because it looked "fastly done". The test was a bit flawed: I realised too late that colour was what drove most of those picks. But the contradiction in the answers was what stayed with me:
+**Nobody agreed on what looks machine-made, either.** Some pointed at the smoothest lines, one at the roughest sketch because it looked "fastly done". The test was a bit flawed: I realised too late that colour was what drove most of those picks. But the contradiction in the answers was what stayed with me:
 
 <!-- body[2].prose[3] -->
-People want to have made it, and they want it to look good. They don’t want to choose.
+**People want to have made it, and they want it to look good. They don’t want to choose.**
 
 <!-- body[2].prose[4] -->
 That’s why the reveal became my first design focus, ahead of the drawing tool. It had to land first for the tool to work.
@@ -80,7 +80,7 @@ That’s why the reveal became my first design focus, ahead of the drawing tool.
 > **Guide:** With the reveal as the main design focus, finding the right balance between the trace and the artist’s style proved more challenging than expected.
 
 <!-- body[3].prose[0] -->
-The traced line is what shows the effort, and the reveal is where it shows. That is why I built the transformation before the drawing tool.
+The traced line is what shows the effort, and **the reveal is where it shows**. That is why I built the transformation before the drawing tool.
 
 <!-- body[3].prose[1] -->
 **Wished result**:
@@ -94,7 +94,7 @@ The traced line is what shows the effort, and the reveal is where it shows. That
 **The result I got**:
 
 <!-- body[3].prose[4] -->
-- The model used the most iconic subject or visual of each artist (which makes sense, because those are the images most present online).
+- The model used **the most iconic subject or visual of each artist** (which makes sense, because those are the images most present online).
 
 <!-- body[3].prose[5] -->
 **What didn’t work**:
