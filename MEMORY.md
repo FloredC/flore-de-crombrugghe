@@ -11,9 +11,10 @@ Behaviour rules live in CLAUDE.md. Only facts that change belong here (source an
 - Welcome to my island: new Figma page, reusing the Artifakt or PitchPivot layout as much as possible. (Flore, 2026-09-17)
 - Welcome to my island: online end of next week at the latest (2026-09-25). Directional. (Flore, 2026-09-17)
 - Welcome to my island is the first test of the workforce setup. The setup comes first. (Flore, 2026-09-17)
-- Language check of all site copy, including em dashes: case study pages first, then the homepage. (Flore, 2026-09-17)
-- Language check starts once voice-principles.md exists. (Flore, 2026-09-17)
+- Language check DONE 2026-09-18: Artifakt rewritten with Flore, and em dashes removed from every visitor-facing string on the site. Rule 8 is now a hard no; `npm run copy` counts them per page. (2026-09-18)
 - "Open for work" badge near the top avatar: waiting for Flore's design. (Flore, 2026-09-17)
+- Repo is PUBLIC and the site links to it, so 02_Work, 01_Input, Claude outputs and MEMORY.md are readable by anyone today. Flore has not decided whether to make the repo private or untrack them. Do not act on this without her. Untracking would not delete anything from her machine. (Flore, 2026-09-18)
+- Content workflow needs rethinking. `npm run copy <slug>` writes copy/<slug>.md, which made the writing reviewable, but her edits still have to be re-typed into the .js by hand. The path comments (body[2].prose[3]) exist so a `copy:apply` script could close the loop. Proposed, not built. (Flore, 2026-09-18)
 
 ## THE FACTS
 
@@ -101,3 +102,5 @@ Behaviour rules live in CLAUDE.md. Only facts that change belong here (source an
 | Two screencasts of about 6 MB load as soon as the page opens (artifakt.mp4, pushback-pivot.mp4) | Open, low priority | 2026-09-16 |
 | Language River loads its library and font from outside servers | Open | 2026-09-16 |
 | Which consolidated process logs to publish on the island page | Open | 2026-09-17 |
+| Whether the repo should stay public, and which working folders belong in it (02_Work, 01_Input, Claude outputs, MEMORY.md are public today) | Open, parked by Flore | 2026-09-18 |
+| How content edits should be handled: the .md view exists, the round trip back into the .js does not | Open, parked by Flore | 2026-09-18 |
