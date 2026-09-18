@@ -53,7 +53,7 @@ export default {
     // Matches the homepage card in projects/welcome-to-my-island.mdx exactly,
     // as of the rename. The two files are NOT wired together, so this pair has
     // to be changed in both places and can drift silently.
-    title: 'Welcome to my island — The making of a story-first portfolio',
+    title: 'Welcome to my island: The making of a story-first portfolio',
     // No `facts` and no `oneLiner` — see (2) in the header note.
     //
     // The frame's CTA reads "Github" with the external-link arrow but carries

@@ -75,7 +75,7 @@ export default class ErrorBoundary extends Component {
       <main className="mx-auto flex min-h-[60svh] max-w-[640px] flex-col justify-center gap-space-16 px-space-24">
         <h1 className="text-heading-md text-text-primary">This page didn’t load.</h1>
         <p className="text-body-md text-text-secondary">
-          Something went wrong rendering it. Reloading usually fixes it — or head back to the work.
+          Something went wrong rendering it. Reloading usually fixes it, or head back to the work.
         </p>
         <p className="flex gap-space-16">
           <Link className="underline" to="/">

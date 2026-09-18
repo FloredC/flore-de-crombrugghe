@@ -37,7 +37,7 @@ export default function DistrictBreadcrumb({ zone, subsection }) {
           the file, small enough to have gone unnoticed. Corrected 2026-08-12
           while Flore is reviewing this component. */}
       <p className="text-body font-normal text-text-primary">
-        You are here: <span className="font-bold">{zone}</span> —{' '}
+        You are here: <span className="font-bold">{zone}</span> /{' '}
         <span className="font-bold">{subsection}</span>
       </p>
     </div>

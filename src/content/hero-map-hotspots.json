@@ -3,7 +3,7 @@
     "id": "hotspot-artifakt",
     "type": "link",
     "discipline": "own-products",
-    "title": "Artifakt — Tracing Your Way Past the Blank Canvas",
+    "title": "Artifakt: Tracing Your Way Past the Blank Canvas",
     "ctaLabel": "View project",
     "target": {
       "kind": "project",
@@ -17,7 +17,7 @@
     "id": "hotspot-pitchpivot",
     "type": "link",
     "discipline": "own-products",
-    "title": "PitchPivot — Design Reasoning for Business Impact",
+    "title": "PitchPivot: Design Reasoning for Business Impact",
     "ctaLabel": "View project",
     "target": {
       "kind": "project",
@@ -31,7 +31,7 @@
     "id": "hotspot-myride",
     "type": "link",
     "discipline": "client-work",
-    "title": "myRIDE — Pricing UX for a 3,000-person pilot",
+    "title": "myRIDE: Pricing UX for a 3,000-person pilot",
     "ctaLabel": "View project",
     "target": {
       "kind": "project",
@@ -73,7 +73,7 @@
     "id": "hotspot-future-of-ux",
     "type": "link",
     "discipline": "selected-talks",
-    "title": "The Future of UX — podcast, episode 140",
+    "title": "The Future of UX: podcast, episode 140",
     "ctaLabel": "to podcast",
     "target": {
       "kind": "anchor",

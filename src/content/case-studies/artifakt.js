@@ -90,7 +90,7 @@ export const processLogs = [
     file: 'reveal-ai-integration.html',
     title: 'Reveal & AI integration',
     thumb: 'card-reveal.webp',
-    alt: 'First page of the “Reveal — AI Integration Visual Process” log',
+    alt: 'First page of the “Reveal: AI Integration Visual Process” log',
   },
   {
     slug: 'prompting-process',
@@ -147,8 +147,8 @@ export default {
     // reader clicks one promise and lands on the same one. The two files are
     // not wired together — changing this means changing both. Same known
     // fragility as PitchPivot; see the note there.
-    title: 'Artifakt — Tracing your way past the blank canvas',
-    oneLiner: 'Guided DIY — a trace, an artist, an artifact',
+    title: 'Artifakt: Tracing your way past the blank canvas',
+    oneLiner: 'Guided DIY: a trace, an artist, an artifact',
     role: '0→1 designer, from research to final product',
     date: 'Jun 2026',
     liveUrl: LIVE_URL,
@@ -189,7 +189,7 @@ export default {
       prose: [
         {
           type: 'p',
-          text: 'You type a word, **trace a loose scaffold by hand**, and your line comes back transformed through the style of a real artist. **The AI does the finishing — it never touches the making.**',
+          text: 'You type a word, trace a loose line drawing by hand, and it comes back in the style of a real artist. The tool **inspires you and helps you finish your traced idea with the help of real artists**.',
         },
         {
           // THE STAKES, added by Flore in the frame 2026-08-24 after the
@@ -202,7 +202,7 @@ export default {
           // deliberately does NOT live here: it motivates the reveal, so it
           // opens that section instead.
           type: 'p',
-          text: 'Digital gifting has an effort problem. When sending costs nothing, it reads as nothing — and the obvious fix is to make something by hand, except **most adults stopped drawing at eleven** and have no intention of starting again in front of someone they love.',
+          text: 'What if an AI image generation tool could inspire and teach people about drawing and art? How could this tool increase personality and authenticity in drawing in order to feel "less generic"? And when do people decide where that authenticity breaks down? When do they trust their own sense of taste or imperfection against something that is more perfect but clearly machine-generated? This tool prompts users to **seek originality in drawing generation by starting with an intention that is true to the person creating it**.',
         },
       ],
       // FULL CONTENT WIDTH, matching Figma's 1282 stage (node 4897:4533).
@@ -240,19 +240,19 @@ export default {
       prose: [
         {
           type: 'p',
-          text: 'Artifakt is a mobile tool that turns a typed intention into a hand-drawn artwork in the style of a real artist. It’s built to spark creativity rather than stand in for it: every result is unique to the person who traced it, and every result arrives with an artist worth being curious about.',
+          text: 'Artifakt is a mobile tool that turns a typed intention into a hand-drawn artwork in the style of a real artist. It’s built to **spark creativity rather than stand in for it: every result is unique to the person who traced it, and every result arrives with an artist worth being curious about**.',
         },
         {
           type: 'p',
-          text: '**Lower the barrier.** A scaffold to trace, so "I can’t draw" doesn’t end the gesture before it starts.',
+          text: '**An example to trace**, so "I can’t draw" doesn’t end the gesture before it starts.',
         },
         {
           type: 'p',
-          text: '**Keep it yours.** Style is applied *after* tracing, never during. Your line stays the structure of the final piece — even the loading screen shows your sketch turning, not the artist’s photo.',
+          text: 'Style is applied *after* tracing, never during. The intent of the tool is that **your line stays the structure of the final piece**. This works most of the time, though not perfectly.',
         },
         {
           type: 'p',
-          text: '**Bring an artist in.** A fixed, curated roster — Louise Bourgeois, Kara Walker, Niki de Saint Phalle, Naoko Takeuchi, Keith Haring. Most people will meet at least one of them here for the first time. It’s also the part that would make this work in a museum: the exhibition already supplies the artist — Artifakt gives visitors something to make with them.',
+          text: 'A fixed, curated group of artists help elevate your drawing: Louise Bourgeois, Kara Walker, Niki de Saint Phalle, Naoko Takeuchi, Keith Haring. Ideally, this group of artists would grow over time: **more female, queer, "invisible" artists that would diversify the present collective imagery on the internet**.',
         },
       ],
       media: {
@@ -267,7 +267,7 @@ export default {
         poster: `${M}/artifakt-poster.webp`,
         label: '[ artifakt.mp4 — portrait UI screencast ]',
         placeholderAspect: '920 / 2000',
-        alt: 'A screen recording of Artifakt: typing an intention, tracing the scaffold, and the finished artwork appearing',
+        alt: 'A screen recording of Artifakt: typing an intention, tracing the outline, and the finished artwork appearing',
         caption: 'state 21.08.26',
       },
       // THE ARTIST ROSTER, added 2026-08-24. The narration review's biggest
@@ -302,7 +302,7 @@ export default {
     // 4 --------------------------------------------------------------------
     {
       id: 'question',
-      title: 'The question: made by me — but make it good',
+      title: 'The question: made by me, but make it good',
       // THE GUIDE IS AN ASIDE AGAIN, not narration — Flore, 2026-08-24, after
       // the narration review. It briefly carried this section's opening
       // question, which left the prose starting on "sharpened *it*" with the
@@ -315,43 +315,48 @@ export default {
       //
       // Figma has a stray closing quote mark on this line ("It wasn't."");
       // dropped here. Fix the frame so a re-pull doesn't restore it.
-      note: 'I went in assuming the barrier was emotional. It wasn’t.',
+      // REWRITTEN BY FLORE, 2026-09-18, in `copy/artifakt.md` and applied here
+      // verbatim. This is her text, not a pull from the frame -- the frame is
+      // now behind the page on this section, and per CLAUDE.md's [BUILT] rule
+      // the code leads once a page has shipped. Do not re-sync this section
+      // from Figma.
+      //
+      // The shape of her edit: the abstract summary of the cake test became the
+      // test itself -- the birthday cake, three of five, the tester who called
+      // her own pick "too regular to feel human", the one who said "fastly
+      // done". The flawed stimulus is now stated in her own sentence rather
+      // than a parenthetical, which is rule 4 rather than a hedge.
+      //
+      // TWO BLOCKS WENT WITH IT, and both were deliberate on her part: the
+      // section's opening question ("How do you help someone make a visual for
+      // another person...") and its closing one ("When AI helps you make
+      // something, at what point does it stop being yours?"). Flagged to her
+      // before applying; she confirmed by asking for the .md as written.
+      note: 'My test was flawed. The finding wasn’t.',
       avatar: 'presenting-idle',
       prose: [
         {
-          // The opening question is BACK in the prose, which is what makes the
-          // next sentence's "it" resolve without reading the bubble.
           type: 'p',
-          text: 'How do you help someone make a visual for another person, when most people freeze the moment they’re asked to create something?',
-        },
-        {
-          // The age range and the *what*/*how* italics both went in Flore's
-          // 2026-08-31 tightening pass; the frame now draws this line plain
-          // apart from the bold lead-in.
-          type: 'p',
-          text: '**Six interviews** sharpened it — people aren’t reluctant, they’re blocked by what to make, not how.',
+          text: 'An early test contradicted me. I showed three versions of the same birthday cake, from a rough doodle to a coloured illustration.',
         },
         {
           type: 'p',
-          text: 'Then an early test contradicted me. Three versions of one drawing — rough, refined, finished — which felt like it came from someone who cared? The finished one won, from people who had just told me they valued imperfection. My stimulus was flawed (only one version had colour), but the contradiction held in every session after:',
+          text: 'Three of five picked the coloured one. One had just told me she preferred things that look handmade, then called her pick too regular to feel human.',
         },
         {
+          type: 'p',
+          text: '**Nobody agreed on what looks machine-made, either.** Some pointed at the smoothest lines, one at the roughest sketch because it looked "fastly done". The test was a bit flawed: I realised too late that colour was what drove most of those picks. But the contradiction in the answers was what stayed with me:',
+        },
+        {
+          // PLAIN, NOT BOLD -- she typed it unbolded in the markdown, and rule
+          // 16 makes emphasis her call. It was bold before this pass, so if it
+          // should go back that is a one-word change, not a re-litigation.
           type: 'p',
           text: '**People want to have made it, and they want it to look good. They don’t want to choose.**',
         },
         {
           type: 'p',
-          text: 'That’s why the reveal became my first design focus, ahead of the drawing tool:',
-        },
-        {
-          // A BOLD PARAGRAPH, NOT AN `aside` — Flore took the italic off this
-          // line in the 2026-08-31 pass (node 4897:4563 draws it upright HK
-          // Grotesk Bold). It now matches "People want to have made it" four
-          // blocks above, which is the same move: the section's conclusion in
-          // the page's own voice, where italic is reserved for the "Lesson:"
-          // asides and participant speech.
-          type: 'p',
-          text: '**When AI helps you make something, at what point does it stop being yours?**',
+          text: 'That’s why the reveal became my first design focus, ahead of the drawing tool. It had to land first for the tool to work.',
         },
       ],
       // THE CAKE TEST, new asset 2026-08-24. Three drawings of the same cake at
@@ -369,7 +374,8 @@ export default {
         label: '[ the-cakes.webp — 987x342 three-cake stimulus ]',
         placeholderAspect: '987 / 342',
         alt: 'Three drawings of the same birthday cake at increasing levels of finish: a rough outline, a more detailed line drawing, and a coloured illustration',
-        caption: 'Testing question “Which one feels like it came from someone who cares and why?”',
+        caption:
+          'Testing question “Which one feels like it came from someone who cares?” / “Where does it start to feel machine-made?”',
       },
     },
 
@@ -390,43 +396,48 @@ export default {
       // sync back into the frame.
       //
       // REWRITTEN 2026-08-31 from the frame. The five long bullets became four
-      // short LISTS, each introduced by its own bold lead-in paragraph — so
-      // "Wanted", "Got", "Dead ends" and "Fix 2" are now headings over their
-      // items rather than the first words of one. That is why the block count
-      // jumped from three to eleven for copy that got shorter.
+      // short LISTS, each introduced by its own bold lead-in paragraph — so the
+      // lead-ins are headings over their items rather than the first words of
+      // one. That is why the block count jumped from three to eleven for copy
+      // that got shorter.
       //
-      // Each lead-in is written `**Wanted**:` with the colon OUTSIDE the bold,
-      // not `**Wanted:**`. Two reasons, and both matter: the frame itself puts
-      // the colon outside the bold run on four of the five, and Prose's
-      // tight-spacing rule reads the RAW string for a trailing `:` — with the
-      // colon inside the markers the string ends in `**` and the lead-in would
-      // float 32px above the list it introduces.
+      // THE LEAD-INS WERE RENAMED BY FLORE, 2026-09-18: "Wanted", "Got", "Dead
+      // ends" and "Fix 1/2" are now "Wished result", "The result I got", "What
+      // didn't work" and "Solution 1/2" (rule 15 — say it the way she would say
+      // it out loud). This comment named the old four until the same pass; if
+      // you are searching for them, that is why they are not here.
+      //
+      // Each lead-in is written `**Wished result**:` with the colon OUTSIDE the
+      // bold, not `**Wished result:**`. Two reasons, and both matter: the frame
+      // puts the colon outside the bold run, and Prose's tight-spacing rule
+      // reads the RAW string for a trailing `:` — with the colon inside the
+      // markers the string ends in `**` and the lead-in would float 32px above
+      // the list it introduces.
       prose: [
         {
           type: 'p',
-          text: 'Effort counts only if visible. The wobble in a traced line proves it, **shown in the reveal** — so I built transformation before drawing.',
+          text: 'The traced line is what shows the effort, and **the reveal is where it shows**. That is why I built the transformation before the drawing tool.',
         },
-        { type: 'p', text: '**Wanted**:' },
+        { type: 'p', text: '**Wished result**:' },
         {
           type: 'list',
           items: [
             'traced line legible,',
             'artist’s hand clear,',
-            'surprise so it feels like a gift, not a filter.',
+            'surprise so it feels like a new artwork, not a filter.',
           ],
         },
-        { type: 'p', text: '**Got**:' },
+        { type: 'p', text: '**The result I got**:' },
         {
           type: 'list',
           items: [
             // "leads the model to", not the frame's "leads model to" — a
             // dropped article rather than the clipped register the rest of
             // this pass is written in. Fix the frame so a re-pull keeps it.
-            'asking for L. Bourgeois leads the model to draw spiders, her famous motif, not your lines in her style.',
-            'Artists **reach for icons, not technique**.',
+            'The model used **the most iconic subject or visual of each artist** (which makes sense, because those are the images most present online).',
           ],
         },
-        { type: 'p', text: '**Dead ends**:' },
+        { type: 'p', text: '**What didn’t work**:' },
         {
           type: 'list',
           items: [
@@ -436,22 +447,22 @@ export default {
         },
         {
           type: 'p',
-          text: '**Fix 1**: **describe material, not artist** — thread, tension, stitched surface.',
+          text: '**Solution 1**: Describe the material, gesture, technique first (thread, tension, stitched surface) instead of naming the artist.',
         },
-        { type: 'p', text: '**Fix 2**:' },
+        { type: 'p', text: '**Solution 2**:' },
         {
           type: 'list',
           items: [
             // "colour", not the frame's "color" — this page is British
             // throughout ("colour", "behaviour", "grey") and a single American
             // spelling inside one bullet reads as a slip, not a choice.
-            '**Split pipeline** — Pass 1 builds structure without artist, Pass 2 adds artist and colour.',
+            '**Split pipeline**: Pass 1 builds structure without artist, Pass 2 adds artist and colour.',
             'Eight phases tested strength values; low kept the sketch, high gave beautiful but not mine.',
           ],
         },
         {
           type: 'aside',
-          text: '**Lesson**: if the trade-off persists, change the pipeline shape, not the dial.',
+          text: '**Lesson**: If the same trade-off keeps coming back after a few adjustments, stop adjusting and rethink how the pipeline is built.',
         },
       ],
 
@@ -507,7 +518,7 @@ export default {
         label: '[ the-reveal.webp — 882x766 trace in, spider out ]',
         placeholderAspect: '882 / 766',
         alt: 'Two Artifakt screens with an arrow between them: on the left the trace screen with the word “water” and a loose hand-drawn line, on the right the reveal showing a Louise Bourgeois spider in which none of the traced line survives',
-        caption: 'Traced line not legible. Artists reach for icons, not technique.',
+        caption: 'Traced line not legible and lack of originality in visual representations.',
       },
       // TWO EMBEDS, NOT YET BUILT. Figma draws both as empty dashed
       // placeholders (nodes 4897:4571 / 4897:4577) and Flore confirmed
@@ -548,20 +559,20 @@ export default {
               src: `${M}/pipeline/input.webp`,
               aspect: '1704 / 1800',
               alt: 'A loose pencil sketch on the Artifakt canvas',
-              caption: 'Raw user sketch on the canvas — loose pencil lines, no colour.',
+              caption: 'Raw user sketch on the canvas: loose pencil lines, no colour.',
             },
           },
           {
             kicker: 'Pre-process',
             name: 'Sketch config',
-            detail: 'Line width, invert, flood fill — per artist',
+            detail: 'Line width, invert, flood fill per artist',
             accent: true,
             preview: {
               src: `${M}/pipeline/pre-process.webp`,
               aspect: '1704 / 1800',
               alt: 'The sketch after cleaning and per-artist line-weight adjustment',
               caption:
-                'Sketch cleaned and line weight adjusted per artist before the model sees it. Think of it as defining brushes in a drawing tool — but to support the unique gesture of each artist.',
+                'Sketch cleaned and line weight adjusted per artist before the model sees it. Think of it as defining brushes in a drawing tool, but to support the unique gesture of each artist.',
             },
           },
           {
@@ -573,7 +584,7 @@ export default {
               src: `${M}/pipeline/pass-1.webp`,
               aspect: '1704 / 1800',
               alt: 'Output of pass one: strong form and material, no artist colour yet',
-              caption: 'Gesture and material established — strong form, no artist colour yet.',
+              caption: 'Gesture and material established: strong form, no artist colour yet.',
             },
           },
           {
@@ -585,7 +596,7 @@ export default {
               src: `${M}/pipeline/pass-2.webp`,
               aspect: '1704 / 1800',
               alt: 'Output of pass two: the artist’s colour, motifs and full style applied',
-              caption: 'Artist identity applied — colour, motifs and full style on top.',
+              caption: 'Artist identity applied: colour, motifs and full style on top.',
             },
           },
           {
@@ -627,11 +638,11 @@ export default {
     // 6 --------------------------------------------------------------------
     {
       id: 'scaffold',
-      title: 'The scaffold: leaving room to make it yours',
+      title: 'The outline: leaving room to make it yours',
       // Flore's wording, 2026-08-25, and synced into the frame. Replaced a
       // draft of mine; it keeps the same contract as the other Guides — react
       // to the prose rather than set it up.
-      note: 'I built the scaffold to guide users, but testers felt it was telling them what to draw.',
+      note: 'I built the outline to guide users, but testers felt it was telling them what to draw.',
       avatar: 'presenting-idle',
       prose: [
         { type: 'p', text: 'Testing raised the project’s sharpest question:' },
@@ -644,22 +655,22 @@ export default {
           // `*...*` — the semantics are worth more than the attribution's
           // slant. Say the word and it flips.
           type: 'quote',
-          text: '"Why trace something that’s already there?" — Jules',
+          text: 'Jules: "Why trace something that’s already there?"',
         },
         {
           type: 'p',
-          text: 'The scaffold was too complete, making tracing feel like busywork, not creation. All testers noticed this.',
+          text: 'The outline was too complete, so tracing felt pointless rather than like making something. All testers noticed this.',
         },
         {
           type: 'list',
           items: [
-            '**First idea** — UX tweaks: softer copy, looser prompts, art-school style (think volumes first). The model didn’t get it.',
-            '**Costly detour**: generating the scaffold via img2img on an SVG motif. Biggest credit chunk, but it made a more finished illustration.',
+            '**First idea**: UX tweaks. Softer copy, looser prompts, art-school style (think volumes first). The model didn’t get it.',
+            '**Costly detour**: generating the outline via img2img on an SVG motif. Biggest credit chunk, but it made a more finished illustration.',
             '**Reframe**: "Make this less detailed" is subtraction, not generation. Image-to-image changes style, not structure.',
             // "Canny" capitalised, against the frame's "canny" — it is a
             // person's name (the Canny edge detector), the same class of fix
             // as "Six interviews" above.
-            '**Fix** in code, not prompts: generate a sketch, then subtract — grayscale → blur → Canny → flood-fill → keep outer contours. Prototyped in Python, ported to browser Canvas for static hosting.',
+            '**Fix** in code, not prompts: generate a sketch, then subtract: grayscale → blur → Canny → flood-fill → keep outer contours. Prototyped in Python, ported to browser Canvas for static hosting.',
             '**Still a problem**: flood-fill assumes closed contours. Give it a bike, it fills the canvas black.',
           ],
         },
@@ -667,7 +678,7 @@ export default {
           // "behaviour", not the frame's "behavior" — British throughout, same
           // call as "colour" in the reveal section.
           type: 'p',
-          text: 'With a simpler scaffold, tracing felt like a choice. Wording mattered: "trace the image" implied precision. Softer wording changed behaviour more than the interface.',
+          text: 'With a simpler outline, tracing felt like a choice. Wording mattered: "trace the image" implied precision. Softer wording changed behaviour more than the interface.',
         },
         {
           type: 'aside',
@@ -686,13 +697,13 @@ export default {
         src: `${M}/the-scaffold.webp`,
         label: '[ the-scaffold.webp — 835x1365 scaffold + contour experiments ]',
         placeholderAspect: '835 / 1365',
-        alt: 'The Artifakt scaffold screen above a sheet of contour-reduction experiments showing a horse sketch reduced to progressively simpler outlines',
+        alt: 'The Artifakt outline screen above a sheet of contour-reduction experiments showing a horse sketch reduced to progressively simpler outlines',
         // FIGMA'S CAPTION HERE IS WRONG and is deliberately not carried over:
         // node 4928:2867 reads "Representation biases", which belongs to the
         // NEXT section's image — a paste that landed on the wrong stage. This
         // panel shows contour reduction, not representation. Written to match
         // what is pictured; confirm the wording and fix the frame.
-        caption: 'Reducing the scaffold to its outer contours',
+        caption: 'Reducing it to its outer contours',
       },
     },
 
@@ -715,13 +726,13 @@ export default {
           // the new asset shows a footballer, so the keyword and the picture
           // now agree. They did not before.
           type: 'p',
-          text: 'Type "strong" and Flux gives you a white man. Ask Naoko Takeuchi for a character and you get a blonde, blue-eyed one regardless of the keyword. The defaults are thin, white and European, and they hold until you actively displace them.',
+          text: 'Type "strong" and Flux gives you a white man. Ask Naoko Takeuchi for a character and you get a blonde, blue-eyed one, whatever the keyword. The bodies the model draws by default are thin, white and European, and they stay that way unless you describe something else.',
         },
         {
           type: 'list',
           items: [
             '**Doesn’t work:** negation. "Not white" or "diverse" collapses straight back to the average.',
-            '**Works:** **explicit attribute language** — skin tone, hair, body type — plus foreground anchoring and a rotating subject pool so one default can’t dominate.',
+            '**Works:** naming skin tone, hair and body type in the prompt. I also placed the figure in the foreground and rotated the subjects, so the same default body doesn’t come back every time.',
           ],
         },
         {
@@ -786,23 +797,31 @@ export default {
       // below already counts the sessions, so the bubble was saying nothing the
       // reader was not about to be told. Reacts instead. Needs Flore's sign-off
       // and a sync back into the frame.
-      note: 'I expected the tracing to be the fun part. It was the part people dreaded.',
+      note: 'I expected the tracing to be the fun part. Everyone hesitated before starting it.',
       avatar: 'talks',
       prose: [
-        { type: 'p', text: 'Four moderated in-person sessions.' },
+        {
+          // WHERE THE TESTING SITS IN TIME — added 2026-09-18. The page read
+          // as two separate studies: the sessions behind "The outline" and
+          // these. They overlap, and some of this ran after the outline
+          // changed. Flore raised it; this is the only block that says so.
+          type: 'p',
+          text:
+            'Four moderated in-person sessions after the reveal and one informal one after the outline was edited.',
+        },
         {
           type: 'p',
-          text: '**Every single person hesitated before tracing. Every single person lit up at the result.** All said they’d send it — and wanted to make another straight away.',
+          text: '**Every single person hesitated before tracing. Every single person lit up at the result.** All said they were inspired and would send it, and wanted to make another straight away.',
         },
         {
           // The full stop sits OUTSIDE the bold, matching the frame. Small, and
           // the kind of thing a re-pull would otherwise keep re-flagging.
           type: 'p',
-          text: '**That gap is the finding**. People don’t understand why they’re drawing until they see what it becomes — the product front-loads uncertainty and back-loads the payoff. A good ending doesn’t validate the path to it.',
+          text: '**That gap is the finding**. People don’t understand why they’re drawing until they see what it becomes. The doubt comes first, the reward comes last. A good ending doesn’t validate the path to it.',
         },
         {
           type: 'p',
-          text: 'It also answered the question I started with. **Ownership is partial: it’s my idea but not my drawing.** For a scaffold model that’s the honest ceiling — and enough to make them want to send it.',
+          text: 'It also answered the question I started with. **Ownership is partial: it’s my idea but not my drawing.** That’s the honest ceiling for a tool that hands you something to trace, and enough to make them want to send it.',
         },
         {
           // THE LAST FOUR PARAGRAPHS ARE NOW ONE LIST — Flore, 2026-08-31. The
@@ -813,7 +832,8 @@ export default {
           type: 'list',
           items: [
             '**Killed.** The onboarding animation confused three testers in a row. Removed rather than redesigned a fourth time.',
-            '**Still open.** The artist bio — the most culturally meaningful moment in the product — was the least discovered thing in it.',
+            '**Still open.** The first hook. People have to commit to tracing before they know what it becomes, and nothing in the product covers that yet. It is the main thing still missing.',
+            '**Still open.** The artist bio, the most culturally meaningful moment in the product, was the least discovered thing in it.',
             '**Still open.** Erase clears everything; testers expected stroke-by-stroke undo.',
             '**Next test.** Promise the reveal before the trace, and see whether the hesitation drops.',
           ],
@@ -854,7 +874,12 @@ export default {
         },
         {
           type: 'p',
-          text: '**AI output arrives looking finished**, which makes it easy to accept as a given and tune around the edges. The design work is in **refusing that** — knowing what the model is actually doing, and noticing where its convenience is quietly making a decision that should have been yours.',
+          text:
+            '**Testing ran through the build** rather than waiting for something finished to test. It is what kept deciding where the effort went next: the reveal before the drawing tool, the outline after that. It also taught me how complex onboarding, or "the first hook", is before seeing what the product would do. This remains the main open challenge the product doesn’t cover.',
+        },
+        {
+          type: 'p',
+          text: '**AI output arrives looking finished**, which makes it easy to accept as a given and tune around the edges. The design work is in **refusing that**: knowing what the model is actually doing, and noticing where its convenience is quietly making a decision that should have been yours.',
         },
       ],
       // MOVED HERE FROM THE REVEAL SECTION, 2026-08-31 (Flore, node 5063:3080),
@@ -895,12 +920,12 @@ export default {
       //
       // The `id` stays `how-i-worked`: it is a stable anchor, not a label, and
       // renaming it would break any link already pointing at it.
-      title: 'The Process — 14 phases, documented',
+      title: 'The Process: 14 phases, documented',
       measure: 'narrow',
       prose: [
         {
           type: 'p',
-          text: 'Four weeks, solo, built during cohort 6 of Patricia Reiners’ AI for Designers. Same timeline as PitchPivot, considerably heavier underneath — **most of those hours went into the image pipeline, not the interface**.',
+          text: 'Four weeks, solo, built during cohort 6 of Patricia Reiners’ AI for Designers. Same timeline as PitchPivot, considerably heavier underneath: **most of those hours went into the image pipeline, not the interface**.',
         },
         {
           // "5 in-person test sessions", NOT Figma's literal "5 moderated
@@ -911,8 +936,17 @@ export default {
           // moderated plus one informal — so the word "moderated" is what was
           // wrong here, not either number. Both sections are now true as
           // written and neither number had to move.
+          //
+          // THERE IS NOW A THIRD NUMBER ON THE PAGE, and it belongs to a
+          // different study: "Three of five picked the coloured one" in "The
+          // question" is the early cake test, five people on the *concept*,
+          // months before anything was built. It is not these five sessions,
+          // and the match is a coincidence. "testing the prototype" was added
+          // below on 2026-09-18 so a reader meeting both cannot read one as
+          // the other — do not "reconcile" 3/4/5, they are three true numbers
+          // about two studies.
           type: 'p',
-          text: '**4 weeks end to end**. **14 documented prompting phases**. 6 process logs kept during the build. 5 artists, after two were cut for technical reasons. 5 in-person test sessions.',
+          text: '**4 weeks end to end**. **14 documented prompting phases**. 6 process logs kept during the build. 5 artists, after two were cut for technical reasons. 5 in-person sessions testing the prototype.',
         },
         {
           type: 'p',

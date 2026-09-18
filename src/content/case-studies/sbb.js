@@ -27,7 +27,7 @@ export default {
   frame: {
     category: 'Motion Design · Microinteractions · Perceived Performance',
     title: 'Branded motion for a 3M+ user booking flow',
-    facts: ['2024 — Motion & UX Designer, solo. Ubique for SBB.'],
+    facts: ['2024: Motion & UX Designer, solo. Ubique for SBB.'],
     liveUrl: 'https://www.sbb.ch/en/travel-information/apps/sbb-mobile.html',
     liveLabel: 'SBB App',
     buttonVariant: 'secondary',
@@ -53,7 +53,7 @@ export default {
       body: [
         {
           type: 'p',
-          text: 'Perceived wait time is as real as actual wait time. A booking flow that feels sluggish loses trust regardless of what the server logs say — which makes motion a performance decision rather than a decorative one.',
+          text: 'Perceived wait time is as real as actual wait time. A booking flow that feels sluggish loses trust regardless of what the server logs say, which makes motion a performance decision rather than a decorative one.',
         },
       ],
     },
@@ -63,10 +63,10 @@ export default {
         {
           type: 'list',
           items: [
-            '**Motion across platforms:** one export serving all of them, so the same behaviour had to hold everywhere — search, reservation and payment reading as one product, not three flows stitched together.',
-            '**Booking flow:** a different animation at each step of the booking process — so the wait tells you where you are in the flow rather than just filling the gap.',
+            '**Motion across platforms:** one export serving all of them, so the same behaviour had to hold everywhere. Search, reservation and payment reading as one product, not three flows stitched together.',
+            '**Booking flow:** a different animation at each step of the booking process, so the wait tells you where you are in the flow rather than just filling the gap.',
             '**Modes:** the system holds in light and dark, where the same transition has to stay legible against inverted contrast.',
-            '**Iconography:** a custom set built to move — icons that animate are constructed differently from icons that sit still.',
+            '**Iconography:** a custom set built to move. Icons that animate are constructed differently from icons that sit still.',
           ],
         },
         {

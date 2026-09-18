@@ -43,9 +43,9 @@ export default {
     // ("Map-Based UX  •  Search & Filter Design"); normalised to single, which
     // is what the other three frames use.
     category: 'Map-Based UX • Search & Filter Design',
-    title: 'Swiss Alpine Club — Trail discovery',
+    title: 'Swiss Alpine Club: Trail discovery',
     // CORRECTED FROM THE FRAME — see the header note above.
-    facts: ['2022 — UX Designer, multi-platform. Ubique for SAC.'],
+    facts: ['2022: UX Designer, multi-platform. Ubique for SAC.'],
     liveUrl: 'https://www.sac-cas.ch/en/sac-cas-app/',
     liveLabel: 'SAC App',
     buttonVariant: 'secondary',
@@ -71,7 +71,7 @@ export default {
       body: [
         {
           type: 'p',
-          text: "A good route isn't a property of the trail. It depends on who's walking, what they packed, and what the sky is doing. Trail discovery fails when it treats route data as the answer instead of the input — and it gets used one-handed, mid-hike, in conditions the office never simulates.",
+          text: "A good route isn't a property of the trail. It depends on who's walking, what they packed, and what the sky is doing. Trail discovery fails when it treats route data as the answer instead of the input, and it gets used one-handed, mid-hike, in conditions the office never simulates.",
         },
       ],
     },
@@ -81,7 +81,7 @@ export default {
         {
           type: 'list',
           items: [
-            "**Search and filter:** two versions, one per platform, each using patterns its users already know. Built around what makes an outing possible — activity, conditions, time — not the route database's own structure.",
+            "**Search and filter:** two versions, one per platform, each using patterns its users already know. Built around what makes an outing possible (activity, conditions, time), not the route database's own structure.",
             "**Map navigation:** search couldn't filter the map, so the sheet had to carry the link between list and map.",
             '**Design system:** component patterns across devices, built with dev so decisions held in code rather than per screen.',
             '**Visual design:** an icon set that holds from filter size to full-screen map, and an animated chamois.',

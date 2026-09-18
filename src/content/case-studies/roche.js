@@ -79,7 +79,7 @@ export default {
     mediaInset: '13.71%',
     body: [
       "**An icon system for people who aren't designers.**",
-      "Roche employees needed to explain scientifically complex topics — visually, quickly, and without breaking brand guidelines. Buying stock icons broke the brand. Commissioning new ones every time didn't scale. Neither option survives contact with someone building a deck the night before.",
+      "Roche employees needed to explain scientifically complex topics: visually, quickly, and without breaking brand guidelines. Buying stock icons broke the brand. Commissioning new ones every time didn't scale. Neither option survives contact with someone building a deck the night before.",
       "So the deliverable was **a construction logic rather than a library**: **a modular, layered grammar where parts combine into terms that didn't exist when the system was drawn**. Combined further, they build whole infographics.",
       "It has since **grown past 350 icons, extended and maintained by the employees themselves**. **A system's real test is the icon someone else draws two years later.**",
     ],
@@ -117,7 +117,7 @@ export default {
       items: [
         {
           src: `${M}/Roche-icons-overview.webp`,
-          alt: 'A grid of more than fifty finished icons — organs, lab equipment, trial states and disease areas — all drawn in the same two-colour line style.',
+          alt: 'A grid of more than fifty finished icons (organs, lab equipment, trial states and disease areas), all drawn in the same two-colour line style.',
           caption: 'The system today. Over 350 icons, most drawn after we left.',
         },
       ],

@@ -43,7 +43,7 @@ export default {
     // has to be changed in both places and can drift silently.
     title: "Redesigning Rega's app for 1.1M+ users",
     // No `oneLiner`: the frame goes straight from title to credits.
-    facts: ['2021 — Lead UX & Visual Designer. Ubique for Rega.'],
+    facts: ['2021: Lead UX & Visual Designer. Ubique for Rega.'],
     liveUrl: 'https://www.rega.ch/en/our-missions/this-is-how-we-help-you/rega-app',
     liveLabel: 'Rega App',
     // Secondary with the white-fill override, sampled from the real instance
@@ -80,7 +80,7 @@ export default {
       body: [
         {
           type: 'p',
-          text: "Someone terrified needs to act in under three seconds. The hard part wasn't building the emergency flow — it was deciding what the app is allowed to ask of a person who is already panicking. And then the opposite question: what it can do in the hours before anyone panics at all.",
+          text: "Someone terrified needs to act in under three seconds. The hard part wasn't building the emergency flow. It was deciding what the app is allowed to ask of a person who is already panicking. And then the opposite question: what it can do in the hours before anyone panics at all.",
         },
       ],
     },
@@ -90,9 +90,9 @@ export default {
         {
           type: 'list',
           items: [
-            '**Onboarding and update onboarding:** bringing new users in while moving existing ones off the old app — the switch is where you lose people who already rely on the service.',
+            '**Onboarding and update onboarding:** bringing new users in while moving existing ones off the old app. The switch is where you lose people who already rely on the service.',
             '**Visual design for mobile:** a strong brand meeting an emergency screen. Clarity and safety first wherever the two disagreed.',
-            '**Alarm (SOS):** what the app asks for before, during and after a call — and what it refuses to ask.',
+            '**Alarm (SOS):** what the app asks for before, during and after a call, and what it refuses to ask.',
             '**Map and live location (prevention):** sharing with a trusted contact, which extends the app into the hours before anything goes wrong.',
             '**Information:** what someone needs to know before they need it, and what can wait until after.',
           ],
